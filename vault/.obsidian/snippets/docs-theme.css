@@ -1,0 +1,78 @@
+/* Documentation Theme for CRM Builder Vault */
+
+/* Make headings more distinct */
+.markdown-preview-view h1 {
+  border-bottom: 2px solid var(--color-accent);
+  padding-bottom: 0.3em;
+}
+
+.markdown-preview-view h2 {
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding-bottom: 0.2em;
+}
+
+/* Style callouts for different doc types */
+.callout[data-callout="tip"] {
+  border-left-color: #a6e3a1;
+}
+
+.callout[data-callout="warning"] {
+  border-left-color: #fab387;
+}
+
+.callout[data-callout="danger"] {
+  border-left-color: #f38ba8;
+}
+
+.callout[data-callout="info"] {
+  border-left-color: #89b4fa;
+}
+
+/* Tag styling */
+.tag {
+  background: var(--color-accent);
+  color: var(--color-base-100);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+}
+
+/* Mermaid diagram styling */
+.mermaid svg {
+  background: var(--background-primary);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+/* Tables */
+.markdown-preview-view table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.markdown-preview-view th {
+  background: var(--color-accent);
+  color: var(--color-base-100);
+  padding: 8px 12px;
+}
+
+.markdown-preview-view td {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+/* Code blocks */
+.markdown-preview-view pre {
+  border-radius: 8px;
+  border: 1px solid var(--background-modifier-border);
+}
+
+/* Dataview table styling */
+.dataview.table-view-table {
+  border-collapse: collapse;
+}
+
+.dataview.table-view-table th {
+  font-weight: 600;
+  font-size: 0.9em;
+}

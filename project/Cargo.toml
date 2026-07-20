@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = [
+    "crm-core",
+    "crm-ui",
+    "license-server",
+    "auth-server"
+]
+
+[profile.release]
+lto = true
+strip = true
+opt-level = "z"
+codegen-units = 1

@@ -1,0 +1,238 @@
+{
+  "main": {
+    "id": "6b4816786defb0cf",
+    "type": "split",
+    "children": [
+      {
+        "id": "3f110aa47505d14c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "900ba23206bb34db",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Index.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Index"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "4d4ac691e86c664c",
+    "type": "split",
+    "children": [
+      {
+        "id": "f21975f710dc1bee",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "cc032874f00ba2e4",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "1f94a8321d93ea25",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "58635a5d7c242df5",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "e9e9aa624f776b21",
+    "type": "split",
+    "children": [
+      {
+        "id": "99de984f9134d3e7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b9a31fb4558da416",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "02 - Architecture/README.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for README"
+            }
+          },
+          {
+            "id": "349852a06e1fd72c",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "01 - Brainstorming/README.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from README"
+            }
+          },
+          {
+            "id": "9742827a0a8a6b04",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "f26103a0df3e2909",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "afa5604e689b3a7b",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "01 - Brainstorming/README.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of README"
+            }
+          },
+          {
+            "id": "9de4b8d8ca7d7aca",
+            "type": "leaf",
+            "state": {
+              "type": "mermaid-toolbar-view",
+              "state": {},
+              "icon": "trident-custom",
+              "title": "Mermaid Toolbar"
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false,
+      "mermaid-tools:Open Mermaid Toolbar": false
+    }
+  },
+  "active": "900ba23206bb34db",
+  "lastOpenFiles": [
+    "Untitled 1.canvas",
+    "Untitled.canvas",
+    "2026-07-04.md",
+    "Developer/06 - Nodes System.md",
+    "Developer/05 - Frontend.md",
+    "Developer/08 - Database Schema.md",
+    "Developer/03 - Backend (crm-core).md",
+    "Developer/01 - Getting Started.md",
+    "User/06 - Keyboard Shortcuts.md",
+    "User/04 - Widgets.md",
+    "User/03 - Flow Mode.md",
+    "User/02 - Designer Mode.md",
+    "User/01 - Getting Started.md",
+    "Company/UI/Brand Identity.md",
+    "Company/UI/Design System.md",
+    "Company/UI/Designer.md",
+    "Agent/Decisions.md",
+    "Agent/Index.md",
+    "Agent/Board.md",
+    "Company/UI/Launcher Mockups.md",
+    "Company/CTO/Profile.md",
+    "Company/CEO/Profile.md",
+    "Company/CFO/Profile.md",
+    "Company/Index.md",
+    "Company/Process.md",
+    "Developer/11 - Competitive Analysis.md",
+    "Developer/04 - Backend (src-tauri).md",
+    "Company/UI",
+    "Company/Marketing",
+    "Company/Product",
+    "Company/Engineering",
+    "Company/CTO",
+    "Company/CFO",
+    "Company/CEO",
+    "Company",
+    "Marketing",
+    "Operations"
+  ]
+}

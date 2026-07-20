@@ -1,0 +1,30 @@
+services:
+  auth-server:
+    build:
+      context: .
+      dockerfile: auth-server/Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - auth-data:/app/data
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:1420}
+      - RUST_LOG=${RUST_LOG:-info}
+    restart: unless-stopped
+
+  license-server:
+    build:
+      context: .
+      dockerfile: license-server/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - license-data:/app
+    restart: unless-stopped
+
+volumes:
+  auth-data:
+  license-data:
