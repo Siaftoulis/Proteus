@@ -2,14 +2,14 @@
 
 Welcome to **Proteus** — a next-generation CRM platform built from the ground up using **Rust and egui**. It operates as a fast, native, cross-platform desktop application.
 
-## 🎯 Vision & Goal
+## Vision & Goal
 The main goal of Proteus is to empower non-technical users to design and deploy custom CRM interfaces (forms, data tables, automation flows) through an intuitive visual editor. Think of it as **Figma or Penpot specifically tailored for CRM systems**. 
 
 Our philosophy is simple: **No premature abstractions and a true offline-first approach**.
 
 ---
 
-## 🏗️ What Has Been Built So Far
+## What Has Been Built So Far
 
 ### Core Architecture
 - **Offline-first Database**: Built on top of SQLite (`crm-core`), storing projects, custom records, contacts, deals, tasks, and flow graphs without requiring an active internet connection.
@@ -31,7 +31,7 @@ Our philosophy is simple: **No premature abstractions and a true offline-first a
 
 ---
 
-## 📝 Roadmap & Tasks Checklist
+## Roadmap & Tasks Checklist
 
 ### Active Items (Current Sprint)
 - [x] Designer — 8-point resize handles.
