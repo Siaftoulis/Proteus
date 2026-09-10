@@ -22,8 +22,8 @@ dv.table(["Milestone", "Status"],
     ["Sprint 1: Tests + error handling + CI", "[x] Done (Jul 4)"],
     ["Sprint 2: Auth server + launcher app", "[x] Done (Jul 4)"],
     ["Sprint 3: P2P sync + encryption + roles", "[x] Done (Jul 5)"],
-    ["Sprint 4: Core CRM (data model, records, offline)", "[ ] Sprint 4 (Jul 5+)"],
-    ["Closed technical beta (5-10 testers)", "[ ] 4-6 weeks after Sprint 4 start"],
+    ["Sprint 4: Core CRM (data model, records, offline, undo/redo, shortcuts, CSV)", "[x] Done (Sept 10)"],
+    ["Closed technical beta (5-10 testers)", "[ ] Next milestone"],
     ["Public beta", "[ ] After closed beta conditions met"],
     ["Phase 2: Cloud, extraction, mobile", "[ ] Future"],
     ["Phase 3: Plugins, marketplace", "[ ] Future"],
@@ -36,10 +36,10 @@ dv.table(["Milestone", "Status"],
 | Area | Status | Notes |
 |------|--------|-------|
 | Infrastructure | ✅ Solid | Auth, license, encryption, sync, export all working |
-| Core CRM Engine | 🔄 In Progress | `crm_core` records engine & dynamic schemas |
-| Native Desktop UI | 🔄 In Progress | Pure Rust `eframe`/`egui`, high-DPI zoom, drag-to-draw |
+| Core CRM Engine | ✅ Complete | `crm_core` records engine, SQLite live sync, CSV import/export |
+| Native Desktop UI | ✅ Advanced | Pure Rust `eframe`/`egui`, undo/redo, shortcuts, high-DPI zoom |
 | Backend (Rust) | ✅ Excellent | Clean architecture, SQLite, modular crates |
-| Tests | ✅ 100% Pass | 98 total passing (49 crm-core, 37 proteus, 6 auth, 6 license) |
+| Tests | ✅ 100% Pass | 103 total passing (49 crm-core, 42 proteus, 6 auth, 6 license) |
 | Security | ✅ Strong | Argon2id, XChaCha20-Poly1305, Ed25519, machine lock |
 
 | Component | Status | Agent | Notes |

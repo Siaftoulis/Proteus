@@ -31,6 +31,20 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                         app.load_project();
                         app.toast("Loaded ✓");
                     }
+                    let can_undo = !app.editor_state.undo_stack.is_empty();
+                    if ui.add_enabled(can_undo, egui::Button::new("⟲ Undo").min_size(egui::vec2(65., 26.)))
+                        .on_hover_text("Undo (Ctrl+Z)")
+                        .clicked()
+                    {
+                        app.undo();
+                    }
+                    let can_redo = !app.editor_state.redo_stack.is_empty();
+                    if ui.add_enabled(can_redo, egui::Button::new("⟳ Redo").min_size(egui::vec2(65., 26.)))
+                        .on_hover_text("Redo (Ctrl+Y)")
+                        .clicked()
+                    {
+                        app.redo();
+                    }
                     if ui.selectable_label(app.layout == LayoutMode::Grid, "🌐 Grid").clicked() {
                         app.layout = if app.layout == LayoutMode::Grid { LayoutMode::Free } else { LayoutMode::Grid };
                     }

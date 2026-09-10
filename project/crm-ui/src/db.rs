@@ -19,23 +19,16 @@ pub fn upsert_record(
     data_json: &serde_json::Value,
 ) -> Result<String, String> {
     let data_str = serde_json::to_string(data_json).map_err(|e| e.to_string())?;
-    match record_id {
-        Some(id) => {
-            conn.execute(
-                "UPDATE records SET data = ?1 WHERE id = ?2",
-                rusqlite::params![data_str, id],
-            ).map_err(|e| e.to_string())?;
-            Ok(id.to_string())
-        }
-        None => {
-            let id = uuid::Uuid::new_v4().to_string();
-            conn.execute(
-                "INSERT INTO records (id, entity_type, data) VALUES (?1, ?2, ?3)",
-                rusqlite::params![id, entity_type, data_str],
-            ).map_err(|e| e.to_string())?;
-            Ok(id)
-        }
-    }
+    let id = match record_id {
+        Some(id) => id.to_string(),
+        None => uuid::Uuid::new_v4().to_string(),
+    };
+    conn.execute(
+        "INSERT INTO records (id, entity_type, data) VALUES (?1, ?2, ?3)
+         ON CONFLICT(id) DO UPDATE SET data = excluded.data, entity_type = excluded.entity_type",
+        rusqlite::params![id, entity_type, data_str],
+    ).map_err(|e| e.to_string())?;
+    Ok(id)
 }
 
 pub fn delete_record(conn: &rusqlite::Connection, id: &str) -> Result<(), String> {
@@ -136,5 +129,23 @@ mod tests {
         assert_eq!(get_records(&conn, "test").unwrap().len(), 1);
         delete_record(&conn, &id).unwrap();
         assert!(get_records(&conn, "test").unwrap().is_empty());
+    }
+
+    #[test]
+    fn upsert_custom_id_creates_and_updates() {
+        let conn = mem_db();
+        let data1 = serde_json::json!({"name": "Initial"});
+        let id1 = upsert_record(&conn, "contacts", Some("custom-c1"), &data1).unwrap();
+        assert_eq!(id1, "custom-c1");
+        let recs = get_records(&conn, "contacts").unwrap();
+        assert_eq!(recs.len(), 1);
+        assert_eq!(recs[0].1["name"], "Initial");
+
+        let data2 = serde_json::json!({"name": "Updated"});
+        let id2 = upsert_record(&conn, "contacts", Some("custom-c1"), &data2).unwrap();
+        assert_eq!(id2, "custom-c1");
+        let recs2 = get_records(&conn, "contacts").unwrap();
+        assert_eq!(recs2.len(), 1);
+        assert_eq!(recs2[0].1["name"], "Updated");
     }
 }

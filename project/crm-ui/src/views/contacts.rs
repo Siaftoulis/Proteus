@@ -12,7 +12,7 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
     ui.add_space(4.);
     if ui.add(egui::Button::new(egui::RichText::new("+ New Contact").size(10.).color(theme::ACCENT_GREEN)).fill(theme::WIDGET_BG).min_size(egui::vec2(ui.available_width(), 22.))).clicked() {
         let id = format!("c{}", app.contacts.len() + 1);
-        app.contacts.push(Contact {
+        let contact = Contact {
             id: id.clone(),
             name: "New Contact".into(),
             email: String::new(),
@@ -22,7 +22,9 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
             notes: vec![],
             created_at: Utc::now().to_rfc3339(),
             updated_at: Utc::now().to_rfc3339(),
-        });
+        };
+        app.sync_contact_to_db(&contact);
+        app.contacts.push(contact);
         app.sel_contact = Some(id.clone());
         app.editing_contact = Some(id);
         app.edit_name = "New Contact".into();
@@ -31,6 +33,39 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
         app.edit_company.clear();
         app.edit_tags.clear();
     }
+    ui.add_space(2.);
+    ui.horizontal(|ui| {
+        let btn_w = (ui.available_width() - 4.) / 2.;
+        if ui.add(egui::Button::new(egui::RichText::new("📥 Export CSV").size(9.).color(theme::TEXT)).fill(theme::WIDGET_BG).min_size(egui::vec2(btn_w, 20.))).on_hover_text("Export contacts to CSV file & clipboard").clicked() {
+            let csv = crate::csv_utils::export_contacts_csv(&app.contacts);
+            let _ = std::fs::write("contacts_export.csv", &csv);
+            ui.ctx().copy_text(csv);
+            app.toast("Exported contacts to contacts_export.csv & clipboard!");
+        }
+        if ui.add(egui::Button::new(egui::RichText::new("📤 Import CSV").size(9.).color(theme::TEXT)).fill(theme::WIDGET_BG).min_size(egui::vec2(btn_w, 20.))).on_hover_text("Import contacts from contacts_import.csv or contacts_export.csv").clicked() {
+            let path = if std::path::Path::new("contacts_import.csv").exists() {
+                "contacts_import.csv"
+            } else if std::path::Path::new("contacts_export.csv").exists() {
+                "contacts_export.csv"
+            } else {
+                ""
+            };
+            if !path.is_empty() {
+                if let Ok(content) = std::fs::read_to_string(path) {
+                    let imported = crate::csv_utils::import_contacts_csv(&content);
+                    let count = imported.len();
+                    for c in imported {
+                        app.sync_contact_to_db(&c);
+                        app.contacts.retain(|x| x.id != c.id);
+                        app.contacts.push(c);
+                    }
+                    app.toast(format!("Imported {} contacts from {}!", count, path));
+                }
+            } else {
+                app.toast("Place contacts_import.csv in app directory to import");
+            }
+        }
+    });
     ui.add_space(4.);
     let q = app.search_query.to_lowercase();
     let filtered: Vec<usize> = app.contacts.iter().enumerate()
@@ -90,6 +125,7 @@ pub fn show_central(app: &mut ProteusApp, pnt: &egui::Painter, r: Rect, ui: &mut
 
 pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
     let sel_id = app.sel_contact.clone();
+    let mut contact_to_sync: Option<Contact> = None;
     let del_clicked = if let Some(ref id) = sel_id {
         if let Some(c) = app.contacts.iter_mut().find(|c| &c.id == id) {
             let editing = app.editing_contact.as_deref() == Some(&c.id);
@@ -97,6 +133,7 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
                 if editing {
                     app.editing_contact = None;
                     c.updated_at = Utc::now().to_rfc3339();
+                    contact_to_sync = Some(c.clone());
                 } else {
                     app.editing_contact = Some(c.id.clone());
                     app.edit_name = c.name.clone();
@@ -120,6 +157,7 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
                     c.company = app.edit_company.clone();
                     c.tags = app.edit_tags.split(',').map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
                     c.updated_at = Utc::now().to_rfc3339();
+                    contact_to_sync = Some(c.clone());
                     app.editing_contact = None;
                 }
             } else {
@@ -159,6 +197,7 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
                             created_at: Utc::now().to_rfc3339(),
                         });
                         c.updated_at = Utc::now().to_rfc3339();
+                        contact_to_sync = Some(c.clone());
                         app.new_note_text.clear();
                     }
                 });
@@ -167,8 +206,13 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
         } else { false }
     } else { false };
 
+    if let Some(contact) = contact_to_sync {
+        app.sync_contact_to_db(&contact);
+    }
+
     if del_clicked {
         let did = app.sel_contact.clone().unwrap();
+        app.delete_contact_from_db(&did);
         app.contacts.retain(|x| x.id != did);
         app.sel_contact = None;
         app.editing_contact = None;

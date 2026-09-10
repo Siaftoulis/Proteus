@@ -12,7 +12,7 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
     ui.add_space(4.);
     if ui.add(egui::Button::new(egui::RichText::new("+ New Deal").size(10.).color(theme::ACCENT_GREEN)).fill(theme::WIDGET_BG).min_size(egui::vec2(ui.available_width(), 22.))).clicked() {
         let id = format!("d{}", app.deals.len() + 1);
-        app.deals.push(Deal {
+        let deal = Deal {
             id: id.clone(),
             title: "New Deal".into(),
             value: 0.0,
@@ -22,9 +22,44 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
             notes: String::new(),
             created_at: Utc::now().to_rfc3339(),
             updated_at: Utc::now().to_rfc3339(),
-        });
+        };
+        app.sync_deal_to_db(&deal);
+        app.deals.push(deal);
         app.sel_deal = Some(id);
     }
+    ui.add_space(2.);
+    ui.horizontal(|ui| {
+        let btn_w = (ui.available_width() - 4.) / 2.;
+        if ui.add(egui::Button::new(egui::RichText::new("📥 Export CSV").size(9.).color(theme::TEXT)).fill(theme::WIDGET_BG).min_size(egui::vec2(btn_w, 20.))).on_hover_text("Export deals to deals_export.csv & clipboard").clicked() {
+            let csv = crate::csv_utils::export_deals_csv(&app.deals);
+            let _ = std::fs::write("deals_export.csv", &csv);
+            ui.ctx().copy_text(csv);
+            app.toast("Exported deals to deals_export.csv & clipboard!");
+        }
+        if ui.add(egui::Button::new(egui::RichText::new("📤 Import CSV").size(9.).color(theme::TEXT)).fill(theme::WIDGET_BG).min_size(egui::vec2(btn_w, 20.))).on_hover_text("Import deals from deals_import.csv or deals_export.csv").clicked() {
+            let path = if std::path::Path::new("deals_import.csv").exists() {
+                "deals_import.csv"
+            } else if std::path::Path::new("deals_export.csv").exists() {
+                "deals_export.csv"
+            } else {
+                ""
+            };
+            if !path.is_empty() {
+                if let Ok(content) = std::fs::read_to_string(path) {
+                    let imported = crate::csv_utils::import_deals_csv(&content);
+                    let count = imported.len();
+                    for d in imported {
+                        app.sync_deal_to_db(&d);
+                        app.deals.retain(|x| x.id != d.id);
+                        app.deals.push(d);
+                    }
+                    app.toast(format!("Imported {} deals from {}!", count, path));
+                }
+            } else {
+                app.toast("Place deals_import.csv in app directory to import");
+            }
+        }
+    });
     ui.add_space(4.);
     let scroll = egui::ScrollArea::vertical().max_height(ui.available_height());
     scroll.show(ui, |ui| {
@@ -47,6 +82,8 @@ pub fn show_central(app: &mut ProteusApp, pnt: &egui::Painter, r: Rect, mpos: Op
     let header_h = 36.;
     let mpos_canvas = mpos;
     let mup_canvas = mup;
+
+    let mut deal_to_sync: Option<Deal> = None;
 
     for (si, stage) in KANBAN_STAGES.iter().enumerate() {
         let cx = r.left() + 8. + si as f32 * (stage_width + 8.);
@@ -109,6 +146,7 @@ pub fn show_central(app: &mut ProteusApp, pnt: &egui::Painter, r: Rect, mpos: Op
                         if let Some(deal) = app.deals.get_mut(*deal_idx) {
                             deal.stage = KANBAN_STAGES[si - 1].to_string();
                             deal.updated_at = Utc::now().to_rfc3339();
+                            deal_to_sync = Some(deal.clone());
                         }
                     }
                 }
@@ -120,6 +158,7 @@ pub fn show_central(app: &mut ProteusApp, pnt: &egui::Painter, r: Rect, mpos: Op
                         if let Some(deal) = app.deals.get_mut(*deal_idx) {
                             deal.stage = KANBAN_STAGES[si + 1].to_string();
                             deal.updated_at = Utc::now().to_rfc3339();
+                            deal_to_sync = Some(deal.clone());
                         }
                     }
                 }
@@ -141,6 +180,7 @@ pub fn show_central(app: &mut ProteusApp, pnt: &egui::Painter, r: Rect, mpos: Op
                             let p = d.stage.clone();
                             d.stage = stage.to_string();
                             d.updated_at = Utc::now().to_rfc3339();
+                            deal_to_sync = Some(d.clone());
                             (p, d.title.clone(), d.contact_id.clone())
                         } else { continue; };
                         app.toast(format!("{} → {}", prev, stage));
@@ -166,6 +206,10 @@ pub fn show_central(app: &mut ProteusApp, pnt: &egui::Painter, r: Rect, mpos: Op
         }
     }
 
+    if let Some(d) = deal_to_sync {
+        app.sync_deal_to_db(&d);
+    }
+
     // Hint text
     pnt.text(egui::pos2(r.center().x, r.bottom() - 20.), egui::Align2::CENTER_CENTER,
         "Select a deal card, then click a stage header to move it",
@@ -173,6 +217,9 @@ pub fn show_central(app: &mut ProteusApp, pnt: &egui::Painter, r: Rect, mpos: Op
 }
 
 pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
+    let mut deal_to_sync: Option<Deal> = None;
+    let mut delete_id: Option<String> = None;
+
     if let Some(id) = &app.sel_deal.clone() {
         if let Some(d) = app.deals.iter_mut().find(|d| &d.id == id) {
             ui.label(egui::RichText::new(&d.title).size(12.).color(theme::TEXT));
@@ -192,16 +239,26 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
             let mut notes = d.notes.clone();
             if ui.text_edit_multiline(&mut notes).changed() {
                 d.notes = notes;
+                d.updated_at = Utc::now().to_rfc3339();
+                deal_to_sync = Some(d.clone());
             }
             ui.add_space(8.);
             let delete = ui.button(egui::RichText::new("Delete Deal").size(10.).color(theme::ACCENT_RED)).clicked();
             if delete {
-                let did = id.clone();
-                app.deals.retain(|x| x.id != did);
-                app.sel_deal = None;
+                delete_id = Some(id.clone());
             }
         }
     } else {
         ui.label(egui::RichText::new("Select a deal").size(10.).color(theme::TEXT_DIM));
+    }
+
+    if let Some(d) = deal_to_sync {
+        app.sync_deal_to_db(&d);
+    }
+
+    if let Some(did) = delete_id {
+        app.delete_deal_from_db(&did);
+        app.deals.retain(|x| x.id != did);
+        app.sel_deal = None;
     }
 }

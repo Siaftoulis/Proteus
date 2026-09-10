@@ -1,4 +1,5 @@
 pub mod components;
+pub mod csv_utils;
 pub mod data_viewer;
 pub mod db;
 pub mod flow;
@@ -381,6 +382,54 @@ impl ProteusApp {
         }
     }
 
+    pub fn sync_contact_to_db(&mut self, contact: &Contact) {
+        if let Some(conn) = &self.db_conn {
+            let data = serde_json::json!({
+                "name": contact.name,
+                "email": contact.email,
+                "phone": contact.phone,
+                "company": contact.company,
+                "tags": contact.tags,
+                "notes": contact.notes,
+                "created_at": contact.created_at,
+                "updated_at": contact.updated_at,
+            });
+            let _ = db::upsert_record(conn, "contacts", Some(&contact.id), &data);
+        }
+        self.reload_table_cache("contacts");
+    }
+
+    pub fn delete_contact_from_db(&mut self, id: &str) {
+        if let Some(conn) = &self.db_conn {
+            let _ = db::delete_record(conn, id);
+        }
+        self.reload_table_cache("contacts");
+    }
+
+    pub fn sync_deal_to_db(&mut self, deal: &Deal) {
+        if let Some(conn) = &self.db_conn {
+            let data = serde_json::json!({
+                "title": deal.title,
+                "value": deal.value,
+                "stage": deal.stage,
+                "contact_id": deal.contact_id,
+                "expected_close": deal.expected_close,
+                "notes": deal.notes,
+                "created_at": deal.created_at,
+                "updated_at": deal.updated_at,
+            });
+            let _ = db::upsert_record(conn, "deals", Some(&deal.id), &data);
+        }
+        self.reload_table_cache("deals");
+    }
+
+    pub fn delete_deal_from_db(&mut self, id: &str) {
+        if let Some(conn) = &self.db_conn {
+            let _ = db::delete_record(conn, id);
+        }
+        self.reload_table_cache("deals");
+    }
+
     pub fn add_fn(&mut self, nt: &str, label: &str, extra: Option<serde_json::Value>) {
         let id = format!("fn{}", self.fns.len() + 1);
         let x = 100. + (self.fns.len() % 5) as f32 * 220.;
@@ -405,12 +454,41 @@ impl ProteusApp {
         self.spawn_designer_node_with_size(nt, (world_pos.x - w / 2., world_pos.y - h / 2.), (w, h));
     }
 
+    pub fn push_undo(&mut self) {
+        if self.editor_state.undo_stack.len() >= 50 {
+            self.editor_state.undo_stack.remove(0);
+        }
+        self.editor_state.undo_stack.push(self.project_doc.clone());
+        self.editor_state.redo_stack.clear();
+    }
+
+    pub fn undo(&mut self) {
+        if let Some(prev) = self.editor_state.undo_stack.pop() {
+            self.editor_state.redo_stack.push(self.project_doc.clone());
+            self.project_doc = prev;
+            self.designer_selected_node = None;
+            self.editor_state.selected_node_ids.clear();
+            self.toast("Undo ⟲");
+        }
+    }
+
+    pub fn redo(&mut self) {
+        if let Some(next) = self.editor_state.redo_stack.pop() {
+            self.editor_state.undo_stack.push(self.project_doc.clone());
+            self.project_doc = next;
+            self.designer_selected_node = None;
+            self.editor_state.selected_node_ids.clear();
+            self.toast("Redo ⟳");
+        }
+    }
+
     pub fn spawn_designer_node_with_size(
         &mut self,
         nt: scene::NodeType,
         world_pos: (f32, f32),
         size: (f32, f32),
     ) -> String {
+        self.push_undo();
         self.spawn_counter += 1;
         let id = format!("node-{}", self.spawn_counter);
         let (name, node_type) = match nt {

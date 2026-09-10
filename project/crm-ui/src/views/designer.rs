@@ -217,13 +217,105 @@ pub fn show_central(app: &mut ProteusApp, ctx: &egui::Context, ui: &mut egui::Ui
             &label, egui::FontId::proportional(10.), theme::ACCENT);
     }
 
+    // Keyboard shortcuts
+    let ctrl = ctx.input(|i| i.modifiers.command || i.modifiers.ctrl);
+    let shift = ctx.input(|i| i.modifiers.shift);
+
     // Delete on keyboard shortcut
     let delete_pressed = ctx.input(|i| i.key_pressed(egui::Key::Delete) || i.key_pressed(egui::Key::Backspace));
-    if delete_pressed {
+    if delete_pressed && !ui.ctx().wants_keyboard_input() {
         if let Some(id) = app.designer_selected_node.take() {
+            app.push_undo();
             app.project_doc.delete_node(&id);
             app.editor_state.selected_node_ids.clear();
             app.toast("Node deleted");
+        }
+    }
+
+    // Undo / Redo shortcuts
+    if ctrl && !ui.ctx().wants_keyboard_input() {
+        if ctx.input(|i| i.key_pressed(egui::Key::Z)) {
+            if shift {
+                app.redo();
+            } else {
+                app.undo();
+            }
+        } else if ctx.input(|i| i.key_pressed(egui::Key::Y)) {
+            app.redo();
+        }
+    }
+
+    // Duplicate (Ctrl+D)
+    if ctrl && ctx.input(|i| i.key_pressed(egui::Key::D)) && !ui.ctx().wants_keyboard_input() {
+        if let Some(id) = app.designer_selected_node.clone() {
+            if let Some(node) = app.project_doc.get_node(&id).cloned() {
+                app.push_undo();
+                app.spawn_counter += 1;
+                let new_id = format!("node-{}", app.spawn_counter);
+                let mut dup = node;
+                dup.id = new_id.clone();
+                dup.name = format!("{} (Copy)", dup.name);
+                dup.position.0 += 20.0;
+                dup.position.1 += 20.0;
+                dup.children_ids.clear();
+                let _ = app.project_doc.add_node(dup, None);
+                app.designer_selected_node = Some(new_id.clone());
+                app.editor_state.selected_node_ids = vec![new_id];
+                app.toast("Duplicated (Ctrl+D) ✓");
+            }
+        }
+    }
+
+    // Copy (Ctrl+C)
+    if ctrl && ctx.input(|i| i.key_pressed(egui::Key::C)) && !ui.ctx().wants_keyboard_input() {
+        if let Some(id) = app.designer_selected_node.as_ref() {
+            if let Some(node) = app.project_doc.get_node(id).cloned() {
+                app.editor_state.clipboard = Some(vec![node]);
+                app.toast("Copied to clipboard (Ctrl+C)");
+            }
+        }
+    }
+
+    // Paste (Ctrl+V)
+    if ctrl && ctx.input(|i| i.key_pressed(egui::Key::V)) && !ui.ctx().wants_keyboard_input() {
+        if let Some(clipboard) = app.editor_state.clipboard.clone() {
+            for node in clipboard {
+                app.push_undo();
+                app.spawn_counter += 1;
+                let new_id = format!("node-{}", app.spawn_counter);
+                let mut pasted = node;
+                pasted.id = new_id.clone();
+                pasted.name = format!("{} (Pasted)", pasted.name);
+                pasted.position.0 += 24.0;
+                pasted.position.1 += 24.0;
+                pasted.children_ids.clear();
+                let _ = app.project_doc.add_node(pasted, None);
+                app.designer_selected_node = Some(new_id.clone());
+                app.editor_state.selected_node_ids = vec![new_id];
+                app.toast("Pasted (Ctrl+V) ✓");
+            }
+        }
+    }
+
+    // Escape (Deselect)
+    if ctx.input(|i| i.key_pressed(egui::Key::Escape)) && !ui.ctx().wants_keyboard_input() {
+        app.designer_selected_node = None;
+        app.editor_state.selected_node_ids.clear();
+    }
+
+    // Arrow keys nudge
+    if !ui.ctx().wants_keyboard_input() {
+        let left = ctx.input(|i| i.key_pressed(egui::Key::ArrowLeft));
+        let right = ctx.input(|i| i.key_pressed(egui::Key::ArrowRight));
+        let up = ctx.input(|i| i.key_pressed(egui::Key::ArrowUp));
+        let down = ctx.input(|i| i.key_pressed(egui::Key::ArrowDown));
+        if left || right || up || down {
+            if let Some(id) = app.designer_selected_node.clone() {
+                let step = if shift { 10.0 } else { 1.0 };
+                let dx = if left { -step } else if right { step } else { 0.0 };
+                let dy = if up { -step } else if down { step } else { 0.0 };
+                let _ = app.project_doc.move_node(&id, (dx, dy));
+            }
         }
     }
 
@@ -547,6 +639,7 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
                 let _ = app.project_doc.update_node(&id, update);
             }
             scene::CanvasEvent::DeleteNode { id } => {
+                app.push_undo();
                 app.project_doc.delete_node(&id);
                 if app.designer_selected_node.as_deref() == Some(&id) {
                     app.designer_selected_node = None;

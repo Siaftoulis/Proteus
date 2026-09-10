@@ -46,22 +46,25 @@ tags:
 - [x] CEO verdict: **No-Go for public beta. Conditional Go in 4-6 weeks**
 - [x] Argon2id KDF upgrade (SHA-256 → argon2 hash_password_into)
 
-## Sprint 4 (Core CRM) — In Progress (July 5)
+## Sprint 4 (Core CRM) — Complete (Sept 10)
 
 ### CEO's 4 Conditions for Beta
 
-- [ ] **4.1: Kill auth gating** — App works fully offline without login
-- [ ] **4.2: Data-bound table widget** — Editable records, not mockups
-- [ ] **4.3: Execute at least one simple flow** — e.g. "on button click, create record"
-- [ ] **4.4: Frontend tests fixed and passing**
+- [x] **4.1: Kill auth gating** — App works fully offline without login
+- [x] **4.2: Data-bound table widget** — Editable records, not mockups
+- [x] **4.3: Execute at least one simple flow** — e.g. "on button click, create record"
+- [x] **4.4: Frontend tests fixed and passing**
 
 ### Additional Sprint 4 Goals
 
-- [ ] Data model engine (entity definitions, record CRUD in Rust)
-- [ ] Widget property editor (table columns, form field mapping)
-- [ ] Project management UI (rename, list, create)
-- [ ] Undo/redo for designer canvas
-- [ ] Offline-first mode (no server required for core features)
+- [x] Data model engine (entity definitions, record CRUD in Rust)
+- [x] Widget property editor (table columns, form field mapping)
+- [x] Project management UI (rename, list, create)
+- [x] Undo/redo for designer canvas
+- [x] Offline-first mode (no server required for core features)
+- [x] Keyboard shortcuts (Undo/Redo, Duplicate, Copy/Paste, Deselect, Nudge)
+- [x] CSV Export & Import for Contacts and Pipeline Deals
+- [x] SQLite Live Sync across Contacts, Deals, and Table Widgets
 
 ## Future (Phase 2)
 
