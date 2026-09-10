@@ -3,6 +3,7 @@ pub mod encryption;
 pub mod export;
 pub mod flow;
 pub mod license;
+pub mod schema;
 pub mod sync;
 
 use chrono::Utc;
@@ -58,7 +59,13 @@ impl Database {
                 updated_at TEXT NOT NULL
             );
             CREATE INDEX IF NOT EXISTS idx_records_project ON records(project_id);
-            CREATE INDEX IF NOT EXISTS idx_records_entity ON records(entity);",
+            CREATE INDEX IF NOT EXISTS idx_records_entity ON records(entity);
+            CREATE TABLE IF NOT EXISTS entity_schemas (
+                project_id TEXT NOT NULL,
+                entity TEXT NOT NULL,
+                schema TEXT NOT NULL,
+                PRIMARY KEY(project_id, entity)
+            );",
         )?;
         Ok(Database {
             conn: Mutex::new(conn),
