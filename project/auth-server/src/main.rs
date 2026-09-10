@@ -58,6 +58,7 @@ impl RateLimitState {
     }
 }
 
+#[allow(dead_code)]
 fn require_role(user: &User, allowed_roles: &[&str]) -> Result<(), (StatusCode, Json<serde_json::Value>)> {
     if !allowed_roles.contains(&user.role.as_str()) {
         return Err(err(StatusCode::FORBIDDEN, &format!("Role '{}' not authorized. Required: {:?}", user.role, allowed_roles)));

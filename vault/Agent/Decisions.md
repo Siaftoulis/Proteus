@@ -13,6 +13,31 @@ aliases:
 
 ---
 
+## 2026-09-10: Strategic & Commercial Expansion (CEO Decision)
+
+### 1. 100% Commercial Product & Universal Scope
+- Proteus evolves into a **Universal Native Operations & CRM Engine** ("The VLC of Business Software").
+- Serving diverse verticals: local shops (fire-safety, mechanics), law firms, courts, logistics/cargo, sports clubs, enterprises.
+- "Zero Subscription Anxiety": Native Rust speed, <50ms boot, low RAM footprint, 100% local-first SQLite, true data ownership.
+
+### 2. AI Architecture via MCP (Model Context Protocol)
+- **Decision**: Zero proprietary AI hosting or recurring GPU server costs.
+- Integrates an MCP (Model Context Protocol) client/server.
+- Users connect their own AI provider (Claude, OpenAI, Gemini, Local Ollama) using their own API keys ("from their own pocket").
+- MCP tools allow the AI to directly generate/modify canvas layouts, SQLite tables, and workflows.
+
+### 3. Anti-Piracy, Anti-Mod & Closed Ecosystem
+- Native compiled Rust machine code with symbol stripping, LTO, and anti-tamper checks to prevent cracking/modding.
+- Ed25519 asymmetric cryptographic licensing locked to hardware machine fingerprints.
+- Closed Marketplace: Templates are distributed as cryptographically encrypted packages via Proteus Hub. No loose unencrypted exports permitted.
+- Platform commission / revenue-share enforced on all marketplace transactions.
+- White-label branded export for B2B Agency tier.
+
+### 4. Direct Hardware Integration
+- Native USB, Virtual COM, Bluetooth support for Barcode/QR scanners and ESC/POS thermal printers.
+
+---
+
 ## 2026-07-05: Sprint 4 Decisions (CEO + PM)
 
 ### CEO Verdict: No-Go for Public Beta

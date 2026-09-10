@@ -36,17 +36,17 @@ dv.table(["Milestone", "Status"],
 | Area | Status | Notes |
 |------|--------|-------|
 | Infrastructure | ✅ Solid | Auth, license, encryption, sync, export all working |
-| Core CRM | ❌ Placeholder | Widgets are mockups, flows don't execute, no data model |
-| Frontend | ⚠️ Needs work | Auth gate blocks offline use, no data binding |
-| Backend (Rust) | ✅ Excellent | 51 tests, clean architecture, proper error handling |
-| Tests | ✅ Good | 62 total (39 Rust + 12 backend integration + 11 frontend) |
-| Security | ✅ Strong | Argon2id, XChaCha20-Poly1305, JWT, rate limiting |
+| Core CRM Engine | 🔄 In Progress | `crm_core` records engine & dynamic schemas |
+| Native Desktop UI | 🔄 In Progress | Pure Rust `eframe`/`egui`, high-DPI zoom, drag-to-draw |
+| Backend (Rust) | ✅ Excellent | Clean architecture, SQLite, modular crates |
+| Tests | ✅ 100% Pass | 98 total passing (49 crm-core, 37 proteus, 6 auth, 6 license) |
+| Security | ✅ Strong | Argon2id, XChaCha20-Poly1305, Ed25519, machine lock |
 
 | Component | Status | Agent | Notes |
 |-----------|--------|-------|-------|
-| Designer Mode | ❌ Placeholder | Developers | Widgets are visual mockups, not data-bound |
-| Flow Mode | ❌ Non-functional | Developers | Visual nodes exist, no runtime engine |
-| Data Model Engine | ❌ Not started | Developers | Sprint 4: entity defs + record CRUD |
+| Designer Canvas | ✅ Advanced | Developers | Drag-to-draw, proportional zoom, layers, typography, Data Table, Screen Linking |
+| Flow & Navigation | ✅ Functional | Developers | Screen linking, button triggers, database action walker |
+| Data-Bound Table | ✅ Functional | Developers | Live SQLite querying, dynamic columns, auto-refresh on submit |
 | Import System | ✅ Done | Developers | CSV, XLSX, SQLite with type inference |
 | Auth Server | ✅ Done | Developers | 6 endpoints, JWT, refresh, Google OAuth |
 | License Server | ✅ Done | Developers | Verify, issue, activation tracking |

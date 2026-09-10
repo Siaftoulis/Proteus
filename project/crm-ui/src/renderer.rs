@@ -1,15 +1,12 @@
-use crate::scene::{CanvasEvent, EditorState, Layout, NodeStyle, NodeType, ProjectDocument, ResizeHandle, Rgba, Sizing, Styling};
+use crate::scene::{CanvasEvent, EditorState, Layout, NodeStyle, NodeType, ProjectDocument, ResizeHandle, Sizing, Styling};
 use crate::Viewport2D;
+use crate::theme;
 use eframe::egui::{self, Color32, CornerRadius, CursorIcon, Margin, Pos2, Rect, Sense, Stroke, UiBuilder, Vec2};
 
-// ── Colour bridge ──
+// ── Colour & Style Bridges ──
 
 pub fn zoom_font(size: f32, zoom: f32) -> f32 {
-    (size * zoom).max(3.0)
-}
-
-fn rgba(c: &Rgba) -> Color32 {
-    Color32::from_rgba_premultiplied(c.r, c.g, c.b, c.a)
+    (size * zoom).max(1.0)
 }
 
 fn style_fill(s: &NodeStyle) -> Color32 {
@@ -33,32 +30,37 @@ fn style_border_color(s: &NodeStyle) -> Color32 {
     )
 }
 
-fn style_stroke(s: &NodeStyle) -> Stroke {
-    Stroke::new(s.border_width, style_border_color(s))
-}
-
-fn style_radius(s: &NodeStyle) -> CornerRadius {
-    let r = s.border_radius as u8;
+fn style_radius(s: &NodeStyle, zoom: f32) -> CornerRadius {
+    let r = (s.border_radius * zoom).round() as u8;
     CornerRadius { nw: r, ne: r, se: r, sw: r }
 }
 
-// ── Styling → egui Frame ──
+fn build_frame(styling: &Styling, style: &NodeStyle, zoom: f32) -> egui::Frame {
+    let stroke_w = (style.border_width * zoom).max(0.5);
+    let r = (style.border_radius * zoom).round() as u8;
+    let l = ((styling.padding[0] * zoom).round() as i8).max(0);
+    let t = ((styling.padding[1] * zoom).round() as i8).max(0);
+    let r_pad = ((styling.padding[2] * zoom).round() as i8).max(0);
+    let b = ((styling.padding[3] * zoom).round() as i8).max(0);
 
-fn build_frame(styling: &Styling, style: &NodeStyle) -> egui::Frame {
-    let mut frame = egui::Frame::default();
-    frame = frame.fill(style_fill(style));
-    frame = frame.stroke(style_stroke(style));
-    frame = frame.corner_radius(style_radius(style));
-    let [l, t, r, b] = styling.padding;
-    frame = frame.inner_margin(Margin { left: l as i8, right: r as i8, top: t as i8, bottom: b as i8 });
-    frame
-}
-
-fn input_frame(style: &NodeStyle) -> egui::Frame {
     egui::Frame::default()
         .fill(style_fill(style))
-        .corner_radius(style_radius(style))
-        .stroke(style_stroke(style))
+        .stroke(Stroke::new(stroke_w, style_border_color(style)))
+        .corner_radius(CornerRadius { nw: r, ne: r, se: r, sw: r })
+        .inner_margin(Margin { left: l, right: r_pad, top: t, bottom: b })
+}
+
+fn input_frame(style: &NodeStyle, zoom: f32) -> egui::Frame {
+    let stroke_w = (style.border_width * zoom).max(0.5);
+    let r = (style.border_radius * zoom).round() as u8;
+    let h_pad = (((style.border_radius * 0.35 + 8.0) * zoom).round() as i8).max(4);
+    let v_pad = ((2.0 * zoom).round() as i8).max(1);
+
+    egui::Frame::default()
+        .fill(style_fill(style))
+        .corner_radius(CornerRadius { nw: r, ne: r, se: r, sw: r })
+        .stroke(Stroke::new(stroke_w, style_border_color(style)))
+        .inner_margin(Margin { left: h_pad, right: h_pad, top: v_pad, bottom: v_pad })
 }
 
 fn node_size(layout: &Layout) -> Vec2 {
@@ -95,7 +97,6 @@ fn cursor_for_handle(handle: ResizeHandle) -> CursorIcon {
     }
 }
 
-/// Returns true if a handle was dragged (caller should suppress node drag).
 fn render_handles(
     ui: &mut egui::Ui,
     rect: Rect,
@@ -122,9 +123,8 @@ fn render_handles(
         let response = ui.interact(hr, sense_id, Sense::drag())
             .on_hover_cursor(cursor_for_handle(handle));
 
-        // Draw handle
-        ui.painter().rect_filled(hr, 1., Color32::WHITE);
-        ui.painter().rect_stroke(hr, 1., Stroke::new(1., Color32::from_rgb(0, 120, 215)), egui::StrokeKind::Outside);
+        ui.painter().rect_filled(hr, CornerRadius::same(1), Color32::WHITE);
+        ui.painter().rect_stroke(hr, CornerRadius::same(1), Stroke::new(1., Color32::from_rgb(0, 120, 215)), egui::StrokeKind::Outside);
 
         if response.drag_started() {
             events.push(CanvasEvent::NodeResizeStarted);
@@ -143,8 +143,6 @@ fn render_handles(
     any_dragged
 }
 
-/// Draw selection highlight and resize handles.
-/// Returns true if a resize handle was dragged.
 fn sense_interaction(
     ui: &mut egui::Ui,
     node_id: &str,
@@ -155,8 +153,6 @@ fn sense_interaction(
 ) -> bool {
     let is_selected = editor_state.selected_node_ids.iter().any(|sid| sid == node_id);
     if !is_selected { return false; }
-
-    // Guard against tiny rects that would crash handle rendering
     if content_rect.width() < 4.0 || content_rect.height() < 4.0 { return false; }
     if !content_rect.is_positive() { return false; }
 
@@ -174,6 +170,7 @@ pub fn draw_document(
     play_mode: bool,
     form_state: &mut std::collections::HashMap<String, String>,
     active_play_page: Option<&str>,
+    table_cache: &std::collections::HashMap<String, Vec<(String, serde_json::Value)>>,
 ) -> Vec<CanvasEvent> {
     let mut events = Vec::new();
     let canvas_origin = ui.max_rect().min;
@@ -181,7 +178,7 @@ pub fn draw_document(
     for root_id in &doc.root_node_ids {
         let node = match doc.nodes.get(root_id) {
             Some(n) => n,
-            None => { eprintln!("[renderer] root '{}' not found", root_id); continue; }
+            None => continue,
         };
         if !node.visible { continue; }
         if play_mode {
@@ -197,14 +194,14 @@ pub fn draw_document(
         let screen_rect = Rect::from_min_size(screen_pos, screen_size);
 
         ui.allocate_new_ui(UiBuilder::new().max_rect(screen_rect), |ui| {
-            render_node(ui, root_id, doc, &mut events, viewport, editor_state, play_mode, form_state);
+            render_node(ui, root_id, doc, &mut events, viewport, editor_state, play_mode, form_state, screen_rect, table_cache);
         });
     }
 
     events
 }
 
-// ── Recursive traversal (returns true if this node or any descendant was clicked) ──
+// ── Recursive Node Renderer ──
 
 fn render_node(
     ui: &mut egui::Ui,
@@ -215,197 +212,308 @@ fn render_node(
     editor_state: &EditorState,
     play_mode: bool,
     form_state: &mut std::collections::HashMap<String, String>,
+    screen_rect: Rect,
+    table_cache: &std::collections::HashMap<String, Vec<(String, serde_json::Value)>>,
 ) -> bool {
     let node = match doc.nodes.get(node_id) {
         Some(n) => n,
-        None => { eprintln!("[renderer] node '{}' not found", node_id); return false; }
+        None => return false,
     };
     if !node.visible { return false; }
 
-    let (content_rect, child_clicked): (Rect, bool) = match &node.node_type {
-        // ── Containers: render children FIRST, then check parent ──
+    let z = viewport.zoom;
+    ui.set_clip_rect(ui.clip_rect().intersect(screen_rect));
+    ui.spacing_mut().item_spacing = Vec2::new(6.0 * z, 4.0 * z);
+    ui.spacing_mut().button_padding = Vec2::new(6.0 * z, 3.0 * z);
+    ui.spacing_mut().interact_size = Vec2::new(8.0 * z, 8.0 * z);
+    ui.spacing_mut().icon_width = (16.0 * z).max(3.0);
+    ui.spacing_mut().icon_width_inner = (12.0 * z).max(2.0);
+
+    let child_clicked = match &node.node_type {
+        // ── Containers: render children inside frame ──
         NodeType::Frame | NodeType::Group | NodeType::Page => {
-            let mut child_clicked = false;
-            let frame = build_frame(&node.styling, &node.style);
-            let inner = frame.show(ui, |ui| {
+            let mut any_child_clicked = false;
+            let frame = build_frame(&node.styling, &node.style, z);
+            frame.show(ui, |ui| {
                 ui.set_min_size(ui.available_size());
-                let parent_rect = ui.min_rect();
+                let parent_origin = screen_rect.min;
                 for child_id in &node.children_ids {
                     if let Some(child) = doc.nodes.get(child_id) {
                         let child_w = match child.layout.width { Sizing::Fixed(v) => v, Sizing::Fill(v) => v, Sizing::Hug => 200. };
                         let child_h = match child.layout.height { Sizing::Fixed(v) => v, Sizing::Fill(v) => v, Sizing::Hug => 100. };
-                        
+
                         let child_screen_pos = Pos2::new(
-                            parent_rect.min.x + child.position.0 * viewport.zoom,
-                            parent_rect.min.y + child.position.1 * viewport.zoom
+                            parent_origin.x + child.position.0 * z,
+                            parent_origin.y + child.position.1 * z,
                         );
-                        let child_screen_size = Vec2::new(child_w * viewport.zoom, child_h * viewport.zoom);
+                        let child_screen_size = Vec2::new(child_w * z, child_h * z);
                         let child_rect = Rect::from_min_size(child_screen_pos, child_screen_size);
-                        
+
                         ui.allocate_new_ui(UiBuilder::new().max_rect(child_rect), |child_ui| {
-                            if render_node(child_ui, child_id, doc, events, viewport, editor_state, play_mode, form_state) {
-                                child_clicked = true;
+                            if render_node(child_ui, child_id, doc, events, viewport, editor_state, play_mode, form_state, child_rect, table_cache) {
+                                any_child_clicked = true;
                             }
                         });
                     }
                 }
             });
-            (inner.response.rect, child_clicked)
+            any_child_clicked
         }
 
         // ── Text / Labels ──
         NodeType::Text { content, font } => {
-            let scaled_size = (font.size * viewport.zoom).max(4.0);
-            let mut rt = egui::RichText::new(content).size(scaled_size).color(style_text_color(&node.style));
-            if font.weight >= 700 { rt = rt.strong(); }
-            
-            let rect = ui.max_rect();
-            let mut child_ui = ui.new_child(UiBuilder::new().max_rect(rect).layout(*ui.layout()));
-            child_ui.set_min_size(rect.size());
-            child_ui.set_max_size(rect.size());
-            child_ui.label(rt);
-            (rect, false)
+            let frame = build_frame(&node.styling, &node.style, z);
+            frame.show(ui, |ui| {
+                ui.set_min_size(ui.available_size());
+                let scaled_size = (font.size * z).max(1.0);
+                let mut rt = egui::RichText::new(content).size(scaled_size).color(style_text_color(&node.style));
+                if font.weight >= 700 { rt = rt.strong(); }
+                ui.label(rt);
+            });
+            false
         }
 
-        // ── Inputs (frames with children inside) ──
+        // ── Inputs ──
         NodeType::TextInput { placeholder, .. } => {
-            let mut child_clicked = false;
-            let inner = input_frame(&node.style).show(ui, |ui| {
+            let mut any_child_clicked = false;
+            let inner = input_frame(&node.style, z);
+            inner.show(ui, |ui| {
                 ui.set_min_size(ui.available_size());
-                let parent_rect = ui.min_rect();
-                if play_mode {
-                    let text = form_state.entry(node_id.to_owned()).or_default();
-                    ui.add(egui::TextEdit::singleline(text).hint_text(placeholder).desired_width(f32::INFINITY));
-                } else {
-                    ui.label(egui::RichText::new(placeholder).size(zoom_font(12., viewport.zoom)).color(Color32::from_rgb(130, 130, 130)));
-                }
+                ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                    if play_mode {
+                        let text = form_state.entry(node_id.to_owned()).or_default();
+                        ui.add(egui::TextEdit::singleline(text).hint_text(placeholder).desired_width(f32::INFINITY));
+                    } else {
+                        ui.label(egui::RichText::new(placeholder).size(zoom_font(12., z)).color(Color32::from_rgb(130, 130, 130)));
+                    }
+                });
 
+                let parent_origin = screen_rect.min;
                 for child_id in &node.children_ids {
                     if let Some(child) = doc.nodes.get(child_id) {
                         let child_w = match child.layout.width { Sizing::Fixed(v) => v, Sizing::Fill(v) => v, Sizing::Hug => 200. };
                         let child_h = match child.layout.height { Sizing::Fixed(v) => v, Sizing::Fill(v) => v, Sizing::Hug => 100. };
                         let child_screen_pos = Pos2::new(
-                            parent_rect.min.x + child.position.0 * viewport.zoom,
-                            parent_rect.min.y + child.position.1 * viewport.zoom
+                            parent_origin.x + child.position.0 * z,
+                            parent_origin.y + child.position.1 * z,
                         );
-                        let child_screen_size = Vec2::new(child_w * viewport.zoom, child_h * viewport.zoom);
+                        let child_screen_size = Vec2::new(child_w * z, child_h * z);
                         let child_rect = Rect::from_min_size(child_screen_pos, child_screen_size);
                         ui.allocate_new_ui(UiBuilder::new().max_rect(child_rect), |child_ui| {
-                            if render_node(child_ui, child_id, doc, events, viewport, editor_state, play_mode, form_state) {
-                                child_clicked = true;
+                            if render_node(child_ui, child_id, doc, events, viewport, editor_state, play_mode, form_state, child_rect, table_cache) {
+                                any_child_clicked = true;
                             }
                         });
                     }
                 }
             });
-            (inner.response.rect, child_clicked)
+            any_child_clicked
         }
+
         NodeType::Dropdown { options, .. } => {
-            let inner = input_frame(&node.style).show(ui, |ui| {
+            let inner = input_frame(&node.style, z);
+            inner.show(ui, |ui| {
                 ui.set_min_size(ui.available_size());
-                if play_mode {
-                    let text = form_state.entry(node_id.to_owned()).or_default();
-                    let preview = text.clone();
-                    egui::ComboBox::from_id_salt(node_id)
-                        .selected_text(if preview.is_empty() { "Select..." } else { &preview })
-                        .show_ui(ui, |ui| {
-                            for opt in options {
-                                let opt_str = opt.clone();
-                                if ui.selectable_label(opt_str == *text, &opt_str).clicked() {
-                                    *text = opt_str;
+                ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                    if play_mode {
+                        let text = form_state.entry(node_id.to_owned()).or_default();
+                        let preview = text.clone();
+                        egui::ComboBox::from_id_salt(node_id)
+                            .selected_text(if preview.is_empty() { "Select..." } else { &preview })
+                            .show_ui(ui, |ui| {
+                                for opt in options {
+                                    let opt_str = opt.clone();
+                                    if ui.selectable_label(opt_str == *text, &opt_str).clicked() {
+                                        *text = opt_str;
+                                    }
                                 }
-                            }
-                        });
-                } else {
-                    let preview = options.first().map(|s| s.as_str()).unwrap_or("Select...");
-                    ui.label(egui::RichText::new(preview).size(zoom_font(12., viewport.zoom)).color(Color32::from_rgb(215, 215, 215)));
-                    ui.label(egui::RichText::new(" ▾").size(zoom_font(10., viewport.zoom)).color(Color32::from_rgb(130, 130, 130)));
-                }
+                            });
+                    } else {
+                        let preview = options.first().map(|s| s.as_str()).unwrap_or("Select...");
+                        ui.label(egui::RichText::new(preview).size(zoom_font(12., z)).color(Color32::from_rgb(215, 215, 215)));
+                        ui.label(egui::RichText::new(" ▾").size(zoom_font(10., z)).color(Color32::from_rgb(130, 130, 130)));
+                    }
+                });
             });
-            (inner.response.rect, false)
+            false
         }
+
         NodeType::NumberField { min, max, .. } => {
-            let inner = input_frame(&node.style).show(ui, |ui| {
+            let inner = input_frame(&node.style, z);
+            inner.show(ui, |ui| {
                 ui.set_min_size(ui.available_size());
-                if play_mode {
-                    let text = form_state.entry(node_id.to_owned()).or_default();
-                    let mut val: f64 = text.parse().unwrap_or(0.0);
-                    let resp = ui.add(egui::DragValue::new(&mut val)
-                        .speed(1.0)
-                        .range(min.unwrap_or(f64::NEG_INFINITY)..=max.unwrap_or(f64::INFINITY)));
-                    if resp.changed() || resp.lost_focus() {
-                        *text = val.to_string();
+                ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                    if play_mode {
+                        let text = form_state.entry(node_id.to_owned()).or_default();
+                        let mut val: f64 = text.parse().unwrap_or(0.0);
+                        let resp = ui.add(egui::DragValue::new(&mut val)
+                            .speed(1.0)
+                            .range(min.unwrap_or(f64::NEG_INFINITY)..=max.unwrap_or(f64::INFINITY)));
+                        if resp.changed() || resp.lost_focus() {
+                            *text = val.to_string();
+                        }
+                    } else {
+                        ui.label(egui::RichText::new("123").size(zoom_font(12., z)).color(Color32::from_rgb(130, 130, 130)));
                     }
-                } else {
-                    ui.label(egui::RichText::new("123").size(zoom_font(12., viewport.zoom)).color(Color32::from_rgb(130, 130, 130)));
-                }
+                });
             });
-            (inner.response.rect, false)
+            false
         }
+
         NodeType::Checkbox { label, .. } => {
-            let inner = input_frame(&node.style).show(ui, |ui| {
+            let inner = input_frame(&node.style, z);
+            inner.show(ui, |ui| {
                 ui.set_min_size(ui.available_size());
-                if play_mode {
-                    let text = form_state.entry(node_id.to_owned()).or_default();
-                    let mut checked = text == "true";
-                    let resp = ui.checkbox(&mut checked, label);
-                    if resp.changed() {
-                        *text = if checked { "true".to_string() } else { "false".to_string() };
+                ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                    if play_mode {
+                        let text = form_state.entry(node_id.to_owned()).or_default();
+                        let mut checked = text == "true";
+                        let resp = ui.checkbox(&mut checked, egui::RichText::new(label).size(zoom_font(12., z)));
+                        if resp.changed() {
+                            *text = if checked { "true".to_string() } else { "false".to_string() };
+                        }
+                    } else {
+                        ui.add_enabled_ui(false, |ui| {
+                            ui.checkbox(&mut false, egui::RichText::new(label).size(zoom_font(12., z)));
+                        });
                     }
-                } else {
-                    ui.add_enabled_ui(false, |ui| {
-                        ui.checkbox(&mut false, label);
-                    });
-                }
+                });
             });
-            (inner.response.rect, false)
+            false
         }
 
         // ── Actions ──
         NodeType::Button { label, style: _ } => {
-            let inner = ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::LeftToRight), |ui| {
+            ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::LeftToRight), |ui| {
                 let resp = ui.add_sized(
                     ui.available_size(),
-                    egui::Button::new(egui::RichText::new(label).color(style_text_color(&node.style)))
-                        .fill(style_fill(&node.style))
-                        .corner_radius(style_radius(&node.style))
-                        .sense(if play_mode { Sense::click() } else { Sense::hover() }),
+                    egui::Button::new(
+                        egui::RichText::new(label)
+                            .size(zoom_font(13., z))
+                            .color(style_text_color(&node.style))
+                    )
+                    .fill(style_fill(&node.style))
+                    .corner_radius(style_radius(&node.style, z))
+                    .sense(if play_mode { Sense::click() } else { Sense::hover() }),
                 );
                 if play_mode && resp.clicked() {
                     events.push(CanvasEvent::ActionTriggered { source_node_id: node_id.to_string() });
                 }
             });
-            (inner.response.rect, false)
+            false
         }
 
         // ── Static ──
         NodeType::Image { url, .. } => {
+            let stroke_w = (node.style.border_width * z).max(0.5);
             let frame = egui::Frame::default()
                 .fill(style_fill(&node.style))
-                .stroke(style_stroke(&node.style));
-            let inner = frame.show(ui, |ui| {
+                .stroke(Stroke::new(stroke_w, style_border_color(&node.style)));
+            frame.show(ui, |ui| {
                 ui.set_min_size(ui.available_size());
                 ui.centered_and_justified(|ui| {
                     ui.label(egui::RichText::new(if url.is_empty() { "◫ Image" } else { url })
-                        .size(zoom_font(11., viewport.zoom)).color(style_text_color(&node.style)));
+                        .size(zoom_font(11., z)).color(style_text_color(&node.style)));
                 });
             });
-            (inner.response.rect, false)
+            false
         }
-        NodeType::Shape { kind } => {
-            let inner = ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::LeftToRight), |ui| {
+
+        NodeType::Shape { .. } => {
+            let frame = build_frame(&node.styling, &node.style, z);
+            frame.show(ui, |ui| {
                 ui.set_min_size(ui.available_size());
-                ui.label(egui::RichText::new(format!("⬡ {:?}", kind)).size(zoom_font(11., viewport.zoom)).color(style_text_color(&node.style)))
             });
-            (inner.response.rect, false)
+            false
+        }
+
+        // ── Data-Bound Table ──
+        NodeType::Table { bound_entity, columns } => {
+            let frame = build_frame(&node.styling, &node.style, z);
+            frame.show(ui, |ui| {
+                ui.set_min_size(ui.available_size());
+                let ent = bound_entity.as_deref().unwrap_or("records");
+                ui.horizontal(|ui| {
+                    ui.label(egui::RichText::new(format!("⊞ {}", ent.to_uppercase()))
+                        .size(zoom_font(11., z))
+                        .color(theme::ACCENT)
+                        .strong());
+                });
+                ui.add_space(2.0 * z);
+
+                let default_cols = vec!["ID".to_string(), "Name".to_string(), "Email".to_string(), "Status".to_string()];
+                let col_names = if columns.is_empty() { &default_cols } else { columns };
+
+                // Header
+                ui.horizontal(|ui| {
+                    for col in col_names {
+                        ui.label(egui::RichText::new(col)
+                            .size(zoom_font(9.5, z))
+                            .color(theme::TEXT_DIM)
+                            .strong());
+                        ui.add_space(6.0 * z);
+                    }
+                });
+                ui.separator();
+
+                let db_records = bound_entity.as_deref().and_then(|e| table_cache.get(e));
+
+                if let Some(recs) = db_records {
+                    if recs.is_empty() {
+                        ui.add_space(4.0 * z);
+                        ui.label(egui::RichText::new(format!("No '{}' records found. Submit a form to insert one!", ent))
+                            .size(zoom_font(9.0, z))
+                            .color(theme::TEXT_MUTED));
+                    } else {
+                        for (id, data) in recs.iter().take(8) {
+                            ui.horizontal(|ui| {
+                                for (c_idx, col) in col_names.iter().enumerate() {
+                                    let cell_val = if c_idx == 0 && (col.eq_ignore_ascii_case("id")) {
+                                        format!("#{}", &id[..6.min(id.len())])
+                                    } else {
+                                        let key = col.to_lowercase();
+                                        data.get(&key)
+                                            .or_else(|| data.get(col))
+                                            .and_then(|v| v.as_str())
+                                            .unwrap_or("—")
+                                            .to_string()
+                                    };
+                                    ui.label(egui::RichText::new(cell_val)
+                                        .size(zoom_font(9.0, z))
+                                        .color(theme::TEXT));
+                                    ui.add_space(6.0 * z);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    // Placeholder rows if not cached
+                    for r_idx in 1..=3 {
+                        ui.horizontal(|ui| {
+                            for (c_idx, _) in col_names.iter().enumerate() {
+                                let cell_val = match c_idx {
+                                    0 => format!("#{:03}", r_idx),
+                                    1 => format!("Record {}", r_idx),
+                                    2 => format!("data{}@corp.com", r_idx),
+                                    _ => "Active".into(),
+                                };
+                                ui.label(egui::RichText::new(cell_val)
+                                    .size(zoom_font(9.0, z))
+                                    .color(theme::TEXT));
+                                ui.add_space(6.0 * z);
+                            }
+                        });
+                    }
+                }
+            });
+            false
         }
     };
 
     if !play_mode {
-        sense_interaction(ui, node_id, content_rect, events, viewport, editor_state);
+        sense_interaction(ui, node_id, screen_rect, events, viewport, editor_state);
     }
 
-    // Return true if this node's click OR any descendant's click fired
     let this_clicked = events.iter().any(|e| match e {
         CanvasEvent::NodeClicked { id, .. } => id == node_id,
         _ => false,

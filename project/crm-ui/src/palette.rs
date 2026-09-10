@@ -31,6 +31,10 @@ const ITEMS: &[PaletteItem] = &[
     PaletteItem { icon: "◫", label: "Image", make: || NodeType::Image {
         url: String::new(), fit: ImageFit::Cover,
     }},
+    PaletteItem { icon: "⊞", label: "Data Table", make: || NodeType::Table {
+        bound_entity: Some("contacts".into()),
+        columns: vec!["ID".into(), "Name".into(), "Email".into(), "Status".into()],
+    }},
 ];
 
 /// Draw the widget palette. Returns the `NodeType` if a drag was initiated this frame.

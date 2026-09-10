@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Index.md",
-                "mode": "source",
+                "file": "Company/CTO/Profile.md",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Index"
+              "title": "Profile"
             }
           }
         ]
@@ -185,6 +185,9 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "obsidian-excalidraw-plugin:New drawing": false,
+      "obsidian-git:Open Git source control": false,
+      "obsidian-kanban:Create new board": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
@@ -197,6 +200,19 @@
   },
   "active": "900ba23206bb34db",
   "lastOpenFiles": [
+    "Company/CFO/Profile.md",
+    "Company/CEO/Profile.md",
+    "Developer/01 - Getting Started.md",
+    "User/04 - Widgets.md",
+    "User/02 - Designer Mode.md",
+    "User/Index.md",
+    "Index.md",
+    "Agent/Review.md",
+    "Excalidraw/Drawing 2026-07-24 21.40.38.excalidraw.md",
+    "Excalidraw",
+    "Agent/Session Log.md",
+    "Agent/Todo.md",
+    "Developer/02 - Architecture.md",
     "Untitled 1.canvas",
     "Untitled.canvas",
     "2026-07-04.md",
@@ -204,11 +220,8 @@
     "Developer/05 - Frontend.md",
     "Developer/08 - Database Schema.md",
     "Developer/03 - Backend (crm-core).md",
-    "Developer/01 - Getting Started.md",
     "User/06 - Keyboard Shortcuts.md",
-    "User/04 - Widgets.md",
     "User/03 - Flow Mode.md",
-    "User/02 - Designer Mode.md",
     "User/01 - Getting Started.md",
     "Company/UI/Brand Identity.md",
     "Company/UI/Design System.md",
@@ -216,14 +229,6 @@
     "Agent/Decisions.md",
     "Agent/Index.md",
     "Agent/Board.md",
-    "Company/UI/Launcher Mockups.md",
-    "Company/CTO/Profile.md",
-    "Company/CEO/Profile.md",
-    "Company/CFO/Profile.md",
-    "Company/Index.md",
-    "Company/Process.md",
-    "Developer/11 - Competitive Analysis.md",
-    "Developer/04 - Backend (src-tauri).md",
     "Company/UI",
     "Company/Marketing",
     "Company/Product",
@@ -232,7 +237,6 @@
     "Company/CFO",
     "Company/CEO",
     "Company",
-    "Marketing",
-    "Operations"
+    "Marketing"
   ]
 }
