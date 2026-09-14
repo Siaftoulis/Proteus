@@ -7,7 +7,7 @@
 
 ## 2. Minimalist & Simplistic UX ("Average Joe" Principle)
 - Design for clarity, simplicity, and low cognitive overhead.
-- No visual clutter, bulky dark boxes, or redundant controls. Keep toolbars and surfaces sleek, clean, and intuitive (Affinity Designer / Linear hybrid aesthetic).
+- No visual clutter, bulky dark boxes, or redundant controls. Keep toolbars and surfaces sleek, clean, and intuitive (pure minimalist native aesthetic).
 - Atomic development methodology ("νια-νια"): Build, verify, and polish one atomic piece at a time.
 
 ## 3. Code Quality & Modularity

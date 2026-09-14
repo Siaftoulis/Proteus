@@ -13,10 +13,55 @@ aliases:
 
 ---
 
+## 2026-09-14: The Paradigm Shift — Proteus BOS (Service BOS & Declarative Architecture)
+
+> Master Blueprint: [[../Developer/14 - Proteus BOS Blueprint|14 - Proteus BOS Blueprint]]
+
+### 1. The Paradigm Shift: From Abstract CRM Builder to Service BOS
+- **Paradox of the Empty Canvas**: Small businesses don't buy development tools; they buy immediate relief for specific operational pains.
+- **The 90/10 Rule**: 
+  - **90%–95% Operators**: Local repair shops, mechanics, technicians, warehouses needing an instant turn-key solution from second zero.
+  - **5%–10% Builders**: Designers/agencies building solutions for others.
+- **The Wedge**: Enters the market exclusively via the flow **«Παραλαβή $\rightarrow$ Επισκευή $\rightarrow$ Παράδοση» (Service & Intake Tracking)** replacing paper logs, lost post-its, and cumbersome Excel.
+- **Positioning**: The fastest, autonomous shop operating system (Shop Business OS) expandable via modular declarative templates.
+
+### 2. Single Signed Binary + Declarative Engine (`.pr`)
+- **No Dynamic Binary Compilation**: Abandoned dynamic `.exe` / `.apk` compilation per client (which triggers SmartScreen & AV heuristics).
+- **Two Native Tools**:
+  1. **Proteus Studio**: Free native desktop app (Rust/egui) for designing forms, DAG automations, views $\rightarrow$ exports encrypted `.pr` bundle.
+  2. **Proteus Engine**: Single, officially code-signed native binary acting as an offline declarative interpreter. Evaluates `.pr`, runs migrations, locks interfaces.
+  3. **Native Shell Companion**: Android/iOS declarative client running offline SQLite with Server-Driven UI.
+- **Data Paths (Zero Privilege)**: SQLite stored strictly in `%APPDATA%\Proteus\data\store.db` (Windows) / `~/.local/share/` (Linux). Never in `Program Files`.
+
+### 3. Networking, Sync Outbox & Cloud Snapshots
+- **Local LAN Host + QR Pairing**: Host PC acts as local server (Rust/Axum). Auto-discovery via mDNS. Instant fallback QR code with IP & cert fingerprint to bypass Wi-Fi AP Client Isolation.
+- **`sync_outbox` Table**: Store-and-forward queue with UUIDv7 monotonic timestamps. Full offline autonomy up to 48 hours.
+- **Hybrid Conflict Resolution**:
+  - Metadata / Notes $\rightarrow$ Field-level Last-Write-Wins (LWW).
+  - Stock / Appointments $\rightarrow$ Strict Reservation Tokens (provisional on mobile, confirmed only by Host).
+- **Zero-Knowledge Cloud Snapshots**: Nightly `VACUUM INTO` encrypted with XChaCha20-Poly1305 + Argon2id to Cloudflare R2 / S3.
+
+### 4. Commercial Model & Pricing Tiers
+- **Template Sales**: 90% to Designer / 10% to Proteus Hub.
+- **Recurring Template Royalties**: Designers receive 1%–2% monthly recurring royalty on active seat subscriptions using their template.
+- **Runtime Seats**:
+  - **Core Business License**: 7.99€ / mo (Host + up to 2 workstations).
+  - **Back-Office Seat**: +3.50€ / mo per additional workstation.
+  - **Field / Mobile Seat**: +1.50€ / mo per mobile technician.
+  - **Cloud Backup Vault**: 2.99€ / mo (SQLite data) | 8.99€ / mo (Media/Photos).
+
+### 5. Execution Timeline & Legal Strategy
+- **Phase 1 (Sep 14 – Oct 31, 2026)**: 6-Week Pre-Enlistment Sprint: Windows Desktop MVP (`.exe`) with Service Intake, 6-state Kanban, and USB ESC/POS thermal printing. Zero corporate/tax expenses.
+- **Phase 2 (Nov 2026 – May 2027)**: 6-month Military Service: Zero overhead, pilot testing in 2–3 local repair shops.
+- **Phase 3 (May 2027)**: Post-discharge Commercial Launch via Lemon Squeezy / Paddle (Merchant of Record managing EU VAT).
+- **Phase 4**: Setup of Single-Member IKE (Μονοπρόσωπη ΙΚΕ via gov.gr) only after verified revenue >2,000€–3,000€.
+
+---
+
 ## 2026-09-10: Strategic & Commercial Expansion (CEO Decision)
 
 ### 1. 100% Commercial Product & Universal Scope
-- Proteus evolves into a **Universal Native Operations & CRM Engine** ("The VLC of Business Software").
+- Proteus evolves into a **Universal Native Operations & CRM Engine** (an autonomous, lightweight, standalone business runtime).
 - Serving diverse verticals: local shops (fire-safety, mechanics), law firms, courts, logistics/cargo, sports clubs, enterprises.
 - "Zero Subscription Anxiety": Native Rust speed, <50ms boot, low RAM footprint, 100% local-first SQLite, true data ownership.
 

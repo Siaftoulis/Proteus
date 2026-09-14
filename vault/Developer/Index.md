@@ -4,7 +4,7 @@ tags:
 ---
 # Developer Documentation
 
-> [[Board|Project Board]] | [[02 - Architecture|Visual Architecture]]
+> [[14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[15 - Master Problem Audit & Architectural Solutions|21 Problems & Solutions]] | [[16 - Three-Pillar Architecture & Restructuring Plan|3 Pillars & Restructuring]] | [[Board|Project Board]]
 
 ```dataviewjs
 dv.table(["#", "Document", "Tags", "Updated"],

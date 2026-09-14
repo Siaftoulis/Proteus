@@ -7,8 +7,10 @@ aliases:
 ---
 # Architecture Overview
 
-> Complete architectural blueprint for **Proteus (CRM Builder)**.
-> Updated 2026-09-08 with the native Rust + egui desktop architecture and modular directory layout.
+> [!IMPORTANT]
+> **Active Master Blueprint:** See [[14 - Proteus BOS Blueprint|14 - Proteus BOS Blueprint]] for the current Proteus BOS specification (September 14, 2026), including the single signed binary + declarative `.pr` engine, Service BOS intake wedge, local LAN pairing, and store-and-forward sync outbox.
+> 
+> This document details the underlying native Rust + egui desktop architecture and modular directory layout.
 
 ---
 

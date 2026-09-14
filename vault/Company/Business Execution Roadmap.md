@@ -8,16 +8,16 @@ aliases:
 ---
 # Proteus — Business Execution Roadmap & Strategic Concept
 
-> **Status:** Active Execution (Sprint 4 — Core CRM Architecture)  
-> **Target Launch:** Closed Beta (5–10 pilot customers)  
-> **Philosophy:** Local-First, High Performance (Rust + egui + SQLite), Zero Bloat.
+> **Status:** Active Master Blueprint: [[../Developer/14 - Proteus BOS Blueprint|14 - Proteus BOS Blueprint]] (Sprint 5: Sep 14 – Oct 31, 2026)  
+> **Strategic Paradigm Shift:** Evolved from generic CRM Builder into **Autonomous Service BOS** with the «Παραλαβή $\rightarrow$ Επισκευή $\rightarrow$ Παράδοση» wedge.  
+> **Immediate Execution:** Single Windows `.exe` + Local SQLite (`%APPDATA%`) + ESC/POS thermal printing for 2–3 pilot shops before military enlistment on Nov 1, 2026.
 
 ---
 
 ## 1. Το Όραμα & Η Ταυτότητα του Προϊόντος (The Concept)
 
-### "Figma for CRM — Το CRM που οι ομάδες όντως χρησιμοποιούν"
-Το 63% των CRM projects αποτυγχάνει λόγω υπερβολικής πολυπλοκότητας (over-engineering), αργών cloud διεπαφών και υποχρεωτικών μηνιαίων συνδρομών που κρατούν τα δεδομένα «ομήρους».
+### "Proteus BOS — Το Σύστημα Διαχείρισης που οι Επιχειρήσεις όντως Χρησιμοποιούν"
+Το 63% των software projects αποτυγχάνει λόγω υπερβολικής πολυπλοκότητας (over-engineering), αργών cloud διεπαφών και υποχρεωτικών μηνιαίων συνδρομών που κρατούν τα δεδομένα «ομήρους».
 
 Το **Proteus** λύνει αυτό το πρόβλημα συνδυάζοντας:
 1. **Visual Drag & Drop Designer**: Οποιοσδήποτε χρήστης (ακόμα και χωρίς τεχνικές γνώσεις) μπορεί να σχεδιάσει φόρμες, πίνακες και ροές εργασίας ακριβώς στα μέτρα της επιχείρησής του.

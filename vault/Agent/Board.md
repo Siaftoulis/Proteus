@@ -66,7 +66,53 @@ tags:
 - [x] CSV Export & Import for Contacts and Pipeline Deals
 - [x] SQLite Live Sync across Contacts, Deals, and Table Widgets
 
-## Future (Phase 2)
+## Sprint 5: Pre-Enlistment Windows MVP (Sep 14 – Oct 31, 2026) — ACTIVE
+
+> **Goal**: Single autonomous Windows binary (`.exe`) for Service & Intake Tracking with local SQLite and ESC/POS thermal receipt printing.  
+> **Reference**: [[../Developer/14 - Proteus BOS Blueprint|14 - Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P21)]]
+
+### 5.1 Storage & Schema Layer (Atomic Step 1)
+- [ ] Ensure SQLite path defaults to standard `%APPDATA%\Proteus\data\store.db` (Zero-privilege)
+- [ ] Implement `service_tickets` table DDL with UUIDv7 IDs & LWW `updated_at`
+- [ ] Implement `system_events` table for audit log and sync outbox
+- [ ] Create indexes on `current_status`, `customer_phone`, `updated_at`
+
+### 5.2 Service & Intake UI Views in egui (Atomic Step 2)
+- [ ] **Screen 1: New Intake Form (Νέα Παραλαβή)**
+  - [ ] Customer Name & Phone inputs with validation
+  - [ ] Device Model, Serial number, Reported fault description
+  - [ ] Estimated cost input & auto-incrementing Ticket Number
+- [ ] **Screen 2: Kanban Pipeline (Ροή Επισκευών)**
+  - [ ] 6 visual lanes: `received`, `in_progress`, `waiting_parts`, `ready`, `delivered`, `cancelled`
+  - [ ] Card movement between stages & quick search by phone/ticket
+- [ ] **Screen 3: Customer & Ticket Card (Καρτέλα Επισκευής)**
+  - [ ] Full ticket details view with technician notes
+  - [ ] Status transition timestamps & delivery date
+
+### 5.3 Hardware ESC/POS Thermal Printing (Atomic Step 3)
+- [ ] Direct USB / Raw printing integration for 58mm/80mm thermal receipt printers
+- [ ] Formatted Intake Ticket layout: Shop Header, Ticket #, Date, Customer info, Device, Fault, Barcode/QR
+- [ ] "Print Ticket" trigger on intake submission
+
+### 5.4 Declarative `.pr` Package Architecture (Atomic Step 4)
+- [ ] Define `.pr` bundle format specification (zstd archive / MessagePack)
+- [ ] Additive-only schema migration runner (`CREATE TABLE`, `ALTER TABLE ADD COLUMN`, rejecting `DROP`)
+- [ ] Automatic `.bak` SQLite snapshot before any package import
+
+### 5.5 Standalone Packaging & Pilot Testing (Atomic Step 5)
+- [ ] Release build profile (`Proteus.exe`) with stripped symbols & LTO
+- [ ] Zero-privilege execution test (works without admin rights)
+- [ ] Pilot testing and feedback collection with 2–3 local repair shops
+
+## Future (Phase 2 - Post-Military Commercial Launch)
+- [ ] Merchant of Record setup (Lemon Squeezy / Paddle)
+- [ ] Cloud Relay Tunnel (WebRTC / STUN-TURN) for remote mobile access
+- [ ] Mobile Companion App (Native Shell for iOS / Android with `sync_outbox`)
+- [ ] Local LAN mDNS auto-discovery & QR pairing
+- [ ] Zero-knowledge automated encrypted cloud backups (Cloudflare R2 / S3)
+- [ ] Multi-seat licensing & Self-service device management portal
+- [ ] Single-Member IKE (Μονοπρόσωπη ΙΚΕ) formation post-revenue (>2,000€)
+
 
 - [ ] Cloud hosting management console
 - [ ] CRM extraction (standalone app build)

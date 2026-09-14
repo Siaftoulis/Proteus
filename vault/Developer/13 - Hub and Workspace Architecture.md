@@ -50,7 +50,7 @@ stateDiagram-v2
 
 ---
 
-## 2. Inspector Panel Two-Zone Layout (Photoshop/GIMP Standard)
+## 2. Inspector Panel Two-Zone Layout (Proteus Dual-Zone Standard)
 
 The right panel (`project/crm-ui/src/inspector.rs`) is partitioned vertically into two distinct zones:
 

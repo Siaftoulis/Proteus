@@ -4,7 +4,7 @@ tags:
 ---
 # CRM Builder Vault
 
-> [[Company/Index|Company Org Chart]] | [[Agent/Board|Kanban Board]] | [[Agent/Decisions|Decisions]] | [[Agent/Project Status|Status]]
+> [[Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[Developer/15 - Master Problem Audit & Architectural Solutions|21 Problems & Solutions]] | [[Company/Index|Company Org Chart]] | [[Agent/Board|Kanban Board]] | [[Agent/Decisions|Decisions]] | [[Agent/Project Status|Status]]
 
 ## Sections
 

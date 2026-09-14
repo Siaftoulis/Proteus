@@ -14,7 +14,7 @@ aliases:
 
 ---
 
-## 1. Το Brand & Η Ταυτότητα: "Proteus" (Όχι "Figma for CRM")
+## 1. Το Brand & Η Ταυτότητα: "Proteus BOS"
 
 Το **Proteus** διατηρεί τη δική του αυτόνομη ταυτότητα:
 - **Τι είναι:** Ένα native visual builder εργαλείο για σχεδιασμό και άμεση εκτέλεση custom CRM εφαρμογών.
@@ -114,7 +114,7 @@ aliases:
 
 ## 7. Workspace Architecture, Dockable Panels & Smart Container System
 
-### Α. Inspector Panel (Photoshop Standard Layout)
+### Α. Inspector Panel (Proteus Dual-Zone Layout)
 - **Άνω Ζώνη (2/3 Ύψους):** Ιδιότητες & Styling (Transform X/Y/W/H, Fill Color + Alpha, Stroke/Border, Corner Radius slider, Padding, Data Binding).
 - **Κάτω Ζώνη (1/3 Ύψους):** Ιεραρχία Σκηνής / Layers & Groups (Δέντρο στοιχείων, κλείδωμα 🔒, ορατότητα 👁).
 

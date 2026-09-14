@@ -18,7 +18,7 @@ fn info_button(ui: &mut egui::Ui, tooltip: &str) {
 
 // ── Public entry point ──
 
-/// Two-zone Photoshop-style Inspector:
+/// Two-zone Proteus Inspector:
 /// - Upper 2/3: Transform, Sizing, Smart Box Role Selector, Styling & DB Binding
 /// - Lower 1/3: Layers / Hierarchy Tree with Lock & Visibility toggles
 pub fn draw_inspector(

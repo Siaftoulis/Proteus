@@ -21,8 +21,7 @@ User Interface Designer -- responsible for visual design, usability, and brand i
 - **Motivation:** Crafting interfaces that feel invisible -- the user should never think "how do I do this?"
 - **Stress trigger:** When marketing asks for "just add one more button here" without understanding the visual hierarchy impact.
 - **Decision style:** Prototype-first. Will sketch 3 mockups before writing CSS.
-- **Pet peeve:** Inconsistent spacing (2px here, 3px there, 5px somewhere else).
-- **Working style:** Prefers dark mode, strict 8px grid, uses Figma for rapid prototyping.
+- **Working style:** Prefers dark mode, strict 8px grid, rapid vector prototyping.
 
 ## Responsibilities
 - Define visual design system (colors, typography, spacing, components)
@@ -56,7 +55,7 @@ User Interface Designer -- responsible for visual design, usability, and brand i
 ### Phase 1
 1. Brand identity: logo, color palette, typography, tagline
 2. Launcher UI mockup (login screen, download progress, settings)
-3. Design system foundation (component library in Figma)
+3. Design system foundation (native component library)
 4. User flow diagrams for auth flow (login → download → launch)
 
 ### Phase 2

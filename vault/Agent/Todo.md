@@ -6,52 +6,53 @@ tags:
 
 > [[Board|Kanban Board]] | [[Project Status|Status]]
 
-## Sprint 4 — Core CRM (Beta Conditions)
+## Sprint 5: Pre-Enlistment Windows MVP (Sep 14 – Oct 31, 2026) — ACTIVE
 
-### Condition 1: Kill Auth Gating
-- [ ] Make app launch directly into builder (no login required)
-- [ ] LoginScreen becomes optional (sync/export only)
-- [ ] Local SQLite DB for unauthenticated use
-- [ ] Tauri commands work offline
+### 5.1 Storage & Schema Layer
+- [ ] Direct SQLite path to `%APPDATA%\Proteus\data\store.db` (Zero-privilege)
+- [ ] DDL creation for `service_tickets` (UUIDv7, monotonic timestamps, 6 check statuses)
+- [ ] DDL creation for `system_events` (local event log & sync outbox)
+- [ ] Composite indexes on `current_status`, `customer_phone`, `updated_at`
 
-### Condition 2: Data-Bound Table Widget
-- [ ] Data model engine (entity definitions + record CRUD in Rust)
-- [ ] Table widget reads from entity records (not hardcoded data)
-- [ ] Inline editing in table rows
-- [ ] Add/delete records from table widget
+### 5.2 Service & Intake UI Views (egui)
+- [ ] **Screen 1: New Intake Form (Νέα Παραλαβή)**
+  - [ ] Customer Name & Phone inputs with validation
+  - [ ] Device Model, Serial number, Reported fault text areas
+  - [ ] Estimated cost input & auto-incrementing Ticket Number
+- [ ] **Screen 2: Kanban Pipeline (Ροή Επισκευών)**
+  - [ ] 6 visual lanes: `received`, `in_progress`, `waiting_parts`, `ready`, `delivered`, `cancelled`
+  - [ ] Card movement between stages & quick search by phone/ticket
+- [ ] **Screen 3: Customer & Ticket Card (Καρτέλα Επισκευής)**
+  - [ ] Full ticket details view with technician notes
+  - [ ] Status transition timestamps & delivery date
 
-### Condition 3: Execute a Simple Flow
-- [ ] Flow runtime engine (synchronous DAG walker)
-- [ ] "On button click, create record" flow
-- [ ] Tauri command to execute a flow
+### 5.3 Hardware ESC/POS Thermal Printing
+- [ ] Direct USB / Raw printing integration for 58mm/80mm thermal receipt printers
+- [ ] Formatted Intake Ticket layout: Shop Header, Ticket #, Date, Customer info, Device, Fault, Barcode/QR
+- [ ] "Print Ticket" trigger on intake submission
 
-### Condition 4: Frontend Tests
-- [ ] Fix vitest/jsdome configuration
-- [ ] Add tests for new data-bound components
-- [ ] Ensure all 11+ frontend tests pass
+### 5.4 Declarative `.pr` Package Architecture
+- [ ] Define `.pr` bundle format specification (zstd archive / MessagePack)
+- [ ] Additive-only schema migration runner (`CREATE TABLE`, `ALTER TABLE ADD COLUMN`, rejecting `DROP`)
+- [ ] Automatic `.bak` SQLite snapshot before any package import
 
-### Additional
-- [ ] Project management UI (rename, list, create)
-- [ ] Widget property editor (table columns, form fields)
-- [ ] Undo/redo for designer canvas
+### 5.5 Distribution & Pilot Validation
+- [ ] Release build profile (`Proteus.exe`) with stripped symbols & LTO
+- [ ] Zero-privilege execution test (works without admin rights)
+- [ ] Pilot testing and feedback collection with 2–3 local repair shops
 
-## High (Post-Beta)
+## Phase 2: Military Service Period (Nov 2026 – May 2027)
+- [ ] 2–3 shop pilot testing & bugfixing during leaves
+- [ ] Zero monthly expenses maintenance
 
-- [ ] Build distribution binary (Tauri packaging + installer)
-- [ ] Create landing page with demo video
-- [ ] Set up domain + VPS for license server
-- [ ] Lemon Squeezy webhook -> license server
+## Phase 3: Commercial Launch (May 2027)
+- [ ] Lemon Squeezy / Paddle Merchant of Record (MoR) setup
+- [ ] Core business license (7.99€/mo) & seat tier checkout
+- [ ] Local LAN mDNS auto-discovery & QR pairing
+- [ ] Mobile Companion App with `sync_outbox`
+- [ ] Zero-knowledge cloud snapshot backup (Cloudflare R2 / S3)
 
-## Medium
+## Phase 4: Company Formation (Post-Revenue >2,000€)
+- [ ] Electronic establishment of Single-Member IKE (gov.gr)
 
-- [ ] Regional pricing detection in license server
-- [ ] Beta launch (Product Hunt)
-- [ ] First 100 customers onboarding
-
-## Low
-
-- [ ] Multi-user support
-- [ ] Template marketplace (Phase 2)
-- [ ] Mobile app support (iOS + Android)
-
-Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/09 - Build & Deploy|Build & Deploy]]
+Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P21)]]
