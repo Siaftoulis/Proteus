@@ -182,7 +182,10 @@ aliases:
 4. **🎨 Designer Studio Hub**:
    - Προβολή πρόσφατων `.prproj` projects και γρήγορη εκκίνηση του `proteus-studio`.
    - Κατάσταση έγκρισης και πωλήσεων στο Marketplace.
-
+5. **💻 Developer Studio & Data Schema Hub (Προγραμματιστικό Περιβάλλον & Enterprise Migrations)**:
+   - **Visual Entity & Field Schema Designer**: Επεξεργασία υφιστάμενων πινάκων (`service_tickets`, `inventory_parts`) και ορισμός custom οντοτήτων για επιχειρήσεις (`enterprise_assets`, `fleet_telematics`).
+   - **Μηχανή Additive Migrations**: Αυστηρός κανόνας αποφυγής data loss (μόνο `CREATE TABLE` & `ALTER TABLE ADD COLUMN`). Αυτόματη παραγωγή και live syntax validation σε SQLite.
+   - **Enterprise Developer Work Orders & Escrow**: Εταιρείες με in-house ή εξωτερικούς προγραμματιστές συνάπτουν συμβάσεις τροποποίησης δεδομένων. Η αμοιβή του developer (π.χ. 750€) δεσμεύεται σε Escrow και παραδίδεται με pull-request/package delivery στο client της επιχείρησης.
 
 ---
 

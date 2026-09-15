@@ -24,6 +24,8 @@ tags:
    - **🎨 Designer Hub**: Local `.prproj` project launcher and Marketplace submission monitor.
 4. **Rust Architecture Modularization**:
    - Creation of `proteus-web` crate for the Web Portal & Marketplace compilation gate API, cleanly segregating Web, Designer UI, and Shop Client.
+5. **Developer & Data Schema Studio (`views/developer.rs`)**:
+   - Dedicated Developer UI for software engineers and enterprise clients: visual entity/field inspector, additive-only migration engine (`ALTER TABLE ADD COLUMN`), and enterprise work order / Escrow contract viewer.
 
 ## 2026-09-15: Proteus BOS 3-Pillar Split & `proteus-client` Runtime Built
 

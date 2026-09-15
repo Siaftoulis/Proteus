@@ -2,6 +2,7 @@
 //! Standalone Shop Counter Runtime.
 
 use crate::views::dashboards::{draw_specialist_dashboards_view, SpecialistDashboardState};
+use crate::views::developer::{draw_developer_studio_view, DeveloperStudioState};
 use crate::views::intake::{draw_intake_view, IntakeFormState};
 use crate::views::pipeline::draw_pipeline_view;
 use crate::views::settings::{draw_settings_view, SettingsViewState};
@@ -20,6 +21,7 @@ pub enum NavTab {
     Settings,
     Support,
     Specialist,
+    Developer,
 }
 
 pub struct ProteusClientApp {
@@ -33,6 +35,7 @@ pub struct ProteusClientApp {
     settings_state: SettingsViewState,
     support_state: SupportViewState,
     specialist_state: SpecialistDashboardState,
+    developer_state: DeveloperStudioState,
 }
 
 impl ProteusClientApp {
@@ -59,6 +62,7 @@ impl ProteusClientApp {
             settings_state: SettingsViewState::default(),
             support_state: SupportViewState::default(),
             specialist_state: SpecialistDashboardState::default(),
+            developer_state: DeveloperStudioState::default(),
         }
     }
 }
@@ -83,7 +87,7 @@ impl eframe::App for ProteusClientApp {
                         ui.label(RichText::new("BOS").size(14.0).color(crate::theme::TEXT_MUTED));
                     });
 
-                    ui.add_space(16.0);
+                    ui.add_space(14.0);
 
                     // Nav Tabs
                     let tabs = [
@@ -92,22 +96,23 @@ impl eframe::App for ProteusClientApp {
                         (NavTab::Settings, "⚙ Ρυθμίσεις"),
                         (NavTab::Support, "🛠 IT Support"),
                         (NavTab::Specialist, "📊 Ειδικά Dashboards"),
+                        (NavTab::Developer, "💻 Dev & Schema"),
                     ];
 
                     for (tab, label) in tabs {
                         let is_active = self.active_tab == tab;
                         let btn = if is_active {
-                            egui::Button::new(RichText::new(label).strong().size(13.0).color(Color32::WHITE))
+                            egui::Button::new(RichText::new(label).strong().size(12.5).color(Color32::WHITE))
                                 .fill(crate::theme::ACCENT_PRIMARY)
                         } else {
-                            egui::Button::new(RichText::new(label).size(13.0).color(crate::theme::TEXT_SECONDARY))
+                            egui::Button::new(RichText::new(label).size(12.5).color(crate::theme::TEXT_SECONDARY))
                                 .fill(crate::theme::BG_CARD)
                         };
 
                         if ui.add(btn).clicked() {
                             self.active_tab = tab;
                         }
-                        ui.add_space(4.0);
+                        ui.add_space(3.0);
                     }
 
                     // Right Side: Active count badge & offline pill
@@ -173,6 +178,12 @@ impl eframe::App for ProteusClientApp {
                         draw_specialist_dashboards_view(
                             ui,
                             &mut self.specialist_state,
+                        );
+                    }
+                    NavTab::Developer => {
+                        draw_developer_studio_view(
+                            ui,
+                            &mut self.developer_state,
                         );
                     }
                 }
