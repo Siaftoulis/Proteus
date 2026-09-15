@@ -35,7 +35,10 @@ tags:
    - Built optimized standalone executable `target/release/proteus-client.exe` (only **5.0 MB**).
 8. **Ecosystem Standards & 3-Pillar Specifications Defined (`vault/Developer/17`)**:
    - Synthesized and established the master standards document (`17 - Proteus Ecosystem Standards & Pillar Specifications.md`).
-   - Detailed exact UI tabs, UX constraints, data flows, and hardware integration standards across **Proteus Studio**, **Proteus Client**, and **Proteus Web Hub**."
+   - Detailed exact UI tabs, UX constraints, data flows, and hardware integration standards across **Proteus Studio**, **Proteus Client**, and **Proteus Web Hub**.
+9. **Creator-First & Anti-Rent-Seeking Pricing Policy Adopted**:
+   - Replaced legacy 70/30 split with **85% Creator / 15% Platform** for `.pr` template marketplace, and **90% Creator / 10% Platform** for custom bespoke escrow contracts.
+   - Core shop counter runtime maintained at accessible **7.99€/month** with zero transaction surcharges and one-time template purchases (value-for-money focus).
 
 ---
 
