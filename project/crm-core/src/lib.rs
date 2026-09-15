@@ -3,8 +3,11 @@ pub mod encryption;
 pub mod export;
 pub mod flow;
 pub mod license;
+pub mod paths;
+pub mod printer;
 pub mod schema;
 pub mod sync;
+pub mod tickets;
 
 use chrono::Utc;
 use rusqlite::{params, Connection};
