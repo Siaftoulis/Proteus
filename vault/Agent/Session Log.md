@@ -4,6 +4,38 @@ tags:
 ---
 # Session Log
 
+## 2026-09-15: Proteus BOS 3-Pillar Split & `proteus-client` Runtime Built
+
+### Key Accomplishments
+1. **Master Architecture Restructuring**:
+   - Split Proteus into 3 clear pillars:
+     - `proteus-studio` (Visual Canvas & Schema Designer - Desktop `.exe`)
+     - `proteus-client` (Standalone Shop Counter Runtime `.exe` - Zero-privilege, Offline-first)
+     - `proteus-hub` (License activation, accounts, marketplace)
+2. **`proteus-client` Standalone Native App Completed**:
+   - **Screen 1 (Intake / Νέα Παραλαβή)**: Rapid device intake form with customer validation, fault description, auto ticket number generation.
+   - **Screen 2 (Kanban Pipeline / Ροή Επισκευών)**: 6 status lanes (`Received`, `InProgress`, `WaitingParts`, `Ready`, `Delivered`, `Cancelled`), live instant search, stage advance buttons.
+   - **Screen 3 (Ticket Detail Modal / Καρτέλα Επισκευής)**: Detailed inspection modal with technician notes editor, repair cost updater, status changer, reprint button.
+   - **Screen 4 (Shop Settings / Ρυθμίσεις)**: Business header/footer metadata, paper width toggle (58mm/80mm), Win32 spooler printer selection, test print.
+3. **Core ESC/POS Thermal Printing Engine (`crm-core::printer`)**:
+   - Native Win32 Spooler RAW pass-through (`winspool.drv`) without third-party dependencies.
+   - Ticket receipt generator with formatted text, dashed dividers, cost summary, and automatic paper cut command (`GS V 66 0`).
+4. **Storage & Zero-Privilege Path (`crm-core::paths` & `crm-core::tickets`)**:
+   - Default database path at `%APPDATA%\Proteus\data\store.db` (zero Windows administrator privileges required).
+   - Monotonic UUIDv7 IDs, composite indexes, and `system_events` audit/sync outbox.
+6. **Visual Design & Studio Overhaul (`crm-ui`)**:
+   - **Selection & Dimension HUD (`renderer.rs`)**: Replaced raw outlines with vibrant accent stroke, sleek circular handles (`circle_filled` with `Stroke::new(1.5, theme::ACCENT)`), and a real-time floating monospace dimension badge pill (`W × H`) rendered directly beneath the selection.
+   - **Quick Alignment Bar (`inspector.rs`)**: Added 1-click alignment toolbar (`⇤` Left, `⇋` Center H, `⇥` Right, `⤒` Top, `⥯` Middle V, `⤓` Bottom) relative to parent frame or canvas.
+   - **Curated Color Swatches (`inspector.rs`)**: 10 harmonious obsidian/luxury dark/accent swatches for 1-click styling without guessing RGB values.
+   - **Interactive Floating Canvas HUD (`views/designer.rs`)**: Bottom-left live cursor world coordinates `(X, Y)` and selection status pill; bottom-right interactive zoom controls (`−`, zoom `%`, `+`, and `⛶ Fit` canvas center).
+   - **1-Click Component Templates (`views/designer.rs` & `main.rs`)**: Instant insertion of pre-styled `KPI Metric Card` (`💳`) and `Intake Form Card` (`📝`) composite blocks.
+7. **Test Suite & Clean Compilation**:
+   - **112/112 unit tests passing (100% green)** across all crates.
+   - Zero compilation errors and zero warnings across the entire workspace.
+   - Built optimized standalone executable `target/release/proteus-client.exe` (only **5.0 MB**).
+
+---
+
 ## 2026-09-10: Zoom Scaling Fix & Commercial Expansion Alignment
 
 ### Key Accomplishments

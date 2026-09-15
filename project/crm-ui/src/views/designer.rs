@@ -117,6 +117,24 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
             let _ = app.project_doc.add_node(page, None);
             app.toast(format!("Page '{}' added ✓", page_id));
         }
+
+        ui.add_space(6.);
+        ui.separator();
+        ui.add_space(4.);
+
+        // ── Quick Component Blocks (One-Click Templates) ──
+        let kpi_btn = tool_icon_btn(ui, "💳", false, "KPI Metric Card", "K", "Insert pre-styled KPI metric card.");
+        if kpi_btn.clicked() {
+            let offset = (app.spawn_counter as f32 * 25.0) % 250.0;
+            app.spawn_kpi_card((120.0 + offset, 120.0 + offset));
+        }
+
+        ui.add_space(2.);
+        let form_btn = tool_icon_btn(ui, "📝", false, "Intake Form Card", "F", "Insert pre-styled intake form block.");
+        if form_btn.clicked() {
+            let offset = (app.spawn_counter as f32 * 25.0) % 250.0;
+            app.spawn_form_block((160.0 + offset, 140.0 + offset));
+        }
     });
 }
 
@@ -548,11 +566,69 @@ pub fn show_central(app: &mut ProteusApp, ctx: &egui::Context, ui: &mut egui::Ui
         }
     }
 
-    // Viewport info
-    pnt.text(egui::pos2(r.left() + 8., r.bottom() - 4.), egui::Align2::LEFT_BOTTOM,
-        &format!("Zoom: {:.0}%  |  Pan: ({:.0}, {:.0})  |  {} nodes",
-            app.viewport.zoom * 100., app.viewport.pan.x, app.viewport.pan.y, app.project_doc.nodes.len()),
-        egui::FontId::proportional(9.), theme::TEXT_DIM);
+    // ── Interactive Floating Canvas HUD (Bottom Status & Zoom Controller) ──
+    let hud_y = r.bottom() - 36.0;
+
+    // 1. Bottom-Left Status & Cursor Coordinates Pill
+    let status_rect = Rect::from_min_size(Pos2::new(r.left() + 14.0, hud_y), Vec2::new(260.0, 26.0));
+    pnt.rect_filled(status_rect, egui::CornerRadius::same(6), Color32::from_rgb(18, 20, 26));
+    pnt.rect_stroke(status_rect, egui::CornerRadius::same(6), Stroke::new(1.0, theme::BORDER), egui::StrokeKind::Outside);
+
+    let (cur_x, cur_y) = if let Some(mp) = mpos {
+        let wm = app.viewport.screen_to_world(mp, canvas_origin);
+        (wm.x.round() as i32, wm.y.round() as i32)
+    } else {
+        (0, 0)
+    };
+
+    let sel_info = if let Some(sid) = &app.designer_selected_node {
+        let name = app.project_doc.nodes.get(sid).map(|n| n.name.as_str()).unwrap_or("Node");
+        format!("{} ({})", name, sid)
+    } else {
+        format!("{} Nodes", app.project_doc.nodes.len())
+    };
+
+    let status_text = format!("X: {:<4} Y: {:<4} | {}", cur_x, cur_y, sel_info);
+    pnt.text(
+        Pos2::new(status_rect.left() + 10.0, status_rect.center().y),
+        egui::Align2::LEFT_CENTER,
+        &status_text,
+        egui::FontId::monospace(10.5),
+        theme::TEXT_DIM,
+    );
+
+    // 2. Bottom-Right Floating Zoom & View Controller
+    let zoom_rect = Rect::from_min_size(Pos2::new(r.right() - 212.0, hud_y), Vec2::new(198.0, 26.0));
+    pnt.rect_filled(zoom_rect, egui::CornerRadius::same(6), Color32::from_rgb(18, 20, 26));
+    pnt.rect_stroke(zoom_rect, egui::CornerRadius::same(6), Stroke::new(1.0, theme::BORDER), egui::StrokeKind::Outside);
+
+    ui.allocate_new_ui(egui::UiBuilder::new().max_rect(zoom_rect), |ui| {
+        ui.horizontal_centered(|ui| {
+            ui.add_space(4.0);
+            if ui.add(egui::Button::new("−").min_size(Vec2::new(22.0, 20.0))).clicked() {
+                app.viewport.zoom = (app.viewport.zoom * 0.85).clamp(0.1, 5.0);
+            }
+            let zoom_pct = format!("{:.0}%", app.viewport.zoom * 100.0);
+            if ui.add(egui::Button::new(egui::RichText::new(zoom_pct).size(11.0)).min_size(Vec2::new(50.0, 20.0)))
+                .on_hover_text("Click to reset zoom to 100%")
+                .clicked()
+            {
+                app.viewport.zoom = 1.0;
+                app.viewport.pan = egui::Vec2::ZERO;
+            }
+            if ui.add(egui::Button::new("+").min_size(Vec2::new(22.0, 20.0))).clicked() {
+                app.viewport.zoom = (app.viewport.zoom * 1.15).clamp(0.1, 5.0);
+            }
+            ui.separator();
+            if ui.add(egui::Button::new(egui::RichText::new("⛶ Fit").size(11.0)).min_size(Vec2::new(42.0, 20.0)))
+                .on_hover_text("Center canvas & fit")
+                .clicked()
+            {
+                app.viewport.zoom = 1.0;
+                app.viewport.pan = egui::Vec2::ZERO;
+            }
+        });
+    });
 
     if app.project_doc.nodes.is_empty() {
         pnt.text(r.center(), egui::Align2::CENTER_CENTER,

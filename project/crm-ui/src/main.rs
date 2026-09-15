@@ -543,6 +543,149 @@ impl ProteusApp {
         id
     }
 
+    pub fn spawn_kpi_card(&mut self, world_pos: (f32, f32)) {
+        self.push_undo();
+        self.spawn_counter += 1;
+        let card_id = format!("kpi-{}", self.spawn_counter);
+        let mut card = scene::Node::new(card_id.clone(), "KPI Metric Card".into(), scene::NodeType::Frame);
+        card.position = world_pos;
+        card.layout.width = scene::Sizing::Fixed(220.0);
+        card.layout.height = scene::Sizing::Fixed(100.0);
+        card.style.bg_color = [0.08, 0.09, 0.12, 1.0];
+        card.style.border_color = [0.18, 0.20, 0.26, 1.0];
+        card.style.border_radius = 8.0;
+        card.style.border_width = 1.0;
+
+        let _ = self.project_doc.add_node(card, None);
+
+        // Label
+        self.spawn_counter += 1;
+        let lbl_id = format!("lbl-{}", self.spawn_counter);
+        let mut lbl = scene::Node::new(lbl_id, "KPI Label".into(), scene::NodeType::Text {
+            content: "ACTIVE REPAIRS".into(),
+            font: scene::FontSpec {
+                family: "Inter".into(),
+                size: 10.0,
+                weight: 600,
+                color: scene::Rgba { r: 156, g: 163, b: 175, a: 255 },
+            },
+        });
+        lbl.position = (world_pos.0 + 16.0, world_pos.1 + 14.0);
+        let _ = self.project_doc.add_node(lbl, Some(card_id.clone()));
+
+        // Value
+        self.spawn_counter += 1;
+        let val_id = format!("val-{}", self.spawn_counter);
+        let mut val = scene::Node::new(val_id, "KPI Value".into(), scene::NodeType::Text {
+            content: "24".into(),
+            font: scene::FontSpec {
+                family: "Inter".into(),
+                size: 28.0,
+                weight: 700,
+                color: scene::Rgba::WHITE,
+            },
+        });
+        val.position = (world_pos.0 + 16.0, world_pos.1 + 32.0);
+        let _ = self.project_doc.add_node(val, Some(card_id.clone()));
+
+        // Trend
+        self.spawn_counter += 1;
+        let trd_id = format!("trd-{}", self.spawn_counter);
+        let mut trd = scene::Node::new(trd_id, "KPI Trend".into(), scene::NodeType::Text {
+            content: "↑ 12% this week".into(),
+            font: scene::FontSpec {
+                family: "Inter".into(),
+                size: 11.0,
+                weight: 500,
+                color: scene::Rgba { r: 52, g: 211, b: 153, a: 255 },
+            },
+        });
+        trd.position = (world_pos.0 + 16.0, world_pos.1 + 72.0);
+        let _ = self.project_doc.add_node(trd, Some(card_id.clone()));
+
+        self.designer_selected_node = Some(card_id.clone());
+        self.editor_state.selected_node_ids = vec![card_id];
+        self.toast("KPI Metric Card inserted ✓");
+    }
+
+    pub fn spawn_form_block(&mut self, world_pos: (f32, f32)) {
+        self.push_undo();
+        self.spawn_counter += 1;
+        let form_id = format!("form-{}", self.spawn_counter);
+        let mut form = scene::Node::new(form_id.clone(), "Intake Form".into(), scene::NodeType::Frame);
+        form.position = world_pos;
+        form.layout.width = scene::Sizing::Fixed(300.0);
+        form.layout.height = scene::Sizing::Fixed(200.0);
+        form.style.bg_color = [0.08, 0.09, 0.12, 1.0];
+        form.style.border_color = [0.18, 0.20, 0.26, 1.0];
+        form.style.border_radius = 8.0;
+        form.style.border_width = 1.0;
+
+        let _ = self.project_doc.add_node(form, None);
+
+        // Title
+        self.spawn_counter += 1;
+        let title_id = format!("title-{}", self.spawn_counter);
+        let mut title = scene::Node::new(title_id, "Form Title".into(), scene::NodeType::Text {
+            content: "Quick Service Intake".into(),
+            font: scene::FontSpec {
+                family: "Inter".into(),
+                size: 14.0,
+                weight: 700,
+                color: scene::Rgba::WHITE,
+            },
+        });
+        title.position = (world_pos.0 + 16.0, world_pos.1 + 16.0);
+        let _ = self.project_doc.add_node(title, Some(form_id.clone()));
+
+        // Name input
+        self.spawn_counter += 1;
+        let name_id = format!("inp-name-{}", self.spawn_counter);
+        let mut name_inp = scene::Node::new(name_id, "Customer Name Input".into(), scene::NodeType::TextInput {
+            placeholder: "Customer Name *".into(),
+            field_type: scene::FieldType::Text,
+            bound_entity: Some("tickets".into()),
+            bound_field: Some("customer_name".into()),
+        });
+        name_inp.position = (world_pos.0 + 16.0, world_pos.1 + 46.0);
+        name_inp.layout.width = scene::Sizing::Fixed(268.0);
+        name_inp.layout.height = scene::Sizing::Fixed(34.0);
+        let _ = self.project_doc.add_node(name_inp, Some(form_id.clone()));
+
+        // Phone input
+        self.spawn_counter += 1;
+        let phone_id = format!("inp-phone-{}", self.spawn_counter);
+        let mut phone_inp = scene::Node::new(phone_id, "Phone Number Input".into(), scene::NodeType::TextInput {
+            placeholder: "Phone Number *".into(),
+            field_type: scene::FieldType::Text,
+            bound_entity: Some("tickets".into()),
+            bound_field: Some("customer_phone".into()),
+        });
+        phone_inp.position = (world_pos.0 + 16.0, world_pos.1 + 88.0);
+        phone_inp.layout.width = scene::Sizing::Fixed(268.0);
+        phone_inp.layout.height = scene::Sizing::Fixed(34.0);
+        let _ = self.project_doc.add_node(phone_inp, Some(form_id.clone()));
+
+        // Submit Button
+        self.spawn_counter += 1;
+        let btn_id = format!("btn-sub-{}", self.spawn_counter);
+        let mut btn = scene::Node::new(btn_id, "Submit Button".into(), scene::NodeType::Button {
+            label: "💾 Submit & Print".into(),
+            style: scene::ButtonStyle::Primary,
+        });
+        btn.position = (world_pos.0 + 16.0, world_pos.1 + 134.0);
+        btn.layout.width = scene::Sizing::Fixed(268.0);
+        btn.layout.height = scene::Sizing::Fixed(38.0);
+        btn.style.bg_color = [0.31, 0.55, 0.93, 1.0];
+        btn.style.text_color = [1.0, 1.0, 1.0, 1.0];
+        btn.style.border_radius = 6.0;
+        let _ = self.project_doc.add_node(btn, Some(form_id.clone()));
+
+        self.designer_selected_node = Some(form_id.clone());
+        self.editor_state.selected_node_ids = vec![form_id];
+        self.toast("Intake Form Card inserted ✓");
+    }
+
     pub fn save_project(&mut self) {
         let nodes_list: Vec<serde_json::Value> = self.fns.iter().map(|n| serde_json::json!({"id": n.id, "type": n.nt, "label": n.label, "x": n.x, "y": n.y, "extra": n.extra})).collect();
         let edges_list: Vec<serde_json::Value> = self.fes.iter().map(|(id, s, t)| serde_json::json!({"id": id, "source": s, "target": t})).collect();

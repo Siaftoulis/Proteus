@@ -102,6 +102,90 @@ pub fn draw_inspector(
                     });
                 }
 
+                // Quick Alignment Bar
+                ui.horizontal(|ui| {
+                    let (ref_w, ref_h) = if let Some(pid) = &node.parent_id {
+                        if let Some(parent) = doc.get_node(pid) {
+                            match (&parent.layout.width, &parent.layout.height) {
+                                (Sizing::Fixed(w), Sizing::Fixed(h)) => (*w, *h),
+                                (Sizing::Fixed(w), _) => (*w, 800.),
+                                (_, Sizing::Fixed(h)) => (1200., *h),
+                                _ => (1200., 800.),
+                            }
+                        } else {
+                            (1200., 800.)
+                        }
+                    } else {
+                        (1200., 800.)
+                    };
+
+                    if ui.add(egui::Button::new("⇤").min_size(Vec2::new(22., 20.)))
+                        .on_hover_text("Align Left (X = 0)")
+                        .clicked()
+                    {
+                        events.push(CanvasEvent::NodeModified {
+                            id: node_id.clone(),
+                            update: NodeUpdate::Move { x: 0.0, y: node.position.1 },
+                        });
+                    }
+
+                    if ui.add(egui::Button::new("⇋").min_size(Vec2::new(22., 20.)))
+                        .on_hover_text("Align Center Horizontally")
+                        .clicked()
+                    {
+                        let center_x = ((ref_w - cur_w) / 2.0).max(0.0).round();
+                        events.push(CanvasEvent::NodeModified {
+                            id: node_id.clone(),
+                            update: NodeUpdate::Move { x: center_x, y: node.position.1 },
+                        });
+                    }
+
+                    if ui.add(egui::Button::new("⇥").min_size(Vec2::new(22., 20.)))
+                        .on_hover_text("Align Right")
+                        .clicked()
+                    {
+                        let right_x = (ref_w - cur_w).max(0.0).round();
+                        events.push(CanvasEvent::NodeModified {
+                            id: node_id.clone(),
+                            update: NodeUpdate::Move { x: right_x, y: node.position.1 },
+                        });
+                    }
+
+                    ui.separator();
+
+                    if ui.add(egui::Button::new("⤒").min_size(Vec2::new(22., 20.)))
+                        .on_hover_text("Align Top (Y = 0)")
+                        .clicked()
+                    {
+                        events.push(CanvasEvent::NodeModified {
+                            id: node_id.clone(),
+                            update: NodeUpdate::Move { x: node.position.0, y: 0.0 },
+                        });
+                    }
+
+                    if ui.add(egui::Button::new("⥯").min_size(Vec2::new(22., 20.)))
+                        .on_hover_text("Align Center Vertically")
+                        .clicked()
+                    {
+                        let center_y = ((ref_h - cur_h) / 2.0).max(0.0).round();
+                        events.push(CanvasEvent::NodeModified {
+                            id: node_id.clone(),
+                            update: NodeUpdate::Move { x: node.position.0, y: center_y },
+                        });
+                    }
+
+                    if ui.add(egui::Button::new("⤓").min_size(Vec2::new(22., 20.)))
+                        .on_hover_text("Align Bottom")
+                        .clicked()
+                    {
+                        let bottom_y = (ref_h - cur_h).max(0.0).round();
+                        events.push(CanvasEvent::NodeModified {
+                            id: node_id.clone(),
+                            update: NodeUpdate::Move { x: node.position.0, y: bottom_y },
+                        });
+                    }
+                });
+
                 // Copy / Paste Size buttons
                 ui.horizontal(|ui| {
                     if ui.add(egui::Button::new("📋 Copy Size").min_size(Vec2::new(70., 18.))).clicked() {
@@ -606,6 +690,35 @@ pub fn draw_inspector(
                     let mut c = egui::Rgba::from_rgba_unmultiplied(r, g, b, a);
                     style_changed |= color_edit_button_rgba(ui, &mut c, Alpha::OnlyBlend).changed();
                     new_style.bg_color = [c.r(), c.g(), c.b(), c.a()];
+                });
+
+                // Curated Luxury Color Swatches
+                ui.horizontal_wrapped(|ui| {
+                    let swatches = [
+                        ("Obsidian", [0.05, 0.06, 0.08, 1.0]),
+                        ("Dark Card", [0.10, 0.11, 0.14, 1.0]),
+                        ("Elevated", [0.15, 0.16, 0.20, 1.0]),
+                        ("Border Gray", [0.22, 0.25, 0.32, 1.0]),
+                        ("Indigo", [0.39, 0.40, 0.95, 1.0]),
+                        ("Cyan", [0.06, 0.73, 0.85, 1.0]),
+                        ("Emerald", [0.06, 0.72, 0.50, 1.0]),
+                        ("Amber", [0.96, 0.62, 0.04, 1.0]),
+                        ("Rose", [0.96, 0.25, 0.37, 1.0]),
+                        ("White", [1.0, 1.0, 1.0, 1.0]),
+                    ];
+                    for (name, rgba) in swatches {
+                        let (rect, resp) = ui.allocate_exact_size(Vec2::splat(15.0), egui::Sense::click());
+                        let col = Color32::from_rgba_unmultiplied(
+                            (rgba[0] * 255.0) as u8, (rgba[1] * 255.0) as u8,
+                            (rgba[2] * 255.0) as u8, (rgba[3] * 255.0) as u8,
+                        );
+                        ui.painter().rect_filled(rect, egui::CornerRadius::same(3), col);
+                        ui.painter().rect_stroke(rect, egui::CornerRadius::same(3), egui::Stroke::new(1.0, theme::BORDER), egui::StrokeKind::Outside);
+                        if resp.on_hover_text(name).clicked() {
+                            new_style.bg_color = rgba;
+                            style_changed = true;
+                        }
+                    }
                 });
 
                 if is_text {
