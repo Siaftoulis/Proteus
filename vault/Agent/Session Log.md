@@ -39,6 +39,10 @@ tags:
 9. **Creator-First & Anti-Rent-Seeking Pricing Policy Adopted**:
    - Replaced legacy 70/30 split with **85% Creator / 15% Platform** for `.pr` template marketplace, and **90% Creator / 10% Platform** for custom bespoke escrow contracts.
    - Core shop counter runtime maintained at accessible **7.99€/month** with zero transaction surcharges and one-time template purchases (value-for-money focus).
+10. **Comprehensive Financial Architecture & Unit Economics Integrated (`vault/Developer/18`)**:
+    - Synthesized and established the master mathematical financial model (`18 - Financial Model & Mathematical Revenue Architecture.md`).
+    - Integrated unit economics across Certifications (79€ exam / 39€ yr badge / 149€ bundle), Services & Marketplace take-rate (18% gross, 82% net partner), Bracketed Tier user pricing (1-4 users @ 7.99€, 5-20 @ +1.50€, 21-60 @ +1.00€, 61-150 @ +0.60€, Enterprise Cap 199€ flat), and Managed Cloud Sync/Backup margins (66%-76%).
+    - Formalized 3-phase growth projections (Phase 1: 1,030€ MRR $\rightarrow$ Phase 2: 5,250€ MRR $\rightarrow$ Phase 3: 25,000€ MRR).
 
 ---
 
