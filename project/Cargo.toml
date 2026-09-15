@@ -4,6 +4,7 @@ members = [
     "crm-core",
     "crm-ui",
     "proteus-client",
+    "proteus-web",
     "license-server",
     "auth-server"
 ]

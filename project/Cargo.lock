@@ -3207,6 +3207,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "proteus-web"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "crm-core",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tower-http 0.5.2",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
+
+[[package]]
 name = "pxfm"
 version = "0.1.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"

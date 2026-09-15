@@ -1,9 +1,11 @@
 //! Main Application State & Coordinator for Proteus Client (Proteus.exe).
 //! Standalone Shop Counter Runtime.
 
+use crate::views::dashboards::{draw_specialist_dashboards_view, SpecialistDashboardState};
 use crate::views::intake::{draw_intake_view, IntakeFormState};
 use crate::views::pipeline::draw_pipeline_view;
 use crate::views::settings::{draw_settings_view, SettingsViewState};
+use crate::views::support::{draw_support_view, SupportViewState};
 use crate::views::ticket_detail::{draw_ticket_detail_modal, TicketDetailState};
 use crm_core::paths::{ensure_database_dir_exists, get_database_path};
 use crm_core::printer::ShopReceiptConfig;
@@ -16,6 +18,8 @@ pub enum NavTab {
     Intake,
     Pipeline,
     Settings,
+    Support,
+    Specialist,
 }
 
 pub struct ProteusClientApp {
@@ -27,6 +31,8 @@ pub struct ProteusClientApp {
     ticket_detail_state: TicketDetailState,
     receipt_config: ShopReceiptConfig,
     settings_state: SettingsViewState,
+    support_state: SupportViewState,
+    specialist_state: SpecialistDashboardState,
 }
 
 impl ProteusClientApp {
@@ -51,6 +57,8 @@ impl ProteusClientApp {
             ticket_detail_state: TicketDetailState::default(),
             receipt_config: ShopReceiptConfig::default(),
             settings_state: SettingsViewState::default(),
+            support_state: SupportViewState::default(),
+            specialist_state: SpecialistDashboardState::default(),
         }
     }
 }
@@ -65,7 +73,7 @@ impl eframe::App for ProteusClientApp {
                 Frame::new()
                     .fill(crate::theme::BG_PANEL)
                     .stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
-                    .inner_margin(Margin::symmetric(16, 10)),
+                    .inner_margin(Margin::symmetric(14, 10)),
             )
             .show(ctx, |ui| {
                 ui.horizontal(|ui| {
@@ -75,26 +83,28 @@ impl eframe::App for ProteusClientApp {
                         ui.label(RichText::new("BOS").size(14.0).color(crate::theme::TEXT_MUTED));
                     });
 
-                    ui.add_space(24.0);
+                    ui.add_space(16.0);
 
                     // Nav Tabs
                     let tabs = [
                         (NavTab::Intake, "⚡ Νέα Παραλαβή"),
                         (NavTab::Pipeline, "📋 Ροή Επισκευών"),
                         (NavTab::Settings, "⚙ Ρυθμίσεις"),
+                        (NavTab::Support, "🛠 IT Support"),
+                        (NavTab::Specialist, "📊 Ειδικά Dashboards"),
                     ];
 
                     for (tab, label) in tabs {
                         let is_active = self.active_tab == tab;
                         let btn = if is_active {
-                            egui::Button::new(RichText::new(label).strong().size(14.0).color(Color32::WHITE))
+                            egui::Button::new(RichText::new(label).strong().size(13.0).color(Color32::WHITE))
                                 .fill(crate::theme::ACCENT_PRIMARY)
                         } else {
-                            egui::Button::new(RichText::new(label).size(14.0).color(crate::theme::TEXT_SECONDARY))
+                            egui::Button::new(RichText::new(label).size(13.0).color(crate::theme::TEXT_SECONDARY))
                                 .fill(crate::theme::BG_CARD)
                         };
 
-                        if ui.add_sized([150.0, 32.0], btn).clicked() {
+                        if ui.add(btn).clicked() {
                             self.active_tab = tab;
                         }
                         ui.add_space(4.0);
@@ -151,6 +161,20 @@ impl eframe::App for ProteusClientApp {
                             &mut self.settings_state,
                         );
                     }
+                    NavTab::Support => {
+                        draw_support_view(
+                            ui,
+                            &self.conn,
+                            &mut self.support_state,
+                            &self.settings_state.printer_name,
+                        );
+                    }
+                    NavTab::Specialist => {
+                        draw_specialist_dashboards_view(
+                            ui,
+                            &mut self.specialist_state,
+                        );
+                    }
                 }
             });
 
@@ -165,3 +189,4 @@ impl eframe::App for ProteusClientApp {
         );
     }
 }
+

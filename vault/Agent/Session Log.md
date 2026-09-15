@@ -4,6 +4,27 @@ tags:
 ---
 # Session Log
 
+## 2026-09-15 (Part 2): 10-Tier Sliding Commission, Anti-Bypass Walled Garden & Specialist Dashboards
+
+### Key Decisions & Deliverables
+1. **100% Free Studio & Anti-Bypass Walled Garden**:
+   - `proteus-studio` is completely free to download and use.
+   - Saves locally as `.prproj` (Proteus Project format) allowing full project management in the native Rust engine.
+   - Export/compilation to `.pr` is completely blocked locally: the only compilation path is through the Proteus Hub / Marketplace.
+   - When a client purchases or contracts a design, delivery occurs exclusively in-platform directly to the client's `proteus-client` runtime upon verified payment into In-Platform Escrow. Zero offline bypass/revenue leakage.
+2. **10-Tier Sliding Commission & Certification Subscriptions**:
+   - Tier 0 (Uncertified): 50% platform take (50/50 split).
+   - Tier 1: 40%, Tier 2: 35%, Tier 3: 30%... sliding down to Tier 10: 4%–5% (covering only Stripe/MoR fees for high-volume enterprise agencies).
+   - Monthly upgrade subscription option (30€/month) and proportional annual badge renewals.
+   - Automatic re-testing requirement if partner rating drops below 4.2/5 or SLA violations occur.
+3. **Specialist Role Dashboards in `proteus-client`**:
+   - **🛠 IT Support & Remote Operations**: System health diagnostics (SQLite, Spooler, integrity), Remote Session PIN generation for off-site assistance, client shop roster, and SLA contract viewer.
+   - **🤝 Customer Service & Training**: Staff onboarding tutorials, intake speed benchmarking (< 30s target), customer feedback tracker.
+   - **📈 Sales & Solutions Consultant**: Prospect lead tracking, dynamic price quote builder (Core + Cloud + POS hardware), and Tier commission progression monitor.
+   - **🎨 Designer Hub**: Local `.prproj` project launcher and Marketplace submission monitor.
+4. **Rust Architecture Modularization**:
+   - Creation of `proteus-web` crate for the Web Portal & Marketplace compilation gate API, cleanly segregating Web, Designer UI, and Shop Client.
+
 ## 2026-09-15: Proteus BOS 3-Pillar Split & `proteus-client` Runtime Built
 
 ### Key Accomplishments
