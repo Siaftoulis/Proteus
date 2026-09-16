@@ -4,7 +4,7 @@ tags:
 ---
 # Developer Documentation
 
-> [[14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[15 - Master Problem Audit & Architectural Solutions|21 Problems & Solutions]] | [[16 - Three-Pillar Architecture & Restructuring Plan|3 Pillars & Restructuring]] | [[17 - Proteus Ecosystem Standards & Pillar Specifications|Ecosystem Standards]] | [[18 - Financial Model & Mathematical Revenue Architecture|Financial Model]] | [[Board|Project Board]]
+> [[14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[15 - Master Problem Audit & Architectural Solutions|21 Problems & Solutions]] | [[16 - Three-Pillar Architecture & Restructuring Plan|3 Pillars & Restructuring]] | [[17 - Proteus Ecosystem Standards & Pillar Specifications|Ecosystem Standards]] | [[18 - Financial Model & Mathematical Revenue Architecture|Financial Model]] | [[19 - Role-Based Access Control & Event Audit Architecture|RBAC & Audit Trail]] | [[Board|Project Board]]
 
 ```dataviewjs
 dv.table(["#", "Document", "Tags", "Updated"],

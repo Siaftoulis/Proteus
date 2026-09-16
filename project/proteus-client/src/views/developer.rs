@@ -55,6 +55,7 @@ pub struct EnterpriseWorkOrder {
     pub enterprise_name: String,
     pub work_order_title: String,
     pub escrow_amount_eur: f64,
+    #[allow(dead_code)]
     pub is_active: bool,
 }
 

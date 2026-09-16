@@ -104,6 +104,15 @@ tags:
 - [x] Zero-privilege execution test (works without admin rights)
 - [ ] Pilot testing and feedback collection with 2–3 local repair shops
 
+### 5.6 Role-Based Access Control, Event Audit Trail & Appointments Subsystem
+- [x] Bespoke RBAC engine in `crm-core::roles` (CEO, Customer Service, Technician, Sales, Developer)
+- [x] Dynamic TopBar role switcher & navigation tab permission filtering in `proteus-client`
+- [x] Event-sourced Audit Trail in `crm-core::audit` with SQLite `audit_logs` table & monotonic UUIDv7
+- [x] Visual Activity Timeline (`AuditLogView`) with role filtering, search, badges, relative timestamps & JSON diff viewer
+- [x] Customer Service Appointments subsystem (`AppointmentsView`) with scheduling, validation & automated audit logging
+- [x] Comprehensive documentation in `vault/Developer/19 - Role-Based Access Control & Event Audit Architecture.md`
+- [x] 121/121 workspace unit tests passing (100% green)
+
 ## Future (Phase 2 - Post-Military Commercial Launch)
 - [ ] Merchant of Record setup (Lemon Squeezy / Paddle)
 - [ ] Cloud Relay Tunnel (WebRTC / STUN-TURN) for remote mobile access

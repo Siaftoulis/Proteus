@@ -28,6 +28,7 @@ pub struct SlaContract {
     pub status: ContractStatus,
 }
 
+#[allow(dead_code)]
 impl SlaContract {
     pub fn new(
         contract_id: String,

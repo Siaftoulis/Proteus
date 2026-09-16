@@ -4,6 +4,26 @@ tags:
 ---
 # Session Log
 
+## 2026-09-16: Role-Based Access Control (RBAC), Event Audit Trail & Appointments Subsystem
+
+### Key Deliverables & Accomplishments
+1. **Granular Role-Based Access Control (`crm-core::roles`)**:
+   - `UserRole` enum (`Ceo`, `CustomerService`, `Technician`, `SalesConsultant`, `Developer`) with bespoke permission flags:
+     - `can_view_audit_trail`, `can_view_financials`, `can_edit_schema`, `can_intake_tickets`, `can_manage_pipeline`, `can_edit_technical_notes`, `can_manage_contracts`, `can_book_appointments`, `can_manage_settings`.
+   - Dynamic tab navigation and active role switching in `proteus-client::app`.
+2. **Event-Sourced Activity Logging & Audit Trail (`crm-core::audit` & `views::audit_log`)**:
+   - Monotonic UUIDv7 event identifiers, entity tracking (`ticket`, `appointment`, `schema`, `contract`), operator identity/role, human-readable descriptions, and JSON payload diffs.
+   - Beautiful visual presentation: live text search, role filter combobox, color-coded badges (Gold CEO, Sky Blue Customer Service, Emerald Tech, Warm Orange Sales, Indigo Developer), relative time badges ("μόλις τώρα", "πριν X λεπτά"), and collapsible JSON payload inspector.
+3. **Customer Service Appointments Subsystem (`views::appointments`)**:
+   - Dedicated appointment scheduling interface for Customer Service and Sales reps.
+   - Input validation, client phone, date/time, and notes.
+   - Automatic emission of `SystemEvent` audit entries on appointment booking and status completion/cancellation.
+4. **Comprehensive Documentation**:
+   - Added `vault/Developer/19 - Role-Based Access Control & Event Audit Architecture.md` detailing the entire multi-role workflow and collaboration model.
+5. **Quality & Verification**:
+   - 121/121 workspace unit tests passing (100% green across all crates).
+   - Zero compilation warnings, zero third-party boilerplate.
+
 ## 2026-09-15 (Part 2): 10-Tier Sliding Commission, Anti-Bypass Walled Garden & Specialist Dashboards
 
 ### Key Decisions & Deliverables

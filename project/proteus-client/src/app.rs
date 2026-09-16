@@ -1,6 +1,5 @@
-//! Main Application State & Coordinator for Proteus Client (Proteus.exe).
-//! Standalone Shop Counter Runtime.
-
+use crate::views::appointments::{draw_appointments_view, AppointmentsViewState};
+use crate::views::audit_log::{draw_audit_log_view, AuditLogViewState};
 use crate::views::dashboards::{draw_specialist_dashboards_view, SpecialistDashboardState};
 use crate::views::developer::{draw_developer_studio_view, DeveloperStudioState};
 use crate::views::intake::{draw_intake_view, IntakeFormState};
@@ -8,8 +7,10 @@ use crate::views::pipeline::draw_pipeline_view;
 use crate::views::settings::{draw_settings_view, SettingsViewState};
 use crate::views::support::{draw_support_view, SupportViewState};
 use crate::views::ticket_detail::{draw_ticket_detail_modal, TicketDetailState};
+use crm_core::audit::{init_audit_schema, list_audit_events, log_audit_event, SystemEvent};
 use crm_core::paths::{ensure_database_dir_exists, get_database_path};
 use crm_core::printer::ShopReceiptConfig;
+use crm_core::roles::UserRole;
 use crm_core::tickets::{init_tickets_schema, list_tickets};
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke};
 use rusqlite::Connection;
@@ -18,6 +19,8 @@ use rusqlite::Connection;
 pub enum NavTab {
     Intake,
     Pipeline,
+    Appointments,
+    AuditLog,
     Settings,
     Support,
     Specialist,
@@ -27,6 +30,8 @@ pub enum NavTab {
 pub struct ProteusClientApp {
     conn: Connection,
     active_tab: NavTab,
+    active_role: UserRole,
+    operator_name: String,
     intake_state: IntakeFormState,
     pipeline_search: String,
     selected_ticket_id: Option<String>,
@@ -36,6 +41,8 @@ pub struct ProteusClientApp {
     support_state: SupportViewState,
     specialist_state: SpecialistDashboardState,
     developer_state: DeveloperStudioState,
+    audit_state: AuditLogViewState,
+    appointments_state: AppointmentsViewState,
 }
 
 impl ProteusClientApp {
@@ -50,10 +57,55 @@ impl ProteusClientApp {
         });
 
         let _ = init_tickets_schema(&conn);
+        let _ = init_audit_schema(&conn);
+
+        // Seed initial audit trail entries if empty
+        if let Ok(existing) = list_audit_events(&conn, 1, 0, None) {
+            if existing.is_empty() {
+                let _ = log_audit_event(
+                    &conn,
+                    &SystemEvent::new(
+                        "SYSTEM",
+                        "SYS-001",
+                        "BOOT",
+                        "Admin (CEO)",
+                        "Ceo",
+                        "Εκκίνηση συστήματος Proteus BOS — Όλα τα υποσυστήματα ενεργά",
+                        r#"{"mode":"100% Offline-first","store":"store.db"}"#,
+                    ),
+                );
+                let _ = log_audit_event(
+                    &conn,
+                    &SystemEvent::new(
+                        "APPOINTMENT",
+                        "APT-101",
+                        "BOOKED",
+                        "Μαρία (Reception)",
+                        "CustomerService",
+                        "Προγραμματισμός ραντεβού παραλαβής για Δημήτρη Καρρά",
+                        r#"{"device":"MacBook Pro","time":"12:00"}"#,
+                    ),
+                );
+                let _ = log_audit_event(
+                    &conn,
+                    &SystemEvent::new(
+                        "TICKET",
+                        "TCK-1041",
+                        "STATUS_CHANGED",
+                        "Νίκος (Τεχνικός)",
+                        "Technician",
+                        "Ολοκλήρωση επισκευής: Έτοιμο προς παράδοση (#1041)",
+                        r#"{"status":"Ready","cost":85.0}"#,
+                    ),
+                );
+            }
+        }
 
         Self {
             conn,
             active_tab: NavTab::Intake,
+            active_role: UserRole::Ceo,
+            operator_name: "Admin (CEO)".to_string(),
             intake_state: IntakeFormState::default(),
             pipeline_search: String::new(),
             selected_ticket_id: None,
@@ -63,6 +115,8 @@ impl ProteusClientApp {
             support_state: SupportViewState::default(),
             specialist_state: SpecialistDashboardState::default(),
             developer_state: DeveloperStudioState::default(),
+            audit_state: AuditLogViewState::default(),
+            appointments_state: AppointmentsViewState::default(),
         }
     }
 }
@@ -70,6 +124,42 @@ impl ProteusClientApp {
 impl eframe::App for ProteusClientApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         crate::theme::apply_theme(ctx);
+
+        // RBAC Permissions & Dynamic Tab Filtering
+        let permissions = self.active_role.permissions();
+        let mut available_tabs = Vec::new();
+
+        if permissions.can_intake_tickets {
+            available_tabs.push((NavTab::Intake, "⚡ Νέα Παραλαβή"));
+        }
+        if permissions.can_manage_pipeline {
+            available_tabs.push((NavTab::Pipeline, "📋 Ροή Επισκευών"));
+        }
+        if permissions.can_book_appointments {
+            available_tabs.push((NavTab::Appointments, "📅 Ραντεβού"));
+        }
+        if permissions.can_view_audit_trail {
+            available_tabs.push((NavTab::AuditLog, "📜 Audit Log"));
+        }
+        if self.active_role == UserRole::Ceo || self.active_role == UserRole::Technician {
+            available_tabs.push((NavTab::Support, "🛠 IT Support"));
+        }
+        if self.active_role == UserRole::Ceo || self.active_role == UserRole::SalesConsultant {
+            available_tabs.push((NavTab::Specialist, "📊 Ειδικά Dashboards"));
+        }
+        if permissions.can_edit_schema {
+            available_tabs.push((NavTab::Developer, "💻 Dev & Schema"));
+        }
+        if permissions.can_manage_settings {
+            available_tabs.push((NavTab::Settings, "⚙ Ρυθμίσεις"));
+        }
+
+        // Auto-switch to first available tab if current becomes hidden
+        if !available_tabs.iter().any(|(t, _)| *t == self.active_tab) {
+            if let Some((first_tab, _)) = available_tabs.first() {
+                self.active_tab = *first_tab;
+            }
+        }
 
         // Top Navigation Bar
         egui::TopBottomPanel::top("top_nav_bar")
@@ -87,32 +177,44 @@ impl eframe::App for ProteusClientApp {
                         ui.label(RichText::new("BOS").size(14.0).color(crate::theme::TEXT_MUTED));
                     });
 
-                    ui.add_space(14.0);
+                    ui.add_space(10.0);
 
-                    // Nav Tabs
-                    let tabs = [
-                        (NavTab::Intake, "⚡ Νέα Παραλαβή"),
-                        (NavTab::Pipeline, "📋 Ροή Επισκευών"),
-                        (NavTab::Settings, "⚙ Ρυθμίσεις"),
-                        (NavTab::Support, "🛠 IT Support"),
-                        (NavTab::Specialist, "📊 Ειδικά Dashboards"),
-                        (NavTab::Developer, "💻 Dev & Schema"),
-                    ];
+                    // Active Role Dropdown Selector
+                    egui::ComboBox::from_id_salt("active_role_selector")
+                        .selected_text(RichText::new(self.active_role.display_name()).strong().size(12.0).color(Color32::WHITE))
+                        .show_ui(ui, |ui| {
+                            for role in UserRole::all() {
+                                let is_selected = self.active_role == *role;
+                                if ui.selectable_label(is_selected, role.display_name()).clicked() {
+                                    self.active_role = *role;
+                                    self.operator_name = match *role {
+                                        UserRole::Ceo => "Admin (CEO)".to_string(),
+                                        UserRole::CustomerService => "Μαρία (Reception)".to_string(),
+                                        UserRole::Technician => "Νίκος (Τεχνικός)".to_string(),
+                                        UserRole::SalesConsultant => "Κώστας (Sales)".to_string(),
+                                        UserRole::Developer => "Αλέξανδρος (Dev)".to_string(),
+                                    };
+                                }
+                            }
+                        });
 
-                    for (tab, label) in tabs {
-                        let is_active = self.active_tab == tab;
+                    ui.add_space(12.0);
+
+                    // Dynamic Nav Tabs according to active role
+                    for (tab, label) in &available_tabs {
+                        let is_active = self.active_tab == *tab;
                         let btn = if is_active {
-                            egui::Button::new(RichText::new(label).strong().size(12.5).color(Color32::WHITE))
+                            egui::Button::new(RichText::new(*label).strong().size(12.0).color(Color32::WHITE))
                                 .fill(crate::theme::ACCENT_PRIMARY)
                         } else {
-                            egui::Button::new(RichText::new(label).size(12.5).color(crate::theme::TEXT_SECONDARY))
+                            egui::Button::new(RichText::new(*label).size(12.0).color(crate::theme::TEXT_SECONDARY))
                                 .fill(crate::theme::BG_CARD)
                         };
 
                         if ui.add(btn).clicked() {
-                            self.active_tab = tab;
+                            self.active_tab = *tab;
                         }
-                        ui.add_space(3.0);
+                        ui.add_space(2.0);
                     }
 
                     // Right Side: Active count badge & offline pill
@@ -159,6 +261,22 @@ impl eframe::App for ProteusClientApp {
                             &mut self.selected_ticket_id,
                         );
                     }
+                    NavTab::Appointments => {
+                        draw_appointments_view(
+                            ui,
+                            &self.conn,
+                            &mut self.appointments_state,
+                            &self.operator_name,
+                            self.active_role.short_code(),
+                        );
+                    }
+                    NavTab::AuditLog => {
+                        draw_audit_log_view(
+                            ui,
+                            &self.conn,
+                            &mut self.audit_state,
+                        );
+                    }
                     NavTab::Settings => {
                         draw_settings_view(
                             ui,
@@ -200,4 +318,5 @@ impl eframe::App for ProteusClientApp {
         );
     }
 }
+
 

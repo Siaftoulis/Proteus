@@ -186,6 +186,13 @@ aliases:
    - **Visual Entity & Field Schema Designer**: Επεξεργασία υφιστάμενων πινάκων (`service_tickets`, `inventory_parts`) και ορισμός custom οντοτήτων για επιχειρήσεις (`enterprise_assets`, `fleet_telematics`).
    - **Μηχανή Additive Migrations**: Αυστηρός κανόνας αποφυγής data loss (μόνο `CREATE TABLE` & `ALTER TABLE ADD COLUMN`). Αυτόματη παραγωγή και live syntax validation σε SQLite.
    - **Enterprise Developer Work Orders & Escrow**: Εταιρείες με in-house ή εξωτερικούς προγραμματιστές συνάπτουν συμβάσεις τροποποίησης δεδομένων. Η αμοιβή του developer (π.χ. 750€) δεσμεύεται σε Escrow και παραδίδεται με pull-request/package delivery στο client της επιχείρησης.
+6. **📋 Activity Timeline & Audit Trail Hub (`AuditLogView`)**:
+   - **Ιχνηλασιμότητα 100%**: Πλήρης καταγραφή κάθε ενέργειας (ποιος, πότε, τι άλλαξε) με μονοτονικά UUIDv7 events και ISO-8601 timestamps.
+   - **Χρωματικά Badges Ρόλων**: CEO (Gold), Customer Service (Sky Blue), Technician (Emerald), Sales (Orange), Developer (Indigo).
+   - **Εργαλεία Αναζήτησης & Επιθεώρησης**: Ζωντανή αναζήτηση, φιλτράρισμα ανά ρόλο, σχετικοί χρόνοι («πριν 5 λεπτά») και πτυσσόμενος JSON diff inspector.
+7. **📅 Appointments & Client Scheduling Hub (`AppointmentsView`)**:
+   - **Υποδοχή & Προγραμματισμός**: Κλείσιμο ραντεβού από το προσωπικό εξυπηρέτησης πελατών και πωλήσεων.
+   - **Αυτόματο Audit Event**: Κάθε νέο ραντεβού ή αλλαγή κατάστασης εκπέμπει αυτόματα event στο audit log, ενημερώνοντας σε πραγματικό χρόνο όλα τα συναφή υποσυστήματα.
 
 ---
 
