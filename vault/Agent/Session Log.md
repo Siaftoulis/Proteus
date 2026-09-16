@@ -20,6 +20,7 @@ tags:
    - Automatic emission of `SystemEvent` audit entries on appointment booking and status completion/cancellation.
 4. **Comprehensive Documentation**:
    - Added `vault/Developer/19 - Role-Based Access Control & Event Audit Architecture.md` detailing the entire multi-role workflow and collaboration model.
+   - Added `vault/Developer/20 - The Anti-SAP Manifesto & Hierarchical Multi-Store Architecture.md` establishing the master strategic disruptor model against legacy ERP monopolies (SAP/Oracle), hierarchical multi-store delegation (Public use-case), Merkle hash-chained audit backlogs, and job creation for certified independent specialists.
 5. **Quality & Verification**:
    - 121/121 workspace unit tests passing (100% green across all crates).
    - Zero compilation warnings, zero third-party boilerplate.
