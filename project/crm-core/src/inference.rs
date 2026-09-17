@@ -187,15 +187,7 @@ impl SchemaInferer {
     }
 
     fn detect_primary_key(table_name: &str, columns: &BTreeMap<String, InferredType>) -> Option<String> {
-        let candidates = [
-            "id",
-            "uuid",
-            "_id",
-            "code",
-            "sku",
-            "barcode",
-            "key",
-        ];
+        let candidates = ["id", "uuid", "_id", "code", "sku", "barcode", "key"];
 
         for candidate in candidates {
             if columns.contains_key(candidate) {

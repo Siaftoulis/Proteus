@@ -14,6 +14,7 @@ pub const BORDER_FOCUS: Color32 = Color32::from_rgb(99, 102, 241); // Indigo
 
 pub const ACCENT_PRIMARY: Color32 = Color32::from_rgb(99, 102, 241); // Indigo
 pub const ACCENT_CYAN: Color32 = Color32::from_rgb(56, 189, 248);
+pub const ACCENT_GOLD: Color32 = Color32::from_rgb(251, 191, 36);
 
 pub const TEXT_PRIMARY: Color32 = Color32::from_rgb(243, 244, 246);
 pub const TEXT_SECONDARY: Color32 = Color32::from_rgb(156, 163, 175);

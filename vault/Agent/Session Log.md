@@ -25,7 +25,9 @@ tags:
    - Implemented GS1-128 barcode Application Identifier parser (`crm-core::gs1`) with AI `(01)` GTIN, `(10)` Lot, `(17)` Expiration date, `(21)` Serial, `(00)` SSCC.
    - Built declarative Business Rules Engine ("IF X THEN Y") in `crm-core::rules` with safe sandboxed evaluation.
    - Created thread-safe in-process Event Bus (`crm-core::event_bus`) for cross-subsystem event dispatching.
-   - Implemented dedicated `AnalystStudioView` in `proteus-client::views::analyst_studio` with schema inference, barcode inspection, and live rules simulation.
+   - Built bespoke Visual Field Mapping engine (`crm-core::mapping`) supporting PassThrough, Concatenation, Date format conversion, Lookup dictionaries, Math multiplier (VAT), and case transforms.
+   - Implemented interactive `MappingCanvasView` in `proteus-client::views::mapping_canvas` with 3-column layout (Source Fields, Connection/Transform Hub, Target Fields), Fuzzy AI Auto-Match, and live record transformation preview.
+   - Embedded the mapping canvas directly inside `AnalystStudioView` in `proteus-client::views::analyst_studio` with automated feed from schema inference.
    - Integrated PCDA certification tracks (79€ voucher, 149€ bundle) in `proteus-web::marketplace`.
    - Workspace test suite expanded to **143 tests passing (100% green, 0 compiler warnings)**.
 

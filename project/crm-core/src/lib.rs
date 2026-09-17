@@ -7,6 +7,7 @@ pub mod flow;
 pub mod gs1;
 pub mod inference;
 pub mod license;
+pub mod mapping;
 pub mod paths;
 pub mod printer;
 pub mod roles;

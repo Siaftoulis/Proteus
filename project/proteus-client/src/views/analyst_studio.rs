@@ -6,6 +6,7 @@ use crm_core::inference::{InferredTable, SchemaInferer};
 use crm_core::rules::{BusinessRule, BusinessRulesEngine, RuleAction, RuleCondition};
 use eframe::egui::{self, Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
 use serde_json::Value;
+use crate::views::mapping_canvas::{render_mapping_canvas, MappingCanvasState};
 
 pub struct AnalystStudioState {
     pub raw_json_input: String,
@@ -14,6 +15,7 @@ pub struct AnalystStudioState {
     pub parsed_gs1: Option<Gs1BarcodeData>,
     pub rules_simulation_result: Option<String>,
     pub status_message: Option<(String, bool)>, // (msg, is_error)
+    pub mapping_canvas: MappingCanvasState,
 }
 
 impl Default for AnalystStudioState {
@@ -34,6 +36,7 @@ impl Default for AnalystStudioState {
             parsed_gs1: None,
             rules_simulation_result: None,
             status_message: None,
+            mapping_canvas: MappingCanvasState::default(),
         }
     }
 }
@@ -78,6 +81,10 @@ pub fn render_analyst_studio(ui: &mut Ui, state: &mut AnalystStudioState) {
                                 Ok(val) => {
                                     match SchemaInferer::infer_from_json("imported_dataset", &val) {
                                         Ok(table) => {
+                                            state.mapping_canvas.source_fields = table.columns.iter().map(|c| c.name.clone()).collect();
+                                            if let Some(first) = state.mapping_canvas.source_fields.first() {
+                                                state.mapping_canvas.selected_source = first.clone();
+                                            }
                                             state.inferred_table = Some(table);
                                             state.status_message = Some(("Επιτυχές Schema Inference! Κανονικοποιήθηκαν τα πεδία.".to_string(), false));
                                         }
@@ -236,6 +243,11 @@ pub fn render_analyst_studio(ui: &mut Ui, state: &mut AnalystStudioState) {
                         });
                 }
             });
+
+        ui.add_space(12.0);
+
+        // Section 4: Visual Field Mapping Canvas
+        render_mapping_canvas(ui, &mut state.mapping_canvas);
     });
 }
 

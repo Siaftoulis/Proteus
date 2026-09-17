@@ -146,10 +146,10 @@ tags:
 - [x] Safe, sandboxed Rust expression evaluation engine
 - [x] Internal Event Bus for cross-subsystem event propagation (`crm-core::event_bus`)
 
-### 6.3 Visual Mapping Canvas (`crm-ui`)
-- [ ] Drag & drop endpoint-to-schema field mapping in egui 0.31
+### 6.3 Visual Mapping Canvas (`crm-ui` & `proteus-client`)
+- [x] Connection & endpoint-to-schema field mapping in egui 0.31 (`views/mapping_canvas.rs`)
 - [x] Fuzzy field name matching (Levenshtein distance & substring heuristic in `crm-core::inference`)
-- [ ] Live preview table for inspected API payloads
+- [x] Live preview table for inspected API payloads & configurable transforms (`crm-core::mapping`)
 
 ### 6.4 Analyst Studio & PCDA Certification Marketplace (`proteus-client` & `proteus-web`)
 - [x] Dedicated PCDA Analyst Studio view in `proteus-client` (`views/analyst_studio.rs`)
