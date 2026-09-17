@@ -36,6 +36,12 @@ tags:
    - Provides sandboxed dry-run validation using rollback transactions.
    - Fully wired into `DeveloperStudioView` in `proteus-client::views::developer` with 1-click execution and syntax verification.
    - Workspace test suite expanded to **149 tests passing (100% green, 0 compiler warnings)**.
+7. **Declarative `.pr` Package Architecture & Runtime Mounting Engine (`crm-core::package` & `views::settings`)**:
+   - Built binary `.pr` container format (`PRPK` magic header + SHA-256 integrity seal).
+   - Bundles metadata manifest (`PrManifest`), additive schema definitions (`PrSchemaBundle`), declarative UI view layouts (`PrViewLayout`), and reactive flow triggers (`PrFlowTrigger`).
+   - Implemented the 4-step ingestion transaction: Checksum verification -> Additive schema DDL execution with automated `.bak` snapshot -> View hydration -> Audit trail logging (`PACKAGE / MOUNTED`).
+   - Integrated package installation into `SettingsView` in `proteus-client` with 1-click sample template ingestion.
+   - Workspace test suite expanded to **152 tests passing (100% green, 0 compiler warnings)**.
 
 ## 2026-09-16: Role-Based Access Control (RBAC), Event Audit Trail & Appointments Subsystem
 

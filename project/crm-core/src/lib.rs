@@ -9,6 +9,7 @@ pub mod inference;
 pub mod license;
 pub mod mapping;
 pub mod migrations;
+pub mod package;
 pub mod paths;
 pub mod printer;
 pub mod roles;

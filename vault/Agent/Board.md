@@ -95,7 +95,7 @@ tags:
 - [x] "Print Ticket" trigger on intake submission
 
 ### 5.4 Declarative `.pr` Package Architecture (Atomic Step 4)
-- [ ] Define `.pr` bundle format specification (zstd archive / MessagePack)
+- [x] Define `.pr` bundle format specification (SHA-256 sealed container, manifest, additive DDL, views, flows & mounting engine in `crm-core::package`)
 - [x] Additive-only schema migration runner (`CREATE TABLE`, `ALTER TABLE ADD COLUMN`, rejecting `DROP`) in `crm-core::migrations`
 - [x] Automatic `.bak` SQLite snapshot before any package import or migration in `crm-core::migrations`
 

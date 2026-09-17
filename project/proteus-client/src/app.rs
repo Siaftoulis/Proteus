@@ -288,6 +288,7 @@ impl eframe::App for ProteusClientApp {
                     NavTab::Settings => {
                         draw_settings_view(
                             ui,
+                            &mut self.conn,
                             &mut self.receipt_config,
                             &mut self.settings_state,
                         );
