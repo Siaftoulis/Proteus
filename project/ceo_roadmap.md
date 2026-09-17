@@ -57,7 +57,7 @@
 - [x] Web Backend Engine (`proteus-web`): Pricing brackets, certification tiers, escrow contracts, compiler gate.
 - [ ] Direct Database Drivers: Direct connection to **PostgreSQL** and **MySQL** in `crm-core`.
 - [ ] Mobile/Multi-platform compilation: Static library (`.dll`, `.dylib`, C-bindings/NDK for iOS/Android).
-- [ ] Sandboxed 1-Click Migrations: Dry-run execution runner with automated `.bak` rollback snapshot.
+- [x] Sandboxed 1-Click Migrations: Dry-run execution runner with automated `.bak` rollback snapshot (`crm-core::migrations` & `proteus-client::views::developer`).
 
 ### Phase 2 — Design Partners Pilot
 - Deploy to 2–3 selected retail / service repair businesses with Lifetime Licenses.

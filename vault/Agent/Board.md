@@ -96,8 +96,8 @@ tags:
 
 ### 5.4 Declarative `.pr` Package Architecture (Atomic Step 4)
 - [ ] Define `.pr` bundle format specification (zstd archive / MessagePack)
-- [ ] Additive-only schema migration runner (`CREATE TABLE`, `ALTER TABLE ADD COLUMN`, rejecting `DROP`)
-- [ ] Automatic `.bak` SQLite snapshot before any package import
+- [x] Additive-only schema migration runner (`CREATE TABLE`, `ALTER TABLE ADD COLUMN`, rejecting `DROP`) in `crm-core::migrations`
+- [x] Automatic `.bak` SQLite snapshot before any package import or migration in `crm-core::migrations`
 
 ### 5.5 Standalone Packaging & Pilot Testing (Atomic Step 5)
 - [x] Release build profile (`Proteus.exe`) with stripped symbols & LTO
@@ -130,7 +130,7 @@ tags:
 - [x] Strategic CEO Roadmap updated in `project/ceo_roadmap.md` targeting May 2027
 - [ ] Direct PostgreSQL driver integration in `crm-core`
 - [ ] Direct MySQL driver integration in `crm-core`
-- [ ] Sandboxed 1-click migration runner with automated `.bak` rollback snapshot
+- [x] Sandboxed 1-click migration runner with automated `.bak` rollback snapshot (`crm-core::migrations` & `views::developer`)
 
 ## Sprint 6 (PCDA Pipeline & Universal Connector) — In Progress
 

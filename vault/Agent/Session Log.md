@@ -29,7 +29,13 @@ tags:
    - Implemented interactive `MappingCanvasView` in `proteus-client::views::mapping_canvas` with 3-column layout (Source Fields, Connection/Transform Hub, Target Fields), Fuzzy AI Auto-Match, and live record transformation preview.
    - Embedded the mapping canvas directly inside `AnalystStudioView` in `proteus-client::views::analyst_studio` with automated feed from schema inference.
    - Integrated PCDA certification tracks (79€ voucher, 149€ bundle) in `proteus-web::marketplace`.
-   - Workspace test suite expanded to **143 tests passing (100% green, 0 compiler warnings)**.
+6. **Additive Schema Migration Runner & Automated Snapshots (`crm-core::migrations` & `views::developer`)**:
+   - Built zero-data-loss migration runner enforcing strict additive-only invariants (`CREATE TABLE`, `ALTER TABLE ADD COLUMN`, `CREATE INDEX`).
+   - Rejects destructive statements (`DROP TABLE`, `DROP COLUMN`, `TRUNCATE`).
+   - Automatically creates atomic timestamped `.bak` SQLite snapshots prior to execution.
+   - Provides sandboxed dry-run validation using rollback transactions.
+   - Fully wired into `DeveloperStudioView` in `proteus-client::views::developer` with 1-click execution and syntax verification.
+   - Workspace test suite expanded to **149 tests passing (100% green, 0 compiler warnings)**.
 
 ## 2026-09-16: Role-Based Access Control (RBAC), Event Audit Trail & Appointments Subsystem
 

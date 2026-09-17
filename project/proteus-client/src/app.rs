@@ -309,6 +309,7 @@ impl eframe::App for ProteusClientApp {
                     NavTab::Developer => {
                         draw_developer_studio_view(
                             ui,
+                            &mut self.conn,
                             &mut self.developer_state,
                         );
                     }

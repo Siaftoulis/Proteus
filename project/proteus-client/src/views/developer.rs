@@ -5,6 +5,8 @@
 //! - Enterprise Developer Work Orders & In-Platform Escrow contracts
 
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
+use crm_core::migrations::{MigrationPlan, MigrationRunner};
+use rusqlite::Connection;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SchemaFieldType {
@@ -109,7 +111,7 @@ impl Default for DeveloperStudioState {
     }
 }
 
-pub fn draw_developer_studio_view(ui: &mut Ui, state: &mut DeveloperStudioState) {
+pub fn draw_developer_studio_view(ui: &mut Ui, conn: &mut Connection, state: &mut DeveloperStudioState) {
     ui.vertical(|ui| {
         // Header
         ui.heading(RichText::new("💻 Developer & Data Schema Studio (Περιβάλλον Προγραμματιστών)").strong().size(22.0));
@@ -264,13 +266,39 @@ pub fn draw_developer_studio_view(ui: &mut Ui, state: &mut DeveloperStudioState)
                             .corner_radius(CornerRadius::same(6))
                             .inner_margin(Margin::same(12))
                             .show(ui, |ui| {
-                                ui.label(RichText::new(migration_sql).monospace().size(12.0).color(crate::theme::ACCENT_CYAN));
+                                ui.label(RichText::new(&migration_sql).monospace().size(12.0).color(crate::theme::ACCENT_CYAN));
                             });
 
                         ui.add_space(8.0);
-                        if ui.button("⚡ Επαλήθευση Migration στο Local SQLite").clicked() {
-                            state.status_message = Some("✓ Migration verified successfully: SQLite schema syntax check OK.".to_string());
-                        }
+                        ui.horizontal(|ui| {
+                            if ui.button("⚡ Sandboxed Dry-Run").clicked() {
+                                let mut plan = MigrationPlan::new("DEV-DRY", "Dev Studio Verification", "Developer");
+                                plan.add_statement(migration_sql.clone());
+                                match MigrationRunner::dry_run(conn, &plan) {
+                                    Ok(_) => {
+                                        state.status_message = Some("✓ Dry-Run επιτυχής: Το SQLite επικύρωσε τη σύνταξη χωρίς καμία αλλοίωση δεδομένων.".to_string());
+                                    }
+                                    Err(e) => {
+                                        state.status_message = Some(format!("❌ Σφάλμα Migration: {}", e));
+                                    }
+                                }
+                            }
+
+                            if ui.button(RichText::new("🚀 Εκτέλεση με Snapshot (.bak)").strong()).clicked() {
+                                let mut plan = MigrationPlan::new("DEV-APPLY", "Dev Studio Applied Migration", "Developer");
+                                plan.add_statement(migration_sql.clone());
+                                let db_path = crm_core::paths::get_database_path();
+                                match MigrationRunner::execute(conn, &plan, Some(&db_path)) {
+                                    Ok(res) => {
+                                        let snap_info = res.snapshot_path.map(|p| format!(" (Snapshot: {})", p)).unwrap_or_default();
+                                        state.status_message = Some(format!("✓ Το migration εφαρμόστηκε επιτυχώς σε {}ms!{}", res.elapsed_ms, snap_info));
+                                    }
+                                    Err(e) => {
+                                        state.status_message = Some(format!("❌ Αποτυχία εκτέλεσης: {}", e));
+                                    }
+                                }
+                            }
+                        });
                     });
 
                 ui.add_space(12.0);
