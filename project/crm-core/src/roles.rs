@@ -10,6 +10,7 @@ pub enum UserRole {
     Technician,
     SalesConsultant,
     Developer,
+    BusinessAnalyst,
 }
 
 impl UserRole {
@@ -20,6 +21,7 @@ impl UserRole {
             UserRole::Technician,
             UserRole::SalesConsultant,
             UserRole::Developer,
+            UserRole::BusinessAnalyst,
         ]
     }
 
@@ -30,6 +32,7 @@ impl UserRole {
             Self::Technician => "🛠 Τεχνικός Εργαστηρίου",
             Self::SalesConsultant => "📋 Σύμβουλος Πωλήσεων & SLA",
             Self::Developer => "💻 Προγραμματιστής & Schema Architect",
+            Self::BusinessAnalyst => "📊 Business & Data Analyst (PCDA)",
         }
     }
 
@@ -40,6 +43,7 @@ impl UserRole {
             Self::Technician => "TECH",
             Self::SalesConsultant => "SALES",
             Self::Developer => "DEV",
+            Self::BusinessAnalyst => "ANALYST",
         }
     }
 
@@ -55,6 +59,8 @@ impl UserRole {
                 can_manage_contracts: true,
                 can_book_appointments: true,
                 can_manage_settings: true,
+                can_infer_schemas: true,
+                can_define_business_rules: true,
             },
             Self::CustomerService => RolePermissions {
                 can_view_audit_trail: false,
@@ -66,6 +72,8 @@ impl UserRole {
                 can_manage_contracts: false,
                 can_book_appointments: true,
                 can_manage_settings: false,
+                can_infer_schemas: false,
+                can_define_business_rules: false,
             },
             Self::Technician => RolePermissions {
                 can_view_audit_trail: false,
@@ -77,6 +85,8 @@ impl UserRole {
                 can_manage_contracts: false,
                 can_book_appointments: false,
                 can_manage_settings: false,
+                can_infer_schemas: false,
+                can_define_business_rules: false,
             },
             Self::SalesConsultant => RolePermissions {
                 can_view_audit_trail: false,
@@ -88,6 +98,8 @@ impl UserRole {
                 can_manage_contracts: true,
                 can_book_appointments: true,
                 can_manage_settings: false,
+                can_infer_schemas: false,
+                can_define_business_rules: false,
             },
             Self::Developer => RolePermissions {
                 can_view_audit_trail: true,
@@ -99,6 +111,21 @@ impl UserRole {
                 can_manage_contracts: false,
                 can_book_appointments: false,
                 can_manage_settings: true,
+                can_infer_schemas: true,
+                can_define_business_rules: true,
+            },
+            Self::BusinessAnalyst => RolePermissions {
+                can_view_audit_trail: true,
+                can_view_financials: false,
+                can_edit_schema: true,
+                can_intake_tickets: false,
+                can_manage_pipeline: false,
+                can_edit_technical_notes: false,
+                can_manage_contracts: false,
+                can_book_appointments: false,
+                can_manage_settings: false,
+                can_infer_schemas: true,
+                can_define_business_rules: true,
             },
         }
     }
@@ -115,6 +142,8 @@ pub struct RolePermissions {
     pub can_manage_contracts: bool,
     pub can_book_appointments: bool,
     pub can_manage_settings: bool,
+    pub can_infer_schemas: bool,
+    pub can_define_business_rules: bool,
 }
 
 #[cfg(test)]
@@ -129,6 +158,8 @@ mod tests {
         assert!(p.can_edit_schema);
         assert!(p.can_manage_contracts);
         assert!(p.can_manage_settings);
+        assert!(p.can_infer_schemas);
+        assert!(p.can_define_business_rules);
     }
 
     #[test]
@@ -140,6 +171,19 @@ mod tests {
         assert!(!p.can_view_financials);
         assert!(!p.can_edit_schema);
         assert!(!p.can_edit_technical_notes);
+        assert!(!p.can_infer_schemas);
+    }
+
+    #[test]
+    fn test_business_analyst_permissions() {
+        let p = UserRole::BusinessAnalyst.permissions();
+        assert!(p.can_infer_schemas);
+        assert!(p.can_define_business_rules);
+        assert!(p.can_view_audit_trail);
+        assert!(p.can_edit_schema);
+        assert!(!p.can_view_financials);
+        assert!(!p.can_intake_tickets);
+        assert!(!p.can_manage_settings);
     }
 
     #[test]

@@ -1,3 +1,4 @@
+use crate::views::analyst_studio::{render_analyst_studio, AnalystStudioState};
 use crate::views::appointments::{draw_appointments_view, AppointmentsViewState};
 use crate::views::audit_log::{draw_audit_log_view, AuditLogViewState};
 use crate::views::dashboards::{draw_specialist_dashboards_view, SpecialistDashboardState};
@@ -25,6 +26,7 @@ pub enum NavTab {
     Support,
     Specialist,
     Developer,
+    AnalystStudio,
 }
 
 pub struct ProteusClientApp {
@@ -43,6 +45,7 @@ pub struct ProteusClientApp {
     developer_state: DeveloperStudioState,
     audit_state: AuditLogViewState,
     appointments_state: AppointmentsViewState,
+    analyst_state: AnalystStudioState,
 }
 
 impl ProteusClientApp {
@@ -117,6 +120,7 @@ impl ProteusClientApp {
             developer_state: DeveloperStudioState::default(),
             audit_state: AuditLogViewState::default(),
             appointments_state: AppointmentsViewState::default(),
+            analyst_state: AnalystStudioState::default(),
         }
     }
 }
@@ -149,6 +153,9 @@ impl eframe::App for ProteusClientApp {
         }
         if permissions.can_edit_schema {
             available_tabs.push((NavTab::Developer, "💻 Dev & Schema"));
+        }
+        if permissions.can_infer_schemas || permissions.can_define_business_rules {
+            available_tabs.push((NavTab::AnalystStudio, "📊 PCDA Studio"));
         }
         if permissions.can_manage_settings {
             available_tabs.push((NavTab::Settings, "⚙ Ρυθμίσεις"));
@@ -193,6 +200,7 @@ impl eframe::App for ProteusClientApp {
                                         UserRole::Technician => "Νίκος (Τεχνικός)".to_string(),
                                         UserRole::SalesConsultant => "Κώστας (Sales)".to_string(),
                                         UserRole::Developer => "Αλέξανδρος (Dev)".to_string(),
+                                        UserRole::BusinessAnalyst => "Δημήτρης (Analyst)".to_string(),
                                     };
                                 }
                             }
@@ -303,6 +311,9 @@ impl eframe::App for ProteusClientApp {
                             ui,
                             &mut self.developer_state,
                         );
+                    }
+                    NavTab::AnalystStudio => {
+                        render_analyst_studio(ui, &mut self.analyst_state);
                     }
                 }
             });

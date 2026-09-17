@@ -135,15 +135,15 @@ tags:
 ## Sprint 6 (PCDA Pipeline & Universal Connector) — In Progress
 
 ### 6.1 Core Data & Schema Inference Engine (`crm-core`)
-- [ ] Automatic JSON $\rightarrow$ Relational Schema flattening (`crm-core::inference`)
-- [ ] Primary key detection (`id`, `uuid`, `_id`, `sku`, `barcode`, `code`)
-- [ ] Column data type deduction (`Integer`, `Real`, `Text`, `Boolean`, `Jsonb`)
-- [ ] GS1-128 Application Identifier barcode parser (`crm-core::gs1`)
-- [ ] Expand `UserRole` and permissions with `BusinessAnalyst` (PCDA)
+- [x] Automatic JSON $\rightarrow$ Relational Schema flattening (`crm-core::inference`)
+- [x] Primary key detection (`id`, `uuid`, `_id`, `sku`, `barcode`, `code`)
+- [x] Column data type deduction (`Integer`, `Real`, `Text`, `Boolean`, `Jsonb`)
+- [x] GS1-128 Application Identifier barcode parser (`crm-core::gs1`)
+- [x] Expand `UserRole` and permissions with `BusinessAnalyst` (PCDA)
 
 ### 6.2 Business Rules & Event Bus (`crm-core`)
-- [ ] Declarative event-driven business rules engine ("IF X THEN Y") (`crm-core::rules`)
-- [ ] Safe, sandboxed Rust expression evaluation engine
+- [x] Declarative event-driven business rules engine ("IF X THEN Y") (`crm-core::rules`)
+- [x] Safe, sandboxed Rust expression evaluation engine
 - [ ] Internal Event Bus for cross-subsystem event propagation
 
 ### 6.3 Visual Mapping Canvas (`crm-ui`)
@@ -152,8 +152,10 @@ tags:
 - [ ] Live preview table for inspected API payloads
 
 ### 6.4 Analyst Studio & PCDA Certification Marketplace (`proteus-client` & `proteus-web`)
-- [ ] Dedicated PCDA Analyst Studio view in `proteus-client`
-- [ ] PCDA 79€ exam voucher & 149€ bundle catalog endpoints in `proteus-web`
+- [x] Dedicated PCDA Analyst Studio view in `proteus-client` (`views/analyst_studio.rs`)
+- [x] TopBar role switcher integration and dynamic tab routing in `proteus-client::app`
+- [x] PCDA 79€ exam voucher & 149€ bundle catalog tracks in `proteus-web`
+- [x] 139/139 workspace unit tests passing (100% green, 0 compiler warnings)
 
 ## Future (Phase 2 - Post-Military Commercial Launch)
 - [ ] Merchant of Record setup (Lemon Squeezy / Paddle)

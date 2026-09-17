@@ -59,7 +59,7 @@ pub fn draw_audit_log_view(
                             if ui.selectable_label(state.selected_role_filter.is_none(), "Όλοι οι Ρόλοι").clicked() {
                                 state.selected_role_filter = None;
                             }
-                            for r in &["Ceo", "CustomerService", "Technician", "SalesConsultant", "Developer"] {
+                            for r in &["Ceo", "CustomerService", "Technician", "SalesConsultant", "Developer", "BusinessAnalyst"] {
                                 let is_sel = state.selected_role_filter.as_deref() == Some(*r);
                                 if ui.selectable_label(is_sel, *r).clicked() {
                                     state.selected_role_filter = Some(r.to_string());
@@ -130,6 +130,7 @@ fn draw_timeline_event_card(ui: &mut Ui, evt: &SystemEvent, state: &mut AuditLog
         "Technician" => Color32::from_rgb(52, 211, 153), // Emerald Green
         "SalesConsultant" => Color32::from_rgb(249, 115, 22), // Orange
         "Developer" => Color32::from_rgb(168, 85, 247), // Purple
+        "BusinessAnalyst" => Color32::from_rgb(14, 165, 233), // Electric Cyan
         _ => Color32::from_rgb(156, 163, 175),
     };
 

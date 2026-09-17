@@ -129,6 +129,41 @@ pub fn compile_package_gate(req: &PackageCompileRequest) -> PackageCompileResult
     }
 }
 
+/// Official Proteus Professional Certification tracks.
+#[allow(dead_code)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CertificationTrack {
+    PcdDesigner,           // Proteus Certified Designer
+    PcssSystemsDb,         // Proteus Certified Systems & DB Specialist
+    PcdsDeployerSupport,   // Proteus Certified Deployer / Support Specialist
+    PcdaBusinessAnalyst,   // Proteus Certified Data/Business Analyst
+    AllInOneBundle,        // Master Bundle (All 4 Certifications)
+}
+
+#[allow(dead_code)]
+impl CertificationTrack {
+    pub fn exam_fee_eur(&self) -> f64 {
+        match self {
+            Self::PcdDesigner | Self::PcssSystemsDb | Self::PcdsDeployerSupport | Self::PcdaBusinessAnalyst => 79.0,
+            Self::AllInOneBundle => 149.0,
+        }
+    }
+
+    pub fn annual_badge_fee_eur(&self) -> f64 {
+        39.0
+    }
+
+    pub fn title(&self) -> &'static str {
+        match self {
+            Self::PcdDesigner => "PCD — Proteus Certified Designer",
+            Self::PcssSystemsDb => "PCSS — Proteus Certified Systems & DB Specialist",
+            Self::PcdsDeployerSupport => "PCDS — Proteus Certified Deployer / Support Specialist",
+            Self::PcdaBusinessAnalyst => "PCDA — Proteus Certified Data/Business Analyst",
+            Self::AllInOneBundle => "Proteus Master Bundle (PCD + PCSS + PCDS + PCDA)",
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -182,5 +217,15 @@ mod tests {
         assert!(res_ok.success);
         assert_eq!(res_ok.platform_fee_eur, 122.50);
         assert_eq!(res_ok.partner_payout_eur, 227.50);
+    }
+
+    #[test]
+    fn test_certification_tracks_pricing() {
+        assert_eq!(CertificationTrack::PcdDesigner.exam_fee_eur(), 79.0);
+        assert_eq!(CertificationTrack::PcssSystemsDb.exam_fee_eur(), 79.0);
+        assert_eq!(CertificationTrack::PcdsDeployerSupport.exam_fee_eur(), 79.0);
+        assert_eq!(CertificationTrack::PcdaBusinessAnalyst.exam_fee_eur(), 79.0);
+        assert_eq!(CertificationTrack::AllInOneBundle.exam_fee_eur(), 149.0);
+        assert_eq!(CertificationTrack::PcdaBusinessAnalyst.annual_badge_fee_eur(), 39.0);
     }
 }
