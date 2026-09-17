@@ -132,6 +132,29 @@ tags:
 - [ ] Direct MySQL driver integration in `crm-core`
 - [ ] Sandboxed 1-click migration runner with automated `.bak` rollback snapshot
 
+## Sprint 6 (PCDA Pipeline & Universal Connector) — In Progress
+
+### 6.1 Core Data & Schema Inference Engine (`crm-core`)
+- [ ] Automatic JSON $\rightarrow$ Relational Schema flattening (`crm-core::inference`)
+- [ ] Primary key detection (`id`, `uuid`, `_id`, `sku`, `barcode`, `code`)
+- [ ] Column data type deduction (`Integer`, `Real`, `Text`, `Boolean`, `Jsonb`)
+- [ ] GS1-128 Application Identifier barcode parser (`crm-core::gs1`)
+- [ ] Expand `UserRole` and permissions with `BusinessAnalyst` (PCDA)
+
+### 6.2 Business Rules & Event Bus (`crm-core`)
+- [ ] Declarative event-driven business rules engine ("IF X THEN Y") (`crm-core::rules`)
+- [ ] Safe, sandboxed Rust expression evaluation engine
+- [ ] Internal Event Bus for cross-subsystem event propagation
+
+### 6.3 Visual Mapping Canvas (`crm-ui`)
+- [ ] Drag & drop endpoint-to-schema field mapping in egui 0.31
+- [ ] Fuzzy field name matching (Levenshtein distance)
+- [ ] Live preview table for inspected API payloads
+
+### 6.4 Analyst Studio & PCDA Certification Marketplace (`proteus-client` & `proteus-web`)
+- [ ] Dedicated PCDA Analyst Studio view in `proteus-client`
+- [ ] PCDA 79€ exam voucher & 149€ bundle catalog endpoints in `proteus-web`
+
 ## Future (Phase 2 - Post-Military Commercial Launch)
 - [ ] Merchant of Record setup (Lemon Squeezy / Paddle)
 - [ ] Cloud Relay Tunnel (WebRTC / STUN-TURN) for remote mobile access

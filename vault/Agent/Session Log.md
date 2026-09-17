@@ -18,6 +18,10 @@ tags:
 4. **Formal Certification Curriculum & Pricing Confirmation**:
    - Confirmed 3 professional certifications: PCD (Designer), PCSS (Systems & DB), PCDS (Deployer & Support) at 79€ voucher / 39€ annual badge / 149€ bundle.
    - Confirmed take-rates (18% services/retainers, 30% digital goods) and Core license bracketed tiers (7.99€ base $\rightarrow$ 199€ flat cap).
+5. **Sprint 6 Initiation: PCDA Pipeline & Universal Connector**:
+   - Codified `vault/Developer/22 - Business Data Analyst Pipeline & Universal Connector.md`.
+   - Introduced the 4th official role: **PCDA (Proteus Certified Data/Business Analyst)** as the primary customer-facing data architect.
+   - Planned 4-phase rollout: Core inference engine & GS1 parser, Business Rules Engine & Event Bus, egui Visual Mapping Canvas, and Analyst Studio integration.
 
 ## 2026-09-16: Role-Based Access Control (RBAC), Event Audit Trail & Appointments Subsystem
 
