@@ -1,6 +1,7 @@
 pub mod audit;
 pub mod data;
 pub mod encryption;
+pub mod event_bus;
 pub mod export;
 pub mod flow;
 pub mod gs1;

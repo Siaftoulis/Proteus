@@ -249,6 +249,77 @@ fn flatten_json_object(prefix: &str, map: &Map<String, Value>, output: &mut BTre
     }
 }
 
+/// Calculates Levenshtein edit distance between two strings.
+pub fn levenshtein_distance(a: &str, b: &str) -> usize {
+    let a_chars: Vec<char> = a.chars().collect();
+    let b_chars: Vec<char> = b.chars().collect();
+    let m = a_chars.len();
+    let n = b_chars.len();
+
+    if m == 0 { return n; }
+    if n == 0 { return m; }
+
+    let mut dp = vec![vec![0; n + 1]; m + 1];
+    for i in 0..=m {
+        dp[i][0] = i;
+    }
+    for j in 0..=n {
+        dp[0][j] = j;
+    }
+
+    for i in 1..=m {
+        for j in 1..=n {
+            let cost = if a_chars[i - 1].to_ascii_lowercase() == b_chars[j - 1].to_ascii_lowercase() {
+                0
+            } else {
+                1
+            };
+            dp[i][j] = (dp[i - 1][j] + 1)
+                .min(dp[i][j - 1] + 1)
+                .min(dp[i - 1][j - 1] + cost);
+        }
+    }
+    dp[m][n]
+}
+
+/// Computes normalized string similarity (0.0 to 1.0) between two field names.
+pub fn field_similarity(source: &str, target: &str) -> f64 {
+    let s = source.to_lowercase().replace(['_', '-'], "");
+    let t = target.to_lowercase().replace(['_', '-'], "");
+    if s == t {
+        return 1.0;
+    }
+    if s.contains(&t) || t.contains(&s) {
+        let min_len = s.len().min(t.len()) as f64;
+        let max_len = s.len().max(t.len()) as f64;
+        return (0.65 + 0.35 * (min_len / max_len)).min(1.0);
+    }
+    let max_len = s.len().max(t.len());
+    if max_len == 0 {
+        return 1.0;
+    }
+    let dist = levenshtein_distance(&s, &t);
+    1.0 - (dist as f64 / max_len as f64)
+}
+
+/// Finds the best matching candidate from a list of schema fields.
+pub fn find_best_field_match<'a>(source_field: &str, candidates: &'a [&'a str]) -> Option<(&'a str, f64)> {
+    let mut best: Option<(&'a str, f64)> = None;
+    for &candidate in candidates {
+        let sim = field_similarity(source_field, candidate);
+        if sim >= 0.45 {
+            if let Some((_, best_sim)) = best {
+                if sim > best_sim {
+                    best = Some((candidate, sim));
+                }
+            } else {
+                best = Some((candidate, sim));
+            }
+        }
+    }
+    best
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -316,5 +387,16 @@ mod tests {
 
         let note_col = table.columns.iter().find(|c| c.name == "note").unwrap();
         assert!(note_col.is_nullable);
+    }
+
+    #[test]
+    fn test_fuzzy_field_matching() {
+        let candidates = &["customer_name", "email_address", "phone_number", "total_price"];
+        let (matched, sim) = find_best_field_match("cust_name", candidates).unwrap();
+        assert_eq!(matched, "customer_name");
+        assert!(sim > 0.6);
+
+        let (matched_phone, _) = find_best_field_match("phone", candidates).unwrap();
+        assert_eq!(matched_phone, "phone_number");
     }
 }

@@ -144,18 +144,18 @@ tags:
 ### 6.2 Business Rules & Event Bus (`crm-core`)
 - [x] Declarative event-driven business rules engine ("IF X THEN Y") (`crm-core::rules`)
 - [x] Safe, sandboxed Rust expression evaluation engine
-- [ ] Internal Event Bus for cross-subsystem event propagation
+- [x] Internal Event Bus for cross-subsystem event propagation (`crm-core::event_bus`)
 
 ### 6.3 Visual Mapping Canvas (`crm-ui`)
 - [ ] Drag & drop endpoint-to-schema field mapping in egui 0.31
-- [ ] Fuzzy field name matching (Levenshtein distance)
+- [x] Fuzzy field name matching (Levenshtein distance & substring heuristic in `crm-core::inference`)
 - [ ] Live preview table for inspected API payloads
 
 ### 6.4 Analyst Studio & PCDA Certification Marketplace (`proteus-client` & `proteus-web`)
 - [x] Dedicated PCDA Analyst Studio view in `proteus-client` (`views/analyst_studio.rs`)
 - [x] TopBar role switcher integration and dynamic tab routing in `proteus-client::app`
 - [x] PCDA 79€ exam voucher & 149€ bundle catalog tracks in `proteus-web`
-- [x] 139/139 workspace unit tests passing (100% green, 0 compiler warnings)
+- [x] 143/143 workspace unit tests passing (100% green, 0 compiler warnings)
 
 ## Future (Phase 2 - Post-Military Commercial Launch)
 - [ ] Merchant of Record setup (Lemon Squeezy / Paddle)

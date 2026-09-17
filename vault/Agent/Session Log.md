@@ -18,10 +18,16 @@ tags:
 4. **Formal Certification Curriculum & Pricing Confirmation**:
    - Confirmed 3 professional certifications: PCD (Designer), PCSS (Systems & DB), PCDS (Deployer & Support) at 79€ voucher / 39€ annual badge / 149€ bundle.
    - Confirmed take-rates (18% services/retainers, 30% digital goods) and Core license bracketed tiers (7.99€ base $\rightarrow$ 199€ flat cap).
-5. **Sprint 6 Initiation: PCDA Pipeline & Universal Connector**:
+5. **Sprint 6 Execution: PCDA Pipeline & Universal Connector**:
    - Codified `vault/Developer/22 - Business Data Analyst Pipeline & Universal Connector.md`.
    - Introduced the 4th official role: **PCDA (Proteus Certified Data/Business Analyst)** as the primary customer-facing data architect.
-   - Planned 4-phase rollout: Core inference engine & GS1 parser, Business Rules Engine & Event Bus, egui Visual Mapping Canvas, and Analyst Studio integration.
+   - Built Schema Inference engine (`crm-core::inference`) with JSON/CSV ingestion, key heuristics, flattening, type deduction, DDL generation, and fuzzy field name matching (Levenshtein + substring containment).
+   - Implemented GS1-128 barcode Application Identifier parser (`crm-core::gs1`) with AI `(01)` GTIN, `(10)` Lot, `(17)` Expiration date, `(21)` Serial, `(00)` SSCC.
+   - Built declarative Business Rules Engine ("IF X THEN Y") in `crm-core::rules` with safe sandboxed evaluation.
+   - Created thread-safe in-process Event Bus (`crm-core::event_bus`) for cross-subsystem event dispatching.
+   - Implemented dedicated `AnalystStudioView` in `proteus-client::views::analyst_studio` with schema inference, barcode inspection, and live rules simulation.
+   - Integrated PCDA certification tracks (79€ voucher, 149€ bundle) in `proteus-web::marketplace`.
+   - Workspace test suite expanded to **143 tests passing (100% green, 0 compiler warnings)**.
 
 ## 2026-09-16: Role-Based Access Control (RBAC), Event Audit Trail & Appointments Subsystem
 

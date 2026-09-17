@@ -6,7 +6,7 @@
 ## 1. Product Vision & Operational Model
 * **"The Native Business OS & Headless Marketplace Protocol."**
 * **Zero Browser Overhead & 100% Data Ownership:** Native Rust engines for Windows, macOS, Android, and iOS. Local-first SQLite caching with direct enterprise connectors for PostgreSQL & MySQL.
-* **Headless Platform Architecture:** The core team builds software and protocols; customization, database setups, and ongoing support are delivered by a decentralized army of certified independent partners (PCD, PCSS, PCDS) via the internal marketplace.
+* **Headless Platform Architecture:** The core team builds software and protocols; customization, database setups, and ongoing support are delivered by a decentralized army of certified independent partners (PCDA, PCD, PCSS, PCDS) via the internal marketplace.
 * **Anti-Monopoly Stance:** 98% cheaper than legacy ERPs (SAP/Oracle), zero seat-tax extortion, 1-click cloud deployments, and luxury dark UX.
 
 ---
@@ -39,6 +39,7 @@
 ---
 
 ## 4. Certification & Workforce Model
+* **PCDA (Proteus Certified Data/Business Analyst):** The primary client-facing architect. Requirements elicitation, legacy data mapping, automated schema inference (JSON/CSV), GS1-128 barcode parsing, business rule definitions, and Certified Data Contract sign-off before PCD/PCSS touch the system.
 * **PCD (Proteus Certified Designer):** Visual canvas, design systems, UI layouts.
 * **PCSS (Proteus Certified Systems & DB Specialist):** PostgreSQL/MySQL schemas, SQL migrations, data integrity.
 * **PCDS (Proteus Certified Deployer / Support Specialist):** POS/terminal deployments, local networking, terminal setup.
@@ -52,6 +53,7 @@
 ### Phase 1 — Core Construction (Through May 2027)
 - [x] Shared Rust Core (`crm-core`): SQLite persistence, encryption, audit logs, roles matrix, ESC/POS spooler.
 - [x] Standalone Shop Runtime (`proteus-client`): Intake, Kanban pipeline, appointments, audit timeline, specialist dashboards.
+- [x] PCDA Analyst Pipeline & Connector (`crm-core` & `proteus-client`): Schema inference, GS1-128 decoder, declarative rules engine, internal event bus, Analyst Studio.
 - [x] Web Backend Engine (`proteus-web`): Pricing brackets, certification tiers, escrow contracts, compiler gate.
 - [ ] Direct Database Drivers: Direct connection to **PostgreSQL** and **MySQL** in `crm-core`.
 - [ ] Mobile/Multi-platform compilation: Static library (`.dll`, `.dylib`, C-bindings/NDK for iOS/Android).
