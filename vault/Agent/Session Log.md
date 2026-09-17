@@ -4,6 +4,21 @@ tags:
 ---
 # Session Log
 
+## 2026-09-17: Official Project Brief Adoption & May 2027 Strategic Roadmap
+
+### Key Decisions & Deliverables
+1. **Master Project Brief Codification**:
+   - Codified `vault/Developer/21 - Proteus Ecosystem Master Brief.md` and `vault/Company/Project Brief.md`.
+   - Replaced outdated legacy alpha roadmap in `project/ceo_roadmap.md` with official 3-phase execution roadmap targeting **May 2027**.
+2. **Platform-as-a-Protocol & Headless Operational Architecture**:
+   - Established strict headless policy: the core team/founder develops native software engines and protocols; all client implementations, database setups, and field support are decentralized to certified independent partners via the internal marketplace.
+3. **Multi-Database & Cross-Platform Technical Specification**:
+   - Specified direct driver integration for **PostgreSQL** and **MySQL** in `crm-core` alongside local-first **SQLite** caching.
+   - Specified portability strategy via static libraries (`.dll`, `.dylib`, C-bindings/NDK for iOS and Android).
+4. **Formal Certification Curriculum & Pricing Confirmation**:
+   - Confirmed 3 professional certifications: PCD (Designer), PCSS (Systems & DB), PCDS (Deployer & Support) at 79€ voucher / 39€ annual badge / 149€ bundle.
+   - Confirmed take-rates (18% services/retainers, 30% digital goods) and Core license bracketed tiers (7.99€ base $\rightarrow$ 199€ flat cap).
+
 ## 2026-09-16: Role-Based Access Control (RBAC), Event Audit Trail & Appointments Subsystem
 
 ### Key Deliverables & Accomplishments

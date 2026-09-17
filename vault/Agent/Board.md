@@ -121,6 +121,17 @@ tags:
 - [x] One-click zero-DevOps cloud relay & hot-snapshot strategy
 - [x] Decentralized 10-Tier partner economy model for local IT integrators and jobs creation
 
+### 5.8 Proteus Ecosystem Master Brief & May 2027 Roadmap Adoption
+- [x] Master Project Brief established in `vault/Developer/21 - Proteus Ecosystem Master Brief.md` and `vault/Company/Project Brief.md`
+- [x] Operational model defined: Headless Platform / Platform-as-a-Protocol (founder provides software & infra, partners do client implementations)
+- [x] Rust Core multi-database architecture specified (PostgreSQL & MySQL direct connectors alongside SQLite local caching)
+- [x] Multi-platform compilation strategy specified (static library `.dll`, `.dylib`, C-bindings/NDK for iOS/Android)
+- [x] Certification curriculum defined: PCD (Designer), PCSS (Systems & DB), PCDS (Deployer & Support) with 79€ voucher / 39€ badge
+- [x] Strategic CEO Roadmap updated in `project/ceo_roadmap.md` targeting May 2027
+- [ ] Direct PostgreSQL driver integration in `crm-core`
+- [ ] Direct MySQL driver integration in `crm-core`
+- [ ] Sandboxed 1-click migration runner with automated `.bak` rollback snapshot
+
 ## Future (Phase 2 - Post-Military Commercial Launch)
 - [ ] Merchant of Record setup (Lemon Squeezy / Paddle)
 - [ ] Cloud Relay Tunnel (WebRTC / STUN-TURN) for remote mobile access
