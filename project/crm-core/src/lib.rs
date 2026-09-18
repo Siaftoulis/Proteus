@@ -1,4 +1,5 @@
 pub mod audit;
+pub mod cloud_backup;
 pub mod data;
 pub mod drivers;
 pub mod encryption;
