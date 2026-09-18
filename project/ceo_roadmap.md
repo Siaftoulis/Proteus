@@ -55,8 +55,8 @@
 - [x] Standalone Shop Runtime (`proteus-client`): Intake, Kanban pipeline, appointments, audit timeline, specialist dashboards.
 - [x] PCDA Analyst Pipeline & Connector (`crm-core` & `proteus-client`): Schema inference, GS1-128 decoder, declarative rules engine, internal event bus, Analyst Studio.
 - [x] Web Backend Engine (`proteus-web`): Pricing brackets, certification tiers, escrow contracts, compiler gate.
-- [ ] Direct Database Drivers: Direct connection to **PostgreSQL** and **MySQL** in `crm-core`.
-- [ ] Mobile/Multi-platform compilation: Static library (`.dll`, `.dylib`, C-bindings/NDK for iOS/Android).
+- [x] Direct Database Drivers: Direct connection to **PostgreSQL** and **MySQL** in `crm-core`.
+- [x] Mobile/Multi-platform compilation: Static library (`.dll`, `.dylib`, C-bindings/NDK for iOS/Android) via `crm-core::ffi`.
 - [x] Sandboxed 1-Click Migrations: Dry-run execution runner with automated `.bak` rollback snapshot (`crm-core::migrations` & `proteus-client::views::developer`).
 
 ### Phase 2 — Design Partners Pilot

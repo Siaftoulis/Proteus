@@ -127,9 +127,10 @@ tags:
 - [x] Rust Core multi-database architecture specified (PostgreSQL & MySQL direct connectors alongside SQLite local caching)
 - [x] Multi-platform compilation strategy specified (static library `.dll`, `.dylib`, C-bindings/NDK for iOS/Android)
 - [x] Certification curriculum defined: PCD (Designer), PCSS (Systems & DB), PCDS (Deployer & Support) with 79€ voucher / 39€ badge
-- [x] Strategic CEO Roadmap updated in `project/ceo_roadmap.md` targeting May 2027
-- [ ] Direct PostgreSQL driver integration in `crm-core`
-- [ ] Direct MySQL driver integration in `crm-core`
+- [x] Direct PostgreSQL driver integration in `crm-core`
+- [x] Direct MySQL driver integration in `crm-core`
+- [x] Cross-platform C-FFI export layer in `crm-core` for multi-platform compilation (`.dll`, `.dylib`, NDK)
+- [x] Hybrid offline-first replication engine with conflict resolution & outbox queue
 - [x] Sandboxed 1-click migration runner with automated `.bak` rollback snapshot (`crm-core::migrations` & `views::developer`)
 
 ## Sprint 6 (PCDA Pipeline & Universal Connector) — In Progress

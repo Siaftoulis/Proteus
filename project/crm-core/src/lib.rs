@@ -1,8 +1,10 @@
 pub mod audit;
 pub mod data;
+pub mod drivers;
 pub mod encryption;
 pub mod event_bus;
 pub mod export;
+pub mod ffi;
 pub mod flow;
 pub mod gs1;
 pub mod inference;
@@ -12,6 +14,7 @@ pub mod migrations;
 pub mod package;
 pub mod paths;
 pub mod printer;
+pub mod replication;
 pub mod roles;
 pub mod rules;
 pub mod schema;
