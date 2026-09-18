@@ -47,6 +47,8 @@ pub struct ProteusClientApp {
     appointments_state: AppointmentsViewState,
     analyst_state: AnalystStudioState,
     lan_receiver: Option<crate::lan_receiver::LanPackageReceiver>,
+    lan_beacon: Option<crm_core::lan::LanDiscoveryDaemon>,
+    device_label_ref: std::sync::Arc<std::sync::Mutex<String>>,
 }
 
 impl ProteusClientApp {
@@ -123,6 +125,20 @@ impl ProteusClientApp {
             appointments_state: AppointmentsViewState::default(),
             analyst_state: AnalystStudioState::default(),
             lan_receiver: crate::lan_receiver::LanPackageReceiver::start(7443).ok(),
+            lan_beacon: {
+                let init_label = format!("Proteus Terminal ({})", UserRole::Ceo.display_name());
+                let label_ref = std::sync::Arc::new(std::sync::Mutex::new(init_label));
+                let node_id = format!("client-{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis()).unwrap_or(0));
+                crm_core::lan::LanDiscoveryDaemon::start(
+                    node_id,
+                    "ProteusClient".to_string(),
+                    label_ref.clone(),
+                    7443,
+                    0,
+                    true,
+                ).ok()
+            },
+            device_label_ref: std::sync::Arc::new(std::sync::Mutex::new(format!("Proteus Terminal ({})", UserRole::Ceo.display_name()))),
         }
     }
 }
@@ -225,6 +241,9 @@ impl eframe::App for ProteusClientApp {
                                         UserRole::Developer => "Αλέξανδρος (Dev)".to_string(),
                                         UserRole::BusinessAnalyst => "Δημήτρης (Analyst)".to_string(),
                                     };
+                                    if let Ok(mut label) = self.device_label_ref.lock() {
+                                        *label = format!("Proteus Terminal ({})", role.display_name());
+                                    }
                                 }
                             }
                         });
@@ -259,6 +278,10 @@ impl eframe::App for ProteusClientApp {
                             .show(ui, |ui| {
                                 ui.label(RichText::new("● 100% Τοπική Λειτουργία").size(11.0).color(Color32::from_rgb(52, 211, 153)));
                             });
+
+                        if self.lan_beacon.is_some() {
+                            ui.label(RichText::new("📡 LAN Ready").size(11.0).color(Color32::from_rgb(56, 189, 248)));
+                        }
 
                         let total_tickets = list_tickets(&self.conn).map(|t| t.len()).unwrap_or(0);
                         ui.label(RichText::new(format!("Σύνολο: {} Επισκευές", total_tickets)).size(12.0).color(crate::theme::TEXT_MUTED));

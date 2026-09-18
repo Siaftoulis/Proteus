@@ -9,6 +9,7 @@ pub mod ffi;
 pub mod flow;
 pub mod gs1;
 pub mod inference;
+pub mod lan;
 pub mod license;
 pub mod mapping;
 pub mod migrations;

@@ -103,6 +103,10 @@ pub struct ProteusApp {
     pub sel_task: Option<String>,
     pub task_filter_status: Option<TaskStatus>,
     pub task_filter_priority: Option<TaskPriority>,
+
+    // LAN Autonomous Discovery & Dispatch
+    pub lan_daemon: Option<crm_core::lan::LanDiscoveryDaemon>,
+    pub auto_deploy_on_save: bool,
 }
 
 fn app_dir() -> String {
@@ -364,6 +368,15 @@ impl Default for ProteusApp {
             studio_show_color_popup: false,
             studio_color_picker_target: 0,
             _studio_show_tool_options: false,
+            lan_daemon: crm_core::lan::LanDiscoveryDaemon::start(
+                "designer-master".to_string(),
+                "ProteusDesigner".to_string(),
+                std::sync::Arc::new(std::sync::Mutex::new("Proteus Studio Master".to_string())),
+                0,
+                crm_core::lan::DEFAULT_BEACON_PORT,
+                false,
+            ).ok(),
+            auto_deploy_on_save: false,
         }
     }
 }
@@ -714,6 +727,27 @@ impl ProteusApp {
             })
         }).is_some();
         if saved { self.toast("Project saved"); } else { self.toast("Cannot save (no DB)"); }
+
+        if self.auto_deploy_on_save {
+            if let Some(ref daemon) = self.lan_daemon {
+                let mut pkg = crm_core::package::PrPackage::new(
+                    format!("PKG-{}", self.pid),
+                    if self.pname.is_empty() { "Custom Template".to_string() } else { self.pname.clone() },
+                    "Designer (PCD)",
+                );
+                pkg.views.push(crm_core::package::PrViewLayout {
+                    view_id: self.pid.clone(),
+                    name: self.pname.clone(),
+                    view_type: "designer_canvas".to_string(),
+                    layout_json: serde_json::to_string(&self.project_doc).unwrap_or_default(),
+                });
+                let results = daemon.deploy_to_all_peers(&pkg);
+                let ok_count = results.iter().filter(|(_, r)| r.is_ok()).count();
+                if !results.is_empty() {
+                    self.toast(format!("Auto-Deployed to {}/{} terminals ✓", ok_count, results.len()));
+                }
+            }
+        }
     }
 
     pub fn load_project(&mut self) {
