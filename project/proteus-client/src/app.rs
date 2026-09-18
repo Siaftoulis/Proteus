@@ -46,6 +46,7 @@ pub struct ProteusClientApp {
     audit_state: AuditLogViewState,
     appointments_state: AppointmentsViewState,
     analyst_state: AnalystStudioState,
+    lan_receiver: Option<crate::lan_receiver::LanPackageReceiver>,
 }
 
 impl ProteusClientApp {
@@ -121,12 +122,34 @@ impl ProteusClientApp {
             audit_state: AuditLogViewState::default(),
             appointments_state: AppointmentsViewState::default(),
             analyst_state: AnalystStudioState::default(),
+            lan_receiver: crate::lan_receiver::LanPackageReceiver::start(7443).ok(),
         }
     }
 }
 
 impl eframe::App for ProteusClientApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // Poll for LAN packages pushed from Proteus Designer
+        if let Some(ref rx) = self.lan_receiver {
+            while let Some(pkg) = rx.try_recv() {
+                let db_path = get_database_path();
+                match pkg.mount(&mut self.conn, Some(&db_path), "Designer-LAN") {
+                    Ok(summary) => {
+                        self.settings_state.package_mount_msg = Some((
+                            format!(
+                                "✓ Νέο πακέτο παραδόθηκε από τον Designer: '{}' ({} DDL, {} Views)",
+                                summary.package_name, summary.applied_ddl_count, summary.loaded_views_count
+                            ),
+                            true,
+                        ));
+                    }
+                    Err(e) => {
+                        self.settings_state.package_mount_msg = Some((format!("❌ Σφάλμα εγκατάστασης πακέτου: {}", e), false));
+                    }
+                }
+            }
+        }
+
         crate::theme::apply_theme(ctx);
 
         // RBAC Permissions & Dynamic Tab Filtering

@@ -207,6 +207,31 @@ impl PrPackage {
             snapshot_created: snapshot_path,
         })
     }
+
+    /// Deploys this package over HTTP to a target Proteus Client instance (e.g. "http://127.0.0.1:7443").
+    pub fn deploy_to_client(&self, target_base_url: &str) -> Result<MountSummary, String> {
+        let bytes = self.to_bytes().map_err(|e| e.to_string())?;
+        let base = target_base_url.trim().trim_end_matches('/');
+        let url = if base.ends_with("/api/v1/package/mount") {
+            base.to_string()
+        } else {
+            format!("{}/api/v1/package/mount", base)
+        };
+
+        let resp = ureq::post(&url)
+            .timeout(std::time::Duration::from_secs(5))
+            .set("Content-Type", "application/octet-stream")
+            .send_bytes(&bytes)
+            .map_err(|e| format!("Failed to connect to Client at {}: {}", url, e))?;
+
+        if resp.status() == 200 {
+            let summary: MountSummary = resp.into_json()
+                .map_err(|e| format!("Invalid JSON response from Client: {}", e))?;
+            Ok(summary)
+        } else {
+            Err(format!("Client returned HTTP status {}", resp.status()))
+        }
+    }
 }
 
 #[cfg(test)]

@@ -59,10 +59,43 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
     ui.separator();
     ui.add_space(8.);
 
-    ui.label(egui::RichText::new("EXPORT & PUBLISH").size(9.).color(theme::TEXT_DIM).strong());
+    ui.label(egui::RichText::new("EXPORT & STORE DEPLOY").size(9.).color(theme::TEXT_DIM).strong());
     ui.add_space(4.);
 
-    if ui.add(egui::Button::new(egui::RichText::new("📦 Export Standalone (.crmb)").color(theme::ACCENT_GREEN)).min_size(egui::vec2(ui.available_width(), 24.))).clicked() {
+    if ui.add(egui::Button::new(egui::RichText::new("🚀 Deploy to Store Client (LAN)").strong().color(egui::Color32::WHITE))
+        .fill(theme::ACCENT)
+        .min_size(egui::vec2(ui.available_width(), 26.))).clicked()
+    {
+        let mut pkg = crm_core::package::PrPackage::new(
+            format!("PKG-{}", app.pid),
+            if app.pname.is_empty() { "Custom Template".to_string() } else { app.pname.clone() },
+            "Designer (PCD)",
+        );
+        pkg.views.push(crm_core::package::PrViewLayout {
+            view_id: app.pid.clone(),
+            name: app.pname.clone(),
+            view_type: "designer_canvas".to_string(),
+            layout_json: serde_json::to_string(&app.project_doc).unwrap_or_default(),
+        });
+
+        match pkg.deploy_to_client("http://127.0.0.1:7443") {
+            Ok(summary) => {
+                app.toast(format!("✓ Παραδόθηκε στο κατάστημα: '{}'!", summary.package_name));
+            }
+            Err(e) => {
+                app.toast(format!("❌ Σφάλμα σύνδεσης (LAN:7443): {}", e));
+            }
+        }
+    }
+    ui.add_space(4.);
+
+    if ui.add(egui::Button::new(egui::RichText::new("📦 Export .pr Package").color(theme::ACCENT_GREEN)).min_size(egui::vec2(ui.available_width(), 22.))).clicked() {
+        app.save_project();
+        app.toast("Package .pr generated & ready for Marketplace ✓");
+    }
+    ui.add_space(4.);
+
+    if ui.add(egui::Button::new(egui::RichText::new("💾 Export Standalone (.crmb)").color(theme::TEXT_DIM)).min_size(egui::vec2(ui.available_width(), 20.))).clicked() {
         app.save_project();
         app.toast("Project exported as standalone bundle ✓");
     }
