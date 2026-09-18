@@ -9,6 +9,7 @@ pub mod audit_log;
 pub mod appointments;
 pub mod analyst_studio;
 pub mod mapping_canvas;
+pub mod schema_diff_modal;
 
 
 

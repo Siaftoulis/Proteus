@@ -53,6 +53,7 @@ pub struct DeveloperStudioState {
     pub status_message: Option<String>,
     pub enterprise_work_order: EnterpriseWorkOrder,
     pub remote_db_url: String,
+    pub active_schema_diff: Option<crm_core::schema_diff::SchemaDiff>,
 }
 
 #[derive(Debug, Clone)]
@@ -102,6 +103,7 @@ impl Default for DeveloperStudioState {
                 is_active: true,
             },
             remote_db_url: "postgres://admin:secret@cloud.corp.net:5432/proteus_prod?sslmode=require".to_string(),
+            active_schema_diff: None,
         }
     }
 }
@@ -215,16 +217,60 @@ pub fn draw_developer_studio_view(ui: &mut Ui, conn: &mut Connection, state: &mu
                                     Err(e) => state.status_message = Some(format!("❌ Σφάλμα Migration: {}", e)),
                                 }
                             }
+                            if ui.button("🔍 Visual Diff").clicked() {
+                                match crm_core::schema_diff::SchemaDiff::from_ddl(conn, &[migration_sql.clone()]) {
+                                    Ok(d) => {
+                                        state.active_schema_diff = Some(d);
+                                        state.status_message = Some("✓ Υπολογίστηκε το οπτικό Schema Diff.".into());
+                                    }
+                                    Err(e) => state.status_message = Some(format!("❌ Σφάλμα Diff: {}", e)),
+                                }
+                            }
                             if ui.button(RichText::new("🚀 Εκτέλεση (.bak)").strong()).clicked() {
                                 let mut plan = MigrationPlan::new("DEV-APPLY", "Dev Studio Applied Migration", "Developer");
                                 plan.add_statement(migration_sql.clone());
                                 let db_path = crm_core::paths::get_database_path();
                                 match MigrationRunner::execute(conn, &plan, Some(&db_path)) {
-                                    Ok(res) => state.status_message = Some(format!("✓ Εφαρμόστηκε σε {}ms! (Snapshot: {:?})", res.elapsed_ms, res.snapshot_path)),
+                                    Ok(res) => {
+                                        state.status_message = Some(format!("✓ Εφαρμόστηκε σε {}ms! (Snapshot: {:?})", res.elapsed_ms, res.snapshot_path));
+                                        state.active_schema_diff = None;
+                                    }
                                     Err(e) => state.status_message = Some(format!("❌ Αποτυχία: {}", e)),
                                 }
                             }
                         });
+
+                        let mut should_close_diff = false;
+                        if let Some(ref diff) = state.active_schema_diff {
+                            ui.add_space(8.0);
+                            Frame::new().fill(crate::theme::BG_BASE).stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
+                                .corner_radius(CornerRadius::same(6)).inner_margin(Margin::same(10)).show(ui, |ui| {
+                                    ui.horizontal(|ui| {
+                                        ui.label(RichText::new("📊 VISUAL SCHEMA DIFF:").strong().size(10.0).color(crate::theme::TEXT_MUTED));
+                                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                            if ui.small_button("✕").clicked() {
+                                                should_close_diff = true;
+                                            }
+                                        });
+                                    });
+                                    ui.add_space(4.0);
+                                    for t in &diff.table_diffs {
+                                        ui.label(RichText::new(format!("Πίνακας: {}", t.table_name)).strong().size(11.0).color(Color32::WHITE));
+                                        for c in &t.column_diffs {
+                                            ui.horizontal(|ui| {
+                                                ui.label(RichText::new("+").color(Color32::from_rgb(52, 211, 153)).strong());
+                                                ui.label(RichText::new(&c.column_name).color(Color32::from_rgb(52, 211, 153)));
+                                                if let crm_core::schema_diff::ColumnChangeKind::Added { ref data_type, .. } = c.kind {
+                                                    ui.label(RichText::new(data_type).size(10.0).color(crate::theme::TEXT_MUTED));
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                        }
+                        if should_close_diff {
+                            state.active_schema_diff = None;
+                        }
                     });
 
                 ui.add_space(10.0);

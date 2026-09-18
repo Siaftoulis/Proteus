@@ -8,7 +8,7 @@ use crate::views::pipeline::draw_pipeline_view;
 use crate::views::settings::{draw_settings_view, SettingsViewState};
 use crate::views::support::{draw_support_view, SupportViewState};
 use crate::views::ticket_detail::{draw_ticket_detail_modal, TicketDetailState};
-use crm_core::audit::{init_audit_schema, list_audit_events, log_audit_event, SystemEvent};
+use crm_core::audit::init_audit_schema;
 use crm_core::paths::{ensure_database_dir_exists, get_database_path};
 use crm_core::printer::ShopReceiptConfig;
 use crm_core::roles::UserRole;
@@ -49,6 +49,7 @@ pub struct ProteusClientApp {
     lan_receiver: Option<crate::lan_receiver::LanPackageReceiver>,
     lan_beacon: Option<crm_core::lan::LanDiscoveryDaemon>,
     device_label_ref: std::sync::Arc<std::sync::Mutex<String>>,
+    pending_migration: Option<crate::views::schema_diff_modal::PendingMigrationReview>,
 }
 
 impl ProteusClientApp {
@@ -64,48 +65,7 @@ impl ProteusClientApp {
 
         let _ = init_tickets_schema(&conn);
         let _ = init_audit_schema(&conn);
-
-        // Seed initial audit trail entries if empty
-        if let Ok(existing) = list_audit_events(&conn, 1, 0, None) {
-            if existing.is_empty() {
-                let _ = log_audit_event(
-                    &conn,
-                    &SystemEvent::new(
-                        "SYSTEM",
-                        "SYS-001",
-                        "BOOT",
-                        "Admin (CEO)",
-                        "Ceo",
-                        "Εκκίνηση συστήματος Proteus BOS — Όλα τα υποσυστήματα ενεργά",
-                        r#"{"mode":"100% Offline-first","store":"store.db"}"#,
-                    ),
-                );
-                let _ = log_audit_event(
-                    &conn,
-                    &SystemEvent::new(
-                        "APPOINTMENT",
-                        "APT-101",
-                        "BOOKED",
-                        "Μαρία (Reception)",
-                        "CustomerService",
-                        "Προγραμματισμός ραντεβού παραλαβής για Δημήτρη Καρρά",
-                        r#"{"device":"MacBook Pro","time":"12:00"}"#,
-                    ),
-                );
-                let _ = log_audit_event(
-                    &conn,
-                    &SystemEvent::new(
-                        "TICKET",
-                        "TCK-1041",
-                        "STATUS_CHANGED",
-                        "Νίκος (Τεχνικός)",
-                        "Technician",
-                        "Ολοκλήρωση επισκευής: Έτοιμο προς παράδοση (#1041)",
-                        r#"{"status":"Ready","cost":85.0}"#,
-                    ),
-                );
-            }
-        }
+        crate::views::audit_log::seed_initial_audit_events_if_empty(&conn);
 
         Self {
             conn,
@@ -139,6 +99,7 @@ impl ProteusClientApp {
                 ).ok()
             },
             device_label_ref: std::sync::Arc::new(std::sync::Mutex::new(format!("Proteus Terminal ({})", UserRole::Ceo.display_name()))),
+            pending_migration: None,
         }
     }
 }
@@ -148,19 +109,27 @@ impl eframe::App for ProteusClientApp {
         // Poll for LAN packages pushed from Proteus Designer
         if let Some(ref rx) = self.lan_receiver {
             while let Some(pkg) = rx.try_recv() {
-                let db_path = get_database_path();
-                match pkg.mount(&mut self.conn, Some(&db_path), "Designer-LAN") {
-                    Ok(summary) => {
-                        self.settings_state.package_mount_msg = Some((
-                            format!(
-                                "✓ Νέο πακέτο παραδόθηκε από τον Designer: '{}' ({} DDL, {} Views)",
-                                summary.package_name, summary.applied_ddl_count, summary.loaded_views_count
-                            ),
-                            true,
-                        ));
+                if !pkg.schema.ddl_statements.is_empty() {
+                    match crate::views::schema_diff_modal::PendingMigrationReview::from_package(&self.conn, pkg) {
+                        Ok(rev) => {
+                            self.pending_migration = Some(rev);
+                        }
+                        Err(e) => {
+                            self.settings_state.package_mount_msg = Some((format!("❌ Σφάλμα ανάλυσης σχήματος: {}", e), false));
+                        }
                     }
-                    Err(e) => {
-                        self.settings_state.package_mount_msg = Some((format!("❌ Σφάλμα εγκατάστασης πακέτου: {}", e), false));
+                } else {
+                    let db_path = get_database_path();
+                    match pkg.mount(&mut self.conn, Some(&db_path), "Designer-LAN") {
+                        Ok(summary) => {
+                            self.settings_state.package_mount_msg = Some((
+                                format!("✓ Νέο πακέτο παραδόθηκε από τον Designer: '{}' ({} Views)", summary.package_name, summary.loaded_views_count),
+                                true,
+                            ));
+                        }
+                        Err(e) => {
+                            self.settings_state.package_mount_msg = Some((format!("❌ Σφάλμα εγκατάστασης πακέτου: {}", e), false));
+                        }
                     }
                 }
             }
@@ -374,6 +343,14 @@ impl eframe::App for ProteusClientApp {
             &mut self.ticket_detail_state,
             &self.receipt_config,
             &self.settings_state.printer_name,
+        );
+
+        // Visual Schema Diff & Migration Confirmation Modal
+        crate::views::schema_diff_modal::draw_schema_diff_modal(
+            ctx,
+            &mut self.conn,
+            &mut self.pending_migration,
+            &mut self.settings_state.package_mount_msg,
         );
     }
 }

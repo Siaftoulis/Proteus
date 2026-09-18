@@ -1,9 +1,52 @@
 //! Audit Log & Activity Timeline View (Ιστορικό Κινήσεων).
 //! Provides full transparency into every movement, state change, and operational action.
 
-use crm_core::audit::{list_audit_events, SystemEvent};
+use crm_core::audit::{list_audit_events, log_audit_event, SystemEvent};
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, ScrollArea, Stroke, Ui};
 use rusqlite::Connection;
+
+pub fn seed_initial_audit_events_if_empty(conn: &Connection) {
+    if let Ok(existing) = list_audit_events(conn, 1, 0, None) {
+        if existing.is_empty() {
+            let _ = log_audit_event(
+                conn,
+                &SystemEvent::new(
+                    "SYSTEM",
+                    "SYS-001",
+                    "BOOT",
+                    "Admin (CEO)",
+                    "Ceo",
+                    "Εκκίνηση συστήματος Proteus BOS — Όλα τα υποσυστήματα ενεργά",
+                    r#"{"mode":"100% Offline-first","store":"store.db"}"#,
+                ),
+            );
+            let _ = log_audit_event(
+                conn,
+                &SystemEvent::new(
+                    "APPOINTMENT",
+                    "APT-101",
+                    "BOOKED",
+                    "Μαρία (Reception)",
+                    "CustomerService",
+                    "Προγραμματισμός ραντεβού παραλαβής για Δημήτρη Καρρά",
+                    r#"{"device":"MacBook Pro","time":"12:00"}"#,
+                ),
+            );
+            let _ = log_audit_event(
+                conn,
+                &SystemEvent::new(
+                    "TICKET",
+                    "TCK-1041",
+                    "STATUS_CHANGED",
+                    "Νίκος (Τεχνικός)",
+                    "Technician",
+                    "Ολοκλήρωση επισκευής: Έτοιμο προς παράδοση (#1041)",
+                    r#"{"status":"Ready","cost":85.0}"#,
+                ),
+            );
+        }
+    }
+}
 
 pub struct AuditLogViewState {
     pub search_query: String,

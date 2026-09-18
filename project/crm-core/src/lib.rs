@@ -20,6 +20,7 @@ pub mod replication;
 pub mod roles;
 pub mod rules;
 pub mod schema;
+pub mod schema_diff;
 pub mod sync;
 pub mod tickets;
 

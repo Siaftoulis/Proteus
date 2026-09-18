@@ -117,7 +117,7 @@ impl ConnectionConfig {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ColumnMeta {
     pub name: String,
     pub data_type: String,
