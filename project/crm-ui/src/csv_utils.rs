@@ -58,69 +58,60 @@ pub fn export_contacts_csv(contacts: &[Contact]) -> String {
     csv
 }
 
-/// Imports Contacts from a CSV formatted string.
-pub fn import_contacts_csv(csv_text: &str) -> Vec<Contact> {
-    let mut contacts = Vec::new();
-    let mut lines = csv_text.lines();
-    
-    // Skip header line if present
-    if let Some(header) = lines.next() {
-        if !header.to_lowercase().contains("name") {
-            // First line was not a header, try parsing it as a row
-            if let Some(c) = parse_contact_row(header) {
-                contacts.push(c);
-            }
-        }
-    }
-
-    for line in lines {
-        let trimmed = line.trim();
-        if trimmed.is_empty() {
-            continue;
-        }
-        if let Some(c) = parse_contact_row(trimmed) {
-            contacts.push(c);
-        }
-    }
-
-    contacts
+fn find_col(fields: &[String], names: &[&str]) -> Option<usize> {
+    fields.iter().position(|f| {
+        let lower = f.trim().to_lowercase();
+        names.iter().any(|&n| lower == n)
+    })
 }
 
-fn parse_contact_row(line: &str) -> Option<Contact> {
-    let fields = parse_csv_line(line);
-    if fields.is_empty() || (fields.len() == 1 && fields[0].is_empty()) {
+struct ContactIndices {
+    id: Option<usize>,
+    name: Option<usize>,
+    email: Option<usize>,
+    phone: Option<usize>,
+    company: Option<usize>,
+    tags: Option<usize>,
+}
+
+impl ContactIndices {
+    fn from_header(f: &[String]) -> Self {
+        Self {
+            id: find_col(f, &["id"]),
+            name: find_col(f, &["name", "full_name", "contact_name"]),
+            email: find_col(f, &["email", "email_address"]),
+            phone: find_col(f, &["phone", "telephone"]),
+            company: find_col(f, &["company", "organization"]),
+            tags: find_col(f, &["tags", "tag"]),
+        }
+    }
+    fn positional() -> Self {
+        Self { id: Some(0), name: Some(1), email: Some(2), phone: Some(3), company: Some(4), tags: Some(5) }
+    }
+}
+
+fn parse_contact_fields(fields: &[String], indices: &ContactIndices) -> Option<Contact> {
+    if fields.is_empty() || (fields.len() == 1 && fields[0].trim().is_empty()) {
         return None;
     }
-
-    // Header order: id,name,email,phone,company,tags
-    let (id, name, email, phone, company, tags) = if fields.len() >= 6 {
-        (
-            if fields[0].is_empty() { uuid::Uuid::new_v4().to_string() } else { fields[0].clone() },
-            fields[1].clone(),
-            fields[2].clone(),
-            fields[3].clone(),
-            fields[4].clone(),
-            fields[5].split(';').map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect(),
-        )
-    } else if fields.len() >= 2 {
-        (
-            if fields[0].is_empty() { uuid::Uuid::new_v4().to_string() } else { fields[0].clone() },
-            fields[1].clone(),
-            fields.get(2).cloned().unwrap_or_default(),
-            fields.get(3).cloned().unwrap_or_default(),
-            fields.get(4).cloned().unwrap_or_default(),
-            Vec::new(),
-        )
+    let (id, name) = if indices.name.is_none() && fields.len() == 1 {
+        (uuid::Uuid::new_v4().to_string(), fields[0].clone())
     } else {
-        (
-            uuid::Uuid::new_v4().to_string(),
-            fields[0].clone(),
-            String::new(),
-            String::new(),
-            String::new(),
-            Vec::new(),
-        )
+        let id = indices.id
+            .and_then(|i| fields.get(i))
+            .filter(|s| !s.trim().is_empty())
+            .cloned()
+            .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
+        let name = indices.name.and_then(|i| fields.get(i)).cloned().unwrap_or_default();
+        (id, name)
     };
+    let email = indices.email.and_then(|i| fields.get(i)).cloned().unwrap_or_default();
+    let phone = indices.phone.and_then(|i| fields.get(i)).cloned().unwrap_or_default();
+    let company = indices.company.and_then(|i| fields.get(i)).cloned().unwrap_or_default();
+    let tags = indices.tags
+        .and_then(|i| fields.get(i))
+        .map(|s| s.split(';').map(|t| t.trim().to_string()).filter(|t| !t.is_empty()).collect())
+        .unwrap_or_default();
 
     Some(Contact {
         id,
@@ -133,6 +124,119 @@ fn parse_contact_row(line: &str) -> Option<Contact> {
         created_at: Utc::now().to_rfc3339(),
         updated_at: Utc::now().to_rfc3339(),
     })
+}
+
+struct DealIndices {
+    id: Option<usize>,
+    title: Option<usize>,
+    value: Option<usize>,
+    stage: Option<usize>,
+    contact_id: Option<usize>,
+    expected_close: Option<usize>,
+    notes: Option<usize>,
+}
+
+impl DealIndices {
+    fn from_header(f: &[String]) -> Self {
+        Self {
+            id: find_col(f, &["id"]),
+            title: find_col(f, &["title", "deal", "deal_name"]),
+            value: find_col(f, &["value", "amount"]),
+            stage: find_col(f, &["stage", "status"]),
+            contact_id: find_col(f, &["contact_id", "contact"]),
+            expected_close: find_col(f, &["expected_close", "close_date"]),
+            notes: find_col(f, &["notes", "note"]),
+        }
+    }
+    fn positional() -> Self {
+        Self { id: Some(0), title: Some(1), value: Some(2), stage: Some(3), contact_id: Some(4), expected_close: Some(5), notes: Some(6) }
+    }
+}
+
+fn parse_deal_fields(fields: &[String], indices: &DealIndices) -> Option<Deal> {
+    if fields.is_empty() || (fields.len() == 1 && fields[0].trim().is_empty()) {
+        return None;
+    }
+    let (id, title) = if indices.title.is_none() && fields.len() == 1 {
+        (uuid::Uuid::new_v4().to_string(), fields[0].clone())
+    } else {
+        let id = indices.id
+            .and_then(|i| fields.get(i))
+            .filter(|s| !s.trim().is_empty())
+            .cloned()
+            .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
+        let title = indices.title.and_then(|i| fields.get(i)).cloned().unwrap_or_else(|| "Untitled Deal".into());
+        (id, title)
+    };
+    let value = indices.value
+        .and_then(|i| fields.get(i))
+        .and_then(|v| v.parse::<f64>().ok())
+        .unwrap_or(0.0);
+    let stage = indices.stage
+        .and_then(|i| fields.get(i))
+        .filter(|s| !s.trim().is_empty())
+        .cloned()
+        .unwrap_or_else(|| "New".into());
+    let contact_id = indices.contact_id.and_then(|i| fields.get(i)).filter(|s| !s.trim().is_empty()).cloned();
+    let expected_close = indices.expected_close.and_then(|i| fields.get(i)).cloned().unwrap_or_default();
+    let notes = indices.notes.and_then(|i| fields.get(i)).cloned().unwrap_or_default();
+
+    Some(Deal {
+        id,
+        title,
+        value,
+        stage,
+        contact_id,
+        expected_close,
+        notes,
+        created_at: Utc::now().to_rfc3339(),
+        updated_at: Utc::now().to_rfc3339(),
+    })
+}
+
+fn parse_csv_rows<T, I, F>(
+    csv_text: &str,
+    is_header_fn: impl Fn(&str) -> bool,
+    build_indices: impl Fn(&[String], bool) -> I,
+    mut parse_row: F,
+) -> Vec<T>
+where
+    F: FnMut(&[String], &I) -> Option<T>,
+{
+    let mut items = Vec::new();
+    let mut lines = csv_text.lines();
+    let first = match lines.next() {
+        Some(l) => l,
+        None => return items,
+    };
+    let first_fields = parse_csv_line(first);
+    let is_header = is_header_fn(first);
+    let indices = build_indices(&first_fields, is_header);
+    if !is_header {
+        if let Some(item) = parse_row(&first_fields, &indices) {
+            items.push(item);
+        }
+    }
+    for line in lines {
+        let trimmed = line.trim();
+        if !trimmed.is_empty() {
+            let fields = parse_csv_line(trimmed);
+            if let Some(item) = parse_row(&fields, &indices) {
+                items.push(item);
+            }
+        }
+    }
+    items
+}
+
+/// Imports Contacts from a CSV formatted string.
+pub fn import_contacts_csv(csv_text: &str) -> Vec<Contact> {
+    parse_csv_rows(
+        csv_text,
+        |h| h.to_lowercase().contains("name"),
+        |f, is_hdr| if is_hdr { ContactIndices::from_header(f) } else { ContactIndices::positional() },
+        parse_contact_fields,
+    )
 }
 
 /// Exports a slice of Deals to a CSV formatted string.
@@ -155,56 +259,15 @@ pub fn export_deals_csv(deals: &[Deal]) -> String {
 
 /// Imports Deals from a CSV formatted string.
 pub fn import_deals_csv(csv_text: &str) -> Vec<Deal> {
-    let mut deals = Vec::new();
-    let mut lines = csv_text.lines();
-
-    if let Some(header) = lines.next() {
-        if !header.to_lowercase().contains("title") {
-            if let Some(d) = parse_deal_row(header) {
-                deals.push(d);
-            }
-        }
-    }
-
-    for line in lines {
-        let trimmed = line.trim();
-        if trimmed.is_empty() {
-            continue;
-        }
-        if let Some(d) = parse_deal_row(trimmed) {
-            deals.push(d);
-        }
-    }
-
-    deals
-}
-
-fn parse_deal_row(line: &str) -> Option<Deal> {
-    let fields = parse_csv_line(line);
-    if fields.is_empty() || (fields.len() == 1 && fields[0].is_empty()) {
-        return None;
-    }
-
-    // Header order: id,title,value,stage,contact_id,expected_close,notes
-    let id = if !fields[0].is_empty() { fields[0].clone() } else { uuid::Uuid::new_v4().to_string() };
-    let title = fields.get(1).cloned().unwrap_or_else(|| "Untitled Deal".into());
-    let value = fields.get(2).and_then(|v| v.parse::<f64>().ok()).unwrap_or(0.0);
-    let stage = fields.get(3).cloned().unwrap_or_else(|| "New".into());
-    let contact_id = fields.get(4).filter(|s| !s.is_empty()).cloned();
-    let expected_close = fields.get(5).cloned().unwrap_or_default();
-    let notes = fields.get(6).cloned().unwrap_or_default();
-
-    Some(Deal {
-        id,
-        title,
-        value,
-        stage,
-        contact_id,
-        expected_close,
-        notes,
-        created_at: Utc::now().to_rfc3339(),
-        updated_at: Utc::now().to_rfc3339(),
-    })
+    parse_csv_rows(
+        csv_text,
+        |h| {
+            let l = h.to_lowercase();
+            l.contains("title") || l.contains("deal")
+        },
+        |f, is_hdr| if is_hdr { DealIndices::from_header(f) } else { DealIndices::positional() },
+        parse_deal_fields,
+    )
 }
 
 #[cfg(test)]
