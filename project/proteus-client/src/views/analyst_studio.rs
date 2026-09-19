@@ -138,6 +138,42 @@ pub fn render_analyst_studio(ui: &mut Ui, state: &mut AnalystStudioState) {
                         .show(ui, |ui| {
                             ui.label(RichText::new(table.to_sqlite_ddl()).monospace().size(11.0).color(Color32::from_rgb(148, 163, 184)));
                         });
+
+                    ui.add_space(8.0);
+                    ui.horizontal(|ui| {
+                        if ui.button(RichText::new("📦 Εξαγωγή .pr Package").color(Color32::from_rgb(52, 211, 153)).strong()).clicked() {
+                            let pkg = crm_core::package::PrPackage::from_inferred_table(table, "PCDA Analyst");
+                            match pkg.to_bytes() {
+                                Ok(bytes) => {
+                                    state.status_message = Some((
+                                        format!("✓ Το πακέτο '{}' εξήχθη επιτυχώς! ({} bytes, SHA-256 Verified)", pkg.manifest.name, bytes.len()),
+                                        false,
+                                    ));
+                                }
+                                Err(e) => {
+                                    state.status_message = Some((format!("❌ Σφάλμα εξαγωγής πακέτου: {}", e), true));
+                                }
+                            }
+                        }
+
+                        if ui.add(egui::Button::new(RichText::new("🚀 Hot-Mount στο Κατάστημα (LAN)").color(Color32::WHITE).strong())
+                            .fill(crate::theme::ACCENT_PRIMARY))
+                            .clicked()
+                        {
+                            let pkg = crm_core::package::PrPackage::from_inferred_table(table, "PCDA Analyst");
+                            match pkg.deploy_to_client("http://127.0.0.1:7443") {
+                                Ok(summary) => {
+                                    state.status_message = Some((
+                                        format!("✓ Παραδόθηκε & Εγκαταστάθηκε στο τοπικό τερματικό: '{}'!", summary.package_name),
+                                        false,
+                                    ));
+                                }
+                                Err(e) => {
+                                    state.status_message = Some((format!("❌ Σφάλμα αποστολής LAN (127.0.0.1:7443): {}", e), true));
+                                }
+                            }
+                        }
+                    });
                 }
             });
 

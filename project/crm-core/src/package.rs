@@ -103,6 +103,50 @@ impl PrPackage {
         }
     }
 
+    /// Automatically constructs a `.pr` package from a PCDA inferred table.
+    pub fn from_inferred_table(table: &crate::inference::InferredTable, author: &str) -> Self {
+        let mut pkg = Self::new(
+            format!("PKG-{}", table.table_name.to_uppercase()),
+            format!("Dataset: {}", table.table_name),
+            author,
+        );
+        pkg.schema.ddl_statements.push(table.to_sqlite_ddl());
+
+        let mut entity = crate::schema::EntitySchema::new(&table.table_name, &table.table_name);
+        for col in &table.columns {
+            let ftype = match col.col_type {
+                crate::inference::InferredType::Integer | crate::inference::InferredType::Real => {
+                    crate::schema::FieldType::Number
+                }
+                crate::inference::InferredType::Boolean => crate::schema::FieldType::Boolean,
+                crate::inference::InferredType::Text | crate::inference::InferredType::Jsonb => {
+                    crate::schema::FieldType::Text
+                }
+            };
+            entity = entity.with_field(crate::schema::FieldDefinition {
+                name: col.name.clone(),
+                label: col.name.clone(),
+                field_type: ftype,
+                required: !col.is_nullable,
+                default_value: None,
+            });
+        }
+        pkg.schema.entity_schemas.push(entity);
+
+        pkg.views.push(PrViewLayout {
+            view_id: format!("view_{}", table.table_name),
+            name: format!("{} Grid View", table.table_name),
+            view_type: "table_grid".to_string(),
+            layout_json: serde_json::json!({
+                "entity": table.table_name,
+                "columns": table.columns.iter().map(|c| c.name.clone()).collect::<Vec<_>>()
+            })
+            .to_string(),
+        });
+
+        pkg
+    }
+
     /// Serializes the package into binary bytes with SHA-256 integrity seal.
     pub fn to_bytes(&self) -> Result<Vec<u8>, PackageError> {
         let json = serde_json::to_string(self)
@@ -297,4 +341,24 @@ mod tests {
         let events = crate::audit::list_audit_events(&conn, 10, 0, None).unwrap();
         assert!(events.iter().any(|e| e.event_type == "MOUNTED"));
     }
+
+    #[test]
+    fn test_package_from_inferred_table() {
+        let json_val = serde_json::json!({
+            "sku": "PARTS-99",
+            "name": "Brake Pads",
+            "unit_price": 28.50,
+            "in_stock": true
+        });
+        let table = crate::inference::SchemaInferer::infer_from_json("replacement_parts", &json_val).unwrap();
+        let pkg = PrPackage::from_inferred_table(&table, "PCDA-Alex");
+
+        assert_eq!(pkg.manifest.name, "Dataset: replacement_parts");
+        assert_eq!(pkg.manifest.author_pcd_id, "PCDA-Alex");
+        assert_eq!(pkg.schema.ddl_statements.len(), 1);
+        assert!(pkg.schema.ddl_statements[0].contains("CREATE TABLE IF NOT EXISTS replacement_parts"));
+        assert_eq!(pkg.views.len(), 1);
+        assert_eq!(pkg.views[0].view_type, "table_grid");
+    }
 }
+
