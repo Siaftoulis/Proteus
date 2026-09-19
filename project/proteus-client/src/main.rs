@@ -2,6 +2,7 @@
 
 mod app;
 mod lan_receiver;
+mod replication_daemon;
 mod theme;
 mod views;
 

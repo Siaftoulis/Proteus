@@ -55,6 +55,7 @@ pub struct ProteusClientApp {
     store_director_state: StoreDirectorState,
     lan_receiver: Option<crate::lan_receiver::LanPackageReceiver>,
     lan_beacon: Option<crm_core::lan::LanDiscoveryDaemon>,
+    replication_daemon: Option<crate::replication_daemon::ReplicationDaemon>,
     device_label_ref: std::sync::Arc<std::sync::Mutex<String>>,
     pending_migration: Option<crate::views::schema_diff_modal::PendingMigrationReview>,
 }
@@ -111,6 +112,7 @@ impl ProteusClientApp {
                     true,
                 ).ok()
             },
+            replication_daemon: crate::replication_daemon::ReplicationDaemon::start(db_path.clone(), 5000).ok(),
             device_label_ref: std::sync::Arc::new(std::sync::Mutex::new(format!("Proteus Terminal ({})", UserRole::Ceo.display_name()))),
             pending_migration: None,
         }
@@ -279,6 +281,10 @@ impl eframe::App for ProteusClientApp {
 
                         if self.lan_beacon.is_some() {
                             ui.label(RichText::new("📡 LAN Ready").size(11.0).color(Color32::from_rgb(56, 189, 248)));
+                        }
+
+                        if let Some(ref rep) = self.replication_daemon {
+                            ui.label(RichText::new(format!("🔄 Sync Daemon ({} Synced)", rep.total_pushed())).size(11.0).color(Color32::from_rgb(52, 211, 153)));
                         }
 
                         let total_tickets = list_tickets(&self.conn).map(|t| t.len()).unwrap_or(0);

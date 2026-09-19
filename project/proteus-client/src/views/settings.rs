@@ -11,14 +11,29 @@ pub struct SettingsViewState {
     pub printer_name: String,
     pub test_print_msg: Option<(String, bool)>,
     pub package_mount_msg: Option<(String, bool)>,
+    pub license_key: String,
+    pub machine_id: String,
+    pub license_info: Option<crm_core::license::LicenseInfo>,
+    pub license_msg: Option<(String, bool)>,
 }
 
 impl Default for SettingsViewState {
     fn default() -> Self {
+        let machine_id = format!("MACHINE-{:x}", {
+            use std::hash::{Hash, Hasher};
+            let mut hasher = std::collections::hash_map::DefaultHasher::new();
+            std::env::var("COMPUTERNAME").unwrap_or_else(|_| "DEFAULT-HOST".into()).hash(&mut hasher);
+            hasher.finish()
+        });
+        let cached = crm_core::license::get_license_info(None, &machine_id);
         Self {
             printer_name: "POS-80".to_string(),
             test_print_msg: None,
             package_mount_msg: None,
+            license_key: String::new(),
+            machine_id,
+            license_info: if cached.valid { Some(cached) } else { None },
+            license_msg: None,
         }
     }
 }
@@ -194,5 +209,109 @@ pub fn draw_settings_view(
                     }
                 });
             });
+
+        ui.add_space(14.0);
+
+        // Section 5: License Management & Activation
+        Frame::new()
+            .fill(crate::theme::BG_CARD)
+            .stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
+            .corner_radius(CornerRadius::same(8))
+            .inner_margin(Margin::same(16))
+            .show(ui, |ui| {
+                ui.horizontal(|ui| {
+                    ui.label(RichText::new("🔑 ΑΔΕΙΑ ΧΡΗΣΗΣ & ΕΝΕΡΓΟΠΟΙΗΣΗ").strong().color(crate::theme::ACCENT_CYAN));
+                    ui.label(RichText::new("(Hardware Lock & Offline Fallback)").size(11.0).color(crate::theme::TEXT_MUTED));
+                });
+                ui.add_space(6.0);
+                ui.label(RichText::new("Διαχείριση επιχειρησιακής άδειας χρήσης και επαλήθευση ενεργοποίησης έναντι του License Server.").size(12.0).color(crate::theme::TEXT_MUTED));
+                ui.add_space(8.0);
+
+                if let Some((msg, is_ok)) = &state.license_msg {
+                    let col = if *is_ok { Color32::from_rgb(52, 211, 153) } else { Color32::from_rgb(244, 63, 94) };
+                    ui.label(RichText::new(msg).color(col).strong().size(12.0));
+                    ui.add_space(6.0);
+                }
+
+                ui.columns(2, |cols| {
+                    cols[0].vertical(|ui| {
+                        ui.label("Κλειδί Άδειας (License Key):");
+                        ui.add(egui::TextEdit::singleline(&mut state.license_key).hint_text("π.χ. PRO-XXXX-XXXX-XXXX").desired_width(f32::INFINITY));
+                        ui.add_space(6.0);
+
+                        ui.label("Αναγνωριστικό Μηχανήματος (Machine ID):");
+                        ui.add(egui::TextEdit::singleline(&mut state.machine_id).desired_width(f32::INFINITY));
+                    });
+
+                    cols[1].vertical(|ui| {
+                        ui.label("Τρέχουσα Κατάσταση Άδειας:");
+                        if let Some(ref info) = state.license_info {
+                            if info.valid {
+                                ui.horizontal(|ui| {
+                                    ui.label(RichText::new("● ΕΝΕΡΓΗ ΑΔΕΙΑ").color(Color32::from_rgb(52, 211, 153)).strong());
+                                    ui.label(format!("(Έως {} χρήστες)", info.max_users));
+                                });
+                                if !info.expires_at.is_empty() {
+                                    ui.label(RichText::new(format!("Ημερομηνία Λήξης: {}", info.expires_at)).size(11.0).color(crate::theme::TEXT_SECONDARY));
+                                }
+                            } else {
+                                ui.label(RichText::new("○ ΔΩΡΕΑΝ ΕΚΔΟΣΗ (Community — Έως 3 χρήστες)").color(crate::theme::TEXT_MUTED).strong());
+                            }
+                        } else {
+                            ui.label(RichText::new("○ ΔΩΡΕΑΝ ΕΚΔΟΣΗ (Community — Έως 3 χρήστες)").color(crate::theme::TEXT_MUTED).strong());
+                        }
+
+                        ui.add_space(10.0);
+                        ui.horizontal(|ui| {
+                            let activate_btn = egui::Button::new(RichText::new("🔑 Ενεργοποίηση Online").strong().color(Color32::WHITE))
+                                .fill(crate::theme::ACCENT_PRIMARY);
+                            if ui.add(activate_btn).clicked() {
+                                if state.license_key.trim().is_empty() {
+                                    state.license_msg = Some(("❌ Εισάγετε έγκυρο κλειδί άδειας.".into(), false));
+                                } else {
+                                    match crm_core::license::verify_online(state.license_key.trim(), &state.machine_id) {
+                                        Ok(info) => {
+                                            let is_val = info.valid;
+                                            state.license_info = Some(info.clone());
+                                            if is_val {
+                                                state.license_msg = Some((format!("✓ Επιτυχής ενεργοποίηση άδειας! Μέγιστοι χρήστες: {}", info.max_users), true));
+                                            } else {
+                                                state.license_msg = Some(("❌ Το κλειδί δεν είναι έγκυρο ή έχει εξαντληθεί το όριο ενεργοποιήσεων.".into(), false));
+                                            }
+                                        }
+                                        Err(e) => {
+                                            state.license_msg = Some((format!("❌ Αποτυχία σύνδεσης με τον License Server: {}", e), false));
+                                        }
+                                    }
+                                }
+                            }
+
+                            if ui.button("🔄 Έλεγχος Cache").clicked() {
+                                let info = crm_core::license::get_license_info(None, &state.machine_id);
+                                let is_val = info.valid;
+                                state.license_info = Some(info.clone());
+                                if is_val {
+                                    state.license_msg = Some((format!("✓ Φορτώθηκε έγκυρη άδεια από την τοπική μνήμη ({} χρήστες).", info.max_users), true));
+                                } else {
+                                    state.license_msg = Some(("Δεν βρέθηκε αποθηκευμένη έγκυρη άδεια στην τοπική μνήμη.".into(), false));
+                                }
+                            }
+                        });
+                    });
+                });
+            });
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_settings_view_state_defaults() {
+        let state = SettingsViewState::default();
+        assert_eq!(state.printer_name, "POS-80");
+        assert!(!state.machine_id.is_empty());
+        assert!(state.license_key.is_empty());
+    }
 }

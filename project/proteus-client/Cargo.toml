@@ -13,3 +13,4 @@ chrono = "0.4"
 rusqlite = { version = "0.31", features = ["bundled"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
+ureq = { version = "2.12", features = ["json"] }

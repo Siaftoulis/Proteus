@@ -65,9 +65,11 @@ fn clear_cache() {
 
 #[instrument(skip(license_key, machine_id), fields(key_len = license_key.len()))]
 pub fn verify_online(license_key: &str, machine_id: &str) -> Result<LicenseInfo, LicenseError> {
+    let base_server = std::env::var("PROTEUS_LICENSE_SERVER")
+        .unwrap_or_else(|_| LICENSE_SERVER.to_string());
     let url = format!(
         "{}/verify?license_key={}&machine_id={}",
-        LICENSE_SERVER, license_key, machine_id
+        base_server, license_key, machine_id
     );
 
     let resp: ServerResponse = ureq::get(&url)
