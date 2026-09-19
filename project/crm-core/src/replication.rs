@@ -20,6 +20,15 @@ pub enum SyncStatus {
     Failed,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[repr(u8)]
+pub enum DataPriority {
+    Critical = 0, // High-value financial totals, active security, urgent tickets
+    High = 1,     // Real-time stage transitions, appointment bookings
+    Normal = 2,   // Customer profile updates, metadata
+    Low = 3,      // Historical logs, bulk analytics
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OutboxRecord {
     pub id: String,
@@ -30,6 +39,7 @@ pub struct OutboxRecord {
     pub local_timestamp: String,
     pub remote_version: u64,
     pub status: SyncStatus,
+    pub priority: DataPriority,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -72,6 +82,7 @@ impl ReplicationQueue {
             local_timestamp: Utc::now().to_rfc3339(),
             remote_version: 0,
             status: SyncStatus::Pending,
+            priority: DataPriority::Normal,
         };
         self.records.push(rec.clone());
         rec
@@ -146,21 +157,24 @@ pub fn init_outbox_schema(conn: &Connection) -> Result<(), String> {
             payload_json TEXT NOT NULL,
             local_timestamp TEXT NOT NULL,
             remote_version INTEGER NOT NULL DEFAULT 0,
-            status TEXT NOT NULL DEFAULT 'Pending'
+            status TEXT NOT NULL DEFAULT 'Pending',
+            priority INTEGER NOT NULL DEFAULT 2
         );
         CREATE INDEX IF NOT EXISTS idx_outbox_status ON _proteus_outbox(status);
+        CREATE INDEX IF NOT EXISTS idx_outbox_prio ON _proteus_outbox(priority, local_timestamp ASC);
         "#,
     )
     .map_err(|e| format!("Failed to init outbox schema: {}", e))?;
     Ok(())
 }
 
-pub fn enqueue_outbox(
+pub fn enqueue_outbox_with_priority(
     conn: &Connection,
     entity: &str,
     record_id: &str,
     op: ChangeOp,
     payload_json: &str,
+    priority: DataPriority,
 ) -> Result<OutboxRecord, String> {
     let rec = OutboxRecord {
         id: Uuid::now_v7().to_string(),
@@ -171,100 +185,66 @@ pub fn enqueue_outbox(
         local_timestamp: Utc::now().to_rfc3339(),
         remote_version: 0,
         status: SyncStatus::Pending,
+        priority,
     };
-
-    let op_str = match op {
-        ChangeOp::Insert => "Insert",
-        ChangeOp::Update => "Update",
-        ChangeOp::Delete => "Delete",
-    };
-
+    let op_str = match op { ChangeOp::Insert => "Insert", ChangeOp::Update => "Update", ChangeOp::Delete => "Delete" };
     conn.execute(
-        "INSERT INTO _proteus_outbox (id, entity, record_id, op, payload_json, local_timestamp, remote_version, status)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 'Pending')",
-        params![
-            rec.id,
-            rec.entity,
-            rec.record_id,
-            op_str,
-            rec.payload_json,
-            rec.local_timestamp,
-            rec.remote_version,
-        ],
-    )
-    .map_err(|e| format!("Failed to enqueue outbox record: {}", e))?;
-
+        "INSERT INTO _proteus_outbox (id, entity, record_id, op, payload_json, local_timestamp, remote_version, status, priority)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 'Pending', ?8)",
+        params![rec.id, rec.entity, rec.record_id, op_str, rec.payload_json, rec.local_timestamp, rec.remote_version, priority as u8],
+    ).map_err(|e| format!("Failed to enqueue outbox record: {}", e))?;
     Ok(rec)
 }
 
-pub fn fetch_pending_outbox(conn: &Connection, limit: usize) -> Result<Vec<OutboxRecord>, String> {
-    let mut stmt = conn
-        .prepare(
-            "SELECT id, entity, record_id, op, payload_json, local_timestamp, remote_version, status
-             FROM _proteus_outbox
-             WHERE status = 'Pending'
-             ORDER BY local_timestamp ASC
-             LIMIT ?1",
-        )
-        .map_err(|e| e.to_string())?;
+pub fn enqueue_outbox(
+    conn: &Connection,
+    entity: &str,
+    record_id: &str,
+    op: ChangeOp,
+    payload_json: &str,
+) -> Result<OutboxRecord, String> {
+    enqueue_outbox_with_priority(conn, entity, record_id, op, payload_json, DataPriority::Normal)
+}
 
-    let rows = stmt
-        .query_map(params![limit as i64], |row| {
-            let op_str: String = row.get(3)?;
-            let op = match op_str.as_str() {
-                "Insert" => ChangeOp::Insert,
-                "Update" => ChangeOp::Update,
-                "Delete" => ChangeOp::Delete,
-                _ => ChangeOp::Insert,
-            };
-            let status_str: String = row.get(7)?;
-            let status = match status_str.as_str() {
-                "Synced" => SyncStatus::Synced,
-                "Conflict" => SyncStatus::Conflict,
-                "Failed" => SyncStatus::Failed,
-                _ => SyncStatus::Pending,
-            };
-            Ok(OutboxRecord {
-                id: row.get(0)?,
-                entity: row.get(1)?,
-                record_id: row.get(2)?,
-                op,
-                payload_json: row.get(4)?,
-                local_timestamp: row.get(5)?,
-                remote_version: row.get(6)?,
-                status,
-            })
+pub fn fetch_pending_outbox(conn: &Connection, limit: usize) -> Result<Vec<OutboxRecord>, String> {
+    let mut stmt = conn.prepare(
+        "SELECT id, entity, record_id, op, payload_json, local_timestamp, remote_version, status, priority
+         FROM _proteus_outbox WHERE status = 'Pending' ORDER BY priority ASC, local_timestamp ASC LIMIT ?1",
+    ).map_err(|e| e.to_string())?;
+
+    let rows = stmt.query_map(params![limit as i64], |row| {
+        let op_str: String = row.get(3)?;
+        let op = match op_str.as_str() { "Update" => ChangeOp::Update, "Delete" => ChangeOp::Delete, _ => ChangeOp::Insert };
+        let status_str: String = row.get(7)?;
+        let status = match status_str.as_str() { "Synced" => SyncStatus::Synced, "Conflict" => SyncStatus::Conflict, "Failed" => SyncStatus::Failed, _ => SyncStatus::Pending };
+        let prio_u8: u8 = row.get::<_, u8>(8).unwrap_or(2);
+        let priority = match prio_u8 { 0 => DataPriority::Critical, 1 => DataPriority::High, 2 => DataPriority::Normal, _ => DataPriority::Low };
+        Ok(OutboxRecord {
+            id: row.get(0)?,
+            entity: row.get(1)?,
+            record_id: row.get(2)?,
+            op,
+            payload_json: row.get(4)?,
+            local_timestamp: row.get(5)?,
+            remote_version: row.get(6)?,
+            status,
+            priority,
         })
-        .map_err(|e| e.to_string())?;
+    }).map_err(|e| e.to_string())?;
 
     let mut list = Vec::new();
-    for r in rows {
-        list.push(r.map_err(|e| e.to_string())?);
-    }
+    for r in rows { list.push(r.map_err(|e| e.to_string())?); }
     Ok(list)
 }
 
 pub fn mark_outbox_status(conn: &Connection, id: &str, status: SyncStatus) -> Result<bool, String> {
-    let status_str = match status {
-        SyncStatus::Pending => "Pending",
-        SyncStatus::Synced => "Synced",
-        SyncStatus::Conflict => "Conflict",
-        SyncStatus::Failed => "Failed",
-    };
-    let count = conn
-        .execute("UPDATE _proteus_outbox SET status = ?1 WHERE id = ?2", params![status_str, id])
-        .map_err(|e| e.to_string())?;
+    let status_str = match status { SyncStatus::Pending => "Pending", SyncStatus::Synced => "Synced", SyncStatus::Conflict => "Conflict", SyncStatus::Failed => "Failed" };
+    let count = conn.execute("UPDATE _proteus_outbox SET status = ?1 WHERE id = ?2", params![status_str, id]).map_err(|e| e.to_string())?;
     Ok(count > 0)
 }
 
 pub fn count_pending_outbox(conn: &Connection) -> Result<usize, String> {
-    let count: i64 = conn
-        .query_row(
-            "SELECT COUNT(*) FROM _proteus_outbox WHERE status = 'Pending'",
-            [],
-            |r| r.get(0),
-        )
-        .unwrap_or(0);
+    let count: i64 = conn.query_row("SELECT COUNT(*) FROM _proteus_outbox WHERE status = 'Pending'", [], |r| r.get(0)).unwrap_or(0);
     Ok(count as usize)
 }
 
@@ -367,6 +347,23 @@ mod tests {
         assert_eq!(summary.pending_remaining, 0);
 
         assert_eq!(count_pending_outbox(&conn).unwrap(), 0);
+    }
+
+    #[test]
+    fn test_priority_outbox_ordering() {
+        let conn = Connection::open_in_memory().unwrap();
+        init_outbox_schema(&conn).unwrap();
+
+        // Enqueue normal first, then critical
+        let _r_normal = enqueue_outbox_with_priority(&conn, "contacts", "C-1", ChangeOp::Update, "{}", DataPriority::Normal).unwrap();
+        let r_critical = enqueue_outbox_with_priority(&conn, "ledger", "LEDGER-1", ChangeOp::Insert, r#"{"balance":1500}"#, DataPriority::Critical).unwrap();
+
+        let pending = fetch_pending_outbox(&conn, 10).unwrap();
+        assert_eq!(pending.len(), 2);
+        // Critical must be fetched first!
+        assert_eq!(pending[0].id, r_critical.id);
+        assert_eq!(pending[0].priority, DataPriority::Critical);
+        assert_eq!(pending[1].priority, DataPriority::Normal);
     }
 }
 

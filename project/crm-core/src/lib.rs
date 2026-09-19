@@ -13,6 +13,7 @@ pub mod inference;
 pub mod lan;
 pub mod license;
 pub mod mapping;
+pub mod merkle;
 pub mod migrations;
 pub mod package;
 pub mod paths;
@@ -189,6 +190,23 @@ impl Database {
         tracing::info!("Project deleted");
         Ok(())
     }
+}
+
+/// Applies performance and compaction PRAGMAs to SQLite:
+/// - WAL journal mode for high concurrency and zero write-amplification.
+/// - NORMAL synchronous mode for crash-safe speed.
+/// - INCREMENTAL auto_vacuum for automatic disk space reclamation.
+/// - 4096 page size for optimal SSD alignment.
+pub fn apply_storage_tuning(conn: &Connection) -> Result<(), rusqlite::Error> {
+    conn.execute_batch(
+        r#"
+        PRAGMA journal_mode = WAL;
+        PRAGMA synchronous = NORMAL;
+        PRAGMA auto_vacuum = INCREMENTAL;
+        PRAGMA page_size = 4096;
+        "#,
+    )?;
+    Ok(())
 }
 
 #[cfg(test)]

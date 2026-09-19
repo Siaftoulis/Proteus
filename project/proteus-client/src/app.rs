@@ -67,8 +67,10 @@ impl ProteusClientApp {
             Connection::open_in_memory().expect("Critical: Failed to open SQLite")
         });
 
+        let _ = crm_core::apply_storage_tuning(&conn);
         let _ = init_tickets_schema(&conn);
         let _ = init_audit_schema(&conn);
+        let _ = crm_core::merkle::init_merkle_schema(&conn);
         let _ = init_enterprise_schema(&conn);
         let _ = seed_default_enterprise_if_empty(&conn);
         let _ = crm_core::replication::init_outbox_schema(&conn);
@@ -267,7 +269,7 @@ impl eframe::App for ProteusClientApp {
                                 .corner_radius(CornerRadius::same(4))
                                 .inner_margin(Margin::symmetric(8, 4))
                                 .show(ui, |ui| {
-                                    ui.label(RichText::new(format!("☁ {} Εκκρεμή", pending_sync)).size(11.0).color(Color32::from_rgb(251, 146, 60)));
+                                    ui.label(RichText::new(format!("⚡ {} Εκκρεμή (Priority)", pending_sync)).size(11.0).color(Color32::from_rgb(251, 146, 60)));
                                 });
                         }
 

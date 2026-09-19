@@ -54,6 +54,7 @@ pub struct AuditLogViewState {
     pub selected_role_filter: Option<String>,
     pub selected_event_type: Option<String>,
     pub expanded_event_id: Option<String>,
+    pub merkle_report: Option<crm_core::merkle::ChainIntegrityReport>,
 }
 
 pub fn draw_audit_log_view(
@@ -70,6 +71,42 @@ pub fn draw_audit_log_view(
             .color(crate::theme::TEXT_MUTED));
         ui.add_space(8.0);
         ui.separator();
+        ui.add_space(10.0);
+
+        // Merkle Hash-Chain Integrity Seal (Anti-Tamper / Anti-Crack)
+        Frame::new()
+            .fill(crate::theme::BG_CARD)
+            .stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
+            .corner_radius(CornerRadius::same(8))
+            .inner_margin(Margin::symmetric(14, 10))
+            .show(ui, |ui| {
+                ui.horizontal(|ui| {
+                    ui.label(RichText::new("🔒 ΑΔΙΑΒΛΗΤΗ ΑΛΥΣΙΔΑ MERKLE (ANTI-TAMPER)").strong().color(crate::theme::TEXT_MUTED));
+                    if let Some(report) = &state.merkle_report {
+                        let (icon, color) = if report.is_valid {
+                            ("✓ Έγκυρη", Color32::from_rgb(52, 211, 153))
+                        } else {
+                            ("❌ ΠΑΡΑΠΟΙΗΣΗ", Color32::from_rgb(244, 63, 94))
+                        };
+                        ui.label(RichText::new(format!("{} ({} blocks)", icon, report.total_blocks)).color(color).strong());
+                        ui.label(RichText::new(&report.details).size(11.0).color(crate::theme::TEXT_SECONDARY));
+                    }
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        if ui.button(RichText::new("🔍 Έλεγχος Ακεραιότητας").strong()).clicked() {
+                            match crm_core::merkle::verify_chain_integrity(conn) {
+                                Ok(rep) => state.merkle_report = Some(rep),
+                                Err(e) => state.merkle_report = Some(crm_core::merkle::ChainIntegrityReport {
+                                    is_valid: false,
+                                    total_blocks: 0,
+                                    tampered_at_sequence: None,
+                                    details: format!("Σφάλμα: {}", e),
+                                }),
+                            }
+                        }
+                    });
+                });
+            });
+
         ui.add_space(10.0);
 
         // Filter Bar
