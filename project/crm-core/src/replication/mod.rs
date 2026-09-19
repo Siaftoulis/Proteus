@@ -1,6 +1,8 @@
 // Proteus Core — Hybrid Offline-First Replication Engine & Outbox Queue
 // Designed from first principles. Zero copied third-party boilerplate.
 
+pub mod worker;
+
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -354,16 +356,13 @@ mod tests {
         let conn = Connection::open_in_memory().unwrap();
         init_outbox_schema(&conn).unwrap();
 
-        // Enqueue normal first, then critical
         let _r_normal = enqueue_outbox_with_priority(&conn, "contacts", "C-1", ChangeOp::Update, "{}", DataPriority::Normal).unwrap();
         let r_critical = enqueue_outbox_with_priority(&conn, "ledger", "LEDGER-1", ChangeOp::Insert, r#"{"balance":1500}"#, DataPriority::Critical).unwrap();
 
         let pending = fetch_pending_outbox(&conn, 10).unwrap();
         assert_eq!(pending.len(), 2);
-        // Critical must be fetched first!
         assert_eq!(pending[0].id, r_critical.id);
         assert_eq!(pending[0].priority, DataPriority::Critical);
         assert_eq!(pending[1].priority, DataPriority::Normal);
     }
 }
-
