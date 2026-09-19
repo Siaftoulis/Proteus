@@ -232,6 +232,36 @@ pub fn draw_support_view(
                             ui.label(RichText::new(&peer.app_type).size(11.0).color(crate::theme::ACCENT_CYAN));
 
                             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                if ui.small_button("🚀 Deploy Test").clicked() {
+                                    let test_table = crm_core::inference::InferredTable {
+                                        table_name: "pcds_test_diagnostics".into(),
+                                        columns: vec![
+                                            crm_core::inference::InferredColumn {
+                                                name: "diag_id".into(),
+                                                col_type: crm_core::inference::InferredType::Text,
+                                                is_nullable: false,
+                                                is_primary_key: true,
+                                            },
+                                            crm_core::inference::InferredColumn {
+                                                name: "latency_ms".into(),
+                                                col_type: crm_core::inference::InferredType::Integer,
+                                                is_nullable: false,
+                                                is_primary_key: false,
+                                            },
+                                        ],
+                                        primary_key: Some("diag_id".into()),
+                                        sample_rows_count: 1,
+                                    };
+                                    let pkg = crm_core::package::PrPackage::from_inferred_table(&test_table, "PCDS Deployer");
+                                    match pkg.deploy_to_client(&peer.endpoint_url()) {
+                                        Ok(sum) => {
+                                            state.lan_ping_msg = Some(format!("✓ Το πακέτο '{}' εγκαταστάθηκε επιτυχώς στο {}", sum.package_name, peer.device_name));
+                                        }
+                                        Err(e) => {
+                                            state.lan_ping_msg = Some(format!("❌ Σφάλμα εγκατάστασης στο {}: {}", peer.device_name, e));
+                                        }
+                                    }
+                                }
                                 if ui.small_button("📡 Ping").clicked() {
                                     state.lan_ping_msg = Some(format!("✓ Σύνδεση με {} ({}) επιβεβαιώθηκε.", peer.device_name, peer.endpoint_url()));
                                 }

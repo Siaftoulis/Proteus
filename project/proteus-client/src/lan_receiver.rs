@@ -156,4 +156,64 @@ mod tests {
         assert_eq!(rec.port(), 7499);
         rec.stop();
     }
+
+    #[test]
+    fn test_pcda_to_pcds_hot_deploy_e2e() {
+        use crm_core::inference::{InferredColumn, InferredTable, InferredType};
+        use crm_core::package::PrPackage;
+
+        // 1. PCDA infers a table from raw business data
+        let table = InferredTable {
+            table_name: "parts_inventory".into(),
+            columns: vec![
+                InferredColumn {
+                    name: "part_sku".into(),
+                    col_type: InferredType::Text,
+                    is_nullable: false,
+                    is_primary_key: true,
+                },
+                InferredColumn {
+                    name: "stock_quantity".into(),
+                    col_type: InferredType::Integer,
+                    is_nullable: false,
+                    is_primary_key: false,
+                },
+            ],
+            primary_key: Some("part_sku".into()),
+            sample_rows_count: 2,
+        };
+
+        // 2. PCDA exports table to .pr package
+        let package = PrPackage::from_inferred_table(&table, "PCDA Analyst");
+        assert_eq!(package.manifest.bundle_id, "PKG-PARTS_INVENTORY");
+        assert_eq!(package.schema.ddl_statements.len(), 1);
+
+        // 3. Start local LAN receiver on a dedicated test port
+        let test_port = 17445;
+        let receiver = LanPackageReceiver::start(test_port).expect("Failed to start receiver");
+
+        // 4. PCDS deploys package to target terminal endpoint
+        let target_url = format!("http://127.0.0.1:{}", test_port);
+        let summary = package.deploy_to_client(&target_url).expect("Failed to deploy package to client");
+
+        assert_eq!(summary.bundle_id, "PKG-PARTS_INVENTORY");
+        assert_eq!(summary.applied_ddl_count, 1);
+
+        // 5. Receiver receives and unpacks package
+        let received_pkg = receiver.try_recv().expect("Receiver must have received package");
+        assert_eq!(received_pkg.manifest.bundle_id, "PKG-PARTS_INVENTORY");
+        assert_eq!(received_pkg.manifest.name, "Dataset: parts_inventory");
+
+        // 6. Simulate terminal mounting into SQLite DB
+        let mut conn = rusqlite::Connection::open_in_memory().unwrap();
+        let mount_res = received_pkg.mount(&mut conn, None, "LAN-Deployer");
+        assert!(mount_res.is_ok(), "Package must mount cleanly into SQLite");
+
+        // 7. Verify table created in SQLite
+        let mut stmt = conn.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='parts_inventory'").unwrap();
+        let count: i64 = stmt.query_row([], |r| r.get(0)).unwrap();
+        assert_eq!(count, 1);
+
+        receiver.stop();
+    }
 }
