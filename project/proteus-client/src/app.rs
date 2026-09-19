@@ -4,6 +4,7 @@ use crate::views::audit_log::{draw_audit_log_view, AuditLogViewState};
 use crate::views::dashboards::{draw_specialist_dashboards_view, SpecialistDashboardState};
 use crate::views::developer::{draw_developer_studio_view, DeveloperStudioState};
 use crate::views::enterprise_hq::{draw_enterprise_hq_view, EnterpriseHqState};
+use crate::views::store_director::{draw_store_director_view, StoreDirectorState};
 use crate::views::intake::{draw_intake_view, IntakeFormState};
 use crate::views::pipeline::draw_pipeline_view;
 use crate::views::settings::{draw_settings_view, SettingsViewState};
@@ -30,6 +31,7 @@ pub enum NavTab {
     Developer,
     AnalystStudio,
     EnterpriseHQ,
+    StoreDirector,
 }
 
 pub struct ProteusClientApp {
@@ -50,6 +52,7 @@ pub struct ProteusClientApp {
     appointments_state: AppointmentsViewState,
     analyst_state: AnalystStudioState,
     enterprise_hq_state: EnterpriseHqState,
+    store_director_state: StoreDirectorState,
     lan_receiver: Option<crate::lan_receiver::LanPackageReceiver>,
     lan_beacon: Option<crm_core::lan::LanDiscoveryDaemon>,
     device_label_ref: std::sync::Arc<std::sync::Mutex<String>>,
@@ -63,7 +66,6 @@ impl ProteusClientApp {
         let _ = ensure_database_dir_exists(&db_path);
 
         let conn = Connection::open(&db_path).unwrap_or_else(|_| {
-            // In-memory fallback if disk error
             Connection::open_in_memory().expect("Critical: Failed to open SQLite")
         });
 
@@ -94,6 +96,7 @@ impl ProteusClientApp {
             appointments_state: AppointmentsViewState::default(),
             analyst_state: AnalystStudioState::default(),
             enterprise_hq_state: EnterpriseHqState::default(),
+            store_director_state: StoreDirectorState::default(),
             lan_receiver: crate::lan_receiver::LanPackageReceiver::start(7443).ok(),
             lan_beacon: {
                 let init_label = format!("Proteus Terminal ({})", UserRole::Ceo.display_name());
@@ -177,6 +180,7 @@ impl eframe::App for ProteusClientApp {
         }
         if self.active_role == UserRole::Ceo {
             available_tabs.push((NavTab::EnterpriseHQ, "🏢 Multi-Store HQ"));
+            available_tabs.push((NavTab::StoreDirector, "🏪 Store Director"));
         }
         if permissions.can_manage_settings {
             available_tabs.push((NavTab::Settings, "⚙ Ρυθμίσεις"));
@@ -292,80 +296,20 @@ impl eframe::App for ProteusClientApp {
             )
             .show(ctx, |ui| {
                 match self.active_tab {
-                    NavTab::Intake => {
-                        draw_intake_view(
-                            ui,
-                            &self.conn,
-                            &mut self.intake_state,
-                            &self.receipt_config,
-                            &self.settings_state.printer_name,
-                        );
-                    }
-                    NavTab::Pipeline => {
-                        draw_pipeline_view(
-                            ui,
-                            &self.conn,
-                            &mut self.pipeline_search,
-                            &mut self.selected_ticket_id,
-                        );
-                    }
-                    NavTab::Appointments => {
-                        draw_appointments_view(
-                            ui,
-                            &self.conn,
-                            &mut self.appointments_state,
-                            &self.operator_name,
-                            self.active_role.short_code(),
-                        );
-                    }
-                    NavTab::AuditLog => {
-                        draw_audit_log_view(
-                            ui,
-                            &self.conn,
-                            &mut self.audit_state,
-                        );
-                    }
-                    NavTab::Settings => {
-                        draw_settings_view(
-                            ui,
-                            &mut self.conn,
-                            &mut self.receipt_config,
-                            &mut self.settings_state,
-                        );
-                    }
+                    NavTab::Intake => draw_intake_view(ui, &self.conn, &mut self.intake_state, &self.receipt_config, &self.settings_state.printer_name),
+                    NavTab::Pipeline => draw_pipeline_view(ui, &self.conn, &mut self.pipeline_search, &mut self.selected_ticket_id),
+                    NavTab::Appointments => draw_appointments_view(ui, &self.conn, &mut self.appointments_state, &self.operator_name, self.active_role.short_code()),
+                    NavTab::AuditLog => draw_audit_log_view(ui, &self.conn, &mut self.audit_state),
+                    NavTab::Settings => draw_settings_view(ui, &mut self.conn, &mut self.receipt_config, &mut self.settings_state),
                     NavTab::Support => {
                         let discovered = self.lan_beacon.as_ref().map(|b| b.get_live_peers()).unwrap_or_default();
-                        draw_support_view(
-                            ui,
-                            &self.conn,
-                            &mut self.support_state,
-                            &self.settings_state.printer_name,
-                            &discovered,
-                        );
+                        draw_support_view(ui, &self.conn, &mut self.support_state, &self.settings_state.printer_name, &discovered);
                     }
-                    NavTab::Specialist => {
-                        draw_specialist_dashboards_view(
-                            ui,
-                            &mut self.specialist_state,
-                        );
-                    }
-                    NavTab::Developer => {
-                        draw_developer_studio_view(
-                            ui,
-                            &mut self.conn,
-                            &mut self.developer_state,
-                        );
-                    }
-                    NavTab::AnalystStudio => {
-                        render_analyst_studio(ui, &mut self.analyst_state);
-                    }
-                    NavTab::EnterpriseHQ => {
-                        draw_enterprise_hq_view(
-                            ui,
-                            &self.conn,
-                            &mut self.enterprise_hq_state,
-                        );
-                    }
+                    NavTab::Specialist => draw_specialist_dashboards_view(ui, &mut self.specialist_state),
+                    NavTab::Developer => draw_developer_studio_view(ui, &mut self.conn, &mut self.developer_state),
+                    NavTab::AnalystStudio => render_analyst_studio(ui, &mut self.analyst_state),
+                    NavTab::EnterpriseHQ => draw_enterprise_hq_view(ui, &self.conn, &mut self.enterprise_hq_state),
+                    NavTab::StoreDirector => draw_store_director_view(ui, &self.conn, &mut self.store_director_state),
                 }
             });
 
