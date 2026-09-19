@@ -232,6 +232,33 @@ pub fn print_raw_bytes(printer_name: &str, doc_title: &str, raw_bytes: &[u8]) ->
     }
 }
 
+/// Triggers a test print job via ESC/POS to verify printer connection and spooler status.
+pub fn test_printer_connection(printer_name: &str) -> Result<(), String> {
+    if printer_name.trim().is_empty() {
+        return Err("Δεν έχει οριστεί όνομα εκτυπωτή".to_string());
+    }
+    let mut test_bytes = Vec::with_capacity(128);
+    test_bytes.extend_from_slice(b"\x1B\x40"); // ESC @: Init
+    test_bytes.extend_from_slice(b"\x1B\x61\x01"); // Center
+    test_bytes.extend_from_slice(b"\x1B\x45\x01"); // Bold
+    test_bytes.extend_from_slice(b"--- PROTEUS PCDS TEST ---\n");
+    test_bytes.extend_from_slice(b"\x1B\x45\x00"); // Normal
+    test_bytes.extend_from_slice(b"Hardware Spooler: OK\n");
+    test_bytes.extend_from_slice(b"Bespoke ESC/POS Native Driver\n");
+    test_bytes.extend_from_slice(b"\n\n\n\x1D\x56\x41\x00"); // Cut
+    print_raw_bytes(printer_name, "Proteus PCDS Hardware Test", &test_bytes)
+}
+
+/// Triggers a pulse on the cash drawer RJ-11/RJ-12 port connected to the receipt printer.
+/// ESC p m t1 t2 command: 0x1B 0x70 0x00 0x19 0xFA (pulse to pin 2)
+pub fn kick_cash_drawer(printer_name: &str) -> Result<(), String> {
+    if printer_name.trim().is_empty() {
+        return Err("Δεν έχει οριστεί όνομα εκτυπωτή για το συρτάρι".to_string());
+    }
+    let pulse_bytes = b"\x1B\x70\x00\x19\xFA";
+    print_raw_bytes(printer_name, "Proteus Cash Drawer Kick", pulse_bytes)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -255,5 +282,23 @@ mod tests {
         assert!(row.contains("Συσκευή"));
         assert!(row.contains("iPhone"));
         assert_eq!(row.chars().filter(|&c| c == '\n').count(), 1);
+    }
+
+    #[test]
+    fn test_printer_connection_empty_name() {
+        assert!(test_printer_connection("").is_err());
+        assert!(test_printer_connection("   ").is_err());
+    }
+
+    #[test]
+    fn test_cash_drawer_empty_name() {
+        assert!(kick_cash_drawer("").is_err());
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    #[test]
+    fn test_printer_and_drawer_mock_success() {
+        assert!(test_printer_connection("MockPrinter").is_ok());
+        assert!(kick_cash_drawer("MockPrinter").is_ok());
     }
 }

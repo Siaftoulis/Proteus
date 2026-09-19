@@ -322,11 +322,13 @@ impl eframe::App for ProteusClientApp {
                         );
                     }
                     NavTab::Support => {
+                        let discovered = self.lan_beacon.as_ref().map(|b| b.get_live_peers()).unwrap_or_default();
                         draw_support_view(
                             ui,
                             &self.conn,
                             &mut self.support_state,
                             &self.settings_state.printer_name,
+                            &discovered,
                         );
                     }
                     NavTab::Specialist => {
