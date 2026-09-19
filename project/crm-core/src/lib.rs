@@ -3,6 +3,7 @@ pub mod cloud_backup;
 pub mod data;
 pub mod drivers;
 pub mod encryption;
+pub mod enterprise;
 pub mod event_bus;
 pub mod export;
 pub mod ffi;

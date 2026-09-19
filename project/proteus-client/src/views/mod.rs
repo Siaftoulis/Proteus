@@ -10,6 +10,7 @@ pub mod appointments;
 pub mod analyst_studio;
 pub mod mapping_canvas;
 pub mod schema_diff_modal;
+pub mod enterprise_hq;
 
 
 

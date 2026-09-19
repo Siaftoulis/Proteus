@@ -3,12 +3,14 @@ use crate::views::appointments::{draw_appointments_view, AppointmentsViewState};
 use crate::views::audit_log::{draw_audit_log_view, AuditLogViewState};
 use crate::views::dashboards::{draw_specialist_dashboards_view, SpecialistDashboardState};
 use crate::views::developer::{draw_developer_studio_view, DeveloperStudioState};
+use crate::views::enterprise_hq::{draw_enterprise_hq_view, EnterpriseHqState};
 use crate::views::intake::{draw_intake_view, IntakeFormState};
 use crate::views::pipeline::draw_pipeline_view;
 use crate::views::settings::{draw_settings_view, SettingsViewState};
 use crate::views::support::{draw_support_view, SupportViewState};
 use crate::views::ticket_detail::{draw_ticket_detail_modal, TicketDetailState};
 use crm_core::audit::init_audit_schema;
+use crm_core::enterprise::{init_enterprise_schema, seed_default_enterprise_if_empty};
 use crm_core::paths::{ensure_database_dir_exists, get_database_path};
 use crm_core::printer::ShopReceiptConfig;
 use crm_core::roles::UserRole;
@@ -27,6 +29,7 @@ pub enum NavTab {
     Specialist,
     Developer,
     AnalystStudio,
+    EnterpriseHQ,
 }
 
 pub struct ProteusClientApp {
@@ -46,6 +49,7 @@ pub struct ProteusClientApp {
     audit_state: AuditLogViewState,
     appointments_state: AppointmentsViewState,
     analyst_state: AnalystStudioState,
+    enterprise_hq_state: EnterpriseHqState,
     lan_receiver: Option<crate::lan_receiver::LanPackageReceiver>,
     lan_beacon: Option<crm_core::lan::LanDiscoveryDaemon>,
     device_label_ref: std::sync::Arc<std::sync::Mutex<String>>,
@@ -65,6 +69,8 @@ impl ProteusClientApp {
 
         let _ = init_tickets_schema(&conn);
         let _ = init_audit_schema(&conn);
+        let _ = init_enterprise_schema(&conn);
+        let _ = seed_default_enterprise_if_empty(&conn);
         let _ = crm_core::replication::init_outbox_schema(&conn);
         crate::views::audit_log::seed_initial_audit_events_if_empty(&conn);
 
@@ -85,6 +91,7 @@ impl ProteusClientApp {
             audit_state: AuditLogViewState::default(),
             appointments_state: AppointmentsViewState::default(),
             analyst_state: AnalystStudioState::default(),
+            enterprise_hq_state: EnterpriseHqState::default(),
             lan_receiver: crate::lan_receiver::LanPackageReceiver::start(7443).ok(),
             lan_beacon: {
                 let init_label = format!("Proteus Terminal ({})", UserRole::Ceo.display_name());
@@ -165,6 +172,9 @@ impl eframe::App for ProteusClientApp {
         }
         if permissions.can_infer_schemas || permissions.can_define_business_rules {
             available_tabs.push((NavTab::AnalystStudio, "📊 PCDA Studio"));
+        }
+        if self.active_role == UserRole::Ceo {
+            available_tabs.push((NavTab::EnterpriseHQ, "🏢 Multi-Store HQ"));
         }
         if permissions.can_manage_settings {
             available_tabs.push((NavTab::Settings, "⚙ Ρυθμίσεις"));
@@ -346,6 +356,13 @@ impl eframe::App for ProteusClientApp {
                     }
                     NavTab::AnalystStudio => {
                         render_analyst_studio(ui, &mut self.analyst_state);
+                    }
+                    NavTab::EnterpriseHQ => {
+                        draw_enterprise_hq_view(
+                            ui,
+                            &self.conn,
+                            &mut self.enterprise_hq_state,
+                        );
                     }
                 }
             });
