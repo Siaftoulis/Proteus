@@ -252,16 +252,16 @@ pub fn levenshtein_distance(a: &str, b: &str) -> usize {
     if n == 0 { return m; }
 
     let mut dp = vec![vec![0; n + 1]; m + 1];
-    for i in 0..=m {
-        dp[i][0] = i;
+    for (i, row) in dp.iter_mut().enumerate().take(m + 1) {
+        row[0] = i;
     }
-    for j in 0..=n {
-        dp[0][j] = j;
+    for (j, cell) in dp[0].iter_mut().enumerate().take(n + 1) {
+        *cell = j;
     }
 
     for i in 1..=m {
         for j in 1..=n {
-            let cost = if a_chars[i - 1].to_ascii_lowercase() == b_chars[j - 1].to_ascii_lowercase() {
+            let cost = if a_chars[i - 1].eq_ignore_ascii_case(&b_chars[j - 1]) {
                 0
             } else {
                 1

@@ -51,6 +51,12 @@ pub struct ReplicationQueue {
     records: Vec<OutboxRecord>,
 }
 
+impl Default for ReplicationQueue {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ReplicationQueue {
     pub fn new() -> Self {
         Self { records: Vec::new() }
@@ -126,6 +132,175 @@ impl ReplicationQueue {
     }
 }
 
+use crate::drivers::DatabaseDriver;
+use rusqlite::{params, Connection};
+
+pub fn init_outbox_schema(conn: &Connection) -> Result<(), String> {
+    conn.execute_batch(
+        r#"
+        CREATE TABLE IF NOT EXISTS _proteus_outbox (
+            id TEXT PRIMARY KEY,
+            entity TEXT NOT NULL,
+            record_id TEXT NOT NULL,
+            op TEXT NOT NULL,
+            payload_json TEXT NOT NULL,
+            local_timestamp TEXT NOT NULL,
+            remote_version INTEGER NOT NULL DEFAULT 0,
+            status TEXT NOT NULL DEFAULT 'Pending'
+        );
+        CREATE INDEX IF NOT EXISTS idx_outbox_status ON _proteus_outbox(status);
+        "#,
+    )
+    .map_err(|e| format!("Failed to init outbox schema: {}", e))?;
+    Ok(())
+}
+
+pub fn enqueue_outbox(
+    conn: &Connection,
+    entity: &str,
+    record_id: &str,
+    op: ChangeOp,
+    payload_json: &str,
+) -> Result<OutboxRecord, String> {
+    let rec = OutboxRecord {
+        id: Uuid::now_v7().to_string(),
+        entity: entity.to_string(),
+        record_id: record_id.to_string(),
+        op,
+        payload_json: payload_json.to_string(),
+        local_timestamp: Utc::now().to_rfc3339(),
+        remote_version: 0,
+        status: SyncStatus::Pending,
+    };
+
+    let op_str = match op {
+        ChangeOp::Insert => "Insert",
+        ChangeOp::Update => "Update",
+        ChangeOp::Delete => "Delete",
+    };
+
+    conn.execute(
+        "INSERT INTO _proteus_outbox (id, entity, record_id, op, payload_json, local_timestamp, remote_version, status)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 'Pending')",
+        params![
+            rec.id,
+            rec.entity,
+            rec.record_id,
+            op_str,
+            rec.payload_json,
+            rec.local_timestamp,
+            rec.remote_version,
+        ],
+    )
+    .map_err(|e| format!("Failed to enqueue outbox record: {}", e))?;
+
+    Ok(rec)
+}
+
+pub fn fetch_pending_outbox(conn: &Connection, limit: usize) -> Result<Vec<OutboxRecord>, String> {
+    let mut stmt = conn
+        .prepare(
+            "SELECT id, entity, record_id, op, payload_json, local_timestamp, remote_version, status
+             FROM _proteus_outbox
+             WHERE status = 'Pending'
+             ORDER BY local_timestamp ASC
+             LIMIT ?1",
+        )
+        .map_err(|e| e.to_string())?;
+
+    let rows = stmt
+        .query_map(params![limit as i64], |row| {
+            let op_str: String = row.get(3)?;
+            let op = match op_str.as_str() {
+                "Insert" => ChangeOp::Insert,
+                "Update" => ChangeOp::Update,
+                "Delete" => ChangeOp::Delete,
+                _ => ChangeOp::Insert,
+            };
+            let status_str: String = row.get(7)?;
+            let status = match status_str.as_str() {
+                "Synced" => SyncStatus::Synced,
+                "Conflict" => SyncStatus::Conflict,
+                "Failed" => SyncStatus::Failed,
+                _ => SyncStatus::Pending,
+            };
+            Ok(OutboxRecord {
+                id: row.get(0)?,
+                entity: row.get(1)?,
+                record_id: row.get(2)?,
+                op,
+                payload_json: row.get(4)?,
+                local_timestamp: row.get(5)?,
+                remote_version: row.get(6)?,
+                status,
+            })
+        })
+        .map_err(|e| e.to_string())?;
+
+    let mut list = Vec::new();
+    for r in rows {
+        list.push(r.map_err(|e| e.to_string())?);
+    }
+    Ok(list)
+}
+
+pub fn mark_outbox_status(conn: &Connection, id: &str, status: SyncStatus) -> Result<bool, String> {
+    let status_str = match status {
+        SyncStatus::Pending => "Pending",
+        SyncStatus::Synced => "Synced",
+        SyncStatus::Conflict => "Conflict",
+        SyncStatus::Failed => "Failed",
+    };
+    let count = conn
+        .execute("UPDATE _proteus_outbox SET status = ?1 WHERE id = ?2", params![status_str, id])
+        .map_err(|e| e.to_string())?;
+    Ok(count > 0)
+}
+
+pub fn count_pending_outbox(conn: &Connection) -> Result<usize, String> {
+    let count: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM _proteus_outbox WHERE status = 'Pending'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    Ok(count as usize)
+}
+
+pub fn sync_outbox_to_driver(
+    conn: &Connection,
+    driver: &dyn DatabaseDriver,
+    limit: usize,
+) -> Result<ReplicationSummary, String> {
+    let pending = fetch_pending_outbox(conn, limit)?;
+    let mut pushed = 0;
+
+    for rec in &pending {
+        let sync_sql = format!(
+            "/* PROTEUS_REPLICATION_SYNC */ -- Entity: {}, Record: {}, Op: {:?}\n-- Payload: {}",
+            rec.entity, rec.record_id, rec.op, rec.payload_json
+        );
+        match driver.execute_raw(&sync_sql) {
+            Ok(_) => {
+                let _ = mark_outbox_status(conn, &rec.id, SyncStatus::Synced);
+                pushed += 1;
+            }
+            Err(_) => {
+                let _ = mark_outbox_status(conn, &rec.id, SyncStatus::Failed);
+            }
+        }
+    }
+
+    let remaining = count_pending_outbox(conn)?;
+    Ok(ReplicationSummary {
+        records_pushed: pushed,
+        records_pulled: 0,
+        conflicts_resolved: 0,
+        pending_remaining: remaining,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -153,7 +328,7 @@ mod tests {
         let r1 = queue.enqueue("tickets", "tick_1", ChangeOp::Insert, "{}");
         let _r2 = queue.enqueue("tickets", "tick_2", ChangeOp::Insert, "{}");
 
-        let summary = queue.process_sync_batch(&[r1.id.clone()]);
+        let summary = queue.process_sync_batch(std::slice::from_ref(&r1.id));
         assert_eq!(summary.records_pushed, 1);
         assert_eq!(summary.pending_remaining, 1);
 
@@ -170,4 +345,28 @@ mod tests {
         assert!(ReplicationQueue::resolve_conflict(local_t, remote_t, ConflictStrategy::LocalWins));
         assert!(!ReplicationQueue::resolve_conflict(local_t, remote_t, ConflictStrategy::RemoteWins));
     }
+
+    #[test]
+    fn test_sqlite_outbox_persistence_and_sync() {
+        let conn = Connection::open_in_memory().unwrap();
+        init_outbox_schema(&conn).unwrap();
+
+        assert_eq!(count_pending_outbox(&conn).unwrap(), 0);
+
+        let rec = enqueue_outbox(&conn, "tickets", "TCK-101", ChangeOp::Insert, r#"{"status":"Open"}"#).unwrap();
+        assert_eq!(count_pending_outbox(&conn).unwrap(), 1);
+
+        let pending = fetch_pending_outbox(&conn, 10).unwrap();
+        assert_eq!(pending.len(), 1);
+        assert_eq!(pending[0].id, rec.id);
+        assert_eq!(pending[0].entity, "tickets");
+
+        let driver = crate::drivers::RemoteDriverMock::new(crate::drivers::ConnectionConfig::sqlite_memory());
+        let summary = sync_outbox_to_driver(&conn, &driver, 10).unwrap();
+        assert_eq!(summary.records_pushed, 1);
+        assert_eq!(summary.pending_remaining, 0);
+
+        assert_eq!(count_pending_outbox(&conn).unwrap(), 0);
+    }
 }
+

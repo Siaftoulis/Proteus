@@ -16,7 +16,8 @@ pub struct License {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct VerifyRequest {
     pub license_key: String,
-    pub machine_id: String,
+    pub machine_id: Option<String>,
+    pub activate: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

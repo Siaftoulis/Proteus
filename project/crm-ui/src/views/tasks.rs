@@ -54,8 +54,8 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
     });
     ui.add_space(4.);
     let filtered: Vec<usize> = app.tasks.iter().enumerate().filter(|(_, t)| {
-        let ok_status = app.task_filter_status.as_ref().map_or(true, |s| t.status == *s);
-        let ok_priority = app.task_filter_priority.as_ref().map_or(true, |p| t.priority == *p);
+        let ok_status = app.task_filter_status.as_ref().is_none_or(|s| t.status == *s);
+        let ok_priority = app.task_filter_priority.as_ref().is_none_or(|p| t.priority == *p);
         ok_status && ok_priority
     }).map(|(i, _)| i).collect();
 
@@ -94,7 +94,7 @@ pub fn show_central(app: &mut ProteusApp, pnt: &egui::Painter, r: Rect, mpos: Op
             ("UPCOMING", &upcoming, theme::ACCENT_GREEN),
         ] {
             pnt.text(egui::pos2(r.left() + 20., y), egui::Align2::LEFT_TOP,
-                &format!("{}  ({})", label, items.len()),
+                format!("{}  ({})", label, items.len()),
                 egui::FontId::proportional(12.), color);
             y += 24.;
             if items.is_empty() {
@@ -110,10 +110,10 @@ pub fn show_central(app: &mut ProteusApp, pnt: &egui::Painter, r: Rect, mpos: Op
                 // Priority color bar
                 pnt.rect_filled(Rect::from_min_size(card_r.min, egui::vec2(3., card_r.height())), 2, task_priority_color(&t.priority));
                 pnt.text(egui::pos2(card_r.left() + 10., card_r.top() + 6.), egui::Align2::LEFT_TOP,
-                    &format!("{}  {}", task_status_icon(&t.status), t.title),
+                    format!("{}  {}", task_status_icon(&t.status), t.title),
                     egui::FontId::proportional(10.), theme::TEXT);
                 pnt.text(egui::pos2(card_r.left() + 10., card_r.top() + 20.), egui::Align2::LEFT_TOP,
-                    &format!("Due: {}  |  {}", t.due_date, t.assignee),
+                    format!("Due: {}  |  {}", t.due_date, t.assignee),
                     egui::FontId::proportional(8.), theme::TEXT_DIM);
                 // Click to select
                 if let Some(pos) = mpos {

@@ -26,6 +26,12 @@ pub struct FlowGraph {
     pub edges: Vec<FlowEdge>,
 }
 
+impl Default for FlowGraph {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FlowGraph {
     pub fn new() -> Self {
         Self {

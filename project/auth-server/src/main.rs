@@ -273,7 +273,10 @@ async fn main() {
         if allowed.is_empty() {
             CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any)
         } else {
-            let origins: Vec<_> = allowed.split(',').map(|s| s.trim().parse().unwrap()).collect();
+            let origins: Vec<_> = allowed
+                .split(',')
+                .filter_map(|s| s.trim().parse().ok())
+                .collect();
             CorsLayer::new().allow_origin(AllowOrigin::list(origins)).allow_methods(Any).allow_headers(Any)
         }
     };

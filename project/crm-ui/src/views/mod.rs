@@ -5,5 +5,4 @@ pub mod studio;
 pub mod designer;
 pub mod play;
 pub mod flow_builder;
-pub mod flow_legacy;
 pub mod data_viewer;

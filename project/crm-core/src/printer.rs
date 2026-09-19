@@ -155,29 +155,29 @@ pub fn print_raw_bytes(printer_name: &str, doc_title: &str, raw_bytes: &[u8]) ->
         use std::os::windows::ffi::OsStrExt;
         use std::ptr::null_mut;
 
-        type HANDLE = *mut std::ffi::c_void;
-        type BOOL = i32;
-        type DWORD = u32;
-        type LPWSTR = *mut u16;
+        type WinHandle = *mut std::ffi::c_void;
+        type WinBool = i32;
+        type WinDword = u32;
+        type WinLpwstr = *mut u16;
 
         #[repr(C)]
         #[allow(non_snake_case)]
         struct DOC_INFO_1W {
-            pDocName: LPWSTR,
-            pOutputFile: LPWSTR,
-            pDatatype: LPWSTR,
+            pDocName: WinLpwstr,
+            pOutputFile: WinLpwstr,
+            pDatatype: WinLpwstr,
         }
 
         #[link(name = "winspool")]
         #[allow(non_snake_case)]
         extern "system" {
-            fn OpenPrinterW(pPrinterName: *const u16, phPrinter: *mut HANDLE, pDefault: *mut std::ffi::c_void) -> BOOL;
-            fn StartDocPrinterW(hPrinter: HANDLE, Level: DWORD, pDocInfo: *mut u8) -> DWORD;
-            fn StartPagePrinter(hPrinter: HANDLE) -> BOOL;
-            fn WritePrinter(hPrinter: HANDLE, pBuf: *mut std::ffi::c_void, cbBuf: DWORD, pcWritten: *mut DWORD) -> BOOL;
-            fn EndPagePrinter(hPrinter: HANDLE) -> BOOL;
-            fn EndDocPrinter(hPrinter: HANDLE) -> BOOL;
-            fn ClosePrinter(hPrinter: HANDLE) -> BOOL;
+            fn OpenPrinterW(pPrinterName: *const u16, phPrinter: *mut WinHandle, pDefault: *mut std::ffi::c_void) -> WinBool;
+            fn StartDocPrinterW(hPrinter: WinHandle, Level: WinDword, pDocInfo: *mut u8) -> WinDword;
+            fn StartPagePrinter(hPrinter: WinHandle) -> WinBool;
+            fn WritePrinter(hPrinter: WinHandle, pBuf: *mut std::ffi::c_void, cbBuf: WinDword, pcWritten: *mut WinDword) -> WinBool;
+            fn EndPagePrinter(hPrinter: WinHandle) -> WinBool;
+            fn EndDocPrinter(hPrinter: WinHandle) -> WinBool;
+            fn ClosePrinter(hPrinter: WinHandle) -> WinBool;
         }
 
         let mut printer_name_wide: Vec<u16> = OsStr::new(printer_name).encode_wide().chain(std::iter::once(0)).collect();
@@ -185,7 +185,7 @@ pub fn print_raw_bytes(printer_name: &str, doc_title: &str, raw_bytes: &[u8]) ->
         let mut raw_datatype_wide: Vec<u16> = OsStr::new("RAW").encode_wide().chain(std::iter::once(0)).collect();
 
         unsafe {
-            let mut handle: HANDLE = null_mut();
+            let mut handle: WinHandle = null_mut();
             if OpenPrinterW(printer_name_wide.as_mut_ptr(), &mut handle, null_mut()) == 0 {
                 return Err(format!("Αποτυχία ανοίγματος εκτυπωτή '{}': Win32 error", printer_name));
             }
@@ -204,11 +204,11 @@ pub fn print_raw_bytes(printer_name: &str, doc_title: &str, raw_bytes: &[u8]) ->
 
             StartPagePrinter(handle);
 
-            let mut written: DWORD = 0;
+            let mut written: WinDword = 0;
             let success = WritePrinter(
                 handle,
                 raw_bytes.as_ptr() as *mut std::ffi::c_void,
-                raw_bytes.len() as DWORD,
+                raw_bytes.len() as WinDword,
                 &mut written,
             );
 
@@ -216,7 +216,7 @@ pub fn print_raw_bytes(printer_name: &str, doc_title: &str, raw_bytes: &[u8]) ->
             EndDocPrinter(handle);
             ClosePrinter(handle);
 
-            if success == 0 || written != raw_bytes.len() as DWORD {
+            if success == 0 || written != raw_bytes.len() as WinDword {
                 return Err("Σφάλμα κατά την εγγραφή δεδομένων στον εκτυπωτή (WritePrinter)".to_string());
             }
 

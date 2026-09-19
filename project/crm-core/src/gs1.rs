@@ -79,14 +79,12 @@ impl Gs1Parser {
                 let expiry_val = &rest[2..8];
                 Self::assign_ai("17", expiry_val, data);
                 rest = &rest[8..];
-            } else if rest.starts_with("10") {
+            } else if let Some(lot_val) = rest.strip_prefix("10") {
                 // AI 10: Batch/Lot is variable length (consume remainder if no delimiter)
-                let lot_val = &rest[2..];
                 Self::assign_ai("10", lot_val, data);
                 break;
-            } else if rest.starts_with("21") {
+            } else if let Some(serial_val) = rest.strip_prefix("21") {
                 // AI 21: Serial number
-                let serial_val = &rest[2..];
                 Self::assign_ai("21", serial_val, data);
                 break;
             } else {

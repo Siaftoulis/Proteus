@@ -26,6 +26,10 @@ async fn main() {
         .route("/api/v1/marketplace/compile", post(compile_handler))
         .route("/api/v1/pricing/quote", post(quote_handler))
         .route("/api/v1/certifications/tiers", get(tiers_handler))
+        .route("/api/v1/contracts/create", post(contract_create_handler))
+        .route("/api/v1/contracts/sign", post(contract_sign_handler))
+        .route("/api/v1/contracts/fund", post(contract_fund_handler))
+        .route("/api/v1/contracts/payout", post(contract_payout_handler))
         .layer(CorsLayer::permissive());
 
     let addr = "0.0.0.0:8080";
@@ -84,3 +88,62 @@ async fn tiers_handler() -> impl IntoResponse {
 
     (StatusCode::OK, Json(tiers_info))
 }
+
+async fn contract_create_handler(
+    Json(payload): Json<contracts::CreateContractRequest>,
+) -> impl IntoResponse {
+    let contract = contracts::SlaContract::new(
+        payload.contract_id,
+        payload.shop_id,
+        payload.technician_id,
+        payload.service_scope,
+        payload.response_time_hours,
+        payload.monthly_retainer_eur,
+    );
+    (StatusCode::CREATED, Json(contract))
+}
+
+async fn contract_sign_handler(
+    Json(mut payload): Json<contracts::SignContractRequest>,
+) -> impl IntoResponse {
+    match payload.signer_role.to_lowercase().as_str() {
+        "shop" => payload.contract.sign_by_shop(),
+        "technician" | "tech" => payload.contract.sign_by_technician(),
+        _ => {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({ "error": "Invalid signer role; must be 'shop' or 'technician'" })),
+            )
+                .into_response()
+        }
+    }
+    (StatusCode::OK, Json(payload.contract)).into_response()
+}
+
+async fn contract_fund_handler(
+    Json(mut payload): Json<contracts::FundContractRequest>,
+) -> impl IntoResponse {
+    payload.contract.fund_escrow(payload.amount);
+    (StatusCode::OK, Json(payload.contract))
+}
+
+async fn contract_payout_handler(
+    Json(mut payload): Json<contracts::PayoutContractRequest>,
+) -> impl IntoResponse {
+    match payload.contract.release_escrow_payout() {
+        Ok(payout) => (
+            StatusCode::OK,
+            Json(serde_json::to_value(contracts::PayoutContractResponse {
+                contract: payload.contract,
+                payout_eur: payout,
+            }).unwrap()),
+        )
+            .into_response(),
+        Err(err) => (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({ "error": err })),
+        )
+            .into_response(),
+    }
+}
+

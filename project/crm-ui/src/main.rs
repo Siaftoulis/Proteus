@@ -17,7 +17,7 @@ pub use models::*;
 
 use chrono::Utc;
 use crm_core::Database;
-use eframe::egui::{self, Color32, Rect, Sense, Stroke, Vec2};
+use eframe::egui::{self, Color32, Rect, Sense, Stroke};
 use std::sync::{Arc, Mutex};
 
 pub struct ProteusApp {
@@ -28,17 +28,12 @@ pub struct ProteusApp {
     pub layout: LayoutMode,
     pub project_doc: scene::ProjectDocument,
     pub editor_state: scene::EditorState,
-    pub fns: Vec<UiFlowNode>,
-    pub fes: Vec<(String, String, String)>,
-    pub sel_fn: Option<String>,
-    pub fdrag: Option<(String, Vec2, Vec2)>,
     pub palette_drag: Option<scene::NodeType>,
     pub viewport: Viewport2D,
     pub show_login: bool,
     pub auth: Option<String>,
     pub toast: Option<String>,
     pub tt: f32,
-    pub flow_con: Option<String>,
     pub loaded: bool,
     pub _style_set: bool,
     pub db_conn: Option<rusqlite::Connection>,
@@ -132,17 +127,12 @@ impl Default for ProteusApp {
             layout: LayoutMode::Free,
             project_doc: scene::create_dummy_document(),
             editor_state: scene::EditorState::new(),
-            fns: vec![],
-            fes: vec![],
-            sel_fn: None,
-            fdrag: None,
             palette_drag: None,
             viewport: Viewport2D::new(),
             show_login: false,
             auth: None,
             toast: None,
             tt: 0.,
-            flow_con: None,
             contacts: vec![
                 Contact {
                     id: "c1".into(),
@@ -443,13 +433,6 @@ impl ProteusApp {
         self.reload_table_cache("deals");
     }
 
-    pub fn add_fn(&mut self, nt: &str, label: &str, extra: Option<serde_json::Value>) {
-        let id = format!("fn{}", self.fns.len() + 1);
-        let x = 100. + (self.fns.len() % 5) as f32 * 220.;
-        let y = 80. + (self.fns.len() / 5) as f32 * 120.;
-        self.fns.push(UiFlowNode { id, nt: nt.into(), label: label.into(), x, y, extra });
-    }
-
     pub fn spawn_designer_node(&mut self, nt: scene::NodeType, world_pos: egui::Pos2) {
         let (w, h) = match nt {
             scene::NodeType::Frame => (200., 200.),
@@ -700,9 +683,7 @@ impl ProteusApp {
     }
 
     pub fn save_project(&mut self) {
-        let nodes_list: Vec<serde_json::Value> = self.fns.iter().map(|n| serde_json::json!({"id": n.id, "type": n.nt, "label": n.label, "x": n.x, "y": n.y, "extra": n.extra})).collect();
-        let edges_list: Vec<serde_json::Value> = self.fes.iter().map(|(id, s, t)| serde_json::json!({"id": id, "source": s, "target": t})).collect();
-        let flows_json = serde_json::to_string(&serde_json::json!({"nodes": nodes_list, "edges": edges_list})).unwrap_or_else(|_| "{}".into());
+        let flows_json = serde_json::to_string(&self.project_doc.flow_graph).unwrap_or_else(|_| "{}".into());
         let contacts_json = serde_json::to_string(&self.contacts).unwrap_or_else(|_| "[]".into());
         let deals_json = serde_json::to_string(&self.deals).unwrap_or_else(|_| "[]".into());
         let tasks_json = serde_json::to_string(&self.tasks).unwrap_or_else(|_| "[]".into());
@@ -804,6 +785,9 @@ impl ProteusApp {
                             }).collect();
                         }
                     }
+                    if let Ok(fg) = serde_json::from_str::<crate::flow::FlowGraph>(&proj.flows) {
+                        self.project_doc.flow_graph = fg;
+                    }
                 }
             }
         }
@@ -846,7 +830,6 @@ impl eframe::App for ProteusApp {
             .show(ctx, |ui| {
                 match self.mode {
                     Mode::Designer => views::designer::show_left(self, ui),
-                    Mode::Flow => views::flow_legacy::show_left(self, ui),
                     Mode::FlowBuilder => views::flow_builder::show_left(self, ui),
                     Mode::Contacts => views::contacts::show_left(self, ui),
                     Mode::Pipeline => views::pipeline::show_left(self, ui),
@@ -862,7 +845,7 @@ impl eframe::App for ProteusApp {
             Mode::Designer => "PROPERTIES",
             Mode::Play => "PLAY MODE",
             Mode::DataViewer => "DATA VIEWER",
-            Mode::FlowBuilder | Mode::Flow => "FLOW INFO",
+            Mode::FlowBuilder => "FLOW INFO",
             Mode::Contacts => "CONTACT",
             Mode::Pipeline => "DEAL DETAIL",
             Mode::Studio => "LAYERS",
@@ -879,7 +862,6 @@ impl eframe::App for ProteusApp {
                 ui.add_space(4.);
                 match self.mode {
                     Mode::Designer => views::designer::show_right(self, ui),
-                    Mode::Flow => views::flow_legacy::show_right(self, ui),
                     Mode::FlowBuilder => views::flow_builder::show_right(self, ui),
                     Mode::Contacts => views::contacts::show_right(self, ui),
                     Mode::Pipeline => views::pipeline::show_right(self, ui),
@@ -944,7 +926,6 @@ impl eframe::App for ProteusApp {
                     Mode::Play => views::play::show_central(self, ui, &pnt, r),
                     Mode::DataViewer => views::data_viewer::show_central(self, ui),
                     Mode::FlowBuilder => views::flow_builder::show_central(self, ctx, ui, &pnt, r, mpos, mdown),
-                    Mode::Flow => views::flow_legacy::show_central(self, &pnt, r, mpos, mdown, mup),
                 }
 
                 // Toast overlay

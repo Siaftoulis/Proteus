@@ -112,7 +112,7 @@ pub fn show_central(app: &mut ProteusApp, ctx: &egui::Context, pnt: &egui::Paint
     }
 
     // Canvas interactions
-    let cpos = mpos.map(|p| to_c(p));
+    let cpos = mpos.map(to_c);
     let c_down = mdown;
     let c_up = mup;
 

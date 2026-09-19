@@ -196,7 +196,7 @@ mod tests {
             };
             write_cache(&info);
             let retrieved = get_license_info(Some("invalid-key-for-offline-test"), "machine-1");
-            assert_eq!(retrieved.valid, true);
+            assert!(retrieved.valid);
             assert_eq!(retrieved.max_users, 5);
         });
     }

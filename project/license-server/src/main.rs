@@ -87,19 +87,21 @@ async fn verify_license(
                 );
             }
 
-            if license.activations >= license.max_users {
-                return (
-                    StatusCode::OK,
-                    Json(VerifyResponse {
-                        valid: false,
-                        max_users: license.max_users,
-                        features: vec![],
-                        expires_at: license.expires_at,
-                        reason: Some("Maximum activations reached".to_string()),
-                    }),
-                );
+            if params.activate.unwrap_or(false) {
+                if license.activations >= license.max_users {
+                    return (
+                        StatusCode::OK,
+                        Json(VerifyResponse {
+                            valid: false,
+                            max_users: license.max_users,
+                            features: vec![],
+                            expires_at: license.expires_at,
+                            reason: Some("Maximum activations reached".to_string()),
+                        }),
+                    );
+                }
+                let _ = db::increment_activations(&conn, &params.license_key);
             }
-            let _ = db::increment_activations(&conn, &params.license_key);
 
             let features: Vec<String> =
                 serde_json::from_str(&license.features).unwrap_or_default();

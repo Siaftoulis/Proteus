@@ -171,6 +171,15 @@ pub fn draw_intake_view(
                     match create_ticket(conn, &mut ticket) {
                         Ok(_) => {
                             let ticket_num = ticket.ticket_number;
+                            let payload = serde_json::to_string(&ticket).unwrap_or_default();
+                            let _ = crm_core::replication::enqueue_outbox(
+                                conn,
+                                "tickets",
+                                &ticket_num.to_string(),
+                                crm_core::replication::ChangeOp::Insert,
+                                &payload,
+                            );
+
                             let mut msg = format!("✓ Το Δελτίο #{} καταχωρήθηκε επιτυχώς!", ticket_num);
 
                             if trigger_print {

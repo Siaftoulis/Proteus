@@ -3,7 +3,6 @@
 
 use serde::{Deserialize, Serialize};
 
-#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ContractStatus {
     PendingSignatures,
@@ -13,7 +12,6 @@ pub enum ContractStatus {
     Disputed,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SlaContract {
     pub contract_id: String,
@@ -28,7 +26,39 @@ pub struct SlaContract {
     pub status: ContractStatus,
 }
 
-#[allow(dead_code)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateContractRequest {
+    pub contract_id: String,
+    pub shop_id: String,
+    pub technician_id: String,
+    pub service_scope: String,
+    pub response_time_hours: u32,
+    pub monthly_retainer_eur: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SignContractRequest {
+    pub contract: SlaContract,
+    pub signer_role: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FundContractRequest {
+    pub contract: SlaContract,
+    pub amount: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PayoutContractRequest {
+    pub contract: SlaContract,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PayoutContractResponse {
+    pub contract: SlaContract,
+    pub payout_eur: f64,
+}
+
 impl SlaContract {
     pub fn new(
         contract_id: String,

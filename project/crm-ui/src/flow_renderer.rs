@@ -58,6 +58,7 @@ fn kind_color(kind: &FlowNodeKind) -> Color32 {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn draw_flow_graph(
     _ui: &mut egui::Ui,
     painter: &egui::Painter,

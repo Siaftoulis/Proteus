@@ -221,7 +221,7 @@ pub fn show_central(app: &mut ProteusApp, ctx: &egui::Context, ui: &mut egui::Ui
 
     // Status info
     pnt.text(egui::pos2(r.left() + 8., r.bottom() - 4.), egui::Align2::LEFT_BOTTOM,
-        &format!("Zoom: {:.0}%  |  {} flow nodes, {} edges",
+        format!("Zoom: {:.0}%  |  {} flow nodes, {} edges",
             app.flow_viewport.zoom * 100.,
             app.project_doc.flow_graph.nodes.len(),
             app.project_doc.flow_graph.edges.len(),

@@ -48,22 +48,12 @@ pub fn seed_initial_audit_events_if_empty(conn: &Connection) {
     }
 }
 
+#[derive(Default)]
 pub struct AuditLogViewState {
     pub search_query: String,
     pub selected_role_filter: Option<String>,
     pub selected_event_type: Option<String>,
     pub expanded_event_id: Option<String>,
-}
-
-impl Default for AuditLogViewState {
-    fn default() -> Self {
-        Self {
-            search_query: String::new(),
-            selected_role_filter: None,
-            selected_event_type: None,
-            expanded_event_id: None,
-        }
-    }
 }
 
 pub fn draw_audit_log_view(
@@ -265,6 +255,6 @@ mod tests {
         let now = chrono::Utc::now().timestamp_millis();
         assert_eq!(format_relative_time(now - 10_000), "μόλις τώρα");
         assert_eq!(format_relative_time(now - 180_000), "πριν 3 λεπτά");
-        assert_eq!(format_relative_time(now - 7200_000), "πριν 2 ώρες");
+        assert_eq!(format_relative_time(now - 7_200_000), "πριν 2 ώρες");
     }
 }

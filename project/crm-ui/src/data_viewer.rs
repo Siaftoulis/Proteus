@@ -47,37 +47,29 @@ pub fn draw_data_viewer(
         return;
     }
 
-    // ponytail: flat table via horizontal-groups inside scroll, avoids egui_extras dependency
+    // Clean grid layout ensuring strict vertical alignment between headers and row values
     egui::ScrollArea::both().auto_shrink([false; 2]).show(ui, |ui| {
-        // Header
-        ui.horizontal(|ui| {
-            ui.allocate_ui_with_layout(
-                egui::vec2(ui.available_width(), 0.),
-                egui::Layout::left_to_right(egui::Align::Center),
-                |ui| {
-                    ui.label(egui::RichText::new("ID").size(10.).strong().color(crate::theme::ACCENT));
-                    ui.add_space(8.);
-                    for key in &columns {
-                        ui.label(egui::RichText::new(key.as_str()).size(10.).strong().color(crate::theme::ACCENT));
-                        ui.add_space(8.);
-                    }
-                    ui.label(egui::RichText::new("Actions").size(10.).strong().color(crate::theme::ACCENT));
+        egui::Grid::new("data_viewer_grid")
+            .striped(true)
+            .spacing(egui::vec2(16.0, 8.0))
+            .min_col_width(70.0)
+            .show(ui, |ui| {
+                // Header row
+                ui.label(egui::RichText::new("ID").size(10.5).strong().color(crate::theme::ACCENT));
+                for key in &columns {
+                    ui.label(egui::RichText::new(key.as_str()).size(10.5).strong().color(crate::theme::ACCENT));
                 }
-            );
-        });
-        ui.separator();
+                ui.label(egui::RichText::new("Actions").size(10.5).strong().color(crate::theme::ACCENT));
+                ui.end_row();
 
-        // Rows
-        for (id, data) in records {
-            let map = match data {
-                serde_json::Value::Object(m) => m,
-                _ => continue,
-            };
-            let bg = crate::theme::WIDGET_BG;
-            egui::Frame::default().fill(bg).show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    ui.label(egui::RichText::new(&id[..8.min(id.len())]).size(9.).color(crate::theme::TEXT_DIM));
-                    ui.add_space(8.);
+                // Data rows
+                for (id, data) in records {
+                    let map = match data {
+                        serde_json::Value::Object(m) => m,
+                        _ => continue,
+                    };
+
+                    ui.label(egui::RichText::new(&id[..8.min(id.len())]).size(9.5).color(crate::theme::TEXT_DIM));
                     for key in &columns {
                         let val: String = map.get(key.as_str())
                             .map(|v| match v {
@@ -85,20 +77,19 @@ pub fn draw_data_viewer(
                                 serde_json::Value::Null => String::new(),
                                 other => other.to_string(),
                             })
-                            .unwrap_or_else(|| String::from("N/A"));
-                        ui.label(egui::RichText::new(val).size(10.).color(crate::theme::TEXT));
-                        ui.add_space(8.);
+                            .unwrap_or_else(|| String::from("—"));
+                        ui.label(egui::RichText::new(val).size(10.0).color(crate::theme::TEXT));
                     }
-                    if ui.add(egui::Button::new("✎ Edit").min_size(egui::vec2(40., 16.))).clicked() {
-                        *on_edit = Some(id.clone());
-                    }
-                    ui.add_space(2.);
-                    if ui.add(egui::Button::new("🗑 Delete").min_size(egui::vec2(50., 16.))).clicked() {
-                        *on_delete = Some(id.clone());
-                    }
-                });
+                    ui.horizontal(|ui| {
+                        if ui.add(egui::Button::new(egui::RichText::new("✎ Edit").size(9.5))).clicked() {
+                            *on_edit = Some(id.clone());
+                        }
+                        if ui.add(egui::Button::new(egui::RichText::new("🗑").size(9.5).color(crate::theme::ACCENT_RED))).clicked() {
+                            *on_delete = Some(id.clone());
+                        }
+                    });
+                    ui.end_row();
+                }
             });
-            ui.separator();
-        }
     });
 }

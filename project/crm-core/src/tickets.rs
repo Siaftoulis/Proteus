@@ -40,7 +40,7 @@ impl TicketStatus {
         }
     }
 
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_status_str(s: &str) -> Self {
         match s {
             "in_progress" => TicketStatus::InProgress,
             "waiting_parts" => TicketStatus::WaitingParts,
@@ -66,6 +66,13 @@ impl TicketStatus {
 impl fmt::Display for TicketStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.display_name())
+    }
+}
+
+impl std::str::FromStr for TicketStatus {
+    type Err = std::convert::Infallible;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from_status_str(s))
     }
 }
 
@@ -284,7 +291,7 @@ pub fn get_ticket(conn: &Connection, ticket_id: &str) -> Result<Option<ServiceTi
             reported_fault: row.get(6)?,
             internal_notes: row.get(7)?,
             estimated_cost: row.get(8)?,
-            current_status: TicketStatus::from_str(&status_str),
+            current_status: TicketStatus::from_status_str(&status_str),
             created_at: row.get(10)?,
             updated_at: row.get(11)?,
             delivered_at: row.get(12)?,
@@ -318,7 +325,7 @@ pub fn list_tickets(conn: &Connection) -> Result<Vec<ServiceTicket>> {
             reported_fault: row.get(6)?,
             internal_notes: row.get(7)?,
             estimated_cost: row.get(8)?,
-            current_status: TicketStatus::from_str(&status_str),
+            current_status: TicketStatus::from_status_str(&status_str),
             created_at: row.get(10)?,
             updated_at: row.get(11)?,
             delivered_at: row.get(12)?,
@@ -366,7 +373,7 @@ pub fn search_tickets(conn: &Connection, query: &str) -> Result<Vec<ServiceTicke
             reported_fault: row.get(6)?,
             internal_notes: row.get(7)?,
             estimated_cost: row.get(8)?,
-            current_status: TicketStatus::from_str(&status_str),
+            current_status: TicketStatus::from_status_str(&status_str),
             created_at: row.get(10)?,
             updated_at: row.get(11)?,
             delivered_at: row.get(12)?,

@@ -153,6 +153,7 @@ pub fn create_crm_preset() -> ProjectDocument {
     let mut doc = ProjectDocument::new();
 
     // Helper to build a styled node
+    #[allow(clippy::too_many_arguments)]
     fn mk_page(id: &str, name: &str, x: f32, y: f32, w: f32, h: f32, bg: Rgba, padding: f32) -> Node {
         Node {
             id: id.into(), name: name.into(),
@@ -170,6 +171,7 @@ pub fn create_crm_preset() -> ProjectDocument {
             position: (x, y), visible: true, locked: false, z: 0,
         }
     }
+    #[allow(clippy::too_many_arguments)]
     fn mk_text(id: &str, content: &str, x: f32, y: f32, size: f32, bold: bool, r: u8, g: u8, b: u8) -> Node {
         Node {
             id: id.into(), name: content.into(),
@@ -190,6 +192,7 @@ pub fn create_crm_preset() -> ProjectDocument {
             position: (x, y), visible: true, locked: false, z: 1,
         }
     }
+    #[allow(clippy::too_many_arguments)]
     fn mk_bound_input(id: &str, placeholder: &str, x: f32, y: f32, w: f32, h: f32, ft: FieldType, entity: &str, field: &str) -> Node {
         Node {
             id: id.into(), name: placeholder.into(),

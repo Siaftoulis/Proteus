@@ -6,24 +6,13 @@ use crm_core::tickets::{get_ticket, update_ticket_details, update_ticket_status,
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
 use rusqlite::Connection;
 
+#[derive(Default)]
 pub struct TicketDetailState {
     pub loaded_id: Option<String>,
     pub ticket: Option<ServiceTicket>,
     pub notes_edit: String,
     pub cost_edit: String,
     pub feedback_msg: Option<String>,
-}
-
-impl Default for TicketDetailState {
-    fn default() -> Self {
-        Self {
-            loaded_id: None,
-            ticket: None,
-            notes_edit: String::new(),
-            cost_edit: String::new(),
-            feedback_msg: None,
-        }
-    }
 }
 
 pub fn draw_ticket_detail_modal(

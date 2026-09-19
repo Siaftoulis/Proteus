@@ -41,24 +41,25 @@ impl Default for MappingCanvasState {
             "created_at".to_string(),
         ];
 
-        let mut mappings = Vec::new();
-        mappings.push(FieldMapping::pass_through("cust_name", "customer_name"));
-        mappings.push(FieldMapping::pass_through("phone", "customer_phone"));
-        mappings.push(FieldMapping::pass_through("device_brand", "device_model"));
-        mappings.push(FieldMapping::pass_through("issue_notes", "reported_fault"));
-        mappings.push(FieldMapping::new(
-            "net_amount",
-            "estimated_cost",
-            FieldTransform::MathMultiply { multiplier: 1.24 },
-        ));
-        mappings.push(FieldMapping::new(
-            "order_date",
-            "created_at",
-            FieldTransform::DateFormat {
-                input_format: "DD/MM/YYYY".to_string(),
-                output_format: "YYYY-MM-DD".to_string(),
-            },
-        ));
+        let mappings = vec![
+            FieldMapping::pass_through("cust_name", "customer_name"),
+            FieldMapping::pass_through("phone", "customer_phone"),
+            FieldMapping::pass_through("device_brand", "device_model"),
+            FieldMapping::pass_through("issue_notes", "reported_fault"),
+            FieldMapping::new(
+                "net_amount",
+                "estimated_cost",
+                FieldTransform::MathMultiply { multiplier: 1.24 },
+            ),
+            FieldMapping::new(
+                "order_date",
+                "created_at",
+                FieldTransform::DateFormat {
+                    input_format: "DD/MM/YYYY".to_string(),
+                    output_format: "YYYY-MM-DD".to_string(),
+                },
+            ),
+        ];
 
         let sample_payload = r#"{
   "cust_name": "Γεώργιος Δημητρίου",
@@ -248,20 +249,20 @@ pub fn render_mapping_canvas(ui: &mut Ui, state: &mut MappingCanvasState) {
                                     }
                                 });
 
-                            if ui.button("➕ Σύνδεση").clicked() {
-                                if !state.mappings.iter().any(|m| m.source_field == state.selected_source && m.target_field == state.selected_target) {
-                                    let transform = match state.selected_transform_idx {
-                                        1 => FieldTransform::MathMultiply { multiplier: 1.24 },
-                                        2 => FieldTransform::DateFormat {
-                                            input_format: "DD/MM/YYYY".to_string(),
-                                            output_format: "YYYY-MM-DD".to_string(),
-                                        },
-                                        3 => FieldTransform::ToUpperCase,
-                                        4 => FieldTransform::ToLowerCase,
-                                        _ => FieldTransform::PassThrough,
-                                    };
-                                    state.mappings.push(FieldMapping::new(&state.selected_source, &state.selected_target, transform));
-                                }
+                            if ui.button("➕ Σύνδεση").clicked()
+                                && !state.mappings.iter().any(|m| m.source_field == state.selected_source && m.target_field == state.selected_target)
+                            {
+                                let transform = match state.selected_transform_idx {
+                                    1 => FieldTransform::MathMultiply { multiplier: 1.24 },
+                                    2 => FieldTransform::DateFormat {
+                                        input_format: "DD/MM/YYYY".to_string(),
+                                        output_format: "YYYY-MM-DD".to_string(),
+                                    },
+                                    3 => FieldTransform::ToUpperCase,
+                                    4 => FieldTransform::ToLowerCase,
+                                    _ => FieldTransform::PassThrough,
+                                };
+                                state.mappings.push(FieldMapping::new(&state.selected_source, &state.selected_target, transform));
                             }
                         });
                     });

@@ -52,7 +52,7 @@ impl AppDb {
         })
     }
 
-    #[instrument(skip(self))]
+    #[instrument(skip(self, req))]
     pub fn create_user(&self, req: &CreateUserRequest) -> Result<User, String> {
         let conn = self.conn.lock().map_err(|e| e.to_string())?;
         let id = uuid::Uuid::new_v4().to_string();
@@ -138,7 +138,7 @@ impl AppDb {
         Ok(result)
     }
 
-    #[instrument(skip(self))]
+    #[instrument(skip(self, token))]
     pub fn store_refresh_token(&self, user_id: &str, token: &str) -> Result<(), String> {
         let conn = self.conn.lock().map_err(|e| e.to_string())?;
         let id = uuid::Uuid::new_v4().to_string();
@@ -153,7 +153,7 @@ impl AppDb {
         Ok(())
     }
 
-    #[instrument(skip(self))]
+    #[instrument(skip(self, token))]
     pub fn validate_refresh_token(&self, token: &str) -> Result<Option<String>, String> {
         let conn = self.conn.lock().map_err(|e| e.to_string())?;
         let mut stmt = conn
@@ -183,7 +183,7 @@ impl AppDb {
         }
     }
 
-    #[instrument(skip(self))]
+    #[instrument(skip(self, token))]
     pub fn delete_refresh_token(&self, token: &str) -> Result<(), String> {
         let conn = self.conn.lock().map_err(|e| e.to_string())?;
         conn.execute("DELETE FROM refresh_tokens WHERE token = ?1", params![token])
@@ -201,7 +201,7 @@ impl AppDb {
         Ok(result)
     }
 
-    #[instrument(skip(self))]
+    #[instrument(skip(self, license_key))]
     pub fn set_license_key(&self, user_id: &str, license_key: &str) -> Result<(), String> {
         let conn = self.conn.lock().map_err(|e| e.to_string())?;
         conn.execute(

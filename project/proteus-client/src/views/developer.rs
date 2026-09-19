@@ -218,7 +218,7 @@ pub fn draw_developer_studio_view(ui: &mut Ui, conn: &mut Connection, state: &mu
                                 }
                             }
                             if ui.button("🔍 Visual Diff").clicked() {
-                                match crm_core::schema_diff::SchemaDiff::from_ddl(conn, &[migration_sql.clone()]) {
+                                match crm_core::schema_diff::SchemaDiff::from_ddl(conn, std::slice::from_ref(&migration_sql)) {
                                     Ok(d) => {
                                         state.active_schema_diff = Some(d);
                                         state.status_message = Some("✓ Υπολογίστηκε το οπτικό Schema Diff.".into());
@@ -298,8 +298,24 @@ pub fn draw_developer_studio_view(ui: &mut Ui, conn: &mut Connection, state: &mu
                                     Err(e) => state.status_message = Some(format!("❌ Μη έγκυρο URL: {}", e)),
                                 }
                             }
-                            if ui.button("🔄 Sync Outbox").clicked() {
-                                state.status_message = Some("✓ Replication Outbox συγχρονισμένο: 0 εκκρεμή records.".into());
+                            let pending_count = crm_core::replication::count_pending_outbox(conn).unwrap_or(0);
+                            let sync_label = format!("🔄 Sync Outbox ({})", pending_count);
+                            if ui.button(sync_label).clicked() {
+                                match ConnectionConfig::parse_url(&state.remote_db_url) {
+                                    Ok(cfg) => {
+                                        let driver = RemoteDriverMock::new(cfg);
+                                        match crm_core::replication::sync_outbox_to_driver(conn, &driver, 50) {
+                                            Ok(summary) => {
+                                                state.status_message = Some(format!(
+                                                    "✓ Συγχρονίστηκαν {} εγγραφές! (Εκκρεμούν: {})",
+                                                    summary.records_pushed, summary.pending_remaining
+                                                ));
+                                            }
+                                            Err(e) => state.status_message = Some(format!("❌ Σφάλμα συγχρονισμού: {}", e)),
+                                        }
+                                    }
+                                    Err(e) => state.status_message = Some(format!("❌ Μη έγκυρο URL: {}", e)),
+                                }
                             }
                         });
                     });

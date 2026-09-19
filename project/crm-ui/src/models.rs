@@ -10,7 +10,6 @@ pub enum Mode {
     Play,
     DataViewer,
     FlowBuilder,
-    Flow,
     Contacts,
     Pipeline,
     Studio,
@@ -279,6 +278,12 @@ pub struct Viewport2D {
     pub zoom: f32,
 }
 
+impl Default for Viewport2D {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Viewport2D {
     pub fn new() -> Self {
         Self { pan: Vec2::ZERO, zoom: 1.0 }
@@ -295,14 +300,4 @@ impl Viewport2D {
             (screen.y - self.pan.y - canvas_origin.y) / self.zoom,
         )
     }
-}
-
-#[derive(Clone)]
-pub struct UiFlowNode {
-    pub id: String,
-    pub nt: String,
-    pub label: String,
-    pub x: f32,
-    pub y: f32,
-    pub extra: Option<serde_json::Value>,
 }

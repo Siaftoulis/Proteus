@@ -195,6 +195,7 @@ fn sense_interaction(
 
 // ── Public entry point ──
 
+#[allow(clippy::too_many_arguments)]
 pub fn draw_document(
     ui: &mut egui::Ui,
     doc: &ProjectDocument,
@@ -236,6 +237,7 @@ pub fn draw_document(
 
 // ── Recursive Node Renderer ──
 
+#[allow(clippy::too_many_arguments)]
 fn render_node(
     ui: &mut egui::Ui,
     node_id: &str,
@@ -477,14 +479,21 @@ fn render_node(
                 let default_cols = vec!["ID".to_string(), "Name".to_string(), "Email".to_string(), "Status".to_string()];
                 let col_names = if columns.is_empty() { &default_cols } else { columns };
 
+                let col_w = (ui.available_width() / col_names.len() as f32).max(50.0 * z);
+
                 // Header
                 ui.horizontal(|ui| {
                     for col in col_names {
-                        ui.label(egui::RichText::new(col)
-                            .size(zoom_font(9.5, z))
-                            .color(theme::TEXT_DIM)
-                            .strong());
-                        ui.add_space(6.0 * z);
+                        ui.allocate_ui_with_layout(
+                            egui::vec2(col_w, 16.0 * z),
+                            egui::Layout::left_to_right(egui::Align::Center),
+                            |ui| {
+                                ui.label(egui::RichText::new(col)
+                                    .size(zoom_font(9.5, z))
+                                    .color(theme::TEXT_DIM)
+                                    .strong());
+                            },
+                        );
                     }
                 });
                 ui.separator();
@@ -511,10 +520,15 @@ fn render_node(
                                             .unwrap_or("—")
                                             .to_string()
                                     };
-                                    ui.label(egui::RichText::new(cell_val)
-                                        .size(zoom_font(9.0, z))
-                                        .color(theme::TEXT));
-                                    ui.add_space(6.0 * z);
+                                    ui.allocate_ui_with_layout(
+                                        egui::vec2(col_w, 15.0 * z),
+                                        egui::Layout::left_to_right(egui::Align::Center),
+                                        |ui| {
+                                            ui.label(egui::RichText::new(cell_val)
+                                                .size(zoom_font(9.0, z))
+                                                .color(theme::TEXT));
+                                        },
+                                    );
                                 }
                             });
                         }
@@ -530,10 +544,15 @@ fn render_node(
                                     2 => format!("data{}@corp.com", r_idx),
                                     _ => "Active".into(),
                                 };
-                                ui.label(egui::RichText::new(cell_val)
-                                    .size(zoom_font(9.0, z))
-                                    .color(theme::TEXT));
-                                ui.add_space(6.0 * z);
+                                ui.allocate_ui_with_layout(
+                                    egui::vec2(col_w, 15.0 * z),
+                                    egui::Layout::left_to_right(egui::Align::Center),
+                                    |ui| {
+                                        ui.label(egui::RichText::new(cell_val)
+                                            .size(zoom_font(9.0, z))
+                                            .color(theme::TEXT));
+                                    },
+                                );
                             }
                         });
                     }

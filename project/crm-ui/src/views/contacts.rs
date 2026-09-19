@@ -97,13 +97,13 @@ pub fn show_central(app: &mut ProteusApp, pnt: &egui::Painter, r: Rect, ui: &mut
         if let Some(id) = &app.sel_contact.clone() {
             if let Some(c) = app.contacts.iter().find(|c| &c.id == id) {
                 pnt.text(egui::pos2(r.left() + 20., r.top() + 20.), egui::Align2::LEFT_TOP,
-                    &format!("{} — {} — {}", c.name, c.email, c.phone),
+                    format!("{} — {} — {}", c.name, c.email, c.phone),
                     egui::FontId::proportional(16.), theme::TEXT);
                 pnt.text(egui::pos2(r.left() + 20., r.top() + 44.), egui::Align2::LEFT_TOP,
-                    &format!("Company: {}  |  Created: {}  |  Updated: {}", c.company, &c.created_at[..10.min(c.created_at.len())], &c.updated_at[..10.min(c.updated_at.len())]),
+                    format!("Company: {}  |  Created: {}  |  Updated: {}", c.company, &c.created_at[..10.min(c.created_at.len())], &c.updated_at[..10.min(c.updated_at.len())]),
                     egui::FontId::proportional(10.), theme::TEXT_DIM);
                 pnt.text(egui::pos2(r.left() + 20., r.top() + 64.), egui::Align2::LEFT_TOP,
-                    &format!("Tags: {}", c.tags.join(", ")),
+                    format!("Tags: {}", c.tags.join(", ")),
                     egui::FontId::proportional(10.), theme::ACCENT_ORANGE);
                 pnt.text(egui::pos2(r.left() + 20., r.top() + 90.), egui::Align2::LEFT_TOP,
                     "Notes Timeline:",
@@ -211,10 +211,10 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
     }
 
     if del_clicked {
-        let did = app.sel_contact.clone().unwrap();
-        app.delete_contact_from_db(&did);
-        app.contacts.retain(|x| x.id != did);
-        app.sel_contact = None;
-        app.editing_contact = None;
+        if let Some(did) = app.sel_contact.take() {
+            app.delete_contact_from_db(&did);
+            app.contacts.retain(|x| x.id != did);
+            app.editing_contact = None;
+        }
     }
 }

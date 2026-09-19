@@ -45,19 +45,23 @@ pub fn show_central(app: &mut ProteusApp, ui: &mut egui::Ui) {
         }
     }
 
-    if load_clicked && !app.viewer_entity_input.is_empty() && app.db_conn.is_some() {
-        let entity = app.viewer_entity_input.clone();
-        match db::get_records(app.db_conn.as_ref().unwrap(), &entity) {
-            Ok(recs) => {
-                app.viewer_records = recs;
-                app.viewer_selected_entity = entity;
-                app.toast(format!("Loaded {} records ✓", app.viewer_records.len()));
+    if load_clicked && !app.viewer_entity_input.is_empty() {
+        if let Some(conn) = &app.db_conn {
+            let entity = app.viewer_entity_input.clone();
+            match db::get_records(conn, &entity) {
+                Ok(recs) => {
+                    app.viewer_records = recs;
+                    app.viewer_selected_entity = entity;
+                    app.toast(format!("Loaded {} records ✓", app.viewer_records.len()));
+                }
+                Err(e) => {
+                    app.viewer_records.clear();
+                    app.viewer_selected_entity = entity;
+                    app.toast(format!("Query failed: {}", e));
+                }
             }
-            Err(e) => {
-                app.viewer_records.clear();
-                app.viewer_selected_entity = entity;
-                app.toast(format!("Query failed: {}", e));
-            }
+        } else {
+            app.toast("DB not connected");
         }
     }
 }

@@ -95,10 +95,10 @@ pub fn show_central(app: &mut ProteusApp, pnt: &egui::Painter, r: Rect, mpos: Op
         let stage_total: f64 = app.deals.iter().filter(|d| d.stage == *stage).map(|d| d.value).sum();
         let stage_count = app.deals.iter().filter(|d| d.stage == *stage).count();
         pnt.text(egui::pos2(cx + 4., col_r.top() + 8.), egui::Align2::LEFT_CENTER,
-            &format!("{}  (${:.0})", stage, stage_total),
+            format!("{}  (${:.0})", stage, stage_total),
             egui::FontId::proportional(10.), theme::ACCENT);
         pnt.text(egui::pos2(cx + stage_width - 4., col_r.top() + 8.), egui::Align2::RIGHT_CENTER,
-            &stage_count.to_string(),
+            stage_count.to_string(),
             egui::FontId::proportional(10.), theme::TEXT_DIM);
 
         // Deals in this stage
@@ -126,7 +126,7 @@ pub fn show_central(app: &mut ProteusApp, pnt: &egui::Painter, r: Rect, mpos: Op
             pnt.text(egui::pos2(cx + 8., y + 4.), egui::Align2::LEFT_TOP,
                 &d.title, egui::FontId::proportional(10.), theme::TEXT);
             pnt.text(egui::pos2(cx + 8., y + 18.), egui::Align2::LEFT_TOP,
-                &format!("${:.0}", d.value), egui::FontId::proportional(11.), theme::ACCENT_GREEN);
+                format!("${:.0}", d.value), egui::FontId::proportional(11.), theme::ACCENT_GREEN);
 
             if let Some(cid) = &d.contact_id {
                 if let Some(c) = app.contacts.iter().find(|c| &c.id == cid) {

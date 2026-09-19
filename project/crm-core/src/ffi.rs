@@ -14,6 +14,11 @@ pub extern "C" fn proteus_core_version() -> *const c_char {
 
 /// Parses a database connection URL and returns JSON representation of the ConnectionConfig.
 /// Caller must free the returned string with `proteus_free_string`.
+///
+/// # Safety
+///
+/// Caller must pass a valid null-terminated C string pointer for `url_ptr`.
+/// Passing an invalid pointer or modifying the memory concurrently may result in undefined behavior.
 #[no_mangle]
 pub unsafe extern "C" fn proteus_parse_connection_url(url_ptr: *const c_char) -> *mut c_char {
     if url_ptr.is_null() {
@@ -41,6 +46,11 @@ pub unsafe extern "C" fn proteus_parse_connection_url(url_ptr: *const c_char) ->
 
 /// Evaluates a business rule against a JSON context. Writes result JSON into out_buf.
 /// Returns 0 on success, -1 on invalid pointers, -2 on parse error.
+///
+/// # Safety
+///
+/// Caller must pass valid null-terminated C string pointers for `rule_json_ptr` and `ctx_json_ptr`,
+/// and a valid writable buffer pointer `out_buf` with size at least `max_len` bytes.
 #[no_mangle]
 pub unsafe extern "C" fn proteus_eval_rule(
     rule_json_ptr: *const c_char,
@@ -86,6 +96,11 @@ pub unsafe extern "C" fn proteus_eval_rule(
 }
 
 /// Decodes GS1-128 barcode Application Identifiers. Writes decoded JSON into out_buf.
+///
+/// # Safety
+///
+/// Caller must provide a valid null-terminated C string pointer for `barcode_ptr`
+/// and a valid writable buffer pointer `out_buf` with capacity at least `max_len` bytes.
 #[no_mangle]
 pub unsafe extern "C" fn proteus_parse_gs1(
     barcode_ptr: *const c_char,
@@ -110,6 +125,11 @@ pub unsafe extern "C" fn proteus_parse_gs1(
 }
 
 /// Frees a C-allocated string returned by Proteus Core.
+///
+/// # Safety
+///
+/// Caller must pass a pointer returned by `proteus_parse_connection_url` (or null).
+/// The pointer must not have been previously freed.
 #[no_mangle]
 pub unsafe extern "C" fn proteus_free_string(ptr: *mut c_char) {
     if !ptr.is_null() {

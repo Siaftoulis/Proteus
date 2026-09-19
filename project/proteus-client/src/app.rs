@@ -65,6 +65,7 @@ impl ProteusClientApp {
 
         let _ = init_tickets_schema(&conn);
         let _ = init_audit_schema(&conn);
+        let _ = crm_core::replication::init_outbox_schema(&conn);
         crate::views::audit_log::seed_initial_audit_events_if_empty(&conn);
 
         Self {
@@ -247,6 +248,18 @@ impl eframe::App for ProteusClientApp {
                             .show(ui, |ui| {
                                 ui.label(RichText::new("● 100% Τοπική Λειτουργία").size(11.0).color(Color32::from_rgb(52, 211, 153)));
                             });
+
+                        let pending_sync = crm_core::replication::count_pending_outbox(&self.conn).unwrap_or(0);
+                        if pending_sync > 0 {
+                            Frame::new()
+                                .fill(Color32::from_rgb(60, 40, 10))
+                                .stroke(Stroke::new(1.0, Color32::from_rgb(251, 146, 60)))
+                                .corner_radius(CornerRadius::same(4))
+                                .inner_margin(Margin::symmetric(8, 4))
+                                .show(ui, |ui| {
+                                    ui.label(RichText::new(format!("☁ {} Εκκρεμή", pending_sync)).size(11.0).color(Color32::from_rgb(251, 146, 60)));
+                                });
+                        }
 
                         if self.lan_beacon.is_some() {
                             ui.label(RichText::new("📡 LAN Ready").size(11.0).color(Color32::from_rgb(56, 189, 248)));
