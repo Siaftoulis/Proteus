@@ -268,6 +268,62 @@ pub fn show_central(app: &mut ProteusApp, ui: &mut egui::Ui, pnt: &egui::Painter
                                         app.toast(format!("Flow Error: Page '{}' not found", page_id));
                                     }
                                 }
+                                crate::flow::FlowNodeKind::Condition { ref field, ref operator, ref target_value } => {
+                                    let mut actual_val = String::new();
+                                    for (nid, node) in &app.project_doc.nodes {
+                                        let (_bound_entity, bound_field) = match &node.node_type {
+                                            scene::NodeType::TextInput { bound_entity, bound_field, .. }
+                                            | scene::NodeType::Dropdown { bound_entity, bound_field, .. }
+                                            | scene::NodeType::NumberField { bound_entity, bound_field, .. }
+                                            | scene::NodeType::Checkbox { bound_entity, bound_field, .. } => (bound_entity, bound_field),
+                                            _ => continue,
+                                        };
+                                        if let Some(bf) = bound_field {
+                                            if bf == field {
+                                                actual_val = app.form_state.get(nid).cloned().unwrap_or_default();
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if actual_val.is_empty() {
+                                        if let Some(val) = app.form_state.get(field) {
+                                            actual_val = val.clone();
+                                        }
+                                    }
+
+                                    let is_true = match operator.trim().to_lowercase().as_str() {
+                                        ">" | "gt" => {
+                                            let a = actual_val.trim().parse::<f64>().unwrap_or(0.0);
+                                            let b = target_value.trim().parse::<f64>().unwrap_or(0.0);
+                                            a > b
+                                        }
+                                        ">=" | "gte" => {
+                                            let a = actual_val.trim().parse::<f64>().unwrap_or(0.0);
+                                            let b = target_value.trim().parse::<f64>().unwrap_or(0.0);
+                                            a >= b
+                                        }
+                                        "<" | "lt" => {
+                                            let a = actual_val.trim().parse::<f64>().unwrap_or(0.0);
+                                            let b = target_value.trim().parse::<f64>().unwrap_or(0.0);
+                                            a < b
+                                        }
+                                        "<=" | "lte" => {
+                                            let a = actual_val.trim().parse::<f64>().unwrap_or(0.0);
+                                            let b = target_value.trim().parse::<f64>().unwrap_or(0.0);
+                                            a <= b
+                                        }
+                                        "!=" | "neq" => !actual_val.eq_ignore_ascii_case(target_value.trim()),
+                                        "contains" => actual_val.to_lowercase().contains(&target_value.trim().to_lowercase()),
+                                        _ => actual_val.eq_ignore_ascii_case(target_value.trim()),
+                                    };
+
+                                    if !is_true {
+                                        continue;
+                                    }
+                                }
+                                crate::flow::FlowNodeKind::ShowToast { ref message } => {
+                                    app.toast(message.clone());
+                                }
                                 crate::flow::FlowNodeKind::TriggerClick { .. } => {}
                             }
                             curr_ids.push(target_id);

@@ -377,10 +377,7 @@ impl ProjectDocument {
                         kind: crate::flow::FlowNodeKind::SaveToDatabase { entity: entity_trimmed },
                         position: (600., 200.),
                     });
-                    self.flow_graph.edges.push(crate::flow::FlowEdge {
-                        from_node: prev_id,
-                        to_node: save_id.clone(),
-                    });
+                    self.flow_graph.edges.push(crate::flow::FlowEdge::new(prev_id, save_id.clone()));
                     prev_id = save_id;
                 }
             }
@@ -394,10 +391,7 @@ impl ProjectDocument {
                         kind: crate::flow::FlowNodeKind::NavigateTo { page_id: page_trimmed },
                         position: (800., 200.),
                     });
-                    self.flow_graph.edges.push(crate::flow::FlowEdge {
-                        from_node: prev_id,
-                        to_node: nav_id,
-                    });
+                    self.flow_graph.edges.push(crate::flow::FlowEdge::new(prev_id, nav_id));
                 }
             }
         }

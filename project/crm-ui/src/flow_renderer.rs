@@ -47,6 +47,8 @@ fn kind_label(kind: &FlowNodeKind) -> &'static str {
         FlowNodeKind::TriggerClick { .. } => "Trigger: Click",
         FlowNodeKind::NavigateTo { .. } => "Navigate To",
         FlowNodeKind::SaveToDatabase { .. } => "Save To DB",
+        FlowNodeKind::Condition { .. } => "Condition (IF)",
+        FlowNodeKind::ShowToast { .. } => "Notification",
     }
 }
 
@@ -55,6 +57,8 @@ fn kind_color(kind: &FlowNodeKind) -> Color32 {
         FlowNodeKind::TriggerClick { .. } => Color32::from_rgb(79, 140, 237),
         FlowNodeKind::NavigateTo { .. } => Color32::from_rgb(237, 180, 60),
         FlowNodeKind::SaveToDatabase { .. } => Color32::from_rgb(60, 200, 120),
+        FlowNodeKind::Condition { .. } => Color32::from_rgb(230, 80, 80),
+        FlowNodeKind::ShowToast { .. } => Color32::from_rgb(160, 90, 220),
     }
 }
 
@@ -141,6 +145,10 @@ pub fn draw_flow_graph(
             FlowNodeKind::TriggerClick { target_node_id } => format!("target: {}", target_node_id),
             FlowNodeKind::NavigateTo { page_id } => format!("page: {}", page_id),
             FlowNodeKind::SaveToDatabase { entity } => format!("entity: {}", entity),
+            FlowNodeKind::Condition { field, operator, target_value } => {
+                format!("if {} {} {}", field, operator, target_value)
+            }
+            FlowNodeKind::ShowToast { message } => format!("msg: {}", message),
         };
         painter.text(
             Pos2::new(node_rect.min.x + 6., node_rect.min.y + 30.),

@@ -13,6 +13,12 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
         ("+ Trigger Click", crate::flow::FlowNodeKind::TriggerClick { target_node_id: String::new() }),
         ("+ Navigate To",  crate::flow::FlowNodeKind::NavigateTo { page_id: String::new() }),
         ("+ Save To DB",   crate::flow::FlowNodeKind::SaveToDatabase { entity: String::new() }),
+        ("+ Condition (IF)", crate::flow::FlowNodeKind::Condition {
+            field: "status".to_string(),
+            operator: "==".to_string(),
+            target_value: "active".to_string(),
+        }),
+        ("+ Notification", crate::flow::FlowNodeKind::ShowToast { message: "Action executed".to_string() }),
     ];
     for (label, kind_tpl) in kinds {
         if ui.add(egui::Button::new(egui::RichText::new(*label).size(10.).color(theme::ACCENT_GREEN))
@@ -197,10 +203,7 @@ pub fn show_central(app: &mut ProteusApp, ctx: &egui::Context, ui: &mut egui::Ui
                         let already = app.project_doc.flow_graph.edges.iter()
                             .any(|e| e.from_node == src && e.to_node == tgt);
                         if !already {
-                            app.project_doc.flow_graph.edges.push(crate::flow::FlowEdge {
-                                from_node: src,
-                                to_node: tgt,
-                            });
+                            app.project_doc.flow_graph.edges.push(crate::flow::FlowEdge::new(src, tgt));
                         }
                     }
                 }
@@ -257,6 +260,24 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
                     ui.label(egui::RichText::new("Database Entity:").size(10.).color(theme::TEXT));
                     ui.add_space(2.);
                     ui.add(egui::TextEdit::singleline(entity).hint_text("e.g. contacts").desired_width(f32::INFINITY));
+                }
+                crate::flow::FlowNodeKind::Condition { ref mut field, ref mut operator, ref mut target_value } => {
+                    ui.label(egui::RichText::new("Target Field:").size(10.).color(theme::TEXT));
+                    ui.add_space(2.);
+                    ui.add(egui::TextEdit::singleline(field).hint_text("e.g. status or amount").desired_width(f32::INFINITY));
+                    ui.add_space(4.);
+                    ui.label(egui::RichText::new("Operator:").size(10.).color(theme::TEXT));
+                    ui.add_space(2.);
+                    ui.add(egui::TextEdit::singleline(operator).hint_text("==, !=, >, <, contains").desired_width(f32::INFINITY));
+                    ui.add_space(4.);
+                    ui.label(egui::RichText::new("Compare Value:").size(10.).color(theme::TEXT));
+                    ui.add_space(2.);
+                    ui.add(egui::TextEdit::singleline(target_value).hint_text("e.g. active or 100").desired_width(f32::INFINITY));
+                }
+                crate::flow::FlowNodeKind::ShowToast { ref mut message } => {
+                    ui.label(egui::RichText::new("Notification Message:").size(10.).color(theme::TEXT));
+                    ui.add_space(2.);
+                    ui.add(egui::TextEdit::singleline(message).hint_text("e.g. Record saved successfully").desired_width(f32::INFINITY));
                 }
             }
         }

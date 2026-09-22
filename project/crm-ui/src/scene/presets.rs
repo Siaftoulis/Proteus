@@ -140,10 +140,7 @@ pub fn create_dummy_document() -> ProjectDocument {
         kind: crate::flow::FlowNodeKind::NavigateTo { page_id: "page-2".into() },
         position: (500., 100.),
     });
-    doc.flow_graph.edges.push(crate::flow::FlowEdge {
-        from_node: "f1".into(),
-        to_node: "f2".into(),
-    });
+    doc.flow_graph.edges.push(crate::flow::FlowEdge::new("f1", "f2"));
 
     doc
 }
