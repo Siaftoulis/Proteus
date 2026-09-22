@@ -102,7 +102,14 @@ pub struct ProteusApp {
     // LAN Autonomous Discovery & Dispatch
     pub lan_daemon: Option<crm_core::lan::LanDiscoveryDaemon>,
     pub auto_deploy_on_save: bool,
+
+    // Role Workspaces
+    pub analyst_state: views::analyst::AnalystState,
+    pub networking_state: views::networking::NetworkingState,
+    pub troubleshoot_state: views::troubleshoot::TroubleshootState,
+    pub connected_data_state: views::connected_data::ConnectedDataState,
 }
+
 
 fn app_dir() -> String {
     std::env::var("APPDATA")
@@ -367,9 +374,14 @@ impl Default for ProteusApp {
                 false,
             ).ok(),
             auto_deploy_on_save: false,
+            analyst_state: views::analyst::AnalystState::default(),
+            networking_state: views::networking::NetworkingState::default(),
+            troubleshoot_state: views::troubleshoot::TroubleshootState::default(),
+            connected_data_state: views::connected_data::ConnectedDataState::default(),
         }
     }
 }
+
 
 impl ProteusApp {
     pub fn toast(&mut self, msg: impl Into<String>) {
@@ -830,6 +842,10 @@ impl eframe::App for ProteusApp {
             .show(ctx, |ui| {
                 match self.mode {
                     Mode::Designer => views::designer::show_left(self, ui),
+                    Mode::Analyst => views::analyst::show_left(&mut self.analyst_state, ui),
+                    Mode::Networking => views::networking::show_left(&mut self.networking_state, ui),
+                    Mode::Troubleshoot => views::troubleshoot::show_left(&mut self.troubleshoot_state, ui),
+                    Mode::ConnectedData => views::connected_data::show_left(&mut self.connected_data_state, self.db_conn.as_ref(), ui),
                     Mode::FlowBuilder => views::flow_builder::show_left(self, ui),
                     Mode::Contacts => views::contacts::show_left(self, ui),
                     Mode::Pipeline => views::pipeline::show_left(self, ui),
@@ -843,6 +859,10 @@ impl eframe::App for ProteusApp {
         // ── RIGHT PROPERTIES PANEL ──
         let right_title = match self.mode {
             Mode::Designer => "PROPERTIES",
+            Mode::Analyst => "ANALYST GUIDE",
+            Mode::Networking => "NETWORK GUIDE",
+            Mode::Troubleshoot => "HARDWARE GUIDE",
+            Mode::ConnectedData => "DATABASE GUIDE",
             Mode::Play => "PLAY MODE",
             Mode::DataViewer => "DATA VIEWER",
             Mode::FlowBuilder => "FLOW INFO",
@@ -862,6 +882,18 @@ impl eframe::App for ProteusApp {
                 ui.add_space(4.);
                 match self.mode {
                     Mode::Designer => views::designer::show_right(self, ui),
+                    Mode::Analyst => {
+                        ui.label(egui::RichText::new("Ingest raw data and infer schema to export as a .pr package.").size(10.5).color(theme::TEXT_DIM));
+                    }
+                    Mode::Networking => {
+                        ui.label(egui::RichText::new("UDP Beacon broadcasts on port 7444. Manage external server gateways.").size(10.5).color(theme::TEXT_DIM));
+                    }
+                    Mode::Troubleshoot => {
+                        ui.label(egui::RichText::new("Direct spooler and hardware probes for thermal printers and cash drawers.").size(10.5).color(theme::TEXT_DIM));
+                    }
+                    Mode::ConnectedData => {
+                        ui.label(egui::RichText::new("Live SQLite state, prioritized outbox sync, and Merkle audit chain verification.").size(10.5).color(theme::TEXT_DIM));
+                    }
                     Mode::FlowBuilder => views::flow_builder::show_right(self, ui),
                     Mode::Contacts => views::contacts::show_right(self, ui),
                     Mode::Pipeline => views::pipeline::show_right(self, ui),
@@ -923,10 +955,25 @@ impl eframe::App for ProteusApp {
                     Mode::Tasks => views::tasks::show_central(self, &pnt, r, mpos, mup, ui),
                     Mode::Studio => views::studio::show_central(self, ctx, &pnt, r, mpos, mdown, mup),
                     Mode::Designer => views::designer::show_central(self, ctx, ui, &pnt, r, mpos, &resp),
+                    Mode::Analyst => views::analyst::show_central(&mut self.analyst_state, ui),
+                    Mode::Networking => views::networking::show_central(&mut self.networking_state, ui),
+                    Mode::Troubleshoot => views::troubleshoot::show_central(&mut self.troubleshoot_state, ui),
+                    Mode::ConnectedData => {
+                        if let Some(msg) = views::connected_data::show_central(
+                            &mut self.connected_data_state,
+                            &self.contacts,
+                            &self.deals,
+                            &self.tasks,
+                            ui,
+                        ) {
+                            self.toast(msg);
+                        }
+                    }
                     Mode::Play => views::play::show_central(self, ui, &pnt, r),
                     Mode::DataViewer => views::data_viewer::show_central(self, ui),
                     Mode::FlowBuilder => views::flow_builder::show_central(self, ctx, ui, &pnt, r, mpos, mdown),
                 }
+
 
                 // Toast overlay
                 if let Some(msg) = &self.toast {

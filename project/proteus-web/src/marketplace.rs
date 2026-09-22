@@ -129,6 +129,67 @@ pub fn compile_package_gate(req: &PackageCompileRequest) -> PackageCompileResult
     }
 }
 
+/// A published `.pr` package listing in the Proteus Marketplace.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[allow(dead_code)]
+pub struct MarketplacePackageListing {
+    pub bundle_id: String,
+    pub title: String,
+    pub description: String,
+    pub author_designer: String,
+    pub version: String,
+    pub price_eur: f64,
+    pub category: String,
+    pub licensed_accounts: Vec<String>,
+}
+
+/// Retrieve the list of purchased/licensed packages for a verified business account.
+pub fn get_licensed_packages_for_account(account_email: &str) -> Vec<MarketplacePackageListing> {
+    let catalog = vec![
+        MarketplacePackageListing {
+            bundle_id: "PKG-SERVICE-AUTO".to_string(),
+            title: "Automotive Service & Repair BOS".to_string(),
+            description: "Work orders, technician parts inventory, and ESC/POS diagnostic receipts".to_string(),
+            author_designer: "PCD Senior Partner".to_string(),
+            version: "1.4.0".to_string(),
+            price_eur: 180.0,
+            category: "Automotive".to_string(),
+            licensed_accounts: vec!["demo@company.com".to_string(), "owner@autoworks.gr".to_string()],
+        },
+        MarketplacePackageListing {
+            bundle_id: "PKG-RETAIL-POS".to_string(),
+            title: "Multi-Store Retail & Cashier BOS".to_string(),
+            description: "Barcode scanning, instant drawer kick, inventory reordering, and store sync".to_string(),
+            author_designer: "PCDA Analyst Group".to_string(),
+            version: "2.1.0".to_string(),
+            price_eur: 240.0,
+            category: "Retail".to_string(),
+            licensed_accounts: vec!["demo@company.com".to_string(), "admin@retailchain.com".to_string()],
+        },
+        MarketplacePackageListing {
+            bundle_id: "PKG-CLINIC-HEALTH".to_string(),
+            title: "Medical & Dental Practice Suite".to_string(),
+            description: "Patient intake appointments, GDPR audit logs, and insurance billing".to_string(),
+            author_designer: "PCSS Systems Architect".to_string(),
+            version: "1.0.2".to_string(),
+            price_eur: 320.0,
+            category: "Healthcare".to_string(),
+            licensed_accounts: vec!["doctor@clinic.org".to_string()],
+        },
+    ];
+
+    let email_lower = account_email.to_lowercase();
+    catalog
+        .into_iter()
+        .filter(|pkg| {
+            pkg.licensed_accounts
+                .iter()
+                .any(|acc| acc.to_lowercase() == email_lower)
+        })
+        .collect()
+}
+
+
 /// Official Proteus Professional Certification tracks.
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -228,4 +289,20 @@ mod tests {
         assert_eq!(CertificationTrack::AllInOneBundle.exam_fee_eur(), 149.0);
         assert_eq!(CertificationTrack::PcdaBusinessAnalyst.annual_badge_fee_eur(), 39.0);
     }
+
+    #[test]
+    fn test_licensed_packages_retrieval() {
+        let pkgs = get_licensed_packages_for_account("demo@company.com");
+        assert_eq!(pkgs.len(), 2);
+        assert_eq!(pkgs[0].bundle_id, "PKG-SERVICE-AUTO");
+        assert_eq!(pkgs[1].bundle_id, "PKG-RETAIL-POS");
+
+        let doc_pkgs = get_licensed_packages_for_account("doctor@clinic.org");
+        assert_eq!(doc_pkgs.len(), 1);
+        assert_eq!(doc_pkgs[0].bundle_id, "PKG-CLINIC-HEALTH");
+
+        let empty = get_licensed_packages_for_account("unknown@random.com");
+        assert!(empty.is_empty());
+    }
 }
+

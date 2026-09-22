@@ -58,6 +58,8 @@ pub struct ProteusClientApp {
     replication_daemon: Option<crate::replication_daemon::ReplicationDaemon>,
     device_label_ref: std::sync::Arc<std::sync::Mutex<String>>,
     pending_migration: Option<crate::views::schema_diff_modal::PendingMigrationReview>,
+    pub auth_state: crate::views::auth::ClientAuthState,
+    pub mounted_bundle_title: String,
 }
 
 impl ProteusClientApp {
@@ -115,6 +117,8 @@ impl ProteusClientApp {
             replication_daemon: crate::replication_daemon::ReplicationDaemon::start(db_path.clone(), 5000).ok(),
             device_label_ref: std::sync::Arc::new(std::sync::Mutex::new(format!("Proteus Terminal ({})", UserRole::Ceo.display_name()))),
             pending_migration: None,
+            auth_state: crate::views::auth::ClientAuthState::default(),
+            mounted_bundle_title: "Automotive Service & Repair BOS".to_string(),
         }
     }
 }
@@ -151,6 +155,20 @@ impl eframe::App for ProteusClientApp {
         }
 
         crate::theme::apply_theme(ctx);
+
+        // Two-Stage Authentication & Targeted PR Package Mounting Modal
+        if let Some(session) = crate::views::auth::render_auth_modal(&mut self.auth_state, ctx) {
+            self.active_role = session.role;
+            self.operator_name = session.operator_name;
+            self.mounted_bundle_title = session.mounted_bundle_title;
+            if let Ok(mut label) = self.device_label_ref.lock() {
+                *label = format!("Proteus Terminal ({})", session.role.display_name());
+            }
+        }
+
+        if !matches!(self.auth_state.stage, crate::views::auth::AuthStage::Authenticated(_)) {
+            return;
+        }
 
         // RBAC Permissions & Dynamic Tab Filtering
         let permissions = self.active_role.permissions();
@@ -211,6 +229,18 @@ impl eframe::App for ProteusClientApp {
                         ui.label(RichText::new("BOS").size(14.0).color(crate::theme::TEXT_MUTED));
                     });
 
+                    ui.add_space(8.0);
+
+                    // Mounted PR Package Badge
+                    Frame::new()
+                        .fill(Color32::from_rgb(18, 28, 45))
+                        .stroke(Stroke::new(1.0, Color32::from_rgb(56, 130, 220)))
+                        .corner_radius(CornerRadius::same(4))
+                        .inner_margin(Margin::symmetric(8, 4))
+                        .show(ui, |ui| {
+                            ui.label(RichText::new(format!("📦 {}", self.mounted_bundle_title)).size(11.0).color(Color32::from_rgb(140, 195, 255)));
+                        });
+
                     ui.add_space(10.0);
 
                     // Active Role Dropdown Selector
@@ -257,6 +287,21 @@ impl eframe::App for ProteusClientApp {
 
                     // Right Side: Active count badge & offline pill
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        if ui
+                            .button(RichText::new("🚪 Έξοδος").size(11.0))
+                            .on_hover_text("Αποσύνδεση από λογαριασμό Marketplace")
+                            .clicked()
+                        {
+                            self.auth_state.logout();
+                        }
+                        if ui
+                            .button(RichText::new("🔒 Κλείδωμα").size(11.0))
+                            .on_hover_text("Κλείδωμα τερματικού (Απαιτεί Master / Staff PIN)")
+                            .clicked()
+                        {
+                            self.auth_state.lock_terminal();
+                        }
+
                         // Offline-first pill
                         Frame::new()
                             .fill(Color32::from_rgb(16, 50, 35))

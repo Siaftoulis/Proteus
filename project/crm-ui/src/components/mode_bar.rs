@@ -15,26 +15,28 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
         })
         .show(ctx, |ui| {
             ui.horizontal(|ui| {
-                // ── 3 CORE PILLARS (Primary Navigation) ──
-                let core_pillars: &[(Mode, &str, &str, &str)] = &[
-                    (Mode::Designer,   "🎨", "Design Canvas", "Visual layout, drag-to-draw, layers & styling"),
-                    (Mode::DataViewer, "📊", "Data Studio",   "SQLite database, custom entities & analytics"),
-                    (Mode::Play,       "📱", "Devices & Run", "Multi-device simulator, live test & export"),
+                // ── 5 PRIMARY ROLE WORKSPACES ──
+                let primary_workspaces: &[(Mode, &str, &str, &str)] = &[
+                    (Mode::Designer,      "🎨", "Designer",       "Visual layout, drag-to-draw, layers & styling"),
+                    (Mode::Analyst,       "📊", "Analyst",        "Schema inference, data modeling & .pr package export"),
+                    (Mode::Networking,    "🌐", "IT & Network",   "LAN auto-discovery, UDP beacon map & server gateways"),
+                    (Mode::Troubleshoot,  "🛠", "Troubleshoot",   "ESC/POS printer spooler, cash drawer & diagnostic logs"),
+                    (Mode::ConnectedData, "🗄", "Connected Data", "Live SQLite browser, priority outbox queue & audit Merkle"),
                 ];
 
-                for (mode, icon, label, tooltip) in core_pillars {
+                for (mode, icon, label, tooltip) in primary_workspaces {
                     let is_active = app.mode == *mode;
                     let btn = ui.add(
                         egui::Button::new(
-                            egui::RichText::new(format!("{}  {}", icon, label))
-                                .size(11.5)
+                            egui::RichText::new(format!("{} {}", icon, label))
+                                .size(11.)
                                 .color(if is_active { theme::TEXT } else { theme::TEXT_DIM })
                                 .strong()
                         )
                         .fill(if is_active { theme::ELEVATED } else { theme::PANEL })
                         .stroke(if is_active { egui::Stroke::new(1.2, theme::ACCENT) } else { egui::Stroke::new(1., theme::BORDER) })
                         .corner_radius(egui::CornerRadius::same(5))
-                        .min_size(egui::vec2(130., 26.))
+                        .min_size(egui::vec2(115., 26.))
                     ).on_hover_text(*tooltip);
 
                     if btn.clicked() {
@@ -42,33 +44,32 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                     }
                 }
 
-                ui.add_space(8.);
+                ui.add_space(6.);
                 ui.separator();
-                ui.add_space(8.);
+                ui.add_space(6.);
 
-                // ── SECONDARY MODULES (Automations & CRM) ──
-                let modules: &[(Mode, &str, &str)] = &[
+                // ── SECONDARY TOOLS & RUNTIMES ──
+                let secondary_tools: &[(Mode, &str, &str)] = &[
                     (Mode::FlowBuilder, "⚡", "Flows"),
+                    (Mode::Play,        "📱", "Simulate"),
                     (Mode::Contacts,    "◎", "Contacts"),
                     (Mode::Pipeline,    "▤", "Pipeline"),
                     (Mode::Tasks,       "☰", "Tasks"),
                     (Mode::Studio,      "✦", "Freehand"),
                 ];
 
-                ui.label(egui::RichText::new("MODULES:").size(9.).color(theme::TEXT_MUTED).strong());
-
-                for (mode, icon, label) in modules {
+                for (mode, icon, label) in secondary_tools {
                     let is_active = app.mode == *mode;
                     let btn = ui.add(
                         egui::Button::new(
                             egui::RichText::new(format!("{} {}", icon, label))
-                                .size(10.5)
+                                .size(10.)
                                 .color(if is_active { theme::TEXT } else { theme::TEXT_DIM })
                         )
                         .fill(if is_active { theme::ELEVATED } else { theme::PANEL })
                         .stroke(if is_active { egui::Stroke::new(1., theme::FOCUS) } else { egui::Stroke::NONE })
                         .corner_radius(egui::CornerRadius::same(4))
-                        .min_size(egui::vec2(75., 24.))
+                        .min_size(egui::vec2(70., 24.))
                     );
 
                     if btn.clicked() {
@@ -78,6 +79,7 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
             });
         });
 }
+
 
 fn switch_mode(app: &mut ProteusApp, mode: &Mode) {
     if *mode == Mode::Play && app.mode != Mode::Play {

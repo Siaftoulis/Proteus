@@ -7,6 +7,10 @@ pub const GRID: f32 = 20.0;
 #[derive(Clone, PartialEq, Debug)]
 pub enum Mode {
     Designer,
+    Analyst,
+    Networking,
+    Troubleshoot,
+    ConnectedData,
     Play,
     DataViewer,
     FlowBuilder,
@@ -15,6 +19,7 @@ pub enum Mode {
     Studio,
     Tasks,
 }
+
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum LayoutMode {

@@ -33,6 +33,7 @@ async fn main() {
         .route("/api/v1/contracts/sign", post(contract_sign_handler))
         .route("/api/v1/contracts/fund", post(contract_fund_handler))
         .route("/api/v1/contracts/payout", post(contract_payout_handler))
+        .route("/api/v1/marketplace/packages", get(packages_handler))
         .layer(CorsLayer::permissive());
 
     let addr = "0.0.0.0:8080";
@@ -158,4 +159,17 @@ async fn contract_payout_handler(
         )
             .into_response(),
     }
+}
+
+#[derive(serde::Deserialize)]
+struct PackagesQuery {
+    account: Option<String>,
+}
+
+async fn packages_handler(
+    axum::extract::Query(query): axum::extract::Query<PackagesQuery>,
+) -> impl IntoResponse {
+    let email = query.account.unwrap_or_default();
+    let packages = marketplace::get_licensed_packages_for_account(&email);
+    (StatusCode::OK, Json(packages))
 }
