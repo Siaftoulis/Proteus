@@ -120,7 +120,7 @@ pub fn render_canvas_hud(
     let hud_y = r.bottom() - 36.0;
 
     // 1. Bottom-Left Status & Cursor Coordinates Pill
-    let status_rect = Rect::from_min_size(Pos2::new(r.left() + 14.0, hud_y), Vec2::new(340.0, 26.0));
+    let status_rect = Rect::from_min_size(Pos2::new(r.left() + 14.0, hud_y), Vec2::new(420.0, 26.0));
     pnt.rect_filled(status_rect, egui::CornerRadius::same(6), Color32::from_rgb(18, 20, 26));
     pnt.rect_stroke(status_rect, egui::CornerRadius::same(6), Stroke::new(1.0, theme::BORDER), egui::StrokeKind::Outside);
 
@@ -144,7 +144,8 @@ pub fn render_canvas_hud(
         "💻 Desktop"
     };
 
-    let status_text = format!("X: {:<4} Y: {:<4} | {} | {}", cur_x, cur_y, sel_info, touch_ind);
+    let vrr_ind = app.vrr_mode.fps_badge();
+    let status_text = format!("X: {:<4} Y: {:<4} | {} | {} | {}", cur_x, cur_y, sel_info, touch_ind, vrr_ind);
     pnt.text(
         Pos2::new(status_rect.left() + 10.0, status_rect.center().y),
         egui::Align2::LEFT_CENTER,

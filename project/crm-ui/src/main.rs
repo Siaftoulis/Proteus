@@ -40,7 +40,7 @@ impl eframe::App for ProteusApp {
         }
 
         if !self._style_set {
-            theme::configure_egui_style(ctx);
+            theme::configure_egui_style(ctx, self.theme_mode, self.accent_preset);
             self._style_set = true;
         }
 
@@ -163,7 +163,10 @@ impl eframe::App for ProteusApp {
                     }
                 }
 
-                ctx.request_repaint();
+                let is_animating = self.toast.is_some();
+                let is_interacting = ui.input(|i| i.pointer.any_down() || i.pointer.delta() != egui::Vec2::ZERO || !i.events.is_empty());
+                let needs_wake = is_animating || is_interacting || self.designer_drag_active || self.flow_drag_active;
+                self.vrr_mode.apply_to_ctx(ctx, needs_wake);
 
                 let mpos = ui.input(|i| i.pointer.interact_pos());
                 let mdown = ui.input(|i| i.pointer.any_down());

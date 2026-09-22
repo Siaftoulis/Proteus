@@ -32,14 +32,32 @@ tags:
 - [x] "Print Ticket" trigger on intake submission
 
 ### 5.4 Declarative `.pr` Package Architecture
-- [ ] Define `.pr` bundle format specification (zstd archive / MessagePack)
-- [ ] Additive-only schema migration runner (`CREATE TABLE`, `ALTER TABLE ADD COLUMN`, rejecting `DROP`)
-- [ ] Automatic `.bak` SQLite snapshot before any package import
+- [x] Define `.pr` bundle format specification (SHA-256 sealed container, manifest, DDL, views, flows)
+- [x] Additive-only schema migration runner (`CREATE TABLE`, `ALTER TABLE ADD COLUMN`, rejecting `DROP`)
+- [x] Automatic `.bak` SQLite snapshot before any package import or migration
 
 ### 5.5 Distribution & Pilot Validation
 - [x] Release build profile (`Proteus.exe`) with stripped symbols & LTO
 - [x] Zero-privilege execution test (works without admin rights)
 - [ ] Pilot testing and feedback collection with 2–3 local repair shops
+
+## Sprint 6: PCDA Pipeline, Multi-Store Governance & Outbox Worker (Complete)
+- [x] Automatic Schema Inference (`SchemaInferer`) from raw JSON/CSV
+- [x] 1-Click LAN Hot-Mount of inferred tables into `.pr` packages
+- [x] Anti-SAP Multi-Tenant & Multi-Store Hierarchy (`enterprises`, `stores`, `departments`, `users`)
+- [x] Delegated Store Director employee provisioning with seat quota enforcement
+- [x] Cryptographic Merkle hash-chain (`tamper_proof_audit_backlog`) for audit logs
+- [x] Resilient Background Outbox Worker with Full Jitter Exponential Backoff & Circuit Breaker
+- [x] Two-Stage Authentication & Dynamic Purchased PR Package Mounting
+
+## Sprint 7: Next-Gen UI/UX Engine, VRR, Custom Theming & Flow Runtime (ACTIVE)
+- [x] Flow Condition Engine & DAG Walker Upgrades (`ConditionOp`, true/false branching, payload merge)
+- [x] Flow Builder Condition & Notification Node Palette (`Condition (IF)`, `Notification`)
+- [x] Play Mode Runtime Condition Evaluation against active form state
+- [x] Adaptive Variable Refresh Rate (VRR) Engine (`Reactive` 0% idle, 30/60/120/144Hz throttling)
+- [x] Dynamic Dual-Mode Theme Engine & System Theme Synchronization (`System`, `Dark`, `Light`, 6 Luxury Accents)
+- [x] Hit-Test First Context Dispatcher & Enhanced Canvas Selection (Auto-select on right click, multi-selection actions)
+- [ ] Micro-connection wiring & Polish across all 5 Workspaces
 
 ## Phase 2: Military Service Period (Nov 2026 – May 2027)
 - [ ] 2–3 shop pilot testing & bugfixing during leaves
@@ -55,4 +73,4 @@ tags:
 ## Phase 4: Company Formation (Post-Revenue >2,000€)
 - [ ] Electronic establishment of Single-Member IKE (gov.gr)
 
-Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P21)]]
+Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P28)]]

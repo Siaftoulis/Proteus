@@ -1,6 +1,6 @@
 //! Designer interaction mechanics: keyboard shortcuts, tool drawing, marquee selection, and context menus.
 
-use eframe::egui::{self, Color32, Pos2, Rect, Response, Stroke, Vec2};
+use eframe::egui::{self, Color32, Pos2, Rect, Stroke, Vec2};
 use crate::scene::{self, CanvasEvent};
 use crate::theme;
 use crate::ProteusApp;
@@ -85,6 +85,14 @@ pub fn handle_keyboard_shortcuts(app: &mut ProteusApp, ctx: &egui::Context, ui: 
         }
     }
 
+    // Select All (Ctrl+A)
+    if ctrl && ctx.input(|i| i.key_pressed(egui::Key::A)) && !ui.ctx().wants_keyboard_input() {
+        let all_ids: Vec<String> = app.project_doc.nodes.keys().cloned().collect();
+        app.designer_selected_node = all_ids.first().cloned();
+        app.editor_state.selected_node_ids = all_ids;
+        app.toast("Selected all elements (Ctrl+A)");
+    }
+
     // Escape (Deselect)
     if ctx.input(|i| i.key_pressed(egui::Key::Escape)) && !ui.ctx().wants_keyboard_input() {
         app.designer_selected_node = None;
@@ -117,6 +125,12 @@ pub fn handle_drawing_tool(
     hover_canvas: bool,
 ) {
     let pointer = ui.input(|i| i.pointer.clone());
+
+    if pointer.secondary_clicked() {
+        app.draw_start = None;
+        app.active_tool = crate::models::DesignerTool::Select;
+        return;
+    }
 
     if hover_canvas {
         ui.output_mut(|o| o.cursor_icon = egui::CursorIcon::Crosshair);
@@ -212,8 +226,17 @@ pub fn handle_mouse_selection(
 
     if pointer.secondary_clicked() && hover_canvas {
         if let Some(hit_id) = scene::hit_test_nodes(&app.project_doc, wm, app.viewport.zoom) {
-            app.designer_selected_node = Some(hit_id.clone());
-            app.editor_state.selected_node_ids = vec![hit_id];
+            // Hit-Test First Dispatcher:
+            // If already inside active multi-selection, preserve selection.
+            // If right-clicking a different element, auto-select it immediately.
+            if !app.editor_state.selected_node_ids.contains(&hit_id) {
+                app.designer_selected_node = Some(hit_id.clone());
+                app.editor_state.selected_node_ids = vec![hit_id];
+            }
+        } else {
+            // Right-clicking empty canvas clears selection so canvas actions are shown
+            app.designer_selected_node = None;
+            app.editor_state.selected_node_ids.clear();
         }
     }
 
@@ -333,68 +356,3 @@ pub fn handle_arena_events(app: &mut ProteusApp, arena_events: &[CanvasEvent]) {
     }
 }
 
-pub fn handle_context_menu(app: &mut ProteusApp, resp: &Response) {
-    resp.context_menu(|ui| {
-        if let Some(ref sel_id) = app.designer_selected_node.clone() {
-            let node_name = app.project_doc.nodes.get(sel_id)
-                .map(|n| n.name.as_str())
-                .unwrap_or("Element");
-            ui.label(egui::RichText::new(format!("SELECTED: {}", node_name)).size(10.).color(theme::ACCENT).strong());
-            ui.separator();
-
-            if ui.button("📋 Copy Dimensions").clicked() {
-                if let Some(n) = app.project_doc.nodes.get(sel_id) {
-                    let (w, h) = match (&n.layout.width, &n.layout.height) {
-                        (scene::Sizing::Fixed(w), scene::Sizing::Fixed(h)) => (*w, *h),
-                        (scene::Sizing::Fixed(w), _) => (*w, 100.),
-                        (_, scene::Sizing::Fixed(h)) => (200., *h),
-                        _ => (200., 100.),
-                    };
-                    app.copied_dimensions = Some((w, h));
-                    app.toast("Dimensions copied ✓");
-                }
-                ui.close_menu();
-            }
-
-            let can_paste = app.copied_dimensions.is_some();
-            if ui.add_enabled(can_paste, egui::Button::new("📌 Paste Dimensions")).clicked() {
-                if let Some((w, h)) = app.copied_dimensions {
-                    let _ = app.project_doc.update_node(sel_id, scene::NodeUpdate::Dimensions { width: w, height: h });
-                    app.toast("Dimensions applied ✓");
-                }
-                ui.close_menu();
-            }
-
-            if ui.button("🔒 Toggle Lock").clicked() {
-                let _ = app.project_doc.update_node(sel_id, scene::NodeUpdate::ToggleLock);
-                ui.close_menu();
-            }
-            if ui.button("👁 Toggle Visibility").clicked() {
-                let _ = app.project_doc.update_node(sel_id, scene::NodeUpdate::ToggleVisibility);
-                ui.close_menu();
-            }
-            if ui.button(egui::RichText::new("🗑 Delete").color(Color32::from_rgb(255, 100, 100))).clicked() {
-                app.project_doc.delete_node(sel_id);
-                app.designer_selected_node = None;
-                app.editor_state.selected_node_ids.clear();
-                app.toast("Node deleted");
-                ui.close_menu();
-            }
-            ui.separator();
-        }
-
-        ui.label(egui::RichText::new("CANVAS TOOLS").size(9.).color(theme::TEXT_DIM));
-        if ui.button("▢ Smart Box (R)").clicked() {
-            app.active_tool = crate::models::DesignerTool::Rectangle;
-            ui.close_menu();
-        }
-        if ui.button("T Text Label (T)").clicked() {
-            app.active_tool = crate::models::DesignerTool::Text;
-            ui.close_menu();
-        }
-        if ui.button("🔘 Action Button (B)").clicked() {
-            app.active_tool = crate::models::DesignerTool::Button;
-            ui.close_menu();
-        }
-    });
-}

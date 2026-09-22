@@ -52,6 +52,9 @@ pub struct ProteusApp {
     pub copied_dimensions: Option<(f32, f32)>,
     pub marquee_start: Option<egui::Pos2>,
     pub draw_start: Option<egui::Pos2>,
+    pub vrr_mode: crate::models::VrrMode,
+    pub theme_mode: crate::theme::ThemeMode,
+    pub accent_preset: crate::theme::AccentPreset,
 
     // Contacts & Pipeline
     pub contacts: Vec<Contact>,
@@ -253,6 +256,9 @@ impl Default for ProteusApp {
             copied_dimensions: None,
             marquee_start: None,
             draw_start: None,
+            vrr_mode: crate::models::VrrMode::default(),
+            theme_mode: crate::theme::ThemeMode::default(),
+            accent_preset: crate::theme::AccentPreset::default(),
             tasks: vec![
                 Task {
                     id: "t1".into(),
@@ -806,6 +812,9 @@ mod tests {
         assert_eq!(app.deals.len(), 3);
         assert_eq!(app.tasks.len(), 3);
         assert_eq!(app.studio_layers.len(), 3);
+        assert_eq!(app.vrr_mode, crate::models::VrrMode::Fps60);
+        assert_eq!(app.theme_mode, crate::theme::ThemeMode::Dark);
+        assert_eq!(app.accent_preset, crate::theme::AccentPreset::Indigo);
     }
 
     #[test]

@@ -306,3 +306,85 @@ impl Viewport2D {
         )
     }
 }
+
+// ── Variable Refresh Rate (VRR) Engine ──
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Serialize, Deserialize)]
+pub enum VrrMode {
+    Reactive,
+    Fps30,
+    #[default]
+    Fps60,
+    Fps120,
+    Continuous,
+}
+
+impl VrrMode {
+    pub fn label(&self) -> &'static str {
+        match self {
+            Self::Reactive => "Reactive (0% Idle)",
+            Self::Fps30 => "30 FPS (Power Saver)",
+            Self::Fps60 => "60 FPS (Balanced)",
+            Self::Fps120 => "120 FPS (High Refresh)",
+            Self::Continuous => "Continuous (Uncapped)",
+        }
+    }
+
+    pub fn fps_badge(&self) -> &'static str {
+        match self {
+            Self::Reactive => "VRR: Reactive",
+            Self::Fps30 => "VRR: 30Hz",
+            Self::Fps60 => "VRR: 60Hz",
+            Self::Fps120 => "VRR: 120Hz",
+            Self::Continuous => "VRR: Max",
+        }
+    }
+
+    pub fn target_duration(&self) -> Option<std::time::Duration> {
+        match self {
+            Self::Reactive => None,
+            Self::Fps30 => Some(std::time::Duration::from_millis(33)),
+            Self::Fps60 => Some(std::time::Duration::from_millis(16)),
+            Self::Fps120 => Some(std::time::Duration::from_millis(8)),
+            Self::Continuous => Some(std::time::Duration::ZERO),
+        }
+    }
+
+    pub fn apply_to_ctx(&self, ctx: &egui::Context, is_active_interaction: bool) {
+        match self {
+            Self::Reactive => {
+                if is_active_interaction {
+                    ctx.request_repaint_after(std::time::Duration::from_millis(16));
+                }
+            }
+            Self::Fps30 => {
+                ctx.request_repaint_after(std::time::Duration::from_millis(33));
+            }
+            Self::Fps60 => {
+                ctx.request_repaint_after(std::time::Duration::from_millis(16));
+            }
+            Self::Fps120 => {
+                ctx.request_repaint_after(std::time::Duration::from_millis(8));
+            }
+            Self::Continuous => {
+                ctx.request_repaint();
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_vrr_mode_durations_and_labels() {
+        assert_eq!(VrrMode::default(), VrrMode::Fps60);
+        assert_eq!(VrrMode::Reactive.target_duration(), None);
+        assert_eq!(VrrMode::Fps30.target_duration(), Some(std::time::Duration::from_millis(33)));
+        assert_eq!(VrrMode::Fps60.target_duration(), Some(std::time::Duration::from_millis(16)));
+        assert_eq!(VrrMode::Fps120.target_duration(), Some(std::time::Duration::from_millis(8)));
+        assert_eq!(VrrMode::Continuous.target_duration(), Some(std::time::Duration::ZERO));
+        assert_eq!(VrrMode::Fps60.fps_badge(), "VRR: 60Hz");
+    }
+}
+

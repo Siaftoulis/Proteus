@@ -99,6 +99,61 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                         });
                         ui.close_menu();
                     }
+
+                    ui.separator();
+                    ui.menu_button("🎨 Theme", |ui| {
+                        use crate::theme::ThemeMode;
+                        for mode in [ThemeMode::Dark, ThemeMode::Light, ThemeMode::System] {
+                            let is_sel = app.theme_mode == mode;
+                            let label = if is_sel { format!("✓ {}", mode.label()) } else { format!("  {}", mode.label()) };
+                            if ui.button(label).clicked() {
+                                app.theme_mode = mode;
+                                app._style_set = false;
+                                app.toast(format!("Theme: {}", mode.label()));
+                                ui.close_menu();
+                            }
+                        }
+                    });
+
+                    ui.menu_button("✨ Accent Color", |ui| {
+                        use crate::theme::AccentPreset;
+                        for preset in [
+                            AccentPreset::Indigo,
+                            AccentPreset::Sapphire,
+                            AccentPreset::Emerald,
+                            AccentPreset::Amber,
+                            AccentPreset::Rose,
+                            AccentPreset::Slate,
+                        ] {
+                            let is_sel = app.accent_preset == preset;
+                            let label = if is_sel { format!("✓ {}", preset.label()) } else { format!("  {}", preset.label()) };
+                            if ui.button(label).clicked() {
+                                app.accent_preset = preset;
+                                app._style_set = false;
+                                app.toast(format!("Accent: {}", preset.label()));
+                                ui.close_menu();
+                            }
+                        }
+                    });
+
+                    ui.menu_button("⚡ Refresh Rate (VRR)", |ui| {
+                        use crate::models::VrrMode;
+                        for vrr in [
+                            VrrMode::Reactive,
+                            VrrMode::Fps30,
+                            VrrMode::Fps60,
+                            VrrMode::Fps120,
+                            VrrMode::Continuous,
+                        ] {
+                            let is_sel = app.vrr_mode == vrr;
+                            let label = if is_sel { format!("✓ {}", vrr.label()) } else { format!("  {}", vrr.label()) };
+                            if ui.button(label).clicked() {
+                                app.vrr_mode = vrr;
+                                app.toast(format!("VRR Mode: {}", vrr.label()));
+                                ui.close_menu();
+                            }
+                        }
+                    });
                 });
 
                 // Workspaces Menu
@@ -160,5 +215,14 @@ mod tests {
         assert!(!app.show_device_toolbar);
         app.show_device_toolbar = true;
         assert!(app.show_device_toolbar);
+
+        app.theme_mode = crate::theme::ThemeMode::Light;
+        assert_eq!(app.theme_mode, crate::theme::ThemeMode::Light);
+
+        app.accent_preset = crate::theme::AccentPreset::Emerald;
+        assert_eq!(app.accent_preset, crate::theme::AccentPreset::Emerald);
+
+        app.vrr_mode = crate::models::VrrMode::Reactive;
+        assert_eq!(app.vrr_mode, crate::models::VrrMode::Reactive);
     }
 }

@@ -1,9 +1,11 @@
 //! Designer layout coordinator and views lifecycle.
 
 pub mod canvas;
+pub mod context_menu;
 pub mod interaction;
 
 pub use canvas::*;
+pub use context_menu::*;
 pub use interaction::*;
 
 use eframe::egui::{self, Color32, Pos2, Rect, Response, Stroke, Vec2};

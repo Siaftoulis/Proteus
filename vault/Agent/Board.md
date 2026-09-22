@@ -158,6 +158,16 @@ tags:
 - [x] PCDA 79€ exam voucher & 149€ bundle catalog tracks in `proteus-web`
 - [x] 143/143 workspace unit tests passing (100% green, 0 compiler warnings)
 
+## Sprint 7 (Next-Gen UI/UX Engine, VRR & Theming) — ACTIVE
+- [x] Flow Condition Engine & DAG Walker Upgrades (`ConditionOp`, branching, context payload)
+- [x] Flow Builder Condition & Notification Node Palette (`Condition (IF)`, `Notification`)
+- [x] Play Mode Runtime Condition Evaluation against active form state
+- [x] Adaptive Variable Refresh Rate (VRR) Engine (`Reactive`, 30/60/120/144Hz throttling)
+- [x] Dynamic Dual-Mode Theme Engine & System Theme Synchronization (`System`, `Dark`, `Light`, 6 Accents)
+- [x] Hit-Test First Context Dispatcher & Enhanced Canvas Selection (Auto-select on right click, multi-selection actions)
+- [ ] Micro-connection wiring & Polish across all 5 Workspaces
+- [x] 210 workspace unit tests passing (100% green, 0 compiler warnings)
+
 ## Future (Phase 2 - Post-Military Commercial Launch)
 - [ ] Merchant of Record setup (Lemon Squeezy / Paddle)
 - [ ] Cloud Relay Tunnel (WebRTC / STUN-TURN) for remote mobile access
