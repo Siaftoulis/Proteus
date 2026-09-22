@@ -14,3 +14,9 @@
 - Maintain the test suite (100% passing tests at all times).
 - Keep source files modular and under 400 lines wherever practical.
 - Efficient, token-conscious, concise communication.
+
+## 4. Communication & Completion Responses (Discord Format)
+- Deliver completion responses in pure, minimalist Discord-compatible text.
+- Do NOT use unsupported Markdown (no tables, no complex links).
+- No unnecessary emojis. Keep styling strictly minimalist, clean, and direct.
+

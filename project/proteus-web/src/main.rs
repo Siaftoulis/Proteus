@@ -4,6 +4,7 @@
 mod contracts;
 mod marketplace;
 mod portal;
+mod ui;
 
 use axum::{
     extract::Json,
@@ -22,7 +23,9 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
     let app = Router::new()
+        .route("/", get(ui::index_page_handler))
         .route("/health", get(health_handler))
+        .route("/api/v1/tickets", get(tickets_handler))
         .route("/api/v1/marketplace/compile", post(compile_handler))
         .route("/api/v1/pricing/quote", post(quote_handler))
         .route("/api/v1/certifications/tiers", get(tiers_handler))
@@ -43,6 +46,16 @@ async fn main() {
 
 async fn health_handler() -> impl IntoResponse {
     (StatusCode::OK, "Proteus Web Hub OK")
+}
+
+async fn tickets_handler() -> impl IntoResponse {
+    let db_path = crm_core::paths::get_database_path();
+    if let Ok(conn) = rusqlite::Connection::open(&db_path) {
+        if let Ok(tickets) = crm_core::tickets::list_tickets(&conn) {
+            return (StatusCode::OK, Json(tickets)).into_response();
+        }
+    }
+    (StatusCode::OK, Json(Vec::<crm_core::tickets::ServiceTicket>::new())).into_response()
 }
 
 async fn compile_handler(Json(payload): Json<PackageCompileRequest>) -> impl IntoResponse {
@@ -146,4 +159,3 @@ async fn contract_payout_handler(
             .into_response(),
     }
 }
-

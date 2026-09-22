@@ -961,15 +961,37 @@ impl eframe::App for ProteusApp {
     }
 }
 
-fn main() -> Result<(), eframe::Error> {
-    eframe::run_native(
+fn main() {
+    std::panic::set_hook(Box::new(|info| {
+        use std::io::Write;
+        let msg = format!("[PROTEUS PANIC] {}\n", info);
+        let _ = std::io::stderr().write_all(msg.as_bytes());
+        let _ = std::io::stderr().flush();
+        if let Ok(mut f) = std::fs::File::create("proteus_panic.txt") {
+            let _ = f.write_all(msg.as_bytes());
+        }
+    }));
+
+    eprintln!("[PROTEUS] Starting Proteus UI...");
+    let res = eframe::run_native(
         "Proteus - The Visual OS for Business",
         eframe::NativeOptions {
             viewport: egui::ViewportBuilder::default()
+                .with_title("Proteus - The Visual OS for Business")
                 .with_inner_size([1400., 900.])
-                .with_min_inner_size([800., 500.]),
+                .with_min_inner_size([800., 500.])
+                .with_active(true),
             ..Default::default()
         },
-        Box::new(|_cc| Ok(Box::new(ProteusApp::default()))),
-    )
+        Box::new(|_cc| {
+            eprintln!("[PROTEUS] Initializing ProteusApp...");
+            Ok(Box::new(ProteusApp::default()))
+        }),
+    );
+    if let Err(e) = res {
+        eprintln!("[PROTEUS ERROR] eframe failed: {:?}", e);
+    }
+    eprintln!("[PROTEUS] Exiting main.");
 }
+
+
