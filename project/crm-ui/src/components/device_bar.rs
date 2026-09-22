@@ -41,7 +41,12 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                         .min_size(egui::vec2(95., 22.))
                     ).clicked() {
                         app.device_preset = p.clone();
-                        app.toast(format!("Canvas: {}", p.label()));
+                        app.viewport_profile = match p {
+                            DevicePreset::Phone | DevicePreset::PhoneSmall => crate::viewport::ViewportProfile::mobile_touch(),
+                            DevicePreset::TabletLandscape | DevicePreset::TabletPortrait => crate::viewport::ViewportProfile::tablet_touch(),
+                            _ => crate::viewport::ViewportProfile::desktop(),
+                        };
+                        app.toast(format!("Canvas: {} ({})", p.label(), if app.viewport_profile.is_touch_device { "Touch 44pt" } else { "Desktop" }));
                     }
                 }
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {

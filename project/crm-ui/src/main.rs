@@ -16,10 +16,12 @@ pub mod renderer;
 pub mod scene;
 pub mod storage;
 pub mod theme;
+pub mod viewport;
 pub mod views;
 
 pub use app_state::ProteusApp;
 pub use models::*;
+pub use viewport::ViewportProfile;
 
 use eframe::egui::{self, Color32, Rect, Sense, Stroke};
 

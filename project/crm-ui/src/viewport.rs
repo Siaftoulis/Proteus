@@ -2,7 +2,7 @@
 //! Provides dynamic metrics context for desktop vs mobile/tablet touch targets,
 //! safe area insets, and responsive interaction scaling.
 
-use eframe::egui::{self, Margin, Vec2};
+use eframe::egui::{Margin, Vec2};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ViewportProfile {

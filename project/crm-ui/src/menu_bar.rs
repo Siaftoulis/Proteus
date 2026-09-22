@@ -80,6 +80,25 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                         app.show_device_toolbar = !app.show_device_toolbar;
                         ui.close_menu();
                     }
+                    ui.separator();
+                    let touch_label = if app.viewport_profile.is_touch_device {
+                        "✓ Mobile Touch Profile (44pt)"
+                    } else {
+                        "  Mobile Touch Profile (44pt)"
+                    };
+                    if ui.button(touch_label).clicked() {
+                        app.viewport_profile = if app.viewport_profile.is_touch_device {
+                            crate::viewport::ViewportProfile::desktop()
+                        } else {
+                            crate::viewport::ViewportProfile::mobile_touch()
+                        };
+                        app.toast(if app.viewport_profile.is_touch_device {
+                            "Mobile Touch Profile (44pt) Active"
+                        } else {
+                            "Desktop Profile Active"
+                        });
+                        ui.close_menu();
+                    }
                 });
 
                 // Workspaces Menu

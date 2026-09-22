@@ -89,15 +89,24 @@ pub fn draw_intake_view(
                         ui.add_space(6.0);
 
                         ui.label("Ονοματεπώνυμο *");
-                        ui.add(egui::TextEdit::singleline(&mut state.customer_name).hint_text("π.χ. Νίκος Παπαδόπουλος").desired_width(f32::INFINITY));
+                        let name_resp = ui.add(egui::TextEdit::singleline(&mut state.customer_name).hint_text("π.χ. Νίκος Παπαδόπουλος").desired_width(f32::INFINITY));
+                        if name_resp.has_focus() {
+                            name_resp.scroll_to_me(Some(egui::Align::Center));
+                        }
                         ui.add_space(8.0);
 
                         ui.label("Τηλέφωνο Επικοινωνίας *");
-                        ui.add(egui::TextEdit::singleline(&mut state.customer_phone).hint_text("π.χ. 6971234567").desired_width(f32::INFINITY));
+                        let phone_resp = ui.add(egui::TextEdit::singleline(&mut state.customer_phone).hint_text("π.χ. 6971234567").desired_width(f32::INFINITY));
+                        if phone_resp.has_focus() {
+                            phone_resp.scroll_to_me(Some(egui::Align::Center));
+                        }
                         ui.add_space(8.0);
 
                         ui.label("Εκτίμηση Κόστους (€)");
-                        ui.add(egui::TextEdit::singleline(&mut state.estimated_cost_str).hint_text("π.χ. 45.00").desired_width(f32::INFINITY));
+                        let cost_resp = ui.add(egui::TextEdit::singleline(&mut state.estimated_cost_str).hint_text("π.χ. 45.00").desired_width(f32::INFINITY));
+                        if cost_resp.has_focus() {
+                            cost_resp.scroll_to_me(Some(egui::Align::Center));
+                        }
                     });
 
                     // Column 2: Device & Fault Details
@@ -106,15 +115,24 @@ pub fn draw_intake_view(
                         ui.add_space(6.0);
 
                         ui.label("Μοντέλο Συσκευής / Οχήματος *");
-                        ui.add(egui::TextEdit::singleline(&mut state.device_model).hint_text("π.χ. Samsung Galaxy S22 ή Crypton X").desired_width(f32::INFINITY));
+                        let model_resp = ui.add(egui::TextEdit::singleline(&mut state.device_model).hint_text("π.χ. Samsung Galaxy S22 ή Crypton X").desired_width(f32::INFINITY));
+                        if model_resp.has_focus() {
+                            model_resp.scroll_to_me(Some(egui::Align::Center));
+                        }
                         ui.add_space(8.0);
 
                         ui.label("Σειριακός Αριθμός / IMEI / Πινακίδα");
-                        ui.add(egui::TextEdit::singleline(&mut state.serial_number).hint_text("Προαιρετικό").desired_width(f32::INFINITY));
+                        let serial_resp = ui.add(egui::TextEdit::singleline(&mut state.serial_number).hint_text("Προαιρετικό").desired_width(f32::INFINITY));
+                        if serial_resp.has_focus() {
+                            serial_resp.scroll_to_me(Some(egui::Align::Center));
+                        }
                         ui.add_space(8.0);
 
                         ui.label("Περιγραφή Βλάβης *");
-                        ui.add(egui::TextEdit::multiline(&mut state.reported_fault).hint_text("Αναφορά συμπτωμάτων από τον πελάτη...").desired_rows(3).desired_width(f32::INFINITY));
+                        let fault_resp = ui.add(egui::TextEdit::multiline(&mut state.reported_fault).hint_text("Αναφορά συμπτωμάτων από τον πελάτη...").desired_rows(3).desired_width(f32::INFINITY));
+                        if fault_resp.has_focus() {
+                            fault_resp.scroll_to_me(Some(egui::Align::Center));
+                        }
                     });
                 });
             });
