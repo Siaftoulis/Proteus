@@ -1,0 +1,18 @@
+{
+  "name": "DashboardLayout",
+  "type": "layout",
+  "description": "Standard business operations dashboard layout with header, navigation, metric stats band, and split content grid",
+  "regions": [
+    { "name": "header", "required": true, "description": "Top brand bar with status indicator", "defaultComponent": "PDSHeader" },
+    { "name": "navigation", "required": false, "description": "Segmented view switcher or tab bar", "defaultComponent": "PDSNavTabs" },
+    { "name": "statsBanner", "required": false, "description": "Row or grid of KPI summary metrics", "defaultComponent": "PDSStatCard" },
+    { "name": "mainContent", "required": true, "description": "Primary content grid (tables, cards, queues)" },
+    { "name": "asidePanel", "required": false, "description": "Optional secondary drawer, filter sidebar, or context inspector" },
+    { "name": "footer", "required": false, "description": "Bottom metadata and copyright strip" }
+  ],
+  "responsive": {
+    "mobile": "Single column vertical stack",
+    "tablet": "Two-column grid with collapsible sidebar",
+    "desktop": "Full multi-column dashboard with persistent panels"
+  }
+}

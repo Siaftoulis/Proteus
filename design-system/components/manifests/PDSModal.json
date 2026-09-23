@@ -1,0 +1,21 @@
+{
+  "name": "PDSModal",
+  "type": "composite",
+  "description": "Centered dialog overlay with backdrop blur, title header, body area, and action footer",
+  "props": {
+    "title": { "type": "string", "required": true },
+    "subtitle": { "type": "string" },
+    "maxWidth": { "type": "string", "default": "520px" },
+    "isOpen": { "type": "boolean", "required": true }
+  },
+  "variants": {
+    "default": { "bg": "canvas.surface", "border": "border.subtle", "radius": "radius.lg", "shadow": "shadows.lg" }
+  },
+  "slots": ["headerBadge", "body", "footerActions"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "Modal dialog or backdrop overlay",
+    "desktop": "egui::Window with CornerRadius::same(12)"
+  }
+}

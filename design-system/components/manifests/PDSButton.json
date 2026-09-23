@@ -1,0 +1,28 @@
+{
+  "name": "PDSButton",
+  "type": "component",
+  "description": "Deterministic button component supporting interactive triggers, loading states, and icon slots",
+  "props": {
+    "variant": { "type": "string", "enum": ["primary", "secondary", "ghost", "destructive", "success"], "default": "primary" },
+    "size": { "type": "string", "enum": ["sm", "md", "lg"], "default": "md" },
+    "label": { "type": "string", "required": true },
+    "disabled": { "type": "boolean", "default": false },
+    "loading": { "type": "boolean", "default": false },
+    "icon": { "type": "string", "description": "Predefined icon identifier" },
+    "fullWidth": { "type": "boolean", "default": false }
+  },
+  "variants": {
+    "primary": { "bg": "brand.primary", "hover": "brand.primaryHover", "text": "text.main", "border": "none" },
+    "secondary": { "bg": "canvas.surface", "hover": "border.bright", "text": "text.main", "border": "border.subtle" },
+    "ghost": { "bg": "transparent", "hover": "canvas.surfaceHover", "text": "text.muted", "border": "none" },
+    "destructive": { "bg": "feedback.danger", "hover": "#dc2626", "text": "text.main", "border": "none" },
+    "success": { "bg": "feedback.success", "hover": "#059669", "text": "text.main", "border": "none" }
+  },
+  "slots": ["leadingIcon", "trailingIcon"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.btn",
+    "desktop": "crm-ui/src/components/ or egui::Button"
+  }
+}

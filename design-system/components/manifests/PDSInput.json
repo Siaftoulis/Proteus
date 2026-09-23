@@ -1,0 +1,25 @@
+{
+  "name": "PDSInput",
+  "type": "component",
+  "description": "Standard single-line text input with label, placeholder, error validation, and password masking",
+  "props": {
+    "type": { "type": "string", "enum": ["text", "email", "password", "number", "search"], "default": "text" },
+    "label": { "type": "string" },
+    "placeholder": { "type": "string" },
+    "value": { "type": "string", "required": true },
+    "disabled": { "type": "boolean", "default": false },
+    "error": { "type": "string" },
+    "helperText": { "type": "string" }
+  },
+  "variants": {
+    "default": { "bg": "canvas.base", "border": "border.subtle", "focusBorder": "border.focus", "radius": "radius.md" },
+    "error": { "bg": "canvas.base", "border": "feedback.danger", "radius": "radius.md" }
+  },
+  "slots": ["prefixIcon", "suffixIcon"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:input[type='text'], input[type='password']",
+    "desktop": "egui::TextEdit::singleline"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "PDSBadge",
+  "type": "component",
+  "description": "Compact metadata pill for status, category, version, and role indicators",
+  "props": {
+    "variant": { "type": "string", "enum": ["neutral", "info", "success", "warning", "danger", "purple"], "default": "neutral" },
+    "label": { "type": "string", "required": true },
+    "size": { "type": "string", "enum": ["sm", "md"], "default": "sm" }
+  },
+  "variants": {
+    "neutral": { "bg": "rgba(148, 163, 184, 0.15)", "text": "#94a3b8", "border": "rgba(148, 163, 184, 0.25)" },
+    "info": { "bg": "rgba(59, 130, 246, 0.15)", "text": "#60a5fa", "border": "rgba(59, 130, 246, 0.25)" },
+    "success": { "bg": "rgba(16, 185, 129, 0.15)", "text": "#34d399", "border": "rgba(16, 185, 129, 0.25)" },
+    "warning": { "bg": "rgba(245, 158, 11, 0.15)", "text": "#fbbf24", "border": "rgba(245, 158, 11, 0.25)" },
+    "danger": { "bg": "rgba(239, 68, 68, 0.15)", "text": "#f87171", "border": "rgba(239, 68, 68, 0.25)" },
+    "purple": { "bg": "rgba(168, 85, 247, 0.15)", "text": "#c084fc", "border": "rgba(168, 85, 247, 0.25)" }
+  },
+  "slots": ["leadingIcon"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.badge",
+    "desktop": "egui::Frame with CornerRadius::same(4)"
+  }
+}

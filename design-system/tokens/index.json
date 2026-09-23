@@ -1,0 +1,67 @@
+{
+  "version": "1.0.0",
+  "type": "bundle",
+  "description": "Unified Design Token bundle for the Proteus Ecosystem",
+  "tokens": {
+    "colors": {
+      "canvas": {
+        "base": "#0c0e14",
+        "surface": "#151821",
+        "surfaceHover": "#1b202e",
+        "surfaceActive": "#22283a"
+      },
+      "border": {
+        "subtle": "#262c3d",
+        "focus": "#3b82f6",
+        "bright": "#3b4661"
+      },
+      "text": {
+        "main": "#f1f5f9",
+        "muted": "#94a3b8",
+        "faint": "#64748b",
+        "inverse": "#0f172a"
+      },
+      "brand": {
+        "primary": "#3b82f6",
+        "primaryHover": "#2563eb",
+        "secondary": "#1e2436",
+        "accent": "#00f0ff"
+      },
+      "feedback": {
+        "success": "#10b981",
+        "successBg": "rgba(16, 185, 129, 0.12)",
+        "warning": "#f59e0b",
+        "warningBg": "rgba(245, 158, 11, 0.12)",
+        "danger": "#ef4444",
+        "dangerBg": "rgba(239, 68, 68, 0.12)",
+        "info": "#38bdf8",
+        "infoBg": "rgba(56, 189, 248, 0.12)"
+      }
+    },
+    "spacing": {
+      "none": "0px",
+      "xs": "4px",
+      "sm": "8px",
+      "md": "12px",
+      "lg": "16px",
+      "xl": "24px",
+      "2xl": "32px",
+      "3xl": "48px"
+    },
+    "radius": {
+      "none": "0px",
+      "xs": "4px",
+      "sm": "6px",
+      "md": "8px",
+      "lg": "12px",
+      "xl": "16px",
+      "full": "9999px"
+    },
+    "breakpoints": {
+      "mobile": "640px",
+      "tablet": "768px",
+      "desktop": "1024px",
+      "wide": "1280px"
+    }
+  }
+}

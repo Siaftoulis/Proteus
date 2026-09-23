@@ -1,0 +1,21 @@
+{
+  "name": "PDSNavTabs",
+  "type": "component",
+  "description": "Segmented tab bar controller for switching views and workspaces with active pill indicator",
+  "props": {
+    "tabs": { "type": "array", "required": true, "items": { "type": "object" } },
+    "activeTab": { "type": "string", "required": true },
+    "variant": { "type": "string", "enum": ["segmented", "underline"], "default": "segmented" }
+  },
+  "variants": {
+    "segmented": { "bg": "rgba(12, 14, 20, 0.7)", "border": "border.subtle", "activeBg": "brand.primary", "radius": "radius.md" },
+    "underline": { "bg": "transparent", "border": "none", "activeBorder": "brand.primary" }
+  },
+  "slots": [],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.nav-tabs",
+    "desktop": "proteus-client/src/app.rs top nav tab loop"
+  }
+}

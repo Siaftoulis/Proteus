@@ -1,0 +1,23 @@
+{
+  "name": "PDSCard",
+  "type": "component",
+  "description": "Standard surface container with smooth 12px corners, subtle borders, and optional hover elevation",
+  "props": {
+    "variant": { "type": "string", "enum": ["default", "interactive", "highlighted", "inset"], "default": "default" },
+    "padding": { "type": "string", "enum": ["sm", "md", "lg"], "default": "md" },
+    "radius": { "type": "string", "enum": ["md", "lg", "xl"], "default": "lg" }
+  },
+  "variants": {
+    "default": { "bg": "canvas.surface", "border": "border.subtle" },
+    "interactive": { "bg": "canvas.surface", "hoverBg": "canvas.surfaceHover", "border": "border.subtle", "hoverBorder": "border.focus" },
+    "highlighted": { "bg": "canvas.surface", "border": "brand.primary" },
+    "inset": { "bg": "canvas.base", "border": "border.subtle" }
+  },
+  "slots": ["header", "body", "footer"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.card",
+    "desktop": "egui::Frame with CornerRadius::same(12)"
+  }
+}

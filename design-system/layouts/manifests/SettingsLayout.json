@@ -1,0 +1,14 @@
+{
+  "name": "SettingsLayout",
+  "type": "layout",
+  "description": "Two-column split view for settings, hardware configuration, and enterprise governance",
+  "regions": [
+    { "name": "header", "required": true, "description": "Section title and description" },
+    { "name": "categoryNav", "required": false, "description": "Left category vertical list or tabs" },
+    { "name": "contentPanels", "required": true, "description": "Vertical stack of setting card sections" }
+  ],
+  "responsive": {
+    "mobile": "Single column vertical scroll",
+    "desktop": "Two-column responsive card layout"
+  }
+}

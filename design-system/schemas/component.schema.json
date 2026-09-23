@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ComponentManifestSchema",
+  "description": "Schema for machine-readable UI component manifests",
+  "type": "object",
+  "required": ["name", "type", "description", "props", "variants", "responsive", "accessible"],
+  "properties": {
+    "name": { "type": "string" },
+    "type": { "type": "string", "enum": ["primitive", "component", "composite"] },
+    "description": { "type": "string" },
+    "props": { "type": "object" },
+    "variants": { "type": "object" },
+    "slots": { "type": "array", "items": { "type": "string" } },
+    "responsive": { "type": "boolean" },
+    "accessible": { "type": "boolean" },
+    "implementation": {
+      "type": "object",
+      "properties": {
+        "web": { "type": "string" },
+        "desktop": { "type": "string" }
+      }
+    }
+  }
+}

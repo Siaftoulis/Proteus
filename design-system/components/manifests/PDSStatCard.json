@@ -1,0 +1,23 @@
+{
+  "name": "PDSStatCard",
+  "type": "component",
+  "description": "High-impact KPI summary card displaying a large quantitative value, metric label, and optional status indicator",
+  "props": {
+    "title": { "type": "string", "required": true },
+    "value": { "type": "string", "required": true },
+    "subtitle": { "type": "string" },
+    "trend": { "type": "string", "enum": ["up", "down", "neutral"] },
+    "trendValue": { "type": "string" }
+  },
+  "variants": {
+    "default": { "bg": "canvas.base", "border": "border.subtle", "radius": "radius.md" },
+    "highlight": { "bg": "canvas.surface", "border": "border.focus", "radius": "radius.md" }
+  },
+  "slots": ["headerBadge"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.stat-item",
+    "desktop": "crm-ui/src/components/ or egui::Frame"
+  }
+}

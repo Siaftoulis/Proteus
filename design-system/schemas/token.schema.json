@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DesignTokensSchema",
+  "description": "Schema for deterministic design tokens across the Proteus ecosystem",
+  "type": "object",
+  "required": ["version", "type", "tokens"],
+  "properties": {
+    "version": { "type": "string" },
+    "type": { "type": "string", "enum": ["colors", "spacing", "typography", "radius", "shadows", "breakpoints", "motion", "bundle"] },
+    "tokens": { "type": "object" }
+  }
+}

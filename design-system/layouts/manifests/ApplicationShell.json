@@ -1,0 +1,16 @@
+{
+  "name": "ApplicationShell",
+  "type": "layout",
+  "description": "Native desktop application shell coordinating menu bar, command bar, left explorer panel, central workspace canvas, and right property inspector",
+  "regions": [
+    { "name": "topMenuBar", "required": true, "description": "Native OS application menu with keyboard shortcuts" },
+    { "name": "commandBar", "required": true, "description": "Quick actions, project title, and mode switcher" },
+    { "name": "leftSidebar", "required": false, "description": "Layer tree, entity explorer, or tool palette" },
+    { "name": "centralWorkspace", "required": true, "description": "Infinite 2D canvas, form editor, or visual DAG builder" },
+    { "name": "rightInspector", "required": false, "description": "Node attributes, style properties, and quick guides" },
+    { "name": "statusBar", "required": false, "description": "VRR indicator, Merkle sync state, and zoom level" }
+  ],
+  "responsive": {
+    "desktop": "Multi-pane desktop dock with resizable and collapsible side panels"
+  }
+}

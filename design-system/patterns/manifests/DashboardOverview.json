@@ -1,0 +1,28 @@
+{
+  "name": "DashboardOverview",
+  "type": "pattern",
+  "description": "Pre-composed dashboard archetype combining KPI summary cards, live service ticket list, and subscription pricing calculator",
+  "layout": "DashboardLayout",
+  "components": [
+    "PDSHeader",
+    "PDSStatCard",
+    "PDSCard",
+    "PDSBadge",
+    "PDSDataTable",
+    "PDSInput"
+  ],
+  "compositionRules": [
+    "Render PDSHeader with online status pill in region 'header'",
+    "Render 4 PDSStatCard items (Total, Active, Ready, SQLite Sync) in region 'statsBanner'",
+    "Render 2-column grid in region 'mainContent': Left=Recent Tickets list (PDSDataTable), Right=Subscription Pricing Calculator (PDSCard + Sliders)"
+  ],
+  "samplePayload": {
+    "title": "Επισκόπηση Συστήματος Proteus",
+    "metrics": [
+      { "title": "ΣΥΝΟΛΙΚΕΣ ΠΑΡΑΛΑΒΕΣ", "value": "128" },
+      { "title": "ΣΕ ΕΠΙΣΚΕΥΗ", "value": "14" },
+      { "title": "ΕΤΟΙΜΕΣ ΠΡΟΣ ΠΑΡΑΔΟΣΗ", "value": "9" },
+      { "title": "ΤΟΠΙΚΗ ΒΑΣΗ (SQLITE)", "value": "100%" }
+    ]
+  }
+}

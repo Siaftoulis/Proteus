@@ -1,0 +1,22 @@
+{
+  "name": "SettingsManager",
+  "type": "pattern",
+  "description": "Pre-composed terminal administration pattern grouping thermal printer hardware, local database path, template browser, and license verification",
+  "layout": "SettingsLayout",
+  "components": [
+    "PDSCard",
+    "PDSInput",
+    "PDSButton",
+    "PDSBadge"
+  ],
+  "compositionRules": [
+    "Section 1: Hardware Receipt & Thermal Printer configuration",
+    "Section 2: Local SQLite Database Path & storage optimization parameters",
+    "Section 3: Declarative .pr Package Mounting list with 1-click install triggers",
+    "Section 4: License Key activation & hardware node ID lock status"
+  ],
+  "samplePayload": {
+    "title": "Ρυθμίσεις Συστήματος & Τερματικού",
+    "printer": "POS-80"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "name": "ProteusDesignSystem",
+  "version": "1.0.0",
+  "description": "Authoritative machine-readable registry and source of truth for deterministic UI assembly across the Proteus ecosystem",
+  "tokens": {
+    "bundle": "tokens/index.json",
+    "categories": {
+      "colors": "tokens/colors.json",
+      "spacing": "tokens/spacing.json",
+      "typography": "tokens/typography.json",
+      "radius": "tokens/radius.json",
+      "shadows": "tokens/shadows.json",
+      "breakpoints": "tokens/breakpoints.json",
+      "motion": "tokens/motion.json"
+    }
+  },
+  "components": [
+    {
+      "name": "PDSButton",
+      "manifest": "components/manifests/PDSButton.json",
+      "variants": ["primary", "secondary", "ghost", "destructive", "success"],
+      "sizes": ["sm", "md", "lg"]
+    },
+    {
+      "name": "PDSCard",
+      "manifest": "components/manifests/PDSCard.json",
+      "variants": ["default", "interactive", "highlighted", "inset"],
+      "radius": "radius.lg"
+    },
+    {
+      "name": "PDSInput",
+      "manifest": "components/manifests/PDSInput.json",
+      "variants": ["default", "error"],
+      "types": ["text", "email", "password", "number", "search"]
+    },
+    {
+      "name": "PDSBadge",
+      "manifest": "components/manifests/PDSBadge.json",
+      "variants": ["neutral", "info", "success", "warning", "danger", "purple"]
+    },
+    {
+      "name": "PDSStatCard",
+      "manifest": "components/manifests/PDSStatCard.json",
+      "variants": ["default", "highlight"]
+    },
+    {
+      "name": "PDSDataTable",
+      "manifest": "components/manifests/PDSDataTable.json",
+      "variants": ["default"]
+    },
+    {
+      "name": "PDSModal",
+      "manifest": "components/manifests/PDSModal.json",
+      "variants": ["default"]
+    },
+    {
+      "name": "PDSNavTabs",
+      "manifest": "components/manifests/PDSNavTabs.json",
+      "variants": ["segmented", "underline"]
+    },
+    {
+      "name": "PDSHeader",
+      "manifest": "components/manifests/PDSHeader.json",
+      "variants": ["default"]
+    }
+  ],
+  "layouts": [
+    { "name": "DashboardLayout", "manifest": "layouts/manifests/DashboardLayout.json" },
+    { "name": "ApplicationShell", "manifest": "layouts/manifests/ApplicationShell.json" },
+    { "name": "AuthLayout", "manifest": "layouts/manifests/AuthLayout.json" },
+    { "name": "SettingsLayout", "manifest": "layouts/manifests/SettingsLayout.json" },
+    { "name": "MarketplaceLayout", "manifest": "layouts/manifests/MarketplaceLayout.json" }
+  ],
+  "patterns": [
+    { "name": "DashboardOverview", "manifest": "patterns/manifests/DashboardOverview.json" },
+    { "name": "WorkspaceLauncher", "manifest": "patterns/manifests/WorkspaceLauncher.json" },
+    { "name": "MarketplaceCatalog", "manifest": "patterns/manifests/MarketplaceCatalog.json" },
+    { "name": "SettingsManager", "manifest": "patterns/manifests/SettingsManager.json" }
+  ],
+  "schemas": {
+    "token": "schemas/token.schema.json",
+    "component": "schemas/component.schema.json",
+    "layout": "schemas/layout.schema.json",
+    "pattern": "schemas/pattern.schema.json"
+  },
+  "references": {
+    "rules": "rules.md",
+    "visualDesign": "references/visual-design.md",
+    "accessibility": "references/accessibility.md",
+    "compositionGuide": "references/composition-guide.md"
+  }
+}

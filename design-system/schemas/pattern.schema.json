@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PagePatternManifestSchema",
+  "description": "Schema for machine-readable page pattern manifests",
+  "type": "object",
+  "required": ["name", "type", "description", "layout", "components", "samplePayload"],
+  "properties": {
+    "name": { "type": "string" },
+    "type": { "type": "string", "enum": ["pattern"] },
+    "description": { "type": "string" },
+    "layout": { "type": "string" },
+    "components": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "compositionRules": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "samplePayload": { "type": "object" }
+  }
+}

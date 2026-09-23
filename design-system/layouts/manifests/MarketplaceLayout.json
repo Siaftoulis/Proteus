@@ -1,0 +1,16 @@
+{
+  "name": "MarketplaceLayout",
+  "type": "layout",
+  "description": "Ecosystem marketplace layout with category filter bar, product card grid, and detail preview modal",
+  "regions": [
+    { "name": "header", "required": true, "description": "Marketplace title and partner certification indicator" },
+    { "name": "filterToolbar", "required": true, "description": "Category tags, search input, and sorting" },
+    { "name": "cardGrid", "required": true, "description": "Responsive 2-column or 3-column package grid" },
+    { "name": "detailModal", "required": false, "description": "Package inspection and 1-click mount trigger" }
+  ],
+  "responsive": {
+    "mobile": "Single column card list",
+    "tablet": "Two-column grid (minmax 320px)",
+    "desktop": "Three-column grid with sticky toolbar"
+  }
+}

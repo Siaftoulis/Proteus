@@ -1,0 +1,15 @@
+{
+  "name": "AuthLayout",
+  "type": "layout",
+  "description": "Minimalist centered card layout for authentication, launcher verification, and project selection",
+  "regions": [
+    { "name": "ambientBackground", "required": true, "description": "Subtle deep dark backdrop (0c0e14)" },
+    { "name": "brandHeader", "required": true, "description": "Brand pill and gateway subtitle" },
+    { "name": "authCard", "required": true, "description": "Centered 12px smooth-corner card container" },
+    { "name": "footerLinks", "required": false, "description": "Terms, registration link, or version badge" }
+  ],
+  "responsive": {
+    "mobile": "Edge-to-edge padded card (16px margins)",
+    "desktop": "Fixed width 480px-520px centered card"
+  }
+}

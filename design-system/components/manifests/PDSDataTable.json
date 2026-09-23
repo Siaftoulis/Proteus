@@ -1,0 +1,22 @@
+{
+  "name": "PDSDataTable",
+  "type": "composite",
+  "description": "Structured tabular grid for displaying CRM records, tickets, audit events, or marketplace listings",
+  "props": {
+    "columns": { "type": "array", "required": true, "items": { "type": "object" } },
+    "data": { "type": "array", "required": true },
+    "maxHeight": { "type": "string", "default": "400px" },
+    "selectable": { "type": "boolean", "default": false },
+    "emptyMessage": { "type": "string", "default": "Δεν υπάρχουν καταχωρημένες εγγραφές." }
+  },
+  "variants": {
+    "default": { "border": "border.subtle", "rowHover": "rgba(255, 255, 255, 0.02)" }
+  },
+  "slots": ["headerToolbar", "rowActions", "emptyState"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.tier-scale-table or .ticket-list",
+    "desktop": "egui_extras::TableBuilder"
+  }
+}

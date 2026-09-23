@@ -1,0 +1,21 @@
+{
+  "name": "PDSHeader",
+  "type": "composite",
+  "description": "Top-level application and portal header with brand badge, navigation bar, and status indicator",
+  "props": {
+    "brandTitle": { "type": "string", "default": "PROTEUS" },
+    "brandBadge": { "type": "string", "default": "BOS" },
+    "statusText": { "type": "string" },
+    "statusOnline": { "type": "boolean", "default": true }
+  },
+  "variants": {
+    "default": { "bg": "rgba(21, 24, 33, 0.9)", "borderBottom": "border.subtle", "backdropFilter": "blur(10px)" }
+  },
+  "slots": ["brandAddon", "navigation", "userActions"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui.rs:header",
+    "desktop": "proteus-client/src/app.rs:TopBottomPanel::top"
+  }
+}

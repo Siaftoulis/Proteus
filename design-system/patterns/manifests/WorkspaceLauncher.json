@@ -1,0 +1,21 @@
+{
+  "name": "WorkspaceLauncher",
+  "type": "pattern",
+  "description": "Deterministic authentication & project selector launcher pattern for the desktop terminal",
+  "layout": "AuthLayout",
+  "components": [
+    "PDSCard",
+    "PDSInput",
+    "PDSButton",
+    "PDSBadge"
+  ],
+  "compositionRules": [
+    "Stage 1: Render credentials card with Email, Password, 'Είσοδος' button, Google OAuth alternative, and Portal registration link",
+    "Stage 2: Render CRM Project selection card with radio items for purchased packages (Automotive, Retail POS, Clinic, Moto, Designer Studio), Operator Role picker, and 'Εκκίνηση' action button"
+  ],
+  "samplePayload": {
+    "title": "PROTEUS LAUNCHER",
+    "stage": 1,
+    "defaultEmail": "demo@company.com"
+  }
+}

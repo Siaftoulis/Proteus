@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "components": [
+    { "name": "PDSButton", "manifest": "components/manifests/PDSButton.json", "category": "actions" },
+    { "name": "PDSCard", "manifest": "components/manifests/PDSCard.json", "category": "surfaces" },
+    { "name": "PDSInput", "manifest": "components/manifests/PDSInput.json", "category": "forms" },
+    { "name": "PDSBadge", "manifest": "components/manifests/PDSBadge.json", "category": "data-display" },
+    { "name": "PDSStatCard", "manifest": "components/manifests/PDSStatCard.json", "category": "metrics" },
+    { "name": "PDSDataTable", "manifest": "components/manifests/PDSDataTable.json", "category": "data-display" },
+    { "name": "PDSModal", "manifest": "components/manifests/PDSModal.json", "category": "overlays" },
+    { "name": "PDSNavTabs", "manifest": "components/manifests/PDSNavTabs.json", "category": "navigation" },
+    { "name": "PDSHeader", "manifest": "components/manifests/PDSHeader.json", "category": "navigation" }
+  ]
+}

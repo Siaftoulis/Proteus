@@ -1,0 +1,22 @@
+{
+  "name": "MarketplaceCatalog",
+  "type": "pattern",
+  "description": "Pre-composed marketplace catalog pattern for exploring verified .pr business packages with category filters and install triggers",
+  "layout": "MarketplaceLayout",
+  "components": [
+    "PDSHeader",
+    "PDSButton",
+    "PDSCard",
+    "PDSBadge",
+    "PDSModal"
+  ],
+  "compositionRules": [
+    "Render category filter pill buttons (All, Automotive, Retail, Healthcare) in 'filterToolbar'",
+    "Render 2-column or 3-column responsive card grid of verified packages in 'cardGrid'",
+    "Each package card displays title, description, category badge, version, price in EUR, and 'Εγκατάσταση' trigger"
+  ],
+  "samplePayload": {
+    "title": "Proteus Package Marketplace",
+    "categories": ["All", "Automotive", "Retail", "Healthcare"]
+  }
+}

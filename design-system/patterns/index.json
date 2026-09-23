@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "patterns": [
+    { "name": "DashboardOverview", "manifest": "patterns/manifests/DashboardOverview.json", "target": "Web & Client" },
+    { "name": "WorkspaceLauncher", "manifest": "patterns/manifests/WorkspaceLauncher.json", "target": "Client Runtime" },
+    { "name": "MarketplaceCatalog", "manifest": "patterns/manifests/MarketplaceCatalog.json", "target": "Marketplace Hub" },
+    { "name": "SettingsManager", "manifest": "patterns/manifests/SettingsManager.json", "target": "Terminal Admin" }
+  ]
+}
