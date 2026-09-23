@@ -1,3 +1,5 @@
+#![cfg_attr(not(test), windows_subsystem = "windows")]
+
 //! Proteus Web & Marketplace Server (proteus-web).
 //! Web Portal, Landing Showcase, Gated Compilation API, and Digital Contracts Hub.
 

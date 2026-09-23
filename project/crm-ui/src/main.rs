@@ -1,3 +1,5 @@
+#![cfg_attr(not(test), windows_subsystem = "windows")]
+
 //! Proteus UI & Designer Studio main entry point.
 //! Initializes eframe native window and coordinates the UI layout.
 
