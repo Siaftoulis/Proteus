@@ -12,15 +12,17 @@ pub async fn index_page_handler() -> Html<&'static str> {
 }
 
 fn build_index_html() -> String {
-    let mut out = String::with_capacity(40960);
+    let mut out = String::with_capacity(49152);
     out.push_str(HTML_HEAD_START);
     out.push_str(crate::ui_css::CSS_STYLES);
     out.push_str(HTML_NAV_AND_OVERVIEW);
     out.push_str(crate::ui_marketplace::MARKETPLACE_HTML);
+    out.push_str(crate::ui_freelance::FREELANCE_HTML);
     out.push_str(crate::ui_certifications::CERTIFICATIONS_HTML);
     out.push_str(crate::ui_contracts::CONTRACTS_HTML);
     out.push_str(HTML_PRICING_AND_SCRIPTS_START);
     out.push_str(crate::ui_marketplace::MARKETPLACE_JS);
+    out.push_str(crate::ui_freelance::FREELANCE_JS);
     out.push_str(crate::ui_certifications::CERTIFICATIONS_JS);
     out.push_str(crate::ui_contracts::CONTRACTS_JS);
     out.push_str(HTML_SCRIPTS_END);
@@ -52,7 +54,9 @@ const HTML_NAV_AND_OVERVIEW: &str = r#"
             <nav class="nav-tabs">
                 <button class="tab-btn active" onclick="switchTab('overview', this)">📊 Επισκόπηση</button>
                 <button class="tab-btn" onclick="switchTab('marketplace', this)">🛒 Marketplace</button>
-                <button class="tab-btn" onclick="switchTab('certifications', this)">🎓 Πιστοποιήσεις & Tiers</button>
+                <button class="tab-btn" onclick="switchTab('account', this)">👥 Λογαριασμός & Ρόλοι</button>
+                <button class="tab-btn" onclick="switchTab('freelance', this)">💼 Freelancing Hub</button>
+                <button class="tab-btn" onclick="switchTab('certifications', this)">🎓 Πιστοποιήσεις</button>
                 <button class="tab-btn" onclick="switchTab('contracts', this)">📜 Συμβόλαια SLA</button>
                 <button class="tab-btn" onclick="switchTab('pricing', this)">⚡ Κοστολόγηση</button>
             </nav>

@@ -295,6 +295,13 @@ impl eframe::App for ProteusClientApp {
                             self.auth_state.logout();
                         }
                         if ui
+                            .button(RichText::new("🔄 Αλλαγή CRM").size(11.0))
+                            .on_hover_text("Επιλογή άλλου CRM project από τον Launcher")
+                            .clicked()
+                        {
+                            self.auth_state.switch_project();
+                        }
+                        if ui
                             .button(RichText::new("🔒 Κλείδωμα").size(11.0))
                             .on_hover_text("Κλείδωμα τερματικού (Απαιτεί Master / Staff PIN)")
                             .clicked()

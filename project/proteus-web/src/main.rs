@@ -8,6 +8,7 @@ mod ui;
 mod ui_certifications;
 mod ui_contracts;
 mod ui_css;
+mod ui_freelance;
 mod ui_marketplace;
 
 use axum::{
