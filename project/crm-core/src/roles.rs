@@ -11,6 +11,7 @@ pub enum UserRole {
     SalesConsultant,
     Developer,
     BusinessAnalyst,
+    DataAnalyst,
 }
 
 impl UserRole {
@@ -22,6 +23,7 @@ impl UserRole {
             UserRole::SalesConsultant,
             UserRole::Developer,
             UserRole::BusinessAnalyst,
+            UserRole::DataAnalyst,
         ]
     }
 
@@ -32,7 +34,8 @@ impl UserRole {
             Self::Technician => "🛠 Τεχνικός Εργαστηρίου",
             Self::SalesConsultant => "📋 Σύμβουλος Πωλήσεων & SLA",
             Self::Developer => "💻 Προγραμματιστής & Schema Architect",
-            Self::BusinessAnalyst => "📊 Business & Data Analyst (PCDA)",
+            Self::BusinessAnalyst => "📊 Business Analyst (PCBA)",
+            Self::DataAnalyst => "📈 Data Analyst & Architect (PCDA)",
         }
     }
 
@@ -43,7 +46,8 @@ impl UserRole {
             Self::Technician => "TECH",
             Self::SalesConsultant => "SALES",
             Self::Developer => "DEV",
-            Self::BusinessAnalyst => "ANALYST",
+            Self::BusinessAnalyst => "BA",
+            Self::DataAnalyst => "DA",
         }
     }
 
@@ -116,6 +120,19 @@ impl UserRole {
             },
             Self::BusinessAnalyst => RolePermissions {
                 can_view_audit_trail: true,
+                can_view_financials: true,
+                can_edit_schema: false,
+                can_intake_tickets: false,
+                can_manage_pipeline: false,
+                can_edit_technical_notes: false,
+                can_manage_contracts: true,
+                can_book_appointments: false,
+                can_manage_settings: false,
+                can_infer_schemas: false,
+                can_define_business_rules: true,
+            },
+            Self::DataAnalyst => RolePermissions {
+                can_view_audit_trail: true,
                 can_view_financials: false,
                 can_edit_schema: true,
                 can_intake_tickets: false,
@@ -177,11 +194,25 @@ mod tests {
     #[test]
     fn test_business_analyst_permissions() {
         let p = UserRole::BusinessAnalyst.permissions();
+        assert!(!p.can_infer_schemas);
+        assert!(p.can_define_business_rules);
+        assert!(p.can_view_audit_trail);
+        assert!(!p.can_edit_schema);
+        assert!(p.can_view_financials);
+        assert!(p.can_manage_contracts);
+        assert!(!p.can_intake_tickets);
+        assert!(!p.can_manage_settings);
+    }
+
+    #[test]
+    fn test_data_analyst_permissions() {
+        let p = UserRole::DataAnalyst.permissions();
         assert!(p.can_infer_schemas);
         assert!(p.can_define_business_rules);
         assert!(p.can_view_audit_trail);
         assert!(p.can_edit_schema);
         assert!(!p.can_view_financials);
+        assert!(!p.can_manage_contracts);
         assert!(!p.can_intake_tickets);
         assert!(!p.can_manage_settings);
     }

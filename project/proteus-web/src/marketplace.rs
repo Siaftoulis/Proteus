@@ -209,17 +209,22 @@ pub fn get_licensed_packages_for_account(account_email: &str) -> Vec<Marketplace
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CertificationTrack {
     PcdDesigner,           // Proteus Certified Designer
+    PcbaBusinessAnalyst,   // Proteus Certified Business Analyst
+    PcdaDataAnalyst,       // Proteus Certified Data Analyst
     PcssSystemsDb,         // Proteus Certified Systems & DB Specialist
     PcdsDeployerSupport,   // Proteus Certified Deployer / Support Specialist
-    PcdaBusinessAnalyst,   // Proteus Certified Data/Business Analyst
-    AllInOneBundle,        // Master Bundle (All 4 Certifications)
+    AllInOneBundle,        // Master Bundle (All Certifications)
 }
 
 #[allow(dead_code)]
 impl CertificationTrack {
     pub fn exam_fee_eur(&self) -> f64 {
         match self {
-            Self::PcdDesigner | Self::PcssSystemsDb | Self::PcdsDeployerSupport | Self::PcdaBusinessAnalyst => 79.0,
+            Self::PcdDesigner
+            | Self::PcbaBusinessAnalyst
+            | Self::PcdaDataAnalyst
+            | Self::PcssSystemsDb
+            | Self::PcdsDeployerSupport => 79.0,
             Self::AllInOneBundle => 149.0,
         }
     }
@@ -231,10 +236,11 @@ impl CertificationTrack {
     pub fn title(&self) -> &'static str {
         match self {
             Self::PcdDesigner => "PCD — Proteus Certified Designer",
+            Self::PcbaBusinessAnalyst => "PCBA — Proteus Certified Business Analyst",
+            Self::PcdaDataAnalyst => "PCDA — Proteus Certified Data Analyst",
             Self::PcssSystemsDb => "PCSS — Proteus Certified Systems & DB Specialist",
             Self::PcdsDeployerSupport => "PCDS — Proteus Certified Deployer / Support Specialist",
-            Self::PcdaBusinessAnalyst => "PCDA — Proteus Certified Data/Business Analyst",
-            Self::AllInOneBundle => "Proteus Master Bundle (PCD + PCSS + PCDS + PCDA)",
+            Self::AllInOneBundle => "Proteus Master Bundle (PCD + PCBA + PCDA + PCSS + PCDS)",
         }
     }
 }
@@ -297,11 +303,12 @@ mod tests {
     #[test]
     fn test_certification_tracks_pricing() {
         assert_eq!(CertificationTrack::PcdDesigner.exam_fee_eur(), 79.0);
+        assert_eq!(CertificationTrack::PcbaBusinessAnalyst.exam_fee_eur(), 79.0);
+        assert_eq!(CertificationTrack::PcdaDataAnalyst.exam_fee_eur(), 79.0);
         assert_eq!(CertificationTrack::PcssSystemsDb.exam_fee_eur(), 79.0);
         assert_eq!(CertificationTrack::PcdsDeployerSupport.exam_fee_eur(), 79.0);
-        assert_eq!(CertificationTrack::PcdaBusinessAnalyst.exam_fee_eur(), 79.0);
         assert_eq!(CertificationTrack::AllInOneBundle.exam_fee_eur(), 149.0);
-        assert_eq!(CertificationTrack::PcdaBusinessAnalyst.annual_badge_fee_eur(), 39.0);
+        assert_eq!(CertificationTrack::PcdaDataAnalyst.annual_badge_fee_eur(), 39.0);
     }
 
     #[test]

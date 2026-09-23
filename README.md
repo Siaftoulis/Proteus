@@ -31,26 +31,40 @@ Our philosophy is simple: **No premature abstractions and a true offline-first a
 
 ---
 
+## Ecosystem Architecture & 6-Role Specialization
+
+The Proteus ecosystem operates across 4 interconnected tiers (`crm-core`, `crm-ui`, `proteus-client`, `proteus-web`) with 6 distinct roles:
+1. **Customer Support (CS)**: Client onboarding, profile intake, and quote proposal management.
+2. **Business Analyst (BA)**: Operational workflow blueprints, business logic, SLAs, and approval hierarchies.
+3. **Data Analyst & Architect (DA)**: SQLite schema design, foreign keys, triggers, validation rules, and data migration.
+4. **UI/UX Designer (PCD)**: Desktop & POS layout design, Penpot-standard styling, component tokens, and user experience.
+5. **IT & Systems Specialist (PCSS)**: Enterprise LAN mesh networking, Merkle audit trails, outbox replication, and backups.
+6. **Field Support Deployer (PCDS)**: On-site hardware calibration (ESC/POS thermal printer, cash drawer kick, barcode scanner) and activation handshake.
+
+### Commercial Models & Anti-Scam Protection
+- **No Direct Export**: PDS never exports unencrypted `.pr` bundles directly; all delivery runs through `proteus-web`.
+- **Bare Minimum Floor Engine**: Algorithmic floor pricing based on project complexity prevents under-the-table evasion.
+- **Project Slot Board**: Small businesses with constrained budgets post their project as an open 6-slot board with automated escrow allocation, enabling community freelancers to accept offers or bid competitively.
+- **Hardware-Locked DRM**: Packages compile strictly bound to the store's unique Machine ID with SHA-256 certificate validation.
+
+---
+
 ## Roadmap & Tasks Checklist
 
 ### Active Items (Current Sprint)
-- [x] Designer — 8-point resize handles.
-- [x] Designer — Right-click context menus.
+- [x] Designer — 8-point resize handles & context menus.
+- [x] Client — Clean role-driven workspace navigation (`SHOP`, `BA`, `DA`, `PCSS`, `PCDS`, `HQ`).
+- [x] Web — Professional company services, workshops, and talent marketplace portal.
+- [x] Core — RBAC separation of Business Analyst (`BA`) and Data Analyst (`DA`).
+- [ ] **Slot Board & Bidding Engine (`proteus-web`)**: Interactive project slot board UI with dynamic escrow splits and instant accept offers (P0).
+- [ ] **Complexity Floor Calculator (`crm-core`)**: Automated formula calculating minimum project value based on screen, entity, trigger, and hardware counts (P0).
 - [ ] **Data Model Engine**: Standardize the `records` table for all entities (EAV pattern) and build the `DataEngine` inside `crm-core` (P0).
 - [ ] **Data-bound Widgets**: Develop `DataBoundTable` and `DynamicForm` widgets that read/write directly to SQLite instead of using mock data (P0).
-- [ ] **Flow Runtime Engine**: Implement a synchronous DAG (Directed Acyclic Graph) walker in Rust to actually execute the defined automation flows (P1).
-- [ ] **Designer Mechanics**: Add keyboard shortcuts (Ctrl+C/V/D), Undo/Redo command stack, and multi-select.
 
 ### Mid-Term Goals (Next Steps)
 - [ ] **Live Data Preview**: Visualize real database data within the Designer mode.
-- [ ] **Advanced Flow Actions**: Add specific nodes for sending emails, firing webhooks, and nesting sub-flows.
-- [ ] **Data Import/Export**: CSV/Excel import for Contacts and Deals.
-- [ ] **Pipeline Upgrades**: Custom user-defined Kanban stages and forecasting.
-
-### Long-Term Platform Goals
-- [ ] **Cloud Sync & Auth**: Google OAuth integration and REST API cloud sync via the backend `license-server`.
-- [ ] **WASM Plugin System**: Allow third-party extensibility.
-- [ ] **Multi-Project Management**: Support for switching between different CRM workspaces seamlessly.
+- [ ] **Flow Runtime Engine**: Implement a synchronous DAG walker in Rust to execute defined automation flows.
+- [ ] **Hardware Calibration Suite**: Interactive visual tester in PCDS for ESC/POS baud rate, cut type, and drawer pin.
 
 ---
 

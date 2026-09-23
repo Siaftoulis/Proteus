@@ -64,12 +64,14 @@ impl RoleWorkspace {
                 }
             }
             Self::AnalystStudio => {
-                if permissions.can_infer_schemas || permissions.can_define_business_rules {
+                if permissions.can_infer_schemas {
                     tabs.push((NavTab::AnalystStudio, "📊 Ingestion & Pipeline"));
                 }
-                if active_role == UserRole::Ceo
+                if permissions.can_define_business_rules
+                    || active_role == UserRole::Ceo
                     || active_role == UserRole::SalesConsultant
                     || active_role == UserRole::BusinessAnalyst
+                    || active_role == UserRole::DataAnalyst
                 {
                     tabs.push((NavTab::Specialist, "📈 Ειδικά Dashboards"));
                 }
@@ -94,7 +96,7 @@ impl RoleWorkspace {
                 }
             }
             Self::EnterpriseHQ => {
-                if active_role == UserRole::Ceo {
+                if active_role == UserRole::Ceo || active_role == UserRole::BusinessAnalyst {
                     tabs.push((NavTab::EnterpriseHQ, "🏢 Multi-Store Fleet"));
                     tabs.push((NavTab::StoreDirector, "🏪 Store Director KPIs"));
                 }
@@ -110,7 +112,13 @@ impl RoleWorkspace {
         } else {
             match self {
                 Self::ShopCounter => NavTab::Pipeline,
-                Self::AnalystStudio => NavTab::AnalystStudio,
+                Self::AnalystStudio => {
+                    if permissions.can_infer_schemas {
+                        NavTab::AnalystStudio
+                    } else {
+                        NavTab::Specialist
+                    }
+                }
                 Self::SystemsIT => NavTab::Developer,
                 Self::HardwareSupport => NavTab::Support,
                 Self::EnterpriseHQ => NavTab::EnterpriseHQ,
@@ -129,7 +137,8 @@ pub fn available_workspaces(role: UserRole) -> Vec<RoleWorkspace> {
             RoleWorkspace::HardwareSupport,
             RoleWorkspace::AnalystStudio,
         ],
-        UserRole::BusinessAnalyst => vec![RoleWorkspace::AnalystStudio, RoleWorkspace::SystemsIT],
+        UserRole::BusinessAnalyst => vec![RoleWorkspace::AnalystStudio, RoleWorkspace::EnterpriseHQ],
+        UserRole::DataAnalyst => vec![RoleWorkspace::AnalystStudio, RoleWorkspace::SystemsIT],
         UserRole::Ceo => vec![
             RoleWorkspace::ShopCounter,
             RoleWorkspace::AnalystStudio,
@@ -212,11 +221,25 @@ mod tests {
         let ws = available_workspaces(UserRole::BusinessAnalyst);
         assert_eq!(
             ws,
-            vec![RoleWorkspace::AnalystStudio, RoleWorkspace::SystemsIT]
+            vec![RoleWorkspace::AnalystStudio, RoleWorkspace::EnterpriseHQ]
         );
 
         let p = UserRole::BusinessAnalyst.permissions();
         let studio_tabs = RoleWorkspace::AnalystStudio.sub_tabs(&p, UserRole::BusinessAnalyst);
+        assert_eq!(studio_tabs.len(), 1);
+        assert_eq!(studio_tabs[0].0, NavTab::Specialist);
+    }
+
+    #[test]
+    fn test_data_analyst_workspaces() {
+        let ws = available_workspaces(UserRole::DataAnalyst);
+        assert_eq!(
+            ws,
+            vec![RoleWorkspace::AnalystStudio, RoleWorkspace::SystemsIT]
+        );
+
+        let p = UserRole::DataAnalyst.permissions();
+        let studio_tabs = RoleWorkspace::AnalystStudio.sub_tabs(&p, UserRole::DataAnalyst);
         assert_eq!(studio_tabs.len(), 2);
         assert_eq!(studio_tabs[0].0, NavTab::AnalystStudio);
         assert_eq!(studio_tabs[1].0, NavTab::Specialist);

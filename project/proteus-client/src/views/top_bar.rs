@@ -77,7 +77,8 @@ pub fn render_top_bar(ctx: &egui::Context, state: &mut TopBarState<'_>) {
                                     UserRole::Technician => "Νίκος (Τεχνικός)".to_string(),
                                     UserRole::SalesConsultant => "Κώστας (Sales)".to_string(),
                                     UserRole::Developer => "Αλέξανδρος (Dev)".to_string(),
-                                    UserRole::BusinessAnalyst => "Δημήτρης (Analyst)".to_string(),
+                                    UserRole::BusinessAnalyst => "Δημήτρης (BA)".to_string(),
+                                    UserRole::DataAnalyst => "Ελένη (Data)".to_string(),
                                 };
                                 if let Ok(mut label) = state.device_label_ref.lock() {
                                     *label = format!("Proteus Terminal ({})", role.display_name());
