@@ -143,13 +143,13 @@ pub struct MarketplacePackageListing {
     pub licensed_accounts: Vec<String>,
 }
 
-/// Retrieve the list of purchased/licensed packages for a verified business account.
-pub fn get_licensed_packages_for_account(account_email: &str) -> Vec<MarketplacePackageListing> {
-    let catalog = vec![
+/// Retrieve the complete catalog of verified .pr business packages on the Marketplace.
+pub fn get_all_marketplace_packages() -> Vec<MarketplacePackageListing> {
+    vec![
         MarketplacePackageListing {
             bundle_id: "PKG-SERVICE-AUTO".to_string(),
             title: "Automotive Service & Repair BOS".to_string(),
-            description: "Work orders, technician parts inventory, and ESC/POS diagnostic receipts".to_string(),
+            description: "Εντολές εργασίας, αποθήκη ανταλλακτικών μηχανικού και ESC/POS διαγνωστικές αποδείξεις.".to_string(),
             author_designer: "PCD Senior Partner".to_string(),
             version: "1.4.0".to_string(),
             price_eur: 180.0,
@@ -159,7 +159,7 @@ pub fn get_licensed_packages_for_account(account_email: &str) -> Vec<Marketplace
         MarketplacePackageListing {
             bundle_id: "PKG-RETAIL-POS".to_string(),
             title: "Multi-Store Retail & Cashier BOS".to_string(),
-            description: "Barcode scanning, instant drawer kick, inventory reordering, and store sync".to_string(),
+            description: "Barcode scanning, άμεσο άνοιγμα συρταριού, αυτόματη αναπαραγγελία και συγχρονισμός καταστημάτων.".to_string(),
             author_designer: "PCDA Analyst Group".to_string(),
             version: "2.1.0".to_string(),
             price_eur: 240.0,
@@ -169,15 +169,29 @@ pub fn get_licensed_packages_for_account(account_email: &str) -> Vec<Marketplace
         MarketplacePackageListing {
             bundle_id: "PKG-CLINIC-HEALTH".to_string(),
             title: "Medical & Dental Practice Suite".to_string(),
-            description: "Patient intake appointments, GDPR audit logs, and insurance billing".to_string(),
+            description: "Ιατρικό ιστορικό ασθενών, ημερολόγιο ραντεβού, GDPR audit logs και τιμολόγηση ασφαλιστικών ταμείων.".to_string(),
             author_designer: "PCSS Systems Architect".to_string(),
             version: "1.0.2".to_string(),
             price_eur: 320.0,
             category: "Healthcare".to_string(),
             licensed_accounts: vec!["doctor@clinic.org".to_string()],
         },
-    ];
+        MarketplacePackageListing {
+            bundle_id: "PKG-MOTO-PRO".to_string(),
+            title: "Motorcycle Workshop & Tuning BOS".to_string(),
+            description: "Έλεγχος πλαισίου (VIN), καταγραφή βάθους πέλματος ελαστικών και εκτύπωση φύλλου δυναμομέτρησης.".to_string(),
+            author_designer: "PCD Specialist".to_string(),
+            version: "1.1.0".to_string(),
+            price_eur: 120.0,
+            category: "Automotive".to_string(),
+            licensed_accounts: vec!["demo@company.com".to_string(), "tuning@motofast.gr".to_string()],
+        },
+    ]
+}
 
+/// Retrieve the list of purchased/licensed packages for a verified business account.
+pub fn get_licensed_packages_for_account(account_email: &str) -> Vec<MarketplacePackageListing> {
+    let catalog = get_all_marketplace_packages();
     let email_lower = account_email.to_lowercase();
     catalog
         .into_iter()
@@ -292,10 +306,14 @@ mod tests {
 
     #[test]
     fn test_licensed_packages_retrieval() {
+        let all_pkgs = get_all_marketplace_packages();
+        assert_eq!(all_pkgs.len(), 4);
+
         let pkgs = get_licensed_packages_for_account("demo@company.com");
-        assert_eq!(pkgs.len(), 2);
+        assert_eq!(pkgs.len(), 3);
         assert_eq!(pkgs[0].bundle_id, "PKG-SERVICE-AUTO");
         assert_eq!(pkgs[1].bundle_id, "PKG-RETAIL-POS");
+        assert_eq!(pkgs[2].bundle_id, "PKG-MOTO-PRO");
 
         let doc_pkgs = get_licensed_packages_for_account("doctor@clinic.org");
         assert_eq!(doc_pkgs.len(), 1);

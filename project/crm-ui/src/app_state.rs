@@ -376,6 +376,11 @@ impl Default for ProteusApp {
 }
 
 impl ProteusApp {
+    pub fn palette(&self, ctx: &egui::Context) -> crate::theme::Palette {
+        let is_dark = self.theme_mode.resolve_is_dark(ctx);
+        crate::theme::Palette::new(is_dark, self.accent_preset)
+    }
+
     pub fn toast(&mut self, msg: impl Into<String>) {
         self.toast = Some(msg.into());
         self.tt = 0.;

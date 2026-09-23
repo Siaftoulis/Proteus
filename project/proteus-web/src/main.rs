@@ -5,6 +5,10 @@ mod contracts;
 mod marketplace;
 mod portal;
 mod ui;
+mod ui_certifications;
+mod ui_contracts;
+mod ui_css;
+mod ui_marketplace;
 
 use axum::{
     extract::Json,
@@ -170,6 +174,10 @@ async fn packages_handler(
     axum::extract::Query(query): axum::extract::Query<PackagesQuery>,
 ) -> impl IntoResponse {
     let email = query.account.unwrap_or_default();
-    let packages = marketplace::get_licensed_packages_for_account(&email);
+    let packages = if email.trim().is_empty() {
+        marketplace::get_all_marketplace_packages()
+    } else {
+        marketplace::get_licensed_packages_for_account(&email)
+    };
     (StatusCode::OK, Json(packages))
 }

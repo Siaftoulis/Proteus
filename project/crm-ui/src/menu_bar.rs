@@ -1,17 +1,18 @@
 //! Native top application menu bar and action dispatcher for Proteus Designer.
 //! Provides File, Edit, View, Tools, and Help menus with keyboard shortcut hints.
 
-use eframe::egui::{self, Color32, Frame, Margin, RichText, Stroke};
+use eframe::egui::{self, Frame, Margin, RichText, Stroke};
 use crate::models::{LayoutMode, Mode};
 use crate::app_state::ProteusApp;
 
 /// Render the native top menu bar.
 pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
+    let p = app.palette(ctx);
     egui::TopBottomPanel::top("native_menu_bar")
         .frame(
             Frame::new()
-                .fill(Color32::from_rgb(18, 20, 26))
-                .stroke(Stroke::new(1.0, Color32::from_rgb(38, 43, 56)))
+                .fill(p.panel)
+                .stroke(Stroke::new(1.0, p.border))
                 .inner_margin(Margin::symmetric(10, 4)),
         )
         .show(ctx, |ui| {
@@ -193,7 +194,7 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                     ui.label(
                         RichText::new(format!("⚡ {}", app.pname))
                             .size(10.5)
-                            .color(Color32::from_rgb(140, 160, 190)),
+                            .color(p.text_dim),
                     );
                 });
             });

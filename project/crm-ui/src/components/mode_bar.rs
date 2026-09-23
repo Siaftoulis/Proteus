@@ -1,16 +1,16 @@
 use eframe::egui;
 use crate::models::{Mode, Viewport2D};
-use crate::theme;
 use crate::ProteusApp;
 
 pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
+    let p = app.palette(ctx);
     egui::TopBottomPanel::top("mode_switcher")
         .min_height(36.)
         .resizable(false)
         .frame(egui::Frame {
-            fill: theme::PANEL,
+            fill: p.panel,
             inner_margin: egui::Margin::symmetric(12, 5),
-            stroke: egui::Stroke::new(1., theme::BORDER),
+            stroke: egui::Stroke::new(1., p.border),
             ..Default::default()
         })
         .show(ctx, |ui| {
@@ -30,11 +30,11 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                         egui::Button::new(
                             egui::RichText::new(format!("{} {}", icon, label))
                                 .size(11.)
-                                .color(if is_active { theme::TEXT } else { theme::TEXT_DIM })
+                                .color(if is_active { p.text } else { p.text_dim })
                                 .strong()
                         )
-                        .fill(if is_active { theme::ELEVATED } else { theme::PANEL })
-                        .stroke(if is_active { egui::Stroke::new(1.2, theme::ACCENT) } else { egui::Stroke::new(1., theme::BORDER) })
+                        .fill(if is_active { p.elevated } else { p.panel })
+                        .stroke(if is_active { egui::Stroke::new(1.2, p.accent) } else { egui::Stroke::new(1., p.border) })
                         .corner_radius(egui::CornerRadius::same(5))
                         .min_size(egui::vec2(115., 26.))
                     ).on_hover_text(*tooltip);
@@ -64,10 +64,10 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                         egui::Button::new(
                             egui::RichText::new(format!("{} {}", icon, label))
                                 .size(10.)
-                                .color(if is_active { theme::TEXT } else { theme::TEXT_DIM })
+                                .color(if is_active { p.text } else { p.text_dim })
                         )
-                        .fill(if is_active { theme::ELEVATED } else { theme::PANEL })
-                        .stroke(if is_active { egui::Stroke::new(1., theme::FOCUS) } else { egui::Stroke::NONE })
+                        .fill(if is_active { p.elevated } else { p.panel })
+                        .stroke(if is_active { egui::Stroke::new(1., p.accent) } else { egui::Stroke::NONE })
                         .corner_radius(egui::CornerRadius::same(4))
                         .min_size(egui::vec2(70., 24.))
                     );

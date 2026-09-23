@@ -44,6 +44,8 @@ impl eframe::App for ProteusApp {
             self._style_set = true;
         }
 
+        let p = self.palette(ctx);
+
         // ── TOP BARS ──
         menu_bar::show(self, ctx);
         components::top_bar::show(self, ctx);
@@ -58,7 +60,7 @@ impl eframe::App for ProteusApp {
         egui::SidePanel::left("pal")
             .resizable(false)
             .exact_width(left_w)
-            .frame(egui::Frame { fill: theme::PANEL, inner_margin: left_margin, ..Default::default() })
+            .frame(egui::Frame { fill: p.panel, inner_margin: left_margin, stroke: egui::Stroke::new(1., p.border), ..Default::default() })
             .show(ctx, |ui| {
                 match self.mode {
                     Mode::Designer => views::designer::show_left(self, ui),
@@ -95,24 +97,24 @@ impl eframe::App for ProteusApp {
             .resizable(false)
             .default_width(240.)
             .min_width(200.)
-            .frame(egui::Frame { fill: theme::PANEL, inner_margin: egui::Margin::same(12), ..Default::default() })
+            .frame(egui::Frame { fill: p.panel, inner_margin: egui::Margin::same(12), stroke: egui::Stroke::new(1., p.border), ..Default::default() })
             .show(ctx, |ui| {
                 ui.add_space(6.);
-                ui.label(egui::RichText::new(right_title).size(9.).color(theme::TEXT_DIM));
+                ui.label(egui::RichText::new(right_title).size(9.).color(p.text_dim));
                 ui.add_space(4.);
                 match self.mode {
                     Mode::Designer => views::designer::show_right(self, ui),
                     Mode::Analyst => {
-                        ui.label(egui::RichText::new("Ingest raw data and infer schema to export as a .pr package.").size(10.5).color(theme::TEXT_DIM));
+                        ui.label(egui::RichText::new("Ingest raw data and infer schema to export as a .pr package.").size(10.5).color(p.text_dim));
                     }
                     Mode::Networking => {
-                        ui.label(egui::RichText::new("UDP Beacon broadcasts on port 7444. Manage external server gateways.").size(10.5).color(theme::TEXT_DIM));
+                        ui.label(egui::RichText::new("UDP Beacon broadcasts on port 7444. Manage external server gateways.").size(10.5).color(p.text_dim));
                     }
                     Mode::Troubleshoot => {
-                        ui.label(egui::RichText::new("Direct spooler and hardware probes for thermal printers and cash drawers.").size(10.5).color(theme::TEXT_DIM));
+                        ui.label(egui::RichText::new("Direct spooler and hardware probes for thermal printers and cash drawers.").size(10.5).color(p.text_dim));
                     }
                     Mode::ConnectedData => {
-                        ui.label(egui::RichText::new("Live SQLite state, prioritized outbox sync, and Merkle audit chain verification.").size(10.5).color(theme::TEXT_DIM));
+                        ui.label(egui::RichText::new("Live SQLite state, prioritized outbox sync, and Merkle audit chain verification.").size(10.5).color(p.text_dim));
                     }
                     Mode::FlowBuilder => views::flow_builder::show_right(self, ui),
                     Mode::Contacts => views::contacts::show_right(self, ui),
@@ -131,23 +133,23 @@ impl eframe::App for ProteusApp {
 
         // ── CENTRAL CANVAS ──
         egui::CentralPanel::default()
-            .frame(egui::Frame { fill: theme::BG, ..Default::default() })
+            .frame(egui::Frame { fill: p.bg, ..Default::default() })
             .show(ctx, |ui| {
                 let (resp, pnt) = ui.allocate_painter(ui.available_size(), Sense::click_and_drag());
                 let r = resp.rect;
-                pnt.rect_filled(r, 0, theme::BG);
+                pnt.rect_filled(r, 0, p.bg);
 
                 // Grid background for non-designer modes
                 if self.mode != Mode::Designer && self.mode != Mode::FlowBuilder {
                     if self.layout == LayoutMode::Grid {
                         let mut y = r.top();
                         while y <= r.bottom() {
-                            pnt.line_segment([egui::pos2(r.left(), y), egui::pos2(r.right(), y)], Stroke::new(1., Color32::from_rgba_premultiplied(30, 30, 30, 255)));
+                            pnt.line_segment([egui::pos2(r.left(), y), egui::pos2(r.right(), y)], Stroke::new(1., p.border));
                             y += GRID;
                         }
                         let mut x = r.left();
                         while x <= r.right() {
-                            pnt.line_segment([egui::pos2(x, r.top()), egui::pos2(x, r.bottom())], Stroke::new(1., Color32::from_rgba_premultiplied(30, 30, 30, 255)));
+                            pnt.line_segment([egui::pos2(x, r.top()), egui::pos2(x, r.bottom())], Stroke::new(1., p.border));
                             x += GRID;
                         }
                     } else {
@@ -155,7 +157,7 @@ impl eframe::App for ProteusApp {
                         while y < r.bottom() {
                             let mut x = r.left() + 12.;
                             while x < r.right() {
-                                pnt.circle_filled(egui::pos2(x, y), 1., Color32::from_rgb(25, 25, 25));
+                                pnt.circle_filled(egui::pos2(x, y), 1., p.border_light);
                                 x += 24.;
                             }
                             y += 24.;

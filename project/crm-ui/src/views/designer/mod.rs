@@ -170,8 +170,8 @@ pub fn show_central(
     let is_panning = handle_pan_and_zoom(app, ui, r, mpos, hover_canvas, canvas_origin);
 
     // 2. Render Grid & Device Frame
-    render_grid(app, pnt, r, canvas_origin);
-    render_device_frame(app, pnt, r, canvas_origin);
+    render_grid(app, ctx, pnt, r, canvas_origin);
+    render_device_frame(app, ctx, pnt, r, canvas_origin);
 
     // 3. Keyboard shortcuts
     handle_keyboard_shortcuts(app, ctx, ui);

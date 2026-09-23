@@ -57,7 +57,9 @@ tags:
 - [x] Adaptive Variable Refresh Rate (VRR) Engine (`Reactive` 0% idle, 30/60/120/144Hz throttling)
 - [x] Dynamic Dual-Mode Theme Engine & System Theme Synchronization (`System`, `Dark`, `Light`, 6 Luxury Accents)
 - [x] Hit-Test First Context Dispatcher & Enhanced Canvas Selection (Auto-select on right click, multi-selection actions)
-- [ ] Micro-connection wiring & Polish across all 5 Workspaces
+- [x] Web Marketplace & Portal Hub (`proteus-web`): Modular luxury dark UI, verified .pr package showcase, 4 certification tracks + master bundle, 10-tier partner commission calculator, SLA escrow simulator
+- [x] Native Desktop Template Explorer (`proteus-client`): Verified .pr package browser with 1-click DDL ingestion and direct Web Marketplace Hub integration
+- [ ] Micro-connection wiring & Polish across remaining modules
 
 ## Phase 2: Military Service Period (Nov 2026 – May 2027)
 - [ ] 2–3 shop pilot testing & bugfixing during leaves

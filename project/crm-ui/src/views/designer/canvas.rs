@@ -39,7 +39,8 @@ pub fn handle_pan_and_zoom(
     is_panning
 }
 
-pub fn render_grid(app: &ProteusApp, pnt: &egui::Painter, r: Rect, canvas_origin: Pos2) {
+pub fn render_grid(app: &ProteusApp, ctx: &egui::Context, pnt: &egui::Painter, r: Rect, canvas_origin: Pos2) {
+    let p = app.palette(ctx);
     if app.layout == LayoutMode::Grid {
         let world_tl = app.viewport.screen_to_world(r.left_top(), canvas_origin);
         let world_br = app.viewport.screen_to_world(r.right_bottom(), canvas_origin);
@@ -50,7 +51,7 @@ pub fn render_grid(app: &ProteusApp, pnt: &egui::Painter, r: Rect, canvas_origin
             let sy = app.viewport.world_to_screen(egui::pos2(0., wy), canvas_origin).y;
             pnt.line_segment(
                 [egui::pos2(r.left(), sy), egui::pos2(r.right(), sy)],
-                Stroke::new(1., Color32::from_rgba_premultiplied(30, 30, 30, 255)),
+                Stroke::new(1., p.border),
             );
             wy += GRID;
         }
@@ -59,7 +60,7 @@ pub fn render_grid(app: &ProteusApp, pnt: &egui::Painter, r: Rect, canvas_origin
             let sx = app.viewport.world_to_screen(egui::pos2(wx, 0.), canvas_origin).x;
             pnt.line_segment(
                 [egui::pos2(sx, r.top()), egui::pos2(sx, r.bottom())],
-                Stroke::new(1., Color32::from_rgba_premultiplied(30, 30, 30, 255)),
+                Stroke::new(1., p.border),
             );
             wx += GRID;
         }
@@ -74,7 +75,7 @@ pub fn render_grid(app: &ProteusApp, pnt: &egui::Painter, r: Rect, canvas_origin
             while wx <= world_br.x {
                 let sp = app.viewport.world_to_screen(egui::pos2(wx, wy), canvas_origin);
                 if r.contains(sp) {
-                    pnt.circle_filled(sp, (1.0_f32).max(0.5 * app.viewport.zoom), Color32::from_rgb(25, 25, 25));
+                    pnt.circle_filled(sp, (1.0_f32).max(0.5 * app.viewport.zoom), p.border_light);
                 }
                 wx += 24.0;
             }
@@ -83,7 +84,8 @@ pub fn render_grid(app: &ProteusApp, pnt: &egui::Painter, r: Rect, canvas_origin
     }
 }
 
-pub fn render_device_frame(app: &ProteusApp, pnt: &egui::Painter, r: Rect, canvas_origin: Pos2) {
+pub fn render_device_frame(app: &ProteusApp, ctx: &egui::Context, pnt: &egui::Painter, r: Rect, canvas_origin: Pos2) {
+    let p = app.palette(ctx);
     let (dw, dh) = app.device_preset.size();
     let dev_origin = app.viewport.world_to_screen(egui::pos2(0., 0.), canvas_origin);
     let dev_w = dw * app.viewport.zoom;
@@ -95,17 +97,18 @@ pub fn render_device_frame(app: &ProteusApp, pnt: &egui::Painter, r: Rect, canva
         Rect::from_min_max(egui::pos2(r.left(), dev_rect.top()), egui::pos2(dev_rect.left(), dev_rect.bottom())),
         Rect::from_min_max(egui::pos2(dev_rect.right(), dev_rect.top()), egui::pos2(r.right(), dev_rect.bottom())),
     ];
+    let overlay_fill = if p.is_dark { Color32::from_black_alpha(80) } else { Color32::from_black_alpha(25) };
     for or in &outside_rects {
-        pnt.rect_filled(*or, 0, Color32::from_black_alpha(80));
+        pnt.rect_filled(*or, 0, overlay_fill);
     }
-    pnt.rect_stroke(dev_rect, 4., Stroke::new(2., theme::ACCENT), egui::StrokeKind::Outside);
+    pnt.rect_stroke(dev_rect, 4., Stroke::new(2., p.accent), egui::StrokeKind::Outside);
     let label = format!("{} {} — {}×{}", app.device_preset.icon(), app.device_preset.label(), dw, dh);
     pnt.text(
         egui::pos2(dev_rect.left() + 8., dev_rect.top() - 16.),
         egui::Align2::LEFT_BOTTOM,
         &label,
         egui::FontId::proportional(10.),
-        theme::ACCENT,
+        p.accent,
     );
 }
 
@@ -117,12 +120,13 @@ pub fn render_canvas_hud(
     mpos: Option<Pos2>,
     canvas_origin: Pos2,
 ) {
+    let p = app.palette(ui.ctx());
     let hud_y = r.bottom() - 36.0;
 
     // 1. Bottom-Left Status & Cursor Coordinates Pill
     let status_rect = Rect::from_min_size(Pos2::new(r.left() + 14.0, hud_y), Vec2::new(420.0, 26.0));
-    pnt.rect_filled(status_rect, egui::CornerRadius::same(6), Color32::from_rgb(18, 20, 26));
-    pnt.rect_stroke(status_rect, egui::CornerRadius::same(6), Stroke::new(1.0, theme::BORDER), egui::StrokeKind::Outside);
+    pnt.rect_filled(status_rect, egui::CornerRadius::same(6), p.elevated);
+    pnt.rect_stroke(status_rect, egui::CornerRadius::same(6), Stroke::new(1.0, p.border), egui::StrokeKind::Outside);
 
     let (cur_x, cur_y) = if let Some(mp) = mpos {
         let wm = app.viewport.screen_to_world(mp, canvas_origin);
@@ -151,13 +155,13 @@ pub fn render_canvas_hud(
         egui::Align2::LEFT_CENTER,
         &status_text,
         egui::FontId::monospace(10.5),
-        theme::TEXT_DIM,
+        p.text_dim,
     );
 
     // 2. Bottom-Right Floating Zoom & View Controller
     let zoom_rect = Rect::from_min_size(Pos2::new(r.right() - 212.0, hud_y), Vec2::new(198.0, 26.0));
-    pnt.rect_filled(zoom_rect, egui::CornerRadius::same(6), Color32::from_rgb(18, 20, 26));
-    pnt.rect_stroke(zoom_rect, egui::CornerRadius::same(6), Stroke::new(1.0, theme::BORDER), egui::StrokeKind::Outside);
+    pnt.rect_filled(zoom_rect, egui::CornerRadius::same(6), p.elevated);
+    pnt.rect_stroke(zoom_rect, egui::CornerRadius::same(6), Stroke::new(1.0, p.border), egui::StrokeKind::Outside);
 
     ui.allocate_new_ui(egui::UiBuilder::new().max_rect(zoom_rect), |ui| {
         ui.horizontal_centered(|ui| {
