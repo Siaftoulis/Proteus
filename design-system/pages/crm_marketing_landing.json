@@ -52,8 +52,16 @@
       "component": "CallToAction",
       "props": {
         "title": "Απογειώστε την Παραγωγικότητα της Επιχείρησής σας",
-        "buttonText": "Δωρεάν Δοκιμή",
+        "buttonText": "Κλείσιμο Προσφοράς",
         "style": "primary"
+      }
+    },
+    {
+      "component": "ContactForm",
+      "props": {
+        "title": "Κλείσιμο Προσφοράς & Επικοινωνία",
+        "submitText": "Αποστολή Αιτήματος",
+        "fields": ["service_type", "name", "email", "company", "phone", "message"]
       }
     }
   ]
