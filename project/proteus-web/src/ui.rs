@@ -61,9 +61,12 @@ const HTML_NAV_AND_OVERVIEW: &str = r#"
                 <button class="tab-btn" onclick="switchTab('pricing', this)">⚡ Κοστολόγηση</button>
             </nav>
         </div>
-        <div class="status-pill">
-            <span class="status-dot"></span>
-            <span>Online (Port 8080)</span>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <a href="/" class="btn btn-secondary btn-sm" style="text-decoration: none;">🏠 Αρχική Website</a>
+            <div class="status-pill">
+                <span class="status-dot"></span>
+                <span>Online (Port 8080)</span>
+            </div>
         </div>
     </header>
 

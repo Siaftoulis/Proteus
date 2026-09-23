@@ -11,6 +11,7 @@ mod ui_certifications;
 mod ui_contracts;
 mod ui_css;
 mod ui_freelance;
+mod ui_landing;
 mod ui_marketplace;
 
 use axum::{
@@ -30,9 +31,11 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
     let app = Router::new()
-        .route("/", get(ui::index_page_handler))
+        .route("/", get(ui_landing::landing_page_handler))
+        .route("/hub", get(ui::index_page_handler))
         .route("/health", get(health_handler))
         .route("/api/v1/tickets", get(tickets_handler))
+        .route("/api/v1/contact", post(contact_submit_handler))
         .route("/api/v1/marketplace/compile", post(compile_handler))
         .route("/api/v1/pricing/quote", post(quote_handler))
         .route("/api/v1/certifications/tiers", get(tiers_handler))
@@ -184,3 +187,31 @@ async fn packages_handler(
     };
     (StatusCode::OK, Json(packages))
 }
+
+#[derive(serde::Deserialize)]
+struct ContactSubmission {
+    name: String,
+    email: String,
+    phone: Option<String>,
+    message: String,
+}
+
+async fn contact_submit_handler(Json(payload): Json<ContactSubmission>) -> impl IntoResponse {
+    info!(
+        "Contact submission received from: {} ({}) [chars: {}]",
+        payload.name,
+        payload.email,
+        payload.message.len()
+    );
+    (
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "status": "success",
+            "message": "Message received successfully",
+            "sender": payload.name,
+            "email": payload.email,
+            "has_phone": payload.phone.is_some()
+        })),
+    )
+}
+
