@@ -1,0 +1,60 @@
+{
+  "pageId": "crm-marketing-landing",
+  "title": "Proteus CRM Business Engine Public Landing",
+  "layout": "MarketingLayout",
+  "props": {
+    "title": "Proteus Public Landing"
+  },
+  "children": [
+    {
+      "component": "PDSNavbar",
+      "props": {
+        "brandName": "Proteus CRM",
+        "links": [
+          { "label": "Features", "href": "#features", "active": true },
+          { "label": "Pricing", "href": "#pricing", "active": false },
+          { "label": "Contact", "href": "#contact", "active": false }
+        ]
+      }
+    },
+    {
+      "component": "HeroSection",
+      "props": {
+        "title": "Το Απόλυτο Τοπικό CRM Υψηλών Επιδόσεων",
+        "subtitle": "Native ταχύτητα Rust, μηδενική περιττή πολυπλοκότητα και απόλυτη ανθεκτικότητα με SQLite",
+        "ctaText": "Έναρξη Τώρα",
+        "align": "center"
+      }
+    },
+    {
+      "component": "FeatureGrid",
+      "props": {
+        "sectionTitle": "Γιατί να Επιλέξετε το Proteus",
+        "columns": 3,
+        "items": [
+          { "title": "Zero Bloatware", "description": "Αστραπιαία εκτέλεση χωρίς βαριά frameworks", "icon": "speed" },
+          { "title": "Απόλυτη Ασφάλεια", "description": "Κρυπτογραφημένη τοπική βάση και ιδιωτικότητα", "icon": "shield" },
+          { "title": "Offline-First", "description": "Λειτουργεί απρόσκοπτα ακόμα και χωρίς ίντερνετ", "icon": "analytics" }
+        ]
+      }
+    },
+    {
+      "component": "PricingTable",
+      "props": {
+        "plans": [
+          { "name": "Community", "price": "€0", "features": ["1 Χρήστης", "Τοπική SQLite", "Βασικές Αναφορές"], "highlighted": false },
+          { "name": "Professional", "price": "€49/μήνα", "features": ["Έως 5 Χρήστες", "Cloud Sync", "Προτεραιότητα Υποστήριξης"], "highlighted": true },
+          { "name": "Enterprise", "price": "€199/μήνα", "features": ["Απεριόριστοι Χρήστες", "Dedicated SLA", "Πλήρης Προσαρμογή"], "highlighted": false }
+        ]
+      }
+    },
+    {
+      "component": "CallToAction",
+      "props": {
+        "title": "Απογειώστε την Παραγωγικότητα της Επιχείρησής σας",
+        "buttonText": "Δωρεάν Δοκιμή",
+        "style": "primary"
+      }
+    }
+  ]
+}

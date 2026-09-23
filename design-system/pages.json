@@ -1,0 +1,44 @@
+[
+  {
+    "pageId": "crm-dashboard",
+    "title": "Operations & CRM Dashboard",
+    "file": "pages/crm_dashboard.json",
+    "layout": "DashboardLayout",
+    "primaryGoal": "Monitor revenue, active deals, ticket queues, and system health"
+  },
+  {
+    "pageId": "crm-contacts",
+    "title": "Contacts & Client Directory",
+    "file": "pages/crm_contacts.json",
+    "layout": "ApplicationShell",
+    "primaryGoal": "Search, filter, inspect, and quickly add client contacts"
+  },
+  {
+    "pageId": "crm-pipeline",
+    "title": "Sales Pipeline & Kanban",
+    "file": "pages/crm_pipeline.json",
+    "layout": "ApplicationShell",
+    "primaryGoal": "Track deal stages and manage sales conversion pipeline"
+  },
+  {
+    "pageId": "crm-settings",
+    "title": "System Settings & Workspace Preferences",
+    "file": "pages/crm_settings.json",
+    "layout": "SettingsLayout",
+    "primaryGoal": "Configure UI theme, language, and SQLite local synchronization"
+  },
+  {
+    "pageId": "crm-marketing-landing",
+    "title": "Proteus CRM Business Engine Public Landing",
+    "file": "pages/crm_marketing_landing.json",
+    "layout": "MarketingLayout",
+    "primaryGoal": "Convert new visitors and explain platform value proposition"
+  },
+  {
+    "pageId": "crm-auth-login",
+    "title": "Authentication & Sign In",
+    "file": "pages/crm_auth_login.json",
+    "layout": "AuthLayout",
+    "primaryGoal": "Authenticate users securely into their workspace"
+  }
+]

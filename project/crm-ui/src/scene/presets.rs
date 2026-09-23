@@ -158,8 +158,8 @@ pub fn create_crm_preset() -> ProjectDocument {
             parent_id: None, children_ids: vec![],
             styling: Styling {
                 background: Some(bg),
-                corner_radius: [8., 8., 8., 8.],
-                border: Some(Border { width: 1., color: Rgba { r: 55, g: 55, b: 55, a: 255 } }),
+                corner_radius: [12., 12., 12., 12.],
+                border: Some(Border { width: 1., color: Rgba { r: 38, g: 44, b: 61, a: 255 } }),
                 padding: [padding, padding, padding, padding],
                 shadow: None, opacity: 1.0,
             },
@@ -184,7 +184,14 @@ pub fn create_crm_preset() -> ProjectDocument {
             id: id.into(), name: placeholder.into(),
             node_type: NodeType::TextInput { placeholder: placeholder.into(), field_type: ft, bound_entity: None, bound_field: None },
             parent_id: None, children_ids: vec![],
-            styling: Styling::default(), style: NodeStyle::default(),
+            styling: Styling {
+                background: Some(Rgba { r: 12, g: 14, b: 20, a: 255 }),
+                corner_radius: [6., 6., 6., 6.],
+                border: Some(Border { width: 1., color: Rgba { r: 38, g: 44, b: 61, a: 255 } }),
+                padding: [8., 12., 8., 12.],
+                shadow: None, opacity: 1.0,
+            },
+            style: NodeStyle::default(),
             layout: Layout { width: Sizing::Fixed(w), height: Sizing::Fixed(h), ..Default::default() },
             position: (x, y), visible: true, locked: false, z: 1,
         }
@@ -200,7 +207,14 @@ pub fn create_crm_preset() -> ProjectDocument {
                 bound_field: Some(field.into()),
             },
             parent_id: None, children_ids: vec![],
-            styling: Styling::default(), style: NodeStyle::default(),
+            styling: Styling {
+                background: Some(Rgba { r: 12, g: 14, b: 20, a: 255 }),
+                corner_radius: [6., 6., 6., 6.],
+                border: Some(Border { width: 1., color: Rgba { r: 38, g: 44, b: 61, a: 255 } }),
+                padding: [8., 12., 8., 12.],
+                shadow: None, opacity: 1.0,
+            },
+            style: NodeStyle::default(),
             layout: Layout { width: Sizing::Fixed(w), height: Sizing::Fixed(h), ..Default::default() },
             position: (x, y), visible: true, locked: false, z: 1,
         }
@@ -210,7 +224,15 @@ pub fn create_crm_preset() -> ProjectDocument {
             id: id.into(), name: label.into(),
             node_type: NodeType::Button { label: label.into(), style },
             parent_id: None, children_ids: vec![],
-            styling: Styling::default(), style: NodeStyle::default(),
+            styling: Styling {
+                background: None,
+                corner_radius: [6., 6., 6., 6.],
+                border: None,
+                padding: [8., 16., 8., 16.],
+                shadow: None,
+                opacity: 1.0,
+            },
+            style: NodeStyle::default(),
             layout: Layout { width: Sizing::Fixed(w), height: Sizing::Fixed(h), ..Default::default() },
             position: (x, y), visible: true, locked: false, z: 1,
         }
@@ -221,8 +243,9 @@ pub fn create_crm_preset() -> ProjectDocument {
             node_type: NodeType::Frame,
             parent_id: None, children_ids: vec![],
             styling: Styling {
-                background: Some(bg), corner_radius: [10., 10., 10., 10.],
-                border: None, padding: [12., 12., 12., 12.],
+                background: Some(bg), corner_radius: [12., 12., 12., 12.],
+                border: Some(Border { width: 1., color: Rgba { r: 38, g: 44, b: 61, a: 255 } }),
+                padding: [16., 16., 16., 16.],
                 shadow: None, opacity: 1.0,
             },
             style: NodeStyle::default(),
@@ -235,7 +258,14 @@ pub fn create_crm_preset() -> ProjectDocument {
             id: id.into(), name: label.into(),
             node_type: NodeType::Dropdown { options: opts.iter().map(|s| s.to_string()).collect(), multiple: false, bound_entity: None, bound_field: None },
             parent_id: None, children_ids: vec![],
-            styling: Styling::default(), style: NodeStyle::default(),
+            styling: Styling {
+                background: Some(Rgba { r: 12, g: 14, b: 20, a: 255 }),
+                corner_radius: [6., 6., 6., 6.],
+                border: Some(Border { width: 1., color: Rgba { r: 38, g: 44, b: 61, a: 255 } }),
+                padding: [6., 10., 6., 10.],
+                shadow: None, opacity: 1.0,
+            },
+            style: NodeStyle::default(),
             layout: Layout { width: Sizing::Fixed(w), height: Sizing::Fixed(h), ..Default::default() },
             position: (x, y), visible: true, locked: false, z: 1,
         }
@@ -251,12 +281,13 @@ pub fn create_crm_preset() -> ProjectDocument {
         }
     }
 
-    let gray = Rgba { r: 28, g: 28, b: 28, a: 255 };
-    let dark = Rgba { r: 22, g: 22, b: 22, a: 255 };
-    let card = Rgba { r: 35, g: 35, b: 35, a: 255 };
-    let accent = Rgba { r: 52, g: 152, b: 219, a: 255 };
-    let green = Rgba { r: 46, g: 204, b: 113, a: 255 };
-    let orange = Rgba { r: 230, g: 126, b: 34, a: 255 };
+    // ── Proteus Design System Canonical Tokens ──
+    let dark = Rgba { r: 12, g: 14, b: 20, a: 255 };      // #0c0e14 canvas.base
+    let gray = Rgba { r: 17, g: 20, b: 28, a: 255 };      // #11141c canvas.surface
+    let card = Rgba { r: 21, g: 24, b: 33, a: 255 };      // #151821 canvas.card
+    let accent = Rgba { r: 59, g: 130, b: 246, a: 255 };  // #3b82f6 brand.primary
+    let green = Rgba { r: 16, g: 185, b: 129, a: 255 };   // #10b981 feedback.success
+    let orange = Rgba { r: 245, g: 158, b: 11, a: 255 };  // #f59e0b feedback.warning
 
     // ── PAGE 1: LOGIN ──
     let p1 = mk_page("crm-login", "Login", 40., 100., 400., 500., dark, 24.);

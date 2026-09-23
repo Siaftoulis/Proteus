@@ -1,0 +1,16 @@
+{
+  "name": "ArticleListPage",
+  "type": "template",
+  "description": "Article and knowledge base list template with category filters, article cards, and search input",
+  "layout": "ArticleLayout",
+  "slots": [
+    { "region": "navbar", "allowedComponents": ["PDSNavbar"], "defaultComponent": "PDSNavbar" },
+    { "region": "articleHeader", "allowedComponents": ["PDSHeader"], "defaultComponent": "PDSHeader" },
+    { "region": "body", "allowedComponents": ["PDSList", "PDSCard", "PDSGrid"], "defaultComponent": "PDSList" },
+    { "region": "footer", "allowedComponents": ["PDSCard", "PDSLink"], "defaultComponent": "PDSCard" }
+  ],
+  "samplePayload": {
+    "title": "Documentation & Guides",
+    "category": "all"
+  }
+}

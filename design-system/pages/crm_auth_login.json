@@ -1,0 +1,49 @@
+{
+  "pageId": "crm-auth-login",
+  "title": "Authentication & Sign In",
+  "layout": "AuthLayout",
+  "props": {
+    "title": "Sign In"
+  },
+  "children": [
+    {
+      "component": "PDSHeader",
+      "props": {
+        "title": "Σύνδεση στο Proteus CRM",
+        "subtitle": "Εισάγετε τα στοιχεία σας για πρόσβαση στον χώρο εργασίας"
+      }
+    },
+    {
+      "component": "PDSInput",
+      "props": {
+        "label": "Email",
+        "placeholder": "name@company.com",
+        "type": "email"
+      }
+    },
+    {
+      "component": "PDSInput",
+      "props": {
+        "label": "Κωδικός Πρόσβασης",
+        "placeholder": "••••••••",
+        "type": "password"
+      }
+    },
+    {
+      "component": "PDSCheckbox",
+      "props": {
+        "label": "Απομνημόνευση στοιχείων σε αυτή τη συσκευή",
+        "checked": true
+      }
+    },
+    {
+      "component": "PDSButton",
+      "props": {
+        "label": "Είσοδος →",
+        "variant": "primary",
+        "size": "lg",
+        "fullWidth": true
+      }
+    }
+  ]
+}

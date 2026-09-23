@@ -1,0 +1,15 @@
+{
+  "name": "ProfilePage",
+  "type": "template",
+  "description": "User profile and security settings template with personal details, avatar, and credentials form",
+  "layout": "ApplicationShell",
+  "slots": [
+    { "region": "mainContent", "allowedComponents": ["PDSCard", "PDSInput", "PDSButton", "PDSBadge"], "defaultComponent": "PDSCard" }
+  ],
+  "samplePayload": {
+    "title": "User Profile",
+    "name": "Alex Johnson",
+    "email": "alex@proteus.app",
+    "role": "Administrator"
+  }
+}

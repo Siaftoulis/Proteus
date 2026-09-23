@@ -1,0 +1,17 @@
+{
+  "name": "ArticleDetailPage",
+  "type": "template",
+  "description": "Article detail and tutorial reading template with breadcrumb navigation and prose content area",
+  "layout": "ArticleLayout",
+  "slots": [
+    { "region": "navbar", "allowedComponents": ["PDSNavbar"], "defaultComponent": "PDSNavbar" },
+    { "region": "breadcrumbs", "allowedComponents": ["PDSBreadcrumb"], "defaultComponent": "PDSBreadcrumb" },
+    { "region": "articleHeader", "allowedComponents": ["PDSHeader"], "defaultComponent": "PDSHeader" },
+    { "region": "body", "allowedComponents": ["PDSCard", "PDSSection"], "defaultComponent": "PDSSection" },
+    { "region": "footer", "allowedComponents": ["PDSCard", "PDSLink"], "defaultComponent": "PDSCard" }
+  ],
+  "samplePayload": {
+    "title": "Getting Started with Proteus CRM",
+    "readingTime": "5 min read"
+  }
+}

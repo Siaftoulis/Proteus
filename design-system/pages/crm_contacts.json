@@ -1,0 +1,69 @@
+{
+  "pageId": "crm-contacts",
+  "title": "Contacts & Client Directory",
+  "layout": "ApplicationShell",
+  "props": {
+    "title": "Επαφές & Πελατολόγιο"
+  },
+  "children": [
+    {
+      "component": "PDSHeader",
+      "props": {
+        "title": "Κατάλογος Επαφών",
+        "subtitle": "342 ενεργές επαφές • 12 προστέθηκαν αυτή την εβδομάδα",
+        "statusPill": "SQLITE READY"
+      }
+    },
+    {
+      "component": "PDSInput",
+      "props": {
+        "label": "Αναζήτηση",
+        "placeholder": "🔍 Αναζήτηση με όνομα, email ή εταιρεία...",
+        "type": "search"
+      }
+    },
+    {
+      "component": "PDSSelect",
+      "props": {
+        "label": "Κατηγορία",
+        "options": [
+          { "value": "all", "label": "Όλες οι επαφές" },
+          { "value": "vip", "label": "VIP Πελάτες" },
+          { "value": "lead", "label": "Υποψήφιοι (Leads)" },
+          { "value": "partner", "label": "Συνεργάτες" }
+        ],
+        "value": "all"
+      }
+    },
+    {
+      "component": "PDSDataTable",
+      "props": {
+        "columns": ["Όνομα", "Email", "Τηλέφωνο", "Εταιρεία", "Κατηγορία"],
+        "rows": [
+          ["Γιάννης Παπαδόπουλος", "john@acme.com", "210-5550100", "Acme Inc", "VIP"],
+          ["Ελένη Γεωργίου", "eleni@widgets.gr", "210-5550200", "Widgets Co", "Lead"],
+          ["Νίκος Βασιλείου", "nikos@example.com", "210-5550300", "Example LLC", "Partner"],
+          ["Μαρία Δημητρίου", "maria@test.gr", "210-5550400", "Test Corp", "Customer"]
+        ],
+        "emptyMessage": "Δεν βρέθηκαν επαφές"
+      }
+    },
+    {
+      "component": "PDSCard",
+      "props": {
+        "title": "+ Γρήγορη Προσθήκη Επαφής (Live SQLite Insert)",
+        "subtitle": "Άμεση καταχώρηση στη βάση χωρίς καθυστέρηση",
+        "variant": "interactive"
+      }
+    },
+    {
+      "component": "PDSPagination",
+      "props": {
+        "currentPage": 1,
+        "totalPages": 9,
+        "pageSize": 20,
+        "totalItems": 342
+      }
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "pageId": "crm-dashboard",
+  "title": "Proteus Operations & CRM Dashboard",
+  "layout": "DashboardLayout",
+  "props": {
+    "title": "Operations Dashboard"
+  },
+  "children": [
+    {
+      "component": "PDSHeader",
+      "props": {
+        "title": "Επισκόπηση Επιχειρησιακής Λειτουργίας",
+        "subtitle": "Ζωντανά δεδομένα τοπικής βάσης SQLite & στατιστικά επιδόσεων",
+        "statusPill": "100% ONLINE"
+      }
+    },
+    {
+      "component": "PDSStatCard",
+      "props": {
+        "title": "ΣΥΝΟΛΙΚΑ DEALS",
+        "value": "128",
+        "trend": "+12.4%",
+        "trendDirection": "up",
+        "badge": "Active",
+        "variant": "highlight"
+      }
+    },
+    {
+      "component": "PDSStatCard",
+      "props": {
+        "title": "ΡΟΗ ΕΣΟΔΩΝ (PIPELINE)",
+        "value": "€84,200",
+        "trend": "+8.2%",
+        "trendDirection": "up",
+        "badge": "Revenue",
+        "variant": "default"
+      }
+    },
+    {
+      "component": "PDSStatCard",
+      "props": {
+        "title": "ΣΥΝΟΛΟ ΕΠΑΦΩΝ",
+        "value": "342",
+        "trend": "+14",
+        "trendDirection": "up",
+        "badge": "Contacts",
+        "variant": "default"
+      }
+    },
+    {
+      "component": "PDSStatCard",
+      "props": {
+        "title": "ΤΟΠΙΚΗ ΒΑΣΗ (SQLITE)",
+        "value": "99.98%",
+        "trend": "Stable",
+        "trendDirection": "neutral",
+        "badge": "Resilient",
+        "variant": "default"
+      }
+    },
+    {
+      "component": "PDSChartCard",
+      "props": {
+        "title": "Τάση Εσόδων & Παραλαβών",
+        "subtitle": "Ανάλυση τελευταίων 30 ημερών",
+        "chartType": "area",
+        "timeframe": "30d"
+      }
+    },
+    {
+      "component": "PDSDataTable",
+      "props": {
+        "columns": ["Κωδικός", "Πελάτης", "Κατάσταση", "Αξία", "Ημερομηνία"],
+        "rows": [
+          ["#1042", "Acme Corporation", "Σε Επισκευή", "€450.00", "2026-07-20"],
+          ["#1041", "Global Technologies", "Έτοιμο", "€1,200.00", "2026-07-19"],
+          ["#1040", "Alpha Logistics", "Νέα Παραλαβή", "€280.00", "2026-07-19"],
+          ["#1039", "Beta Solutions", "Έτοιμο", "€850.00", "2026-07-18"]
+        ],
+        "emptyMessage": "Δεν υπάρχουν εκκρεμή δελτία"
+      }
+    },
+    {
+      "component": "PDSButton",
+      "props": {
+        "label": "+ Νέα Επαφή",
+        "variant": "primary",
+        "size": "md"
+      }
+    },
+    {
+      "component": "PDSButton",
+      "props": {
+        "label": "+ Νέο Deal",
+        "variant": "secondary",
+        "size": "md"
+      }
+    }
+  ]
+}

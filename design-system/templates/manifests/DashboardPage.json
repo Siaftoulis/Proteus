@@ -1,0 +1,20 @@
+{
+  "name": "DashboardPage",
+  "type": "template",
+  "description": "Standard business operations dashboard template combining header, KPI banner, content grid, and action drawer",
+  "layout": "DashboardLayout",
+  "slots": [
+    { "region": "header", "allowedComponents": ["PDSHeader", "PDSNavbar"], "defaultComponent": "PDSHeader" },
+    { "region": "navigation", "allowedComponents": ["PDSNavTabs"], "defaultComponent": "PDSNavTabs" },
+    { "region": "statsBanner", "allowedComponents": ["PDSStatCard"], "defaultComponent": "PDSStatCard" },
+    { "region": "mainContent", "allowedComponents": ["PDSChartCard", "PDSDataTable", "PDSCard", "PDSList"], "defaultComponent": "PDSCard" },
+    { "region": "asidePanel", "allowedComponents": ["PDSDrawer", "PDSCard"], "defaultComponent": "PDSDrawer" }
+  ],
+  "samplePayload": {
+    "title": "Operations Dashboard",
+    "stats": [
+      { "title": "Revenue", "value": "$124,500", "trend": "+14%" },
+      { "title": "Active Leads", "value": "48", "trend": "+6" }
+    ]
+  }
+}

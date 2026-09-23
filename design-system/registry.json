@@ -19,7 +19,9 @@
     "tokens": "tokens.json",
     "components": "components.json",
     "patterns": "patterns.json",
-    "layouts": "layouts.json"
+    "layouts": "layouts.json",
+    "templates": "templates.json",
+    "pages": "pages.json"
   },
   "components": [
     { "name": "HeroSection", "manifest": "components/manifests/HeroSection.json", "category": "marketing" },
@@ -87,11 +89,29 @@
     { "name": "PricingPage", "manifest": "patterns/manifests/PricingPage.json" },
     { "name": "SearchResultsPage", "manifest": "patterns/manifests/SearchResultsPage.json" }
   ],
+  "templates": [
+    { "name": "DashboardPage", "manifest": "templates/manifests/DashboardPage.json" },
+    { "name": "SettingsPage", "manifest": "templates/manifests/SettingsPage.json" },
+    { "name": "ProfilePage", "manifest": "templates/manifests/ProfilePage.json" },
+    { "name": "SearchResultsPage", "manifest": "templates/manifests/SearchResultsPage.json" },
+    { "name": "PricingPage", "manifest": "templates/manifests/PricingPage.json" },
+    { "name": "ArticleListPage", "manifest": "templates/manifests/ArticleListPage.json" },
+    { "name": "ArticleDetailPage", "manifest": "templates/manifests/ArticleDetailPage.json" }
+  ],
+  "pages": [
+    { "pageId": "crm-dashboard", "manifest": "pages/crm_dashboard.json" },
+    { "pageId": "crm-contacts", "manifest": "pages/crm_contacts.json" },
+    { "pageId": "crm-pipeline", "manifest": "pages/crm_pipeline.json" },
+    { "pageId": "crm-settings", "manifest": "pages/crm_settings.json" },
+    { "pageId": "crm-marketing-landing", "manifest": "pages/crm_marketing_landing.json" },
+    { "pageId": "crm-auth-login", "manifest": "pages/crm_auth_login.json" }
+  ],
   "schemas": {
     "token": "schemas/token.schema.json",
     "component": "schemas/component.schema.json",
     "layout": "schemas/layout.schema.json",
-    "pattern": "schemas/pattern.schema.json"
+    "pattern": "schemas/pattern.schema.json",
+    "template": "schemas/template.schema.json"
   },
   "references": {
     "rules": "rules.md",

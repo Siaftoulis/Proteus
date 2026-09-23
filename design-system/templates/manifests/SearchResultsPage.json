@@ -1,0 +1,13 @@
+{
+  "name": "SearchResultsPage",
+  "type": "template",
+  "description": "Search and data inspection template with query toolbar, filter controls, data table, and pagination",
+  "layout": "ApplicationShell",
+  "slots": [
+    { "region": "mainContent", "allowedComponents": ["PDSHeader", "PDSInput", "PDSSelect", "PDSDataTable", "PDSEmptyState", "PDSPagination"], "defaultComponent": "PDSDataTable" }
+  ],
+  "samplePayload": {
+    "query": "",
+    "entity": "contacts"
+  }
+}

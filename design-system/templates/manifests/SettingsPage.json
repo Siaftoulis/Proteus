@@ -1,0 +1,15 @@
+{
+  "name": "SettingsPage",
+  "type": "template",
+  "description": "System and workspace settings template with category selection sidebar and preferences form",
+  "layout": "SettingsLayout",
+  "slots": [
+    { "region": "header", "allowedComponents": ["PDSHeader"], "defaultComponent": "PDSHeader" },
+    { "region": "categoriesSidebar", "allowedComponents": ["PDSSidebar", "PDSNavTabs"], "defaultComponent": "PDSSidebar" },
+    { "region": "settingsContent", "allowedComponents": ["PDSCard", "PDSSwitch", "PDSInput", "PDSSelect", "PDSButton"], "defaultComponent": "PDSCard" }
+  ],
+  "samplePayload": {
+    "title": "System Settings",
+    "activeCategory": "general"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "pageId": "crm-pipeline",
+  "title": "Sales Pipeline & Kanban",
+  "layout": "ApplicationShell",
+  "props": {
+    "title": "Sales Pipeline"
+  },
+  "children": [
+    {
+      "component": "PDSHeader",
+      "props": {
+        "title": "Αγωγός Πωλήσεων (Kanban Pipeline)",
+        "subtitle": "Συνολική αξία ευκαιριών: €84,200 σε 5 στάδια",
+        "statusPill": "5 STAGES ACTIVE"
+      }
+    },
+    {
+      "component": "PDSGrid",
+      "props": {
+        "columns": 5,
+        "minColWidth": "220px",
+        "gap": "spacing.md"
+      }
+    },
+    {
+      "component": "PDSCard",
+      "props": {
+        "title": "Νέα Ευκαιρία (Acme Inc)",
+        "subtitle": "Εκτιμώμενη Αξία: €12,000",
+        "variant": "interactive"
+      }
+    },
+    {
+      "component": "PDSCard",
+      "props": {
+        "title": "Προσφορά σε Εξέλιξη (Global Tech)",
+        "subtitle": "Εκτιμώμενη Αξία: €25,000",
+        "variant": "highlighted"
+      }
+    },
+    {
+      "component": "PDSButton",
+      "props": {
+        "label": "+ Προσθήκη Deal",
+        "variant": "primary",
+        "size": "md"
+      }
+    }
+  ]
+}

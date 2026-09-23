@@ -1,0 +1,15 @@
+{
+  "name": "PricingPage",
+  "type": "template",
+  "description": "Subscription tier comparison and checkout template with pricing matrix and call to action",
+  "layout": "MarketingLayout",
+  "slots": [
+    { "region": "navbar", "allowedComponents": ["PDSNavbar"], "defaultComponent": "PDSNavbar" },
+    { "region": "hero", "allowedComponents": ["PDSHeader", "HeroSection"], "defaultComponent": "PDSHeader" },
+    { "region": "pricing", "allowedComponents": ["PricingTable"], "defaultComponent": "PricingTable" },
+    { "region": "callToAction", "allowedComponents": ["CallToAction"], "defaultComponent": "CallToAction" }
+  ],
+  "samplePayload": {
+    "title": "Select Plan"
+  }
+}

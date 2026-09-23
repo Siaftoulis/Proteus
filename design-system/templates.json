@@ -1,0 +1,44 @@
+[
+  {
+    "name": "DashboardPage",
+    "purpose": "Standard business operations dashboard template with KPI stats, charts, and table",
+    "layout": "DashboardLayout",
+    "allowedComponents": ["PDSHeader", "PDSNavTabs", "PDSStatCard", "PDSChartCard", "PDSDataTable", "PDSCard", "PDSDrawer"]
+  },
+  {
+    "name": "SettingsPage",
+    "purpose": "Two-column system preferences template with category sidebar and preference controls",
+    "layout": "SettingsLayout",
+    "allowedComponents": ["PDSHeader", "PDSSidebar", "PDSCard", "PDSSwitch", "PDSInput", "PDSSelect", "PDSButton"]
+  },
+  {
+    "name": "ProfilePage",
+    "purpose": "User profile and credentials management template",
+    "layout": "ApplicationShell",
+    "allowedComponents": ["PDSHeader", "PDSCard", "PDSInput", "PDSButton", "PDSBadge"]
+  },
+  {
+    "name": "SearchResultsPage",
+    "purpose": "Search query experience with filter toolbar, table results, and pagination",
+    "layout": "ApplicationShell",
+    "allowedComponents": ["PDSHeader", "PDSInput", "PDSSelect", "PDSDataTable", "PDSEmptyState", "PDSPagination"]
+  },
+  {
+    "name": "PricingPage",
+    "purpose": "Dedicated subscription tier comparison matrix and conversion checkout",
+    "layout": "MarketingLayout",
+    "allowedComponents": ["PDSNavbar", "PDSHeader", "PricingTable", "CallToAction"]
+  },
+  {
+    "name": "ArticleListPage",
+    "purpose": "Knowledge base and documentation catalog with category cards",
+    "layout": "ArticleLayout",
+    "allowedComponents": ["PDSNavbar", "PDSHeader", "PDSList", "PDSCard", "PDSGrid"]
+  },
+  {
+    "name": "ArticleDetailPage",
+    "purpose": "Editorial prose reading view with breadcrumbs and readable typography constraints",
+    "layout": "ArticleLayout",
+    "allowedComponents": ["PDSNavbar", "PDSBreadcrumb", "PDSHeader", "PDSSection", "PDSCard"]
+  }
+]

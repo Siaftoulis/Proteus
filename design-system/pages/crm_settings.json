@@ -1,0 +1,53 @@
+{
+  "pageId": "crm-settings",
+  "title": "System Settings & Workspace Preferences",
+  "layout": "SettingsLayout",
+  "props": {
+    "title": "Ρυθμίσεις Συστήματος"
+  },
+  "children": [
+    {
+      "component": "PDSHeader",
+      "props": {
+        "title": "Διαχείριση & Παράμετροι Συστήματος",
+        "subtitle": "Ρυθμίσεις τοπικής βάσης, συγχρονισμού και διεπαφής χρήστη",
+        "statusPill": "PROTEUS V1.0"
+      }
+    },
+    {
+      "component": "PDSSwitch",
+      "props": {
+        "label": "Σκοτεινό Θέμα (Dark Minimalist)",
+        "enabled": true,
+        "description": "Βέλτιστη αντίθεση και ξεκούραστη εργασία"
+      }
+    },
+    {
+      "component": "PDSSwitch",
+      "props": {
+        "label": "Αυτόματος Τοπικός Συγχρονισμός (SQLite WAL)",
+        "enabled": true,
+        "description": "Συνεχής εγγραφή αλλαγών χωρίς καθυστέρηση δικτύου"
+      }
+    },
+    {
+      "component": "PDSSelect",
+      "props": {
+        "label": "Γλώσσα Εφαρμογής",
+        "options": [
+          { "value": "el", "label": "Ελληνικά" },
+          { "value": "en", "label": "English" }
+        ],
+        "value": "el"
+      }
+    },
+    {
+      "component": "PDSButton",
+      "props": {
+        "label": "Αποθήκευση Ρυθμίσεων",
+        "variant": "primary",
+        "size": "md"
+      }
+    }
+  ]
+}
