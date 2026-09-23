@@ -20,7 +20,6 @@ pub enum Mode {
     Tasks,
 }
 
-
 #[derive(Clone, PartialEq, Debug)]
 pub enum LayoutMode {
     Free,
@@ -41,6 +40,19 @@ pub enum DesignerTool {
     Ruler,
 }
 
+#[derive(Clone, Copy, PartialEq, Debug, Default)]
+pub enum DesignerLeftTab {
+    #[default]
+    Layers,
+    Assets,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug, Default)]
+pub enum InspectorTab {
+    #[default]
+    Design,
+    Prototype,
+}
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum DevicePreset {
@@ -351,23 +363,12 @@ impl VrrMode {
 
     pub fn apply_to_ctx(&self, ctx: &egui::Context, is_active_interaction: bool) {
         match self {
-            Self::Reactive => {
-                if is_active_interaction {
-                    ctx.request_repaint_after(std::time::Duration::from_millis(16));
-                }
-            }
-            Self::Fps30 => {
-                ctx.request_repaint_after(std::time::Duration::from_millis(33));
-            }
-            Self::Fps60 => {
-                ctx.request_repaint_after(std::time::Duration::from_millis(16));
-            }
-            Self::Fps120 => {
-                ctx.request_repaint_after(std::time::Duration::from_millis(8));
-            }
-            Self::Continuous => {
-                ctx.request_repaint();
-            }
+            Self::Reactive if is_active_interaction => ctx.request_repaint_after(std::time::Duration::from_millis(16)),
+            Self::Reactive => {}
+            Self::Fps30 => ctx.request_repaint_after(std::time::Duration::from_millis(33)),
+            Self::Fps60 => ctx.request_repaint_after(std::time::Duration::from_millis(16)),
+            Self::Fps120 => ctx.request_repaint_after(std::time::Duration::from_millis(8)),
+            Self::Continuous => ctx.request_repaint(),
         }
     }
 }

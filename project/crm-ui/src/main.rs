@@ -53,9 +53,9 @@ impl eframe::App for ProteusApp {
         components::top_bar::show(self, ctx);
         components::mode_bar::show(self, ctx);
 
-        // ── LEFT SIDEBAR (Ultra-slim 38px toolbar in Designer like Affinity) ──
+        // ── LEFT SIDEBAR (Penpot Studio Sidebar: Tools + Layers/Assets) ──
         let (left_w, left_margin) = if self.mode == Mode::Designer {
-            (38., egui::Margin::symmetric(3, 8))
+            (220., egui::Margin::symmetric(6, 8))
         } else {
             (180., egui::Margin::same(12))
         };
@@ -80,9 +80,9 @@ impl eframe::App for ProteusApp {
                 }
             });
 
-        // ── RIGHT PROPERTIES PANEL ──
+        // ── RIGHT PROPERTIES PANEL (Penpot Inspector) ──
         let right_title = match self.mode {
-            Mode::Designer => "PROPERTIES",
+            Mode::Designer => "INSPECTOR",
             Mode::Analyst => "ANALYST GUIDE",
             Mode::Networking => "NETWORK GUIDE",
             Mode::Troubleshoot => "HARDWARE GUIDE",
@@ -95,13 +95,18 @@ impl eframe::App for ProteusApp {
             Mode::Studio => "LAYERS",
             Mode::Tasks => "TASK DETAIL",
         };
+        let (right_w, right_min) = if self.mode == Mode::Designer {
+            (260., 240.)
+        } else {
+            (240., 200.)
+        };
         egui::SidePanel::right("prop")
             .resizable(false)
-            .default_width(240.)
-            .min_width(200.)
-            .frame(egui::Frame { fill: p.panel, inner_margin: egui::Margin::same(12), stroke: egui::Stroke::new(1., p.border), ..Default::default() })
+            .default_width(right_w)
+            .min_width(right_min)
+            .frame(egui::Frame { fill: p.panel, inner_margin: egui::Margin::same(10), stroke: egui::Stroke::new(1., p.border), ..Default::default() })
             .show(ctx, |ui| {
-                ui.add_space(6.);
+                ui.add_space(4.);
                 ui.label(egui::RichText::new(right_title).size(9.).color(p.text_dim));
                 ui.add_space(4.);
                 match self.mode {

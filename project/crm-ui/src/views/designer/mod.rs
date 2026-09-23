@@ -1,4 +1,5 @@
 //! Designer layout coordinator and views lifecycle.
+//! Implements the Penpot-inspired 3-column architecture (Tools + Layers/Assets, Infinite Canvas, Design/Prototype Inspector).
 
 pub mod canvas;
 pub mod context_menu;
@@ -31,7 +32,7 @@ pub fn tool_icon_btn(
     .fill(if is_active { Color32::from_rgba_unmultiplied(79, 140, 237, 30) } else { Color32::TRANSPARENT })
     .stroke(if is_active { Stroke::new(1., theme::ACCENT) } else { Stroke::NONE })
     .corner_radius(egui::CornerRadius::same(4))
-    .min_size(Vec2::new(30., 28.));
+    .min_size(Vec2::new(26., 24.));
 
     let resp = ui.add(btn);
     resp.on_hover_ui(|ui| {
@@ -45,64 +46,15 @@ pub fn tool_icon_btn(
 }
 
 pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
-    ui.vertical_centered(|ui| {
-        ui.add_space(2.);
+    ui.add_space(2.);
 
-        // Single-column vertical tools (Affinity Designer style)
-        if tool_icon_btn(ui, "↖", app.active_tool == crate::models::DesignerTool::Select, "Select Tool", "V", "Click to select, drag on canvas for marquee multi-selection.").clicked() {
+    // ── Penpot Top Tool Rail ──
+    ui.horizontal_wrapped(|ui| {
+        if tool_icon_btn(ui, "↖", app.active_tool == crate::models::DesignerTool::Select, "Select Tool", "V", "Select and move elements").clicked() {
             app.active_tool = crate::models::DesignerTool::Select;
         }
-        ui.add_space(2.);
-        if tool_icon_btn(ui, "▢", app.active_tool == crate::models::DesignerTool::Rectangle, "Smart Box", "R", "Smart Box tool. Click & drag on canvas to draw directly.").clicked() {
-            app.active_tool = crate::models::DesignerTool::Rectangle;
-        }
-        ui.add_space(2.);
-        if tool_icon_btn(ui, "T", app.active_tool == crate::models::DesignerTool::Text, "Text Tool", "T", "Text tool. Click & drag on canvas to draw text.").clicked() {
-            app.active_tool = crate::models::DesignerTool::Text;
-        }
-        ui.add_space(2.);
-        if tool_icon_btn(ui, "🔘", app.active_tool == crate::models::DesignerTool::Button, "Action Button", "B", "Action Button tool. Click & drag on canvas to draw a button.").clicked() {
-            app.active_tool = crate::models::DesignerTool::Button;
-        }
-        ui.add_space(2.);
-        if tool_icon_btn(ui, "⊞", app.active_tool == crate::models::DesignerTool::Table, "Data Table", "G", "Data Table tool. Click & drag on canvas to draw a data-bound table.").clicked() {
-            app.active_tool = crate::models::DesignerTool::Table;
-        }
-        ui.add_space(2.);
-        if tool_icon_btn(ui, "✋", app.active_tool == crate::models::DesignerTool::Hand, "Hand Tool", "H", "Pan canvas viewport freely.").clicked() {
-            app.active_tool = crate::models::DesignerTool::Hand;
-        }
-        ui.add_space(2.);
-        if tool_icon_btn(ui, "⌫", app.active_tool == crate::models::DesignerTool::Eraser, "Eraser", "E", "Delete currently selected element.").clicked() {
-            if let Some(ref sel_id) = app.designer_selected_node.clone() {
-                app.project_doc.delete_node(sel_id);
-                app.designer_selected_node = None;
-                app.editor_state.selected_node_ids.clear();
-                app.toast("Element deleted");
-            }
-        }
-        ui.add_space(2.);
-        if tool_icon_btn(ui, "✂", app.active_tool == crate::models::DesignerTool::Crop, "Crop Tool", "C", "Crop canvas area (Placeholder - v1.1).").clicked() {
-            app.active_tool = crate::models::DesignerTool::Crop;
-        }
-        ui.add_space(2.);
-        if tool_icon_btn(ui, "🔍", app.active_tool == crate::models::DesignerTool::Zoom, "Zoom Tool", "Z", "Zoom canvas (Mouse wheel also zooms).").clicked() {
-            app.active_tool = crate::models::DesignerTool::Zoom;
-        }
-        ui.add_space(2.);
-        if tool_icon_btn(ui, "📏", app.active_tool == crate::models::DesignerTool::Ruler, "Ruler Guides", "M", "Measurement guides and snap indicators.").clicked() {
-            app.active_tool = crate::models::DesignerTool::Ruler;
-        }
-
-        ui.add_space(8.);
-        ui.separator();
-        ui.add_space(4.);
-
-        // Pages quick-add button
-        let page_count = app.project_doc.root_node_ids.len();
-        let pages_btn = tool_icon_btn(ui, "📄", false, "Add Page", "P", "Add a new blank canvas page.");
-        if pages_btn.clicked() {
-            let page_num = page_count + 1;
+        if tool_icon_btn(ui, "▦", false, "Add Board/Page", "P", "Add new canvas artboard/page").clicked() {
+            let page_num = app.project_doc.root_node_ids.len() + 1;
             let page_id = format!("page-{}", page_num);
             let page = scene::Node {
                 id: page_id.clone(),
@@ -125,25 +77,133 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
             let _ = app.project_doc.add_node(page, None);
             app.toast(format!("Page '{}' added ✓", page_id));
         }
-
-        ui.add_space(6.);
-        ui.separator();
-        ui.add_space(4.);
-
-        // Quick Component Blocks (One-Click Templates)
-        let kpi_btn = tool_icon_btn(ui, "💳", false, "KPI Metric Card", "K", "Insert pre-styled KPI metric card.");
-        if kpi_btn.clicked() {
-            let offset = (app.spawn_counter as f32 * 25.0) % 250.0;
-            app.spawn_kpi_card((120.0 + offset, 120.0 + offset));
+        if tool_icon_btn(ui, "▢", app.active_tool == crate::models::DesignerTool::Rectangle, "Smart Box", "R", "Draw Box").clicked() {
+            app.active_tool = crate::models::DesignerTool::Rectangle;
         }
-
-        ui.add_space(2.);
-        let form_btn = tool_icon_btn(ui, "📝", false, "Intake Form Card", "F", "Insert pre-styled intake form block.");
-        if form_btn.clicked() {
-            let offset = (app.spawn_counter as f32 * 25.0) % 250.0;
-            app.spawn_form_block((160.0 + offset, 140.0 + offset));
+        if tool_icon_btn(ui, "T", app.active_tool == crate::models::DesignerTool::Text, "Text Tool", "T", "Draw Text").clicked() {
+            app.active_tool = crate::models::DesignerTool::Text;
+        }
+        if tool_icon_btn(ui, "🔘", app.active_tool == crate::models::DesignerTool::Button, "Action Button", "B", "Draw Button").clicked() {
+            app.active_tool = crate::models::DesignerTool::Button;
+        }
+        if tool_icon_btn(ui, "⊞", app.active_tool == crate::models::DesignerTool::Table, "Data Table", "G", "Draw Table").clicked() {
+            app.active_tool = crate::models::DesignerTool::Table;
+        }
+        if tool_icon_btn(ui, "✋", app.active_tool == crate::models::DesignerTool::Hand, "Hand Tool", "H", "Pan Canvas").clicked() {
+            app.active_tool = crate::models::DesignerTool::Hand;
         }
     });
+
+    ui.add_space(4.);
+    ui.separator();
+    ui.add_space(4.);
+
+    // ── Penpot Left Sidebar Tabs (Layers vs Assets) ──
+    ui.horizontal(|ui| {
+        let is_layers = app.designer_left_tab == crate::models::DesignerLeftTab::Layers;
+        let is_assets = app.designer_left_tab == crate::models::DesignerLeftTab::Assets;
+
+        if ui.add(
+            egui::Button::new(
+                egui::RichText::new("▤ LAYERS")
+                    .size(9.5)
+                    .strong()
+                    .color(if is_layers { theme::ACCENT } else { Color32::GRAY }),
+            )
+            .fill(if is_layers { Color32::from_rgba_unmultiplied(79, 140, 237, 25) } else { Color32::TRANSPARENT })
+            .stroke(if is_layers { egui::Stroke::new(1., theme::ACCENT) } else { egui::Stroke::NONE })
+            .min_size(Vec2::new(96., 22.)),
+        ).clicked() {
+            app.designer_left_tab = crate::models::DesignerLeftTab::Layers;
+        }
+
+        if ui.add(
+            egui::Button::new(
+                egui::RichText::new("✦ ASSETS")
+                    .size(9.5)
+                    .strong()
+                    .color(if is_assets { theme::ACCENT } else { Color32::GRAY }),
+            )
+            .fill(if is_assets { Color32::from_rgba_unmultiplied(79, 140, 237, 25) } else { Color32::TRANSPARENT })
+            .stroke(if is_assets { egui::Stroke::new(1., theme::ACCENT) } else { egui::Stroke::NONE })
+            .min_size(Vec2::new(96., 22.)),
+        ).clicked() {
+            app.designer_left_tab = crate::models::DesignerLeftTab::Assets;
+        }
+    });
+
+    ui.add_space(4.);
+
+    match app.designer_left_tab {
+        crate::models::DesignerLeftTab::Layers => {
+            let mut layer_events = Vec::new();
+            crate::components::layers_panel::draw_layers_panel(
+                ui,
+                &app.project_doc,
+                app.designer_selected_node.as_deref(),
+                ui.available_height() - 10.,
+                &mut layer_events,
+            );
+            for ev in layer_events {
+                match ev {
+                    CanvasEvent::NodeClicked { id, shift_held } => {
+                        if shift_held {
+                            if let Some(pos) = app.editor_state.selected_node_ids.iter().position(|sid| sid == &id) {
+                                app.editor_state.selected_node_ids.remove(pos);
+                            } else {
+                                app.editor_state.selected_node_ids.push(id.clone());
+                            }
+                        } else {
+                            app.designer_selected_node = Some(id.clone());
+                            app.editor_state.selected_node_ids = vec![id];
+                        }
+                    }
+                    CanvasEvent::NodeModified { id, update } => {
+                        let _ = app.project_doc.update_node(&id, update);
+                    }
+                    CanvasEvent::DeleteNode { id } => {
+                        app.push_undo();
+                        app.project_doc.delete_node(&id);
+                        if app.designer_selected_node.as_deref() == Some(&id) {
+                            app.designer_selected_node = None;
+                            app.editor_state.selected_node_ids.clear();
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+        crate::models::DesignerLeftTab::Assets => {
+            ui.label(egui::RichText::new("ONE-CLICK COMPONENT BLOCKS").size(8.5).color(theme::TEXT_MUTED));
+            ui.add_space(4.);
+
+            if ui.button("💳 KPI Metric Card").on_hover_text("Insert pre-styled KPI card").clicked() {
+                let offset = (app.spawn_counter as f32 * 25.0) % 250.0;
+                app.spawn_kpi_card((120.0 + offset, 120.0 + offset));
+            }
+            ui.add_space(2.);
+            if ui.button("📝 Intake Form Block").on_hover_text("Insert customer intake form").clicked() {
+                let offset = (app.spawn_counter as f32 * 25.0) % 250.0;
+                app.spawn_form_block((160.0 + offset, 140.0 + offset));
+            }
+            ui.add_space(2.);
+            if ui.button("⊞ Data Grid View").on_hover_text("Insert SQLite data grid").clicked() {
+                let offset = (app.spawn_counter as f32 * 25.0) % 250.0;
+                app.spawn_designer_node(scene::NodeType::Table {
+                    bound_entity: Some("contacts".into()),
+                    columns: vec!["ID".into(), "Name".into(), "Phone".into()],
+                }, Pos2::new(180.0 + offset, 160.0 + offset));
+            }
+            ui.add_space(2.);
+            if ui.button("🔘 Action Trigger").on_hover_text("Insert button with SQLite submit action").clicked() {
+                let offset = (app.spawn_counter as f32 * 25.0) % 250.0;
+                app.spawn_designer_node(scene::NodeType::Button {
+                    label: "Submit Record".into(),
+                    style: scene::ButtonStyle::Primary,
+                }, Pos2::new(200.0 + offset, 180.0 + offset));
+            }
+        }
+    }
 }
 
 pub fn show_central(
@@ -229,6 +289,7 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
         ui,
         &app.project_doc,
         &app.editor_state,
+        &mut app.inspector_tab,
         &mut app.copied_dimensions,
     );
     for ev in events {

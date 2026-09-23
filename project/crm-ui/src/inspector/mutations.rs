@@ -51,6 +51,20 @@ pub fn bind_data(node_id: String, entity: Option<String>, field: Option<String>)
     }
 }
 
+pub fn update_font_size(node_id: String, size: f32) -> CanvasEvent {
+    CanvasEvent::NodeModified {
+        id: node_id,
+        update: NodeUpdate::FontSize(size),
+    }
+}
+
+pub fn update_font_weight(node_id: String, weight: u16) -> CanvasEvent {
+    CanvasEvent::NodeModified {
+        id: node_id,
+        update: NodeUpdate::FontWeight(weight),
+    }
+}
+
 pub fn set_button_action(
     button_id: String,
     target_page: Option<String>,
