@@ -1,6 +1,5 @@
-//! Public Marketing Landing Website for Proteus CRM & Business Engine.
-//! Incorporates Section 33 preserved components: HeroSection, FeatureGrid, PricingTable, CallToAction, ContactForm.
-//! Inspired by the "Penpot for Applications" paradigm.
+//! Public Marketing & Company Landing Website for Proteus CRM & Business Engine.
+//! Presents the product, how it works, workshops, hiring specialists, and custom quotes.
 
 use axum::response::Html;
 use std::sync::OnceLock;
@@ -26,8 +25,8 @@ const HTML_HEAD: &str = r##"<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proteus — Penpot for Applications | Native Rust & SQLite CRM</title>
-    <meta name="description" content="Proteus is the first Penpot-inspired application engine. Design, automate, and run custom business software with native Rust speed and local-first SQLite resilience.">
+    <title>Proteus — Native Business Application Engine & CRM</title>
+    <meta name="description" content="Proteus: Native Rust & SQLite CRM for repairs, retail, and store management. Local-first resilience, zero cloud lock-in, workshops, and custom enterprise engineering.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -38,239 +37,245 @@ const HTML_BODY: &str = r##"
     </style>
 </head>
 <body>
-    <!-- Top Navigation Bar (PDSNavbar) -->
+    <!-- Top Navigation Bar -->
     <header class="landing-header">
         <div class="brand-wrap">
             <a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.75rem;">
                 <div class="brand-logo-icon">✦</div>
                 <div class="brand">
                     <span>PROTEUS</span>
-                    <span class="brand-badge">APP ENGINE</span>
+                    <span class="brand-badge">BUSINESS ENGINE</span>
                 </div>
             </a>
             <nav class="nav-links">
-                <a href="#features" class="nav-link">Χαρακτηριστικά</a>
-                <a href="#vision" class="nav-link">Το Όραμα</a>
-                <a href="#demo" class="nav-link">Live Canvas</a>
+                <a href="#about" class="nav-link">Σχετικά</a>
+                <a href="#how-it-works" class="nav-link">Πώς Λειτουργεί</a>
+                <a href="#services" class="nav-link">Workshops</a>
+                <a href="#talent" class="nav-link">Πρόσληψη Ειδικών</a>
                 <a href="#pricing" class="nav-link">Τιμολόγηση</a>
                 <a href="#contact" class="nav-link">Επικοινωνία</a>
             </nav>
         </div>
         <div class="header-actions">
-            <a href="/hub" class="btn btn-secondary btn-sm">Άνοιγμα Web Hub</a>
-            <a href="#demo" class="btn btn-sm">Δοκιμή Demo →</a>
+            <a href="/hub" class="btn btn-secondary btn-sm">Web Hub</a>
+            <a href="#contact" class="btn btn-sm">Ζητήστε Προσφορά →</a>
         </div>
     </header>
 
     <main class="landing-main">
-        <!-- 1. HERO SECTION (Section 33 Preserved) -->
+        <!-- 1. HERO SECTION -->
         <section class="hero-section">
             <div class="hero-pill">
                 <span class="pulse-dot"></span>
-                <span>THE FIRST PENPOT FOR APPLICATIONS &bull; NATIVE RUST &bull; 0% CLOUD LOCK-IN</span>
+                <span>NATIVE RUST &bull; LOCAL SQLITE &bull; 0% CLOUD LOCK-IN</span>
             </div>
             <h1 class="hero-title">
-                Το Πρώτο <span class="gradient-text">Penpot for Applications</span> στον Κόσμο
+                Το Σύγχρονο Λειτουργικό Σύστημα για <span class="gradient-text">Επιχειρήσεις & Retail</span>
             </h1>
             <p class="hero-subtitle">
-                Σχεδιάστε, αυτοματοποιήστε και εκτελέστε πραγματικές επιχειρησιακές εφαρμογές σε έναν άπειρο καμβά.
-                Native Rust ταχύτητα, τοπική βάση SQLite και 100% ιδιωτικότητα χωρίς εξάρτηση από cloud.
+                Το Proteus αντικαθιστά τα αργά και δυσκίνητα cloud CRM με μία αστραπιαία native εφαρμογή σε Rust.
+                Απόλυτη τοπική ασφάλεια SQLite, 100% offline λειτουργία, διαχείριση επισκευών και σημείο πώλησης (POS).
             </p>
             <div class="hero-cta-group">
-                <a href="/hub" class="btn btn-lg">Είσοδος στο Business Hub →</a>
-                <a href="#demo" class="btn btn-secondary btn-lg">Εξερεύνηση Live Canvas</a>
+                <a href="#contact" onclick="selectService('quote')" class="btn btn-lg">Κλείσιμο Προσφοράς & Demo →</a>
+                <a href="#services" class="btn btn-secondary btn-lg">Εκπαιδευτικά Workshops</a>
             </div>
             <div class="hero-specs-strip">
-                <div class="spec-item"><span>🚀 0ms</span> Latency (Native Local)</div>
+                <div class="spec-item"><span>🚀 0ms</span> Local Latency</div>
                 <div class="spec-item"><span>🛡 AES-256</span> Encrypted SQLite</div>
                 <div class="spec-item"><span>📐 W3C</span> Design Tokens</div>
-                <div class="spec-item"><span>♿ WCAG 2.2 AA</span> Accessible</div>
+                <div class="spec-item"><span>⚡ 100%</span> Offline Resilience</div>
             </div>
         </section>
 
-        <!-- 2. PENPOT-FOR-APPS INTERACTIVE CANVAS PREVIEW -->
-        <section class="canvas-preview-section" id="vision">
+        <!-- 2. ABOUT & CAPABILITIES -->
+        <section class="feature-section" id="about">
             <div class="section-header center">
-                <span class="badge badge-purple">THE PARADIGM SHIFT</span>
-                <h2 class="section-title">Από το Σχεδιασμό Mockup στην Πραγματική Εφαρμογή</h2>
-                <p class="section-sub">Στο Penpot σχεδιάζεις σχήματα. Στο Proteus κάθε στοιχείο στον καμβά συνδέεται ζωντανά με δεδομένα και εκτελείται.</p>
-            </div>
-
-            <div class="canvas-mockup-frame" id="demo">
-                <!-- Canvas Top Bar -->
-                <div class="canvas-bar">
-                    <div class="canvas-dots">
-                        <span class="dot red"></span>
-                        <span class="dot yellow"></span>
-                        <span class="dot green"></span>
-                    </div>
-                    <div class="canvas-title">Proteus Studio &bull; App Canvas &bull; CRM Operations</div>
-                    <div class="canvas-mode-toggle">
-                        <button class="mode-btn active" id="btn-mode-live" onclick="setCanvasMode('live')">⚡ Live App Mode</button>
-                        <button class="mode-btn" id="btn-mode-inspect" onclick="setCanvasMode('inspect')">📐 Token Inspector</button>
-                    </div>
-                </div>
-
-                <!-- Canvas Body -->
-                <div class="canvas-body">
-                    <!-- Left Mini Toolbar (Penpot-inspired) -->
-                    <div class="canvas-tools">
-                        <div class="tool-icon active" title="Select (V)">↖</div>
-                        <div class="tool-icon" title="Frame / Artboard (F)">▦</div>
-                        <div class="tool-icon" title="Input Field (T)">I</div>
-                        <div class="tool-icon" title="Button (B)">▭</div>
-                        <div class="tool-icon" title="Data Table (D)">▤</div>
-                        <div class="tool-icon" title="Flow Logic (L)">⚡</div>
-                    </div>
-
-                    <!-- Center Live Canvas Viewport -->
-                    <div class="canvas-viewport" id="canvas-viewport">
-                        <div class="live-artboard">
-                            <div class="artboard-header">
-                                <div>
-                                    <div class="artboard-name">Artboard: Dashboard &bull; Desktop HD (1440x900)</div>
-                                    <h3 style="color: #fff; font-size: 1.15rem; margin-top: 0.2rem;">Επισκόπηση Καταστήματος (Live SQLite)</h3>
-                                </div>
-                                <span class="badge badge-green">● Connected (Port 8080)</span>
-                            </div>
-
-                            <div class="artboard-stats">
-                                <div class="mini-stat">
-                                    <div class="mini-val">128</div>
-                                    <div class="mini-lbl">ΕΝΕΡΓΑ DEALS</div>
-                                </div>
-                                <div class="mini-stat">
-                                    <div class="mini-val" style="color: var(--success);">84.200 €</div>
-                                    <div class="mini-lbl">PIPELINE REVENUE</div>
-                                </div>
-                                <div class="mini-stat">
-                                    <div class="mini-val" style="color: var(--accent);">342</div>
-                                    <div class="mini-lbl">ΕΠΑΦΕΣ</div>
-                                </div>
-                            </div>
-
-                            <div class="artboard-table">
-                                <div class="table-bar">
-                                    <span>Ζωντανές Παραλαβές & Επισκευές</span>
-                                    <button class="btn btn-sm btn-secondary" onclick="simulateInsert()">+ Quick Add</button>
-                                </div>
-                                <div class="table-rows" id="mock-table-rows">
-                                    <div class="t-row"><span>#1042 — Laptop Dell XPS</span><span class="badge badge-amber">Σε Επισκευή</span></div>
-                                    <div class="t-row"><span>#1041 — iPhone 14 Pro Max</span><span class="badge badge-green">Έτοιμο</span></div>
-                                    <div class="t-row"><span>#1040 — iPad Air M2</span><span class="badge badge-blue">Νέα Παραλαβή</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Inspector Panel (Tokens / Data Binding) -->
-                    <div class="canvas-inspector" id="canvas-inspector">
-                        <div class="insp-title">INSPECTOR</div>
-                        <div class="insp-group">
-                            <div class="insp-label">Bound SQLite Entity</div>
-                            <div class="insp-val">tickets (Local WAL)</div>
-                        </div>
-                        <div class="insp-group">
-                            <div class="insp-label">Semantic Color Token</div>
-                            <div class="insp-val"><code>canvas.surface (#151821)</code></div>
-                        </div>
-                        <div class="insp-group">
-                            <div class="insp-label">Corner Radius Token</div>
-                            <div class="insp-val"><code>radius.lg (12px)</code></div>
-                        </div>
-                        <div class="insp-group">
-                            <div class="insp-label">Action Binding</div>
-                            <div class="insp-val"><code>submit_record() &rarr; SQLite</code></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. FEATURE GRID (Section 33 Preserved) -->
-        <section class="feature-section" id="features">
-            <div class="section-header center">
-                <span class="badge badge-blue">ENTERPRISE FOUNDATIONS</span>
-                <h2 class="section-title">Αρχιτεκτονική Σχεδιασμένη για Απόλυτες Επιδόσεις</h2>
-                <p class="section-sub">Χτισμένο από το μηδέν σε Rust, απαλλαγμένο από εξαρτήσεις τρίτων και περιττή πολυπλοκότητα.</p>
+                <span class="badge badge-purple">THE ALL-IN-ONE BUSINESS PLATFORM</span>
+                <h2 class="section-title">Σχεδιασμένο για την Πραγματική Επιχείρηση</h2>
+                <p class="section-sub">Όλα τα κρίσιμα εργαλεία λειτουργίας ενσωματωμένα σε μία ενιαία αρχιτεκτονική χωρίς συνδρομές cloud.</p>
             </div>
 
             <div class="feature-grid">
-                <div class="feature-card"><div class="feature-icon">⚡</div><h3 class="feature-title">Αστραπιαία Ταχύτητα (Rust)</h3><p class="feature-desc">Native εκτέλεση χωρίς JavaScript runtime στο desktop. Εκκίνηση σε κλάσματα δευτερολέπτου και λιγότερο από 30MB μνήμη RAM.</p></div>
-                <div class="feature-card"><div class="feature-icon">🛡</div><h3 class="feature-title">Τοπική Κρυπτογραφημένη Βάση</h3><p class="feature-desc">Πλήρης προστασία με AES-256-GCM και ChaCha20-Poly1305. Τα δεδομένα μένουν πάντα στην τοπική σας συσκευή.</p></div>
-                <div class="feature-card"><div class="feature-icon">📊</div><h3 class="feature-title">Penpot-Inspired Canvas</h3><p class="feature-desc">Σχεδιάστε οθόνες, φόρμες και πίνακες με auto-layout και δεσμεύστε τις απευθείας σε πραγματικές οντότητες της βάσης.</p></div>
-                <div class="feature-card"><div class="feature-icon">☁</div><h3 class="feature-title">Resilient Local-First</h3><p class="feature-desc">Συνεχίστε να εργάζεστε ακόμα και όταν το διαδίκτυο διακοπεί. Αυτόματος συγχρονισμός LAN μόλις επανασυνδεθείτε.</p></div>
-                <div class="feature-card"><div class="feature-icon">📐</div><h3 class="feature-title">W3C Design Tokens</h3><p class="feature-desc">Ενιαία πηγή αλήθειας για χρώματα, αποστάσεις και τυπογραφία, αποτρέποντας οποιαδήποτε σχεδιαστική απόκλιση.</p></div>
-                <div class="feature-card"><div class="feature-icon">⚙</div><h3 class="feature-title">Walled Garden Marketplace</h3><p class="feature-desc">Επεκτείνετε τις δυνατότητες με πιστοποιημένα modules, ασφαλή compilation gate και ψηφιακά συμβόλαια SLA με escrow.</p></div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3 class="feature-title">Επισκευές & Τεχνικό Τμήμα</h3>
+                    <p class="feature-desc">Παραλαβές συσκευών, παρακολούθηση σταδίων επισκευής, κοστολόγηση ανταλλακτικών και αυτόματη ενημέρωση πελατών.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💳</div>
+                    <h3 class="feature-title">Σημείο Πώλησης & Ταμείο (POS)</h3>
+                    <p class="feature-desc">Έκδοση παραστατικών, εκτυπώσεις αποδείξεων ESC/POS και διασύνδεση με συρτάρι ταμείου με άμεση απόκριση.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3 class="feature-title">Penpot-Inspired Native Designer</h3>
+                    <p class="feature-desc">Το περιβάλλον σχεδιασμού της desktop εφαρμογής αντλεί έμπνευση από το Penpot, προσφέροντας καθαρή και ταχύτατη διάταξη φορμών.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡</div>
+                    <h3 class="feature-title">Τοπική SQLite & Zero Cloud Lock-in</h3>
+                    <p class="feature-desc">Πλήρης ανεξαρτησία από το internet. Όλα τα δεδομένα αποθηκεύονται τοπικά με ισχυρή κρυπτογράφηση και συγχρονίζονται μέσω LAN.</p>
+                </div>
             </div>
         </section>
 
-        <!-- 4. PRICING TABLE (Section 33 Preserved) -->
+        <!-- 3. HOW IT WORKS / WORKFLOW -->
+        <section class="workflow-section" id="how-it-works">
+            <div class="section-header center">
+                <span class="badge badge-blue">SIMPLE & DETERMINISTIC</span>
+                <h2 class="section-title">Πώς Λειτουργεί στην Πράξη</h2>
+                <p class="section-sub">Τρία απλά βήματα από την πρώτη εγκατάσταση μέχρι την καθημερινή παραγωγική χρήση.</p>
+            </div>
+
+            <div class="workflow-grid">
+                <div class="workflow-card">
+                    <div class="step-badge">01</div>
+                    <h3 class="workflow-title">Εγκατάσταση Desktop Εφαρμογής</h3>
+                    <p class="workflow-desc">Κατεβάζετε το αυτόνομο native εκτελέσιμο για Windows ή Linux. Άμεση εκκίνηση σε λιγότερο από ένα δευτερόλεπτο χωρίς βαριά JavaScript runtimes.</p>
+                </div>
+                <div class="workflow-card">
+                    <div class="step-badge">02</div>
+                    <h3 class="workflow-title">Παραμετροποίηση & Ροές Καταστήματος</h3>
+                    <p class="workflow-desc">Επιλέγετε έτοιμες προκαθορισμένες φόρμες καταστήματος ή προσαρμόζετε πεδία και DDL με τον ενσωματωμένο visual designer.</p>
+                </div>
+                <div class="workflow-card">
+                    <div class="step-badge">03</div>
+                    <h3 class="workflow-title">Απρόσκοπτη Καθημερινή Λειτουργία</h3>
+                    <p class="workflow-desc">Εκτελείτε πωλήσεις, παραλαβές και αναφορές με μηδενικό latency, ακόμα και σε πλήρη διακοπή διαδικτύου, με ασφαλή τοπικά αντίγραφα.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. SERVICES: WORKSHOPS & SPECIALISTS -->
+        <section class="services-section" id="services">
+            <div class="section-header center">
+                <span class="badge badge-green">WORKSHOPS & SPECIALISTS</span>
+                <h2 class="section-title">Επαγγελματικές Υπηρεσίες & Συνεργασία</h2>
+                <p class="section-sub">Εκπαιδεύστε την ομάδα σας, προσλάβετε πιστοποιημένους μηχανικούς ή ζητήστε custom υλοποίηση για τον οργανισμό σας.</p>
+            </div>
+
+            <div class="services-grid">
+                <!-- Service 1: Workshops -->
+                <div class="service-card">
+                    <div class="service-header">
+                        <span class="badge badge-blue">ONBOARDING & TRAINING</span>
+                    </div>
+                    <h3 class="service-title">Εκπαιδευτικά Workshops</h3>
+                    <p class="service-desc">Εντατικά πρακτικά σεμινάρια για ιδιοκτήτες, τεχνικούς και διαχειριστές καταστημάτων.</p>
+                    <ul class="service-list">
+                        <li>✓ Εκπαίδευση προσωπικού στις καθημερινές ροές</li>
+                        <li>✓ Διαμόρφωση φορμών & custom πεδίων</li>
+                        <li>✓ Βέλτιστες πρακτικές ασφάλειας και τοπικών backups</li>
+                    </ul>
+                    <button class="btn btn-secondary full-width" onclick="selectService('workshop')">Κράτηση Workshop →</button>
+                </div>
+
+                <!-- Service 2: Hire Specialists -->
+                <div class="service-card featured" id="talent">
+                    <div class="service-header">
+                        <span class="badge badge-purple">DEDICATED TALENT</span>
+                    </div>
+                    <h3 class="service-title">Πρόσληψη Εξειδικευμένων Μηχανικών</h3>
+                    <p class="service-desc">Συνεργαστείτε απευθείας με πιστοποιημένους μηχανικούς λογισμικού του οικοσυστήματος Proteus.</p>
+                    <ul class="service-list">
+                        <li>✓ Ανάπτυξη εξατομικευμένων modules & API</li>
+                        <li>✓ Ασφαλής μετάπτωση δεδομένων από παλιά ERP</li>
+                        <li>✓ On-demand τεχνική επίβλεψη και συμβουλευτική</li>
+                    </ul>
+                    <button class="btn full-width" onclick="selectService('talent')">Πρόσληψη Specialist →</button>
+                </div>
+
+                <!-- Service 3: Enterprise Quotes -->
+                <div class="service-card">
+                    <div class="service-header">
+                        <span class="badge badge-amber">ENTERPRISE SCALE</span>
+                    </div>
+                    <h3 class="service-title">Custom Enterprise & SLAs</h3>
+                    <p class="service-desc">Ολοκληρωμένες λύσεις εγκατάστασης για αλυσίδες καταστημάτων και franchises.</p>
+                    <ul class="service-list">
+                        <li>✓ Multi-store αρχιτεκτονική & LAN mesh</li>
+                        <li>✓ 24/7 dedicated υποστήριξη & συμβόλαια SLA</li>
+                        <li>✓ Επαλήθευση κώδικα με compiler verification</li>
+                    </ul>
+                    <button class="btn btn-secondary full-width" onclick="selectService('quote')">Ζητήστε Custom Προσφορά →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. PRICING TABLE -->
         <section class="pricing-section" id="pricing">
             <div class="section-header center">
-                <span class="badge badge-green">TRANSPARENT VALUE</span>
-                <h2 class="section-title">Διαφανής Τιμολόγηση χωρίς Κρυφές Χρεώσεις</h2>
-                <p class="section-sub">Επιλέξτε το πακέτο που ταιριάζει στο μέγεθος της επιχείρησής σας. Πλήρης έλεγχος κόστους.</p>
+                <span class="badge badge-gray">TRANSPARENT VALUE</span>
+                <h2 class="section-title">Διαφανή Πακέτα Συνεργασίας</h2>
+                <p class="section-sub">Επιλέξτε το πακέτο που ανταποκρίνεται στις ανάγκες της επιχείρησής σας.</p>
             </div>
 
             <div class="pricing-table">
-                <!-- Plan 1: Community -->
                 <div class="pricing-card">
                     <div class="plan-name">Community</div>
                     <div class="plan-price">0 € <span class="price-period">/ για πάντα</span></div>
                     <p class="plan-desc">Ιδανικό για αυτόνομους επαγγελματίες και μεμονωμένα καταστήματα.</p>
                     <ul class="plan-features">
-                        <li>✓ 1 Θέση Εργασίας</li><li>✓ Τοπική Βάση SQLite</li><li>✓ Απεριόριστες Επαφές &amp; Deals</li><li>✓ Βασικές Αναφορές &amp; Εξαγωγές CSV</li><li>✓ Πλήρης Offline Λειτουργία</li>
+                        <li>✓ 1 Θέση Εργασίας</li><li>✓ Τοπική Βάση SQLite</li><li>✓ Απεριόριστες Επαφές &amp; Επισκευές</li><li>✓ Πλήρης Offline Λειτουργία</li>
                     </ul>
                     <a href="/hub" class="btn btn-secondary full-width">Έναρξη Δωρεάν</a>
                 </div>
 
-                <!-- Plan 2: Professional (Highlighted) -->
                 <div class="pricing-card highlighted">
                     <div class="popular-badge">ΔΗΜΟΦΙΛΕΣΤΕΡΟ</div>
                     <div class="plan-name">Professional</div>
                     <div class="plan-price">49 € <span class="price-period">/ μήνα</span></div>
                     <p class="plan-desc">Για δυναμικές ομάδες και αναπτυσσόμενα επισκευαστικά κέντρα.</p>
                     <ul class="plan-features">
-                        <li>✓ Έως 5 Θέσεις Εργασίας</li><li>✓ Αυτόματο LAN Roaming &amp; Peer Sync</li><li>✓ Daily Automated Cloud Backups</li><li>✓ Προτεραιότητα Τεχνικής Υποστήριξης</li><li>✓ Πρόσβαση στο Add-on Marketplace</li>
+                        <li>✓ Έως 5 Θέσεις Εργασίας</li><li>✓ Αυτόματο LAN Roaming &amp; Peer Sync</li><li>✓ Daily Automated Backups</li><li>✓ Προτεραιότητα Υποστήριξης</li>
                     </ul>
-                    <a href="/hub" class="btn full-width">Επιλογή Professional</a>
+                    <button class="btn full-width" onclick="selectService('quote')">Επιλογή Professional</button>
                 </div>
 
-                <!-- Plan 3: Enterprise -->
                 <div class="pricing-card">
-                    <div class="plan-name">Enterprise</div>
-                    <div class="plan-price">199 € <span class="price-period">/ μήνα</span></div>
-                    <p class="plan-desc">Για αλυσίδες καταστημάτων και οργανισμούς με αυστηρά SLAs.</p>
+                    <div class="plan-name">Enterprise Custom</div>
+                    <div class="plan-price">Custom <span class="price-period">/ προσφορά</span></div>
+                    <p class="plan-desc">Για αλυσίδες καταστημάτων, δίκτυα franchise και οργανισμούς.</p>
                     <ul class="plan-features">
-                        <li>✓ Απεριόριστες Θέσεις Εργασίας</li><li>✓ SLA Escrow Συμβόλαια Τεχνικών</li><li>✓ Walled Garden Compiler Gate</li><li>✓ Custom Inferred DB Modules</li><li>✓ 24/7 Dedicated SLA &amp; Support</li>
+                        <li>✓ Απεριόριστες Θέσεις &amp; Καταστήματα</li><li>✓ Συμπερίληψη Εκπαιδευτικού Workshop</li><li>✓ Δυνατότητα Dedicated Specialist</li><li>✓ 24/7 Dedicated SLA &amp; Support</li>
                     </ul>
-                    <a href="#contact" class="btn btn-secondary full-width">Επικοινωνία για Enterprise</a>
+                    <button class="btn btn-secondary full-width" onclick="selectService('quote')">Ζητήστε Προσφορά</button>
                 </div>
             </div>
         </section>
 
-        <!-- 5. CALL TO ACTION BANNER (Section 33 Preserved) -->
+        <!-- 6. CALL TO ACTION BANNER -->
         <section class="cta-banner">
             <div class="cta-content">
-                <h2 class="cta-title">Αποκτήστε τον Πλήρη Έλεγχο των Επιχειρησιακών σας Δεδομένων</h2>
-                <p class="cta-sub">Ξεκινήστε σήμερα με την ισχύ του Proteus. Χωρίς πιστωτική κάρτα, χωρίς κρυφές συνδρομές.</p>
+                <h2 class="cta-title">Αναβαθμίστε την Επιχείρησή σας με την Ισχύ του Proteus</h2>
+                <p class="cta-sub">Μιλήστε άμεσα με την ομάδα μηχανικών μας για κλείσιμο προσφοράς ή οργάνωση workshop.</p>
             </div>
             <div class="cta-btn-wrap">
-                <a href="/hub" class="btn btn-lg btn-white">Άνοιγμα Business Hub →</a>
+                <button onclick="selectService('quote')" class="btn btn-lg btn-white">Ζητήστε Προσφορά &rarr;</button>
             </div>
         </section>
 
-        <!-- 6. CONTACT FORM (Section 33 Preserved) -->
+        <!-- 7. CONTACT & QUOTE FORM -->
         <section class="contact-section" id="contact">
             <div class="section-header center">
-                <span class="badge badge-gray">GET IN TOUCH</span>
-                <h2 class="section-title">Επικοινωνήστε με την Ομάδα Μηχανικών του Proteus</h2>
-                <p class="section-sub">Στείλτε μας το αίτημά σας και θα σας απαντήσουμε άμεσα για να συζητήσουμε τις ανάγκες σας.</p>
+                <span class="badge badge-blue">GET IN TOUCH</span>
+                <h2 class="section-title">Κλείσιμο Προσφοράς & Επικοινωνία</h2>
+                <p class="section-sub">Συμπληρώστε τη φόρμα και η τεχνική μας ομάδα θα επικοινωνήσει μαζί σας εντός 24 ωρών.</p>
             </div>
 
             <div class="contact-form-wrap">
                 <form id="contact-form" class="contact-form-card" onsubmit="handleContactSubmit(event)">
+                    <div class="field-group">
+                        <label for="c-service">Σκοπός Επικοινωνίας *</label>
+                        <select id="c-service" class="pds-select" required>
+                            <option value="quote">Κλείσιμο Προσφοράς (Custom Quote)</option>
+                            <option value="workshop">Κράτηση Εκπαιδευτικού Workshop</option>
+                            <option value="talent">Πρόσληψη Εξειδικευμένου Μηχανικού (Specialist)</option>
+                            <option value="demo">Ενημέρωση &amp; Live Demo</option>
+                        </select>
+                    </div>
+
                     <div class="field-row">
                         <div class="field-group">
                             <label for="c-name">Ονοματεπώνυμο *</label>
@@ -281,15 +286,24 @@ const HTML_BODY: &str = r##"
                             <input type="email" id="c-email" required placeholder="name@company.com" class="pds-input">
                         </div>
                     </div>
-                    <div class="field-group">
-                        <label for="c-phone">Αριθμός Τηλεφώνου</label>
-                        <input type="tel" id="c-phone" placeholder="+30 210 1234567" class="pds-input">
+
+                    <div class="field-row">
+                        <div class="field-group">
+                            <label for="c-company">Επωνυμία Εταιρείας / Καταστήματος</label>
+                            <input type="text" id="c-company" placeholder="π.χ. TechRepair Hellas" class="pds-input">
+                        </div>
+                        <div class="field-group">
+                            <label for="c-phone">Αριθμός Τηλεφώνου</label>
+                            <input type="tel" id="c-phone" placeholder="+30 210 1234567" class="pds-input">
+                        </div>
                     </div>
+
                     <div class="field-group">
-                        <label for="c-msg">Μήνυμα / Περιγραφή Έργου *</label>
-                        <textarea id="c-msg" required rows="4" placeholder="Περιγράψτε το έργο σας ή τις απαιτήσεις του καταστήματός σας..." class="pds-textarea"></textarea>
+                        <label for="c-msg">Μήνυμα / Περιγραφή Απαιτήσεων *</label>
+                        <textarea id="c-msg" required rows="4" placeholder="Περιγράψτε το κατάστημά σας, τον αριθμό των θέσεων ή τις ανάγκες του workshop..." class="pds-textarea"></textarea>
                     </div>
-                    <button type="submit" id="c-submit" class="btn full-width">Αποστολή Μηνύματος ✓</button>
+
+                    <button type="submit" id="c-submit" class="btn full-width">Αποστολή Αιτήματος ✓</button>
                     <div id="contact-feedback" style="display: none; padding: 0.8rem; border-radius: 6px; font-size: 0.85rem; text-align: center;"></div>
                 </form>
             </div>
@@ -302,12 +316,14 @@ const HTML_BODY: &str = r##"
             <div class="footer-brand">
                 <div class="brand">PROTEUS</div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem;">
-                    The Open Business Engine & App Canvas. 100% Original Bespoke Rust Architecture.
+                    The Open Business Engine & CRM. 100% Original Bespoke Rust Architecture.
                 </p>
             </div>
             <div class="footer-links">
-                <a href="#features">Χαρακτηριστικά</a>
-                <a href="#vision">Το Όραμα</a>
+                <a href="#about">Σχετικά</a>
+                <a href="#how-it-works">Πώς Λειτουργεί</a>
+                <a href="#services">Workshops</a>
+                <a href="#talent">Πρόσληψη Ειδικών</a>
                 <a href="#pricing">Τιμολόγηση</a>
                 <a href="/hub">Web Hub</a>
             </div>
@@ -320,33 +336,15 @@ const HTML_BODY: &str = r##"
 
 const HTML_SCRIPTS: &str = r##"
     <script>
-        function setCanvasMode(mode) {
-            const btnLive = document.getElementById('btn-mode-live');
-            const btnInsp = document.getElementById('btn-mode-inspect');
-            const inspPanel = document.getElementById('canvas-inspector');
-
-            if (mode === 'live') {
-                btnLive.classList.add('active');
-                btnInsp.classList.remove('active');
-                inspPanel.style.opacity = '0.5';
-            } else {
-                btnInsp.classList.add('active');
-                btnLive.classList.remove('active');
-                inspPanel.style.opacity = '1.0';
+        function selectService(type) {
+            const select = document.getElementById('c-service');
+            if (select) {
+                select.value = type;
             }
-        }
-
-        function simulateInsert() {
-            const rows = document.getElementById('mock-table-rows');
-            const id = Math.floor(1043 + Math.random() * 50);
-            const models = ['MacBook Pro M3', 'Samsung Galaxy S24', 'Sony PlayStation 5', 'Surface Pro 9'];
-            const model = models[Math.floor(Math.random() * models.length)];
-            
-            const newRow = document.createElement('div');
-            newRow.className = 't-row';
-            newRow.innerHTML = '<span>#' + id + ' — ' + model + '</span><span class="badge badge-blue">Νέα Παραλαβή</span>';
-            newRow.style.animation = 'fadeIn 0.3s ease';
-            rows.insertBefore(newRow, rows.firstChild);
+            const contactSection = document.getElementById('contact');
+            if (contactSection) {
+                contactSection.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
         async function handleContactSubmit(e) {
@@ -356,16 +354,39 @@ const HTML_SCRIPTS: &str = r##"
             btn.disabled = true;
             btn.textContent = 'Αποστολή...';
 
-            setTimeout(() => {
+            const payload = {
+                service_type: document.getElementById('c-service').value,
+                name: document.getElementById('c-name').value,
+                email: document.getElementById('c-email').value,
+                company: document.getElementById('c-company').value || null,
+                phone: document.getElementById('c-phone').value || null,
+                message: document.getElementById('c-msg').value
+            };
+
+            try {
+                const res = await fetch('/api/v1/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
                 btn.disabled = false;
-                btn.textContent = 'Αποστολή Μηνύματος ✓';
+                btn.textContent = 'Αποστολή Αιτήματος ✓';
                 fb.style.display = 'block';
                 fb.style.background = 'rgba(16, 185, 129, 0.12)';
                 fb.style.border = '1px solid #10b981';
                 fb.style.color = '#34d399';
-                fb.textContent = 'Το μήνυμά σας καταχωρήθηκε επιτυχώς! Η ομάδα μηχανικών θα επικοινωνήσει μαζί σας σύντομα.';
+                fb.textContent = data.message || 'Το αίτημά σας καταχωρήθηκε επιτυχώς! Θα επικοινωνήσουμε μαζί σας σύντομα.';
                 document.getElementById('contact-form').reset();
-            }, 600);
+            } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Αποστολή Αιτήματος ✓';
+                fb.style.display = 'block';
+                fb.style.background = 'rgba(239, 68, 68, 0.12)';
+                fb.style.border = '1px solid #ef4444';
+                fb.style.color = '#f87171';
+                fb.textContent = 'Παρουσιάστηκε σφάλμα κατά την αποστολή. Παρακαλούμε δοκιμάστε ξανά.';
+            }
         }
     </script>
 </body>

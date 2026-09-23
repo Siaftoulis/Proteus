@@ -193,23 +193,30 @@ struct ContactSubmission {
     name: String,
     email: String,
     phone: Option<String>,
+    company: Option<String>,
+    service_type: Option<String>,
     message: String,
 }
 
 async fn contact_submit_handler(Json(payload): Json<ContactSubmission>) -> impl IntoResponse {
+    let service = payload.service_type.as_deref().unwrap_or("General Inquiry");
+    let company = payload.company.as_deref().unwrap_or("Independent");
     info!(
-        "Contact submission received from: {} ({}) [chars: {}]",
+        "Lead received: {} <{}> | Company: {} | Service: {} [chars: {}]",
         payload.name,
         payload.email,
+        company,
+        service,
         payload.message.len()
     );
     (
         StatusCode::OK,
         Json(serde_json::json!({
             "status": "success",
-            "message": "Message received successfully",
+            "message": "Το αίτημά σας καταχωρήθηκε επιτυχώς. Η ομάδα μηχανικών θα επικοινωνήσει μαζί σας σύντομα.",
             "sender": payload.name,
             "email": payload.email,
+            "service": service,
             "has_phone": payload.phone.is_some()
         })),
     )
