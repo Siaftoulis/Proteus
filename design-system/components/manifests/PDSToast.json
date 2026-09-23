@@ -1,0 +1,23 @@
+{
+  "name": "PDSToast",
+  "type": "component",
+  "description": "Transient floating notification alert for action feedback",
+  "props": {
+    "variant": { "type": "string", "enum": ["info", "success", "warning", "danger"], "default": "info" },
+    "message": { "type": "string", "required": true },
+    "duration": { "type": "number", "default": 4000 }
+  },
+  "variants": {
+    "info": { "bg": "canvas.surface", "border": "feedback.info" },
+    "success": { "bg": "canvas.surface", "border": "feedback.success" },
+    "warning": { "bg": "canvas.surface", "border": "feedback.warning" },
+    "danger": { "bg": "canvas.surface", "border": "feedback.danger" }
+  },
+  "states": ["entering", "visible", "exiting"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-toast",
+    "desktop": "crm-ui/src/components/ or egui toast"
+  }
+}

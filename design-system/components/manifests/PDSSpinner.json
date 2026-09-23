@@ -1,0 +1,21 @@
+{
+  "name": "PDSSpinner",
+  "type": "primitive",
+  "description": "Minimal circular loading indicator for asynchronous operations",
+  "props": {
+    "size": { "type": "string", "enum": ["sm", "md", "lg"], "default": "md" },
+    "color": { "type": "string", "enum": ["primary", "white", "muted"], "default": "primary" }
+  },
+  "variants": {
+    "primary": { "stroke": "brand.primary" },
+    "white": { "stroke": "#ffffff" },
+    "muted": { "stroke": "text.muted" }
+  },
+  "states": ["spinning"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-spinner",
+    "desktop": "crm-ui/src/components/ or egui::Spinner"
+  }
+}

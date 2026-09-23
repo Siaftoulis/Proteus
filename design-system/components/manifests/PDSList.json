@@ -1,0 +1,35 @@
+{
+  "name": "PDSList",
+  "type": "component",
+  "description": "Structured list container supporting items with title, subtitle, icon, and trailing actions",
+  "props": {
+    "items": {
+      "type": "array",
+      "required": true,
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "subtitle": { "type": "string" },
+          "icon": { "type": "string" },
+          "badge": { "type": "string" },
+          "trailingText": { "type": "string" }
+        }
+      }
+    },
+    "divided": { "type": "boolean", "default": true }
+  },
+  "variants": {
+    "default": { "gap": "spacing.sm" },
+    "bordered": { "border": "border.subtle", "radius": "radius.md" }
+  },
+  "states": ["default", "empty"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:ul.pds-list",
+    "desktop": "crm-ui/src/components/ or egui list view"
+  }
+}

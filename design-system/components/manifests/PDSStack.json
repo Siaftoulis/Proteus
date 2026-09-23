@@ -1,0 +1,23 @@
+{
+  "name": "PDSStack",
+  "type": "primitive",
+  "description": "Flexbox layout primitive providing vertical or horizontal spacing distribution",
+  "props": {
+    "direction": { "type": "string", "enum": ["column", "row"], "default": "column" },
+    "gap": { "type": "string", "enum": ["xs", "sm", "md", "lg", "xl", "2xl"], "default": "md" },
+    "align": { "type": "string", "enum": ["start", "center", "end", "stretch"], "default": "stretch" },
+    "justify": { "type": "string", "enum": ["start", "center", "end", "between"], "default": "start" },
+    "wrap": { "type": "boolean", "default": false }
+  },
+  "variants": {
+    "column": { "flexDirection": "column" },
+    "row": { "flexDirection": "row" }
+  },
+  "states": ["default"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-stack",
+    "desktop": "crm-ui/src/components/ or egui horizontal/vertical layout"
+  }
+}

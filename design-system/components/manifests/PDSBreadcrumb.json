@@ -1,0 +1,31 @@
+{
+  "name": "PDSBreadcrumb",
+  "type": "component",
+  "description": "Hierarchical trail component showing page ancestry and contextual location",
+  "props": {
+    "items": {
+      "type": "array",
+      "required": true,
+      "items": {
+        "type": "object",
+        "required": ["label"],
+        "properties": {
+          "label": { "type": "string" },
+          "href": { "type": "string" },
+          "active": { "type": "boolean" }
+        }
+      }
+    },
+    "separator": { "type": "string", "default": "/" }
+  },
+  "variants": {
+    "default": { "gap": "spacing.xs", "fontSize": "typography.sm" }
+  },
+  "states": ["default"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:nav.pds-breadcrumb",
+    "desktop": "crm-ui/src/components/ or egui breadcrumb layout"
+  }
+}

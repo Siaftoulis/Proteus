@@ -1,0 +1,21 @@
+{
+  "name": "PDSGrid",
+  "type": "primitive",
+  "description": "CSS Grid layout primitive for responsive multi-column layouts",
+  "props": {
+    "columns": { "type": "number", "default": 3 },
+    "minColWidth": { "type": "string", "default": "280px" },
+    "gap": { "type": "string", "default": "spacing.lg" }
+  },
+  "variants": {
+    "autoFit": { "gridTemplateColumns": "repeat(auto-fit, minmax(280px, 1fr))" },
+    "autoFill": { "gridTemplateColumns": "repeat(auto-fill, minmax(280px, 1fr))" }
+  },
+  "states": ["default"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-grid",
+    "desktop": "crm-ui/src/components/ or egui grid"
+  }
+}

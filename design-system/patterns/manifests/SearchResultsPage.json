@@ -1,0 +1,29 @@
+{
+  "name": "SearchResultsPage",
+  "type": "pattern",
+  "description": "Comprehensive search experience with filter toolbar, result counts, tabular or list results, and pagination",
+  "layout": "ApplicationShell",
+  "components": [
+    "PDSHeader",
+    "PDSInput",
+    "PDSSelect",
+    "PDSDataTable",
+    "PDSEmptyState",
+    "PDSPagination"
+  ],
+  "compositionRules": [
+    "Render PDSHeader with search query title and total result counter",
+    "Render search input and filter bar with status/category dropdowns",
+    "Render PDSDataTable with matching results or PDSEmptyState when zero results found",
+    "Render PDSPagination at footer of results table"
+  ],
+  "samplePayload": {
+    "query": "ACME Corp",
+    "totalMatches": 42,
+    "currentPage": 1,
+    "filters": [
+      { "name": "status", "value": "active" },
+      { "name": "type", "value": "customer" }
+    ]
+  }
+}

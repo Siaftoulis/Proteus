@@ -1,0 +1,23 @@
+{
+  "name": "PDSErrorState",
+  "type": "composite",
+  "description": "Deterministic error recovery state showing error code, message, and retry action",
+  "props": {
+    "title": { "type": "string", "default": "Something went wrong" },
+    "message": { "type": "string", "required": true },
+    "errorCode": { "type": "string" },
+    "retryLabel": { "type": "string", "default": "Retry" },
+    "supportLabel": { "type": "string" }
+  },
+  "variants": {
+    "fullscreen": { "padding": "spacing.3xl", "textAlign": "center" },
+    "inline": { "padding": "spacing.lg", "bg": "feedback.dangerBg", "border": "feedback.danger" }
+  },
+  "states": ["error"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-error-state",
+    "desktop": "crm-ui/src/components/ or egui error display"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "PDSCheckbox",
+  "type": "primitive",
+  "description": "Binary selection checkbox with label and indeterminate support",
+  "props": {
+    "label": { "type": "string", "required": true },
+    "checked": { "type": "boolean", "default": false },
+    "disabled": { "type": "boolean", "default": false },
+    "description": { "type": "string" }
+  },
+  "variants": {
+    "default": { "accentColor": "brand.primary" }
+  },
+  "states": ["checked", "unchecked", "hover", "focus", "disabled"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:input[type='checkbox']",
+    "desktop": "crm-ui/src/components/ or egui::Checkbox"
+  }
+}

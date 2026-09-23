@@ -1,0 +1,21 @@
+{
+  "name": "CallToAction",
+  "type": "composite",
+  "description": "Preserved Section 33 high-conversion call to action banner",
+  "props": {
+    "title": { "type": "string", "required": true },
+    "buttonText": { "type": "string", "required": true },
+    "style": { "type": "string", "enum": ["primary", "minimal"], "default": "primary" }
+  },
+  "variants": {
+    "primary": { "bg": "brand.primary", "textColor": "text.main", "buttonVariant": "secondary" },
+    "minimal": { "bg": "canvas.surface", "textColor": "text.main", "buttonVariant": "primary" }
+  },
+  "states": ["default", "hover"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.cta-banner",
+    "desktop": "crm-ui/src/components/ or egui CTA panel"
+  }
+}

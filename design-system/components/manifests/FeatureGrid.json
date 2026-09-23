@@ -1,0 +1,34 @@
+{
+  "name": "FeatureGrid",
+  "type": "composite",
+  "description": "Preserved Section 33 multi-column feature presentation grid with icon cards",
+  "props": {
+    "sectionTitle": { "type": "string", "required": true },
+    "columns": { "type": "number", "enum": [2, 3, 4], "default": 3 },
+    "items": {
+      "type": "array",
+      "required": true,
+      "items": {
+        "type": "object",
+        "required": ["title", "description", "icon"],
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "icon": { "type": "string", "enum": ["speed", "shield", "analytics", "cloud", "code", "settings"] }
+        }
+      }
+    }
+  },
+  "variants": {
+    "2-col": { "gridTemplateColumns": "repeat(2, 1fr)" },
+    "3-col": { "gridTemplateColumns": "repeat(3, 1fr)" },
+    "4-col": { "gridTemplateColumns": "repeat(4, 1fr)" }
+  },
+  "states": ["default"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.feature-grid",
+    "desktop": "crm-ui/src/components/ or egui grid"
+  }
+}

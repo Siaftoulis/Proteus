@@ -1,8 +1,9 @@
 {
   "name": "ProteusDesignSystem",
   "version": "1.0.0",
-  "description": "Authoritative machine-readable registry and source of truth for deterministic UI assembly across the Proteus ecosystem",
+  "description": "Authoritative machine-readable registry and single source of truth for deterministic UI assembly across the Proteus ecosystem",
   "tokens": {
+    "root": "tokens.json",
     "bundle": "tokens/index.json",
     "categories": {
       "colors": "tokens/colors.json",
@@ -14,68 +15,77 @@
       "motion": "tokens/motion.json"
     }
   },
+  "indexes": {
+    "tokens": "tokens.json",
+    "components": "components.json",
+    "patterns": "patterns.json",
+    "layouts": "layouts.json"
+  },
   "components": [
-    {
-      "name": "PDSButton",
-      "manifest": "components/manifests/PDSButton.json",
-      "variants": ["primary", "secondary", "ghost", "destructive", "success"],
-      "sizes": ["sm", "md", "lg"]
-    },
-    {
-      "name": "PDSCard",
-      "manifest": "components/manifests/PDSCard.json",
-      "variants": ["default", "interactive", "highlighted", "inset"],
-      "radius": "radius.lg"
-    },
-    {
-      "name": "PDSInput",
-      "manifest": "components/manifests/PDSInput.json",
-      "variants": ["default", "error"],
-      "types": ["text", "email", "password", "number", "search"]
-    },
-    {
-      "name": "PDSBadge",
-      "manifest": "components/manifests/PDSBadge.json",
-      "variants": ["neutral", "info", "success", "warning", "danger", "purple"]
-    },
-    {
-      "name": "PDSStatCard",
-      "manifest": "components/manifests/PDSStatCard.json",
-      "variants": ["default", "highlight"]
-    },
-    {
-      "name": "PDSDataTable",
-      "manifest": "components/manifests/PDSDataTable.json",
-      "variants": ["default"]
-    },
-    {
-      "name": "PDSModal",
-      "manifest": "components/manifests/PDSModal.json",
-      "variants": ["default"]
-    },
-    {
-      "name": "PDSNavTabs",
-      "manifest": "components/manifests/PDSNavTabs.json",
-      "variants": ["segmented", "underline"]
-    },
-    {
-      "name": "PDSHeader",
-      "manifest": "components/manifests/PDSHeader.json",
-      "variants": ["default"]
-    }
+    { "name": "HeroSection", "manifest": "components/manifests/HeroSection.json", "category": "marketing" },
+    { "name": "FeatureGrid", "manifest": "components/manifests/FeatureGrid.json", "category": "marketing" },
+    { "name": "PricingTable", "manifest": "components/manifests/PricingTable.json", "category": "marketing" },
+    { "name": "CallToAction", "manifest": "components/manifests/CallToAction.json", "category": "marketing" },
+    { "name": "ContactForm", "manifest": "components/manifests/ContactForm.json", "category": "marketing" },
+    { "name": "PDSButton", "manifest": "components/manifests/PDSButton.json", "category": "action" },
+    { "name": "PDSIconButton", "manifest": "components/manifests/PDSIconButton.json", "category": "action" },
+    { "name": "PDSLink", "manifest": "components/manifests/PDSLink.json", "category": "action" },
+    { "name": "PDSMenu", "manifest": "components/manifests/PDSMenu.json", "category": "action" },
+    { "name": "PDSInput", "manifest": "components/manifests/PDSInput.json", "category": "input" },
+    { "name": "PDSSelect", "manifest": "components/manifests/PDSSelect.json", "category": "input" },
+    { "name": "PDSCheckbox", "manifest": "components/manifests/PDSCheckbox.json", "category": "input" },
+    { "name": "PDSRadio", "manifest": "components/manifests/PDSRadio.json", "category": "input" },
+    { "name": "PDSSwitch", "manifest": "components/manifests/PDSSwitch.json", "category": "input" },
+    { "name": "PDSTextarea", "manifest": "components/manifests/PDSTextarea.json", "category": "input" },
+    { "name": "PDSDatePicker", "manifest": "components/manifests/PDSDatePicker.json", "category": "input" },
+    { "name": "PDSAlert", "manifest": "components/manifests/PDSAlert.json", "category": "feedback" },
+    { "name": "PDSToast", "manifest": "components/manifests/PDSToast.json", "category": "feedback" },
+    { "name": "PDSTooltip", "manifest": "components/manifests/PDSTooltip.json", "category": "feedback" },
+    { "name": "PDSProgress", "manifest": "components/manifests/PDSProgress.json", "category": "feedback" },
+    { "name": "PDSSpinner", "manifest": "components/manifests/PDSSpinner.json", "category": "feedback" },
+    { "name": "PDSSkeleton", "manifest": "components/manifests/PDSSkeleton.json", "category": "feedback" },
+    { "name": "PDSBadge", "manifest": "components/manifests/PDSBadge.json", "category": "data" },
+    { "name": "PDSStatCard", "manifest": "components/manifests/PDSStatCard.json", "category": "data" },
+    { "name": "PDSChartCard", "manifest": "components/manifests/PDSChartCard.json", "category": "data" },
+    { "name": "PDSDataTable", "manifest": "components/manifests/PDSDataTable.json", "category": "data" },
+    { "name": "PDSList", "manifest": "components/manifests/PDSList.json", "category": "data" },
+    { "name": "PDSNavbar", "manifest": "components/manifests/PDSNavbar.json", "category": "navigation" },
+    { "name": "PDSSidebar", "manifest": "components/manifests/PDSSidebar.json", "category": "navigation" },
+    { "name": "PDSBreadcrumb", "manifest": "components/manifests/PDSBreadcrumb.json", "category": "navigation" },
+    { "name": "PDSNavTabs", "manifest": "components/manifests/PDSNavTabs.json", "category": "navigation" },
+    { "name": "PDSPagination", "manifest": "components/manifests/PDSPagination.json", "category": "navigation" },
+    { "name": "PDSContainer", "manifest": "components/manifests/PDSContainer.json", "category": "structure" },
+    { "name": "PDSSection", "manifest": "components/manifests/PDSSection.json", "category": "structure" },
+    { "name": "PDSStack", "manifest": "components/manifests/PDSStack.json", "category": "structure" },
+    { "name": "PDSGrid", "manifest": "components/manifests/PDSGrid.json", "category": "structure" },
+    { "name": "PDSCard", "manifest": "components/manifests/PDSCard.json", "category": "structure" },
+    { "name": "PDSHeader", "manifest": "components/manifests/PDSHeader.json", "category": "structure" },
+    { "name": "PDSModal", "manifest": "components/manifests/PDSModal.json", "category": "structure" },
+    { "name": "PDSDrawer", "manifest": "components/manifests/PDSDrawer.json", "category": "structure" },
+    { "name": "PDSEmptyState", "manifest": "components/manifests/PDSEmptyState.json", "category": "state" },
+    { "name": "PDSErrorState", "manifest": "components/manifests/PDSErrorState.json", "category": "state" },
+    { "name": "PDSLoadingState", "manifest": "components/manifests/PDSLoadingState.json", "category": "state" },
+    { "name": "PDSSuccessState", "manifest": "components/manifests/PDSSuccessState.json", "category": "state" }
   ],
   "layouts": [
-    { "name": "DashboardLayout", "manifest": "layouts/manifests/DashboardLayout.json" },
     { "name": "ApplicationShell", "manifest": "layouts/manifests/ApplicationShell.json" },
-    { "name": "AuthLayout", "manifest": "layouts/manifests/AuthLayout.json" },
+    { "name": "DashboardLayout", "manifest": "layouts/manifests/DashboardLayout.json" },
     { "name": "SettingsLayout", "manifest": "layouts/manifests/SettingsLayout.json" },
-    { "name": "MarketplaceLayout", "manifest": "layouts/manifests/MarketplaceLayout.json" }
+    { "name": "AuthLayout", "manifest": "layouts/manifests/AuthLayout.json" },
+    { "name": "MarketplaceLayout", "manifest": "layouts/manifests/MarketplaceLayout.json" },
+    { "name": "MarketingLayout", "manifest": "layouts/manifests/MarketingLayout.json" },
+    { "name": "ArticleLayout", "manifest": "layouts/manifests/ArticleLayout.json" }
   ],
   "patterns": [
     { "name": "DashboardOverview", "manifest": "patterns/manifests/DashboardOverview.json" },
+    { "name": "AnalyticsDashboard", "manifest": "patterns/manifests/AnalyticsDashboard.json" },
     { "name": "WorkspaceLauncher", "manifest": "patterns/manifests/WorkspaceLauncher.json" },
     { "name": "MarketplaceCatalog", "manifest": "patterns/manifests/MarketplaceCatalog.json" },
-    { "name": "SettingsManager", "manifest": "patterns/manifests/SettingsManager.json" }
+    { "name": "SettingsManager", "manifest": "patterns/manifests/SettingsManager.json" },
+    { "name": "LandingPage", "manifest": "patterns/manifests/LandingPage.json" },
+    { "name": "ContactPage", "manifest": "patterns/manifests/ContactPage.json" },
+    { "name": "PricingPage", "manifest": "patterns/manifests/PricingPage.json" },
+    { "name": "SearchResultsPage", "manifest": "patterns/manifests/SearchResultsPage.json" }
   ],
   "schemas": {
     "token": "schemas/token.schema.json",
@@ -85,6 +95,7 @@
   },
   "references": {
     "rules": "rules.md",
+    "aiRules": "ai-rules.md",
     "visualDesign": "references/visual-design.md",
     "accessibility": "references/accessibility.md",
     "compositionGuide": "references/composition-guide.md"

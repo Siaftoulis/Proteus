@@ -1,0 +1,31 @@
+{
+  "name": "PricingTable",
+  "type": "composite",
+  "description": "Preserved Section 33 multi-tier pricing card comparison table",
+  "props": {
+    "plans": {
+      "type": "array",
+      "required": true,
+      "items": {
+        "type": "object",
+        "required": ["name", "price", "features", "highlighted"],
+        "properties": {
+          "name": { "type": "string" },
+          "price": { "type": "string" },
+          "features": { "type": "array", "items": { "type": "string" } },
+          "highlighted": { "type": "boolean" }
+        }
+      }
+    }
+  },
+  "variants": {
+    "standard": { "gap": "spacing.xl", "alignItems": "stretch" }
+  },
+  "states": ["default", "hover"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pricing-table",
+    "desktop": "crm-ui/src/components/ or egui pricing cards"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "PDSAlert",
+  "type": "component",
+  "description": "System feedback banner for info, success, warning, or danger notifications",
+  "props": {
+    "variant": { "type": "string", "enum": ["info", "success", "warning", "danger"], "default": "info" },
+    "title": { "type": "string" },
+    "message": { "type": "string", "required": true },
+    "dismissible": { "type": "boolean", "default": false }
+  },
+  "variants": {
+    "info": { "bg": "feedback.infoBg", "border": "feedback.info", "color": "text.main" },
+    "success": { "bg": "feedback.successBg", "border": "feedback.success", "color": "text.main" },
+    "warning": { "bg": "feedback.warningBg", "border": "feedback.warning", "color": "text.main" },
+    "danger": { "bg": "feedback.dangerBg", "border": "feedback.danger", "color": "text.main" }
+  },
+  "states": ["visible", "dismissed"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-alert",
+    "desktop": "crm-ui/src/components/ or egui alert box"
+  }
+}

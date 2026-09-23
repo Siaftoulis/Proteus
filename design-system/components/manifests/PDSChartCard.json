@@ -1,0 +1,24 @@
+{
+  "name": "PDSChartCard",
+  "type": "composite",
+  "description": "Metric chart container with title, metric badge, timeframe selector, and visualization canvas",
+  "props": {
+    "title": { "type": "string", "required": true },
+    "subtitle": { "type": "string" },
+    "chartType": { "type": "string", "enum": ["line", "bar", "area", "donut"], "default": "area" },
+    "timeframe": { "type": "string", "enum": ["24h", "7d", "30d", "90d", "1y"], "default": "30d" },
+    "height": { "type": "string", "default": "280px" },
+    "emptyMessage": { "type": "string", "default": "No chart data available" }
+  },
+  "variants": {
+    "default": { "bg": "canvas.surface", "border": "border.subtle", "radius": "radius.lg" },
+    "compact": { "bg": "canvas.surface", "border": "border.subtle", "radius": "radius.md", "height": "180px" }
+  },
+  "states": ["loading", "empty", "rendered"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-chart-card",
+    "desktop": "crm-ui/src/components/ or egui chart widget"
+  }
+}

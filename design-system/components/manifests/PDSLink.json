@@ -1,0 +1,23 @@
+{
+  "name": "PDSLink",
+  "type": "primitive",
+  "description": "Accessible navigational or external hyperlink",
+  "props": {
+    "href": { "type": "string", "required": true },
+    "label": { "type": "string", "required": true },
+    "variant": { "type": "string", "enum": ["default", "subtle", "underline"], "default": "default" },
+    "external": { "type": "boolean", "default": false }
+  },
+  "variants": {
+    "default": { "color": "brand.primary", "textDecoration": "none" },
+    "subtle": { "color": "text.muted", "textDecoration": "none" },
+    "underline": { "color": "brand.primary", "textDecoration": "underline" }
+  },
+  "states": ["default", "hover", "focus", "visited"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:a.pds-link",
+    "desktop": "crm-ui/src/components/ or egui::Hyperlink"
+  }
+}

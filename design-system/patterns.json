@@ -1,0 +1,65 @@
+[
+  {
+    "name": "DashboardOverview",
+    "purpose": "Operations overview dashboard combining KPI stats, ticket list, and live services",
+    "layout": "DashboardLayout",
+    "components": ["PDSHeader", "PDSStatCard", "PDSCard", "PDSBadge", "PDSDataTable", "PDSInput"],
+    "primaryAction": "Filter tickets or launch new service inquiry"
+  },
+  {
+    "name": "AnalyticsDashboard",
+    "purpose": "Data-heavy business performance dashboard with metric trends, charts, and audit records",
+    "layout": "DashboardLayout",
+    "components": ["PDSHeader", "PDSStatCard", "PDSChartCard", "PDSDataTable", "PDSButton"],
+    "primaryAction": "Timeframe filter and report export"
+  },
+  {
+    "name": "WorkspaceLauncher",
+    "purpose": "High-efficiency application hub for selecting workspaces, launching tools, and monitoring sync",
+    "layout": "ApplicationShell",
+    "components": ["PDSHeader", "PDSCard", "PDSButton", "PDSBadge"],
+    "primaryAction": "Open workspace or connect new terminal"
+  },
+  {
+    "name": "MarketplaceCatalog",
+    "purpose": "Modular add-on and plugin directory with category filtering, search, and installation modals",
+    "layout": "MarketplaceLayout",
+    "components": ["PDSHeader", "PDSNavTabs", "PDSInput", "PDSCard", "PDSBadge", "PDSButton", "PDSModal"],
+    "primaryAction": "Search, filter by category, and install extensions"
+  },
+  {
+    "name": "SettingsManager",
+    "purpose": "Multi-category system settings manager with category sidebar, preference switches, and save actions",
+    "layout": "SettingsLayout",
+    "components": ["PDSHeader", "PDSCard", "PDSSwitch", "PDSInput", "PDSSelect", "PDSButton"],
+    "primaryAction": "Configure system settings and save preferences"
+  },
+  {
+    "name": "LandingPage",
+    "purpose": "Public marketing conversion page combining HeroSection, FeatureGrid, PricingTable, and CTA banner",
+    "layout": "MarketingLayout",
+    "components": ["PDSNavbar", "HeroSection", "FeatureGrid", "PricingTable", "CallToAction"],
+    "primaryAction": "Get started or sign in"
+  },
+  {
+    "name": "ContactPage",
+    "purpose": "Customer inquiry and lead capture page featuring ContactForm and support details",
+    "layout": "ApplicationShell",
+    "components": ["PDSHeader", "ContactForm", "PDSCard"],
+    "primaryAction": "Submit inquiry message"
+  },
+  {
+    "name": "PricingPage",
+    "purpose": "Dedicated subscription tier comparison matrix with plan features and checkout triggers",
+    "layout": "MarketingLayout",
+    "components": ["PDSHeader", "PricingTable", "CallToAction"],
+    "primaryAction": "Select subscription plan tier"
+  },
+  {
+    "name": "SearchResultsPage",
+    "purpose": "Search query results view with filter toolbar, tabular data, empty states, and pagination",
+    "layout": "ApplicationShell",
+    "components": ["PDSHeader", "PDSInput", "PDSSelect", "PDSDataTable", "PDSEmptyState", "PDSPagination"],
+    "primaryAction": "Refine query and navigate matching results"
+  }
+]

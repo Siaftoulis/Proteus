@@ -1,0 +1,35 @@
+{
+  "name": "PDSSelect",
+  "type": "component",
+  "description": "Accessible form select dropdown with label, options, and error validation support",
+  "props": {
+    "label": { "type": "string" },
+    "placeholder": { "type": "string", "default": "Select an option..." },
+    "options": {
+      "type": "array",
+      "required": true,
+      "items": {
+        "type": "object",
+        "required": ["value", "label"],
+        "properties": {
+          "value": { "type": "string" },
+          "label": { "type": "string" }
+        }
+      }
+    },
+    "value": { "type": "string" },
+    "disabled": { "type": "boolean", "default": false },
+    "error": { "type": "string" }
+  },
+  "variants": {
+    "default": { "border": "border.subtle", "bg": "canvas.base", "color": "text.main" },
+    "error": { "border": "feedback.danger", "bg": "canvas.base", "color": "text.main" }
+  },
+  "states": ["default", "hover", "focus", "disabled", "error"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:select.pds-select",
+    "desktop": "crm-ui/src/components/ or egui::ComboBox"
+  }
+}

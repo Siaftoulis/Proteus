@@ -1,0 +1,22 @@
+{
+  "name": "PDSSuccessState",
+  "type": "composite",
+  "description": "Deterministic operation confirmation state showing success icon, details, and next action",
+  "props": {
+    "title": { "type": "string", "default": "Success" },
+    "message": { "type": "string", "required": true },
+    "actionLabel": { "type": "string", "default": "Continue" },
+    "actionTarget": { "type": "string" }
+  },
+  "variants": {
+    "default": { "padding": "spacing.3xl", "textAlign": "center" },
+    "inline": { "padding": "spacing.lg", "bg": "feedback.successBg", "border": "feedback.success" }
+  },
+  "states": ["success"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-success-state",
+    "desktop": "crm-ui/src/components/ or egui success state"
+  }
+}

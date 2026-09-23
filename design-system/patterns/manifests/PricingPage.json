@@ -1,0 +1,25 @@
+{
+  "name": "PricingPage",
+  "type": "pattern",
+  "description": "Subscription pricing and tier comparison page with billing toggle and FAQ",
+  "layout": "MarketingLayout",
+  "components": [
+    "PDSHeader",
+    "PricingTable",
+    "CallToAction"
+  ],
+  "compositionRules": [
+    "Render PDSHeader with pricing summary and annual/monthly billing toggle",
+    "Render PricingTable containing Starter, Pro, and Enterprise tiers",
+    "Render CallToAction at page bottom for custom enterprise inquiry"
+  ],
+  "samplePayload": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Choose the tier that matches your business scale. No hidden fees.",
+    "plans": [
+      { "name": "Community", "price": "€0/mo", "features": ["1 User", "Local SQLite", "Standard Reports"], "highlighted": false },
+      { "name": "Professional", "price": "€49/mo", "features": ["5 Users", "Cloud Sync", "Priority Support"], "highlighted": true },
+      { "name": "Enterprise", "price": "€199/mo", "features": ["Unlimited Users", "Custom Integrations", "24/7 SLA"], "highlighted": false }
+    ]
+  }
+}

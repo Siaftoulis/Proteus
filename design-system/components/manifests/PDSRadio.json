@@ -1,0 +1,34 @@
+{
+  "name": "PDSRadio",
+  "type": "primitive",
+  "description": "Radio button input for mutually exclusive option sets",
+  "props": {
+    "name": { "type": "string", "required": true },
+    "options": {
+      "type": "array",
+      "required": true,
+      "items": {
+        "type": "object",
+        "required": ["value", "label"],
+        "properties": {
+          "value": { "type": "string" },
+          "label": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "selectedValue": { "type": "string" },
+    "disabled": { "type": "boolean", "default": false }
+  },
+  "variants": {
+    "vertical": { "flexDirection": "column" },
+    "horizontal": { "flexDirection": "row" }
+  },
+  "states": ["selected", "unselected", "hover", "focus", "disabled"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:input[type='radio']",
+    "desktop": "crm-ui/src/components/ or egui::RadioButton"
+  }
+}

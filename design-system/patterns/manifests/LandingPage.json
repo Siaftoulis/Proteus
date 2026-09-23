@@ -1,0 +1,37 @@
+{
+  "name": "LandingPage",
+  "type": "pattern",
+  "description": "Public conversion landing page composing preserved HeroSection, FeatureGrid, PricingTable, and CallToAction components",
+  "layout": "MarketingLayout",
+  "components": [
+    "PDSNavbar",
+    "HeroSection",
+    "FeatureGrid",
+    "PricingTable",
+    "CallToAction"
+  ],
+  "compositionRules": [
+    "Place PDSNavbar with product brand and navigation links in region 'navbar'",
+    "Place HeroSection with headline, subtitle, and CTA in region 'hero'",
+    "Place FeatureGrid with key capabilities in region 'features'",
+    "Place PricingTable with tiered plans in region 'pricing'",
+    "Place CallToAction banner in region 'callToAction'"
+  ],
+  "samplePayload": {
+    "hero": {
+      "title": "Proteus CRM & Business Engine",
+      "subtitle": "High-performance, local-first CRM designed for extreme speed and reliability",
+      "ctaText": "Get Started Now",
+      "align": "center"
+    },
+    "features": {
+      "sectionTitle": "Engineered for Efficiency",
+      "columns": 3,
+      "items": [
+        { "title": "Ultra Fast", "description": "Native Rust engine with zero bloat", "icon": "speed" },
+        { "title": "Deterministic UI", "description": "Strict token-driven component architecture", "icon": "shield" },
+        { "title": "Local-First SQLite", "description": "Instant synchronization and offline resilience", "icon": "analytics" }
+      ]
+    }
+  }
+}

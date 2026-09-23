@@ -1,0 +1,34 @@
+{
+  "name": "PDSNavbar",
+  "type": "component",
+  "description": "Top-level application navigation bar with branding, links, and profile slot",
+  "props": {
+    "brandName": { "type": "string", "default": "Proteus" },
+    "brandLogo": { "type": "string" },
+    "links": {
+      "type": "array",
+      "required": true,
+      "items": {
+        "type": "object",
+        "required": ["label", "href"],
+        "properties": {
+          "label": { "type": "string" },
+          "href": { "type": "string" },
+          "active": { "type": "boolean" }
+        }
+      }
+    }
+  },
+  "variants": {
+    "fixed": { "position": "sticky", "top": "0", "bg": "canvas.surface" },
+    "floating": { "position": "relative", "bg": "canvas.surface", "border": "border.subtle" }
+  },
+  "slots": ["actions", "userMenu"],
+  "states": ["default"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:header.pds-navbar",
+    "desktop": "crm-ui/src/components/ or egui top panel"
+  }
+}

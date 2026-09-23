@@ -1,0 +1,23 @@
+{
+  "name": "PDSSection",
+  "type": "primitive",
+  "description": "Semantic page section wrapper with configurable padding and background style",
+  "props": {
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "background": { "type": "string", "enum": ["transparent", "surface", "subtle"], "default": "transparent" },
+    "paddingY": { "type": "string", "default": "spacing.2xl" }
+  },
+  "variants": {
+    "transparent": { "bg": "transparent" },
+    "surface": { "bg": "canvas.surface" },
+    "subtle": { "bg": "canvas.surfaceHover" }
+  },
+  "states": ["default"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:section.pds-section",
+    "desktop": "crm-ui/src/components/ or egui section frame"
+  }
+}

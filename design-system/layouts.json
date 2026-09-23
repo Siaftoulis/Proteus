@@ -1,0 +1,66 @@
+[
+  {
+    "name": "ApplicationShell",
+    "purpose": "Universal outer frame containing sidebar, top navigation, and dynamic content viewport",
+    "regions": ["sidebar", "topNav", "mainContent", "footer"],
+    "responsive": {
+      "mobile": "Sidebar collapses into hamburger off-canvas drawer",
+      "desktop": "Persistent sidebar with fluid main content"
+    }
+  },
+  {
+    "name": "DashboardLayout",
+    "purpose": "Operations dashboard layout with KPI summary row, split content grids, and drawer slots",
+    "regions": ["header", "navigation", "statsBanner", "mainContent", "asidePanel", "footer"],
+    "responsive": {
+      "mobile": "Single column vertical stack",
+      "tablet": "Two-column grid with collapsible side panel",
+      "desktop": "Full multi-column dashboard with persistent panels"
+    }
+  },
+  {
+    "name": "SettingsLayout",
+    "purpose": "Two-column configuration layout with category sidebar and active settings pane",
+    "regions": ["header", "categoriesSidebar", "settingsContent"],
+    "responsive": {
+      "mobile": "Category switcher drops into segmented tabs at top",
+      "desktop": "Left sidebar (220px) + fluid settings pane"
+    }
+  },
+  {
+    "name": "AuthLayout",
+    "purpose": "Centered credential and onboarding form layout for authentication flows",
+    "regions": ["brandHeader", "formCard", "footerLinks"],
+    "responsive": {
+      "mobile": "Full-width card with mobile padding",
+      "desktop": "Centered card with 420px maximum width"
+    }
+  },
+  {
+    "name": "MarketplaceLayout",
+    "purpose": "Catalog layout with category navigation tabs, search filter bar, and responsive item grid",
+    "regions": ["header", "categoryTabs", "filterBar", "catalogGrid", "detailModal"],
+    "responsive": {
+      "mobile": "Single column cards with horizontal scrolling category tabs",
+      "desktop": "Grid of 3-4 columns with sticky filter bar"
+    }
+  },
+  {
+    "name": "MarketingLayout",
+    "purpose": "Conversion-focused public marketing page layout with hero, feature grids, and pricing",
+    "regions": ["navbar", "hero", "features", "pricing", "callToAction", "footer"],
+    "responsive": {
+      "mobile": "Single column flow with mobile navigation menu",
+      "desktop": "Full-width hero with multi-column grids"
+    }
+  },
+  {
+    "name": "ArticleLayout",
+    "purpose": "Editorial reading layout with narrow centered prose column and sticky table of contents",
+    "regions": ["navbar", "breadcrumbs", "articleHeader", "tableOfContents", "body", "relatedContent", "footer"],
+    "responsive": {
+      "mobile": "Single column prose with collapsed table of contents",
+      "desktop": "Centered readable prose with sticky side table of contents"
+    }
+  }
+]

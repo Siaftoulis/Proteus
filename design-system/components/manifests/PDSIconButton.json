@@ -1,0 +1,24 @@
+{
+  "name": "PDSIconButton",
+  "type": "primitive",
+  "description": "Compact button with accessible icon label and optional tooltip",
+  "props": {
+    "icon": { "type": "string", "required": true },
+    "ariaLabel": { "type": "string", "required": true },
+    "variant": { "type": "string", "enum": ["ghost", "secondary", "primary"], "default": "ghost" },
+    "size": { "type": "string", "enum": ["sm", "md", "lg"], "default": "md" },
+    "disabled": { "type": "boolean", "default": false }
+  },
+  "variants": {
+    "ghost": { "bg": "transparent", "hover": "canvas.surfaceHover", "text": "text.muted" },
+    "secondary": { "bg": "canvas.surface", "hover": "border.bright", "text": "text.main" },
+    "primary": { "bg": "brand.primary", "hover": "brand.primaryHover", "text": "text.main" }
+  },
+  "states": ["default", "hover", "focus", "active", "disabled"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.icon-btn",
+    "desktop": "crm-ui/src/components/ or egui::Button"
+  }
+}

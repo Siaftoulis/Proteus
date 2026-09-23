@@ -1,9 +1,14 @@
 {
   "version": "1.0.0",
   "patterns": [
-    { "name": "DashboardOverview", "manifest": "patterns/manifests/DashboardOverview.json", "target": "Web & Client" },
-    { "name": "WorkspaceLauncher", "manifest": "patterns/manifests/WorkspaceLauncher.json", "target": "Client Runtime" },
-    { "name": "MarketplaceCatalog", "manifest": "patterns/manifests/MarketplaceCatalog.json", "target": "Marketplace Hub" },
-    { "name": "SettingsManager", "manifest": "patterns/manifests/SettingsManager.json", "target": "Terminal Admin" }
+    { "name": "DashboardOverview", "manifest": "patterns/manifests/DashboardOverview.json", "target": "Web & Client Operations" },
+    { "name": "AnalyticsDashboard", "manifest": "patterns/manifests/AnalyticsDashboard.json", "target": "Performance & Business Metrics" },
+    { "name": "WorkspaceLauncher", "manifest": "patterns/manifests/WorkspaceLauncher.json", "target": "Client Runtime & Workspace Hub" },
+    { "name": "MarketplaceCatalog", "manifest": "patterns/manifests/MarketplaceCatalog.json", "target": "Marketplace Hub & Addons" },
+    { "name": "SettingsManager", "manifest": "patterns/manifests/SettingsManager.json", "target": "Configuration & Admin Settings" },
+    { "name": "LandingPage", "manifest": "patterns/manifests/LandingPage.json", "target": "Marketing Conversion & Landing" },
+    { "name": "ContactPage", "manifest": "patterns/manifests/ContactPage.json", "target": "Customer Inquiries & Support Lead" },
+    { "name": "PricingPage", "manifest": "patterns/manifests/PricingPage.json", "target": "Subscription Tiers & Checkout" },
+    { "name": "SearchResultsPage", "manifest": "patterns/manifests/SearchResultsPage.json", "target": "Search Results & Data Filtering" }
   ]
 }

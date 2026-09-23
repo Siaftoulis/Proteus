@@ -1,0 +1,19 @@
+{
+  "name": "ArticleLayout",
+  "type": "layout",
+  "description": "Editorial and documentation layout optimized for reading with centered narrow column and optional table of contents",
+  "regions": [
+    { "name": "navbar", "required": true, "description": "Top navigation bar", "defaultComponent": "PDSNavbar" },
+    { "name": "breadcrumbs", "required": false, "description": "Hierarchical trail", "defaultComponent": "PDSBreadcrumb" },
+    { "name": "articleHeader", "required": true, "description": "Article title, author metadata, and publication date", "defaultComponent": "PDSHeader" },
+    { "name": "tableOfContents", "required": false, "description": "Side navigation index of article headings" },
+    { "name": "body", "required": true, "description": "Main prose content constrained to readable line-length" },
+    { "name": "relatedContent", "required": false, "description": "Recommended articles or next reading links" },
+    { "name": "footer", "required": true, "description": "Footer strip" }
+  ],
+  "responsive": {
+    "mobile": "Single column prose with table of contents hidden in top dropdown",
+    "tablet": "Constrained prose column with top summary",
+    "desktop": "Prose column centered with sticky side table of contents"
+  }
+}

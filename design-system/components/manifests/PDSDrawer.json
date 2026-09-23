@@ -1,0 +1,24 @@
+{
+  "name": "PDSDrawer",
+  "type": "component",
+  "description": "Slide-out side panel for secondary details, forms, and contextual filters",
+  "props": {
+    "title": { "type": "string", "required": true },
+    "position": { "type": "string", "enum": ["right", "left", "bottom"], "default": "right" },
+    "width": { "type": "string", "default": "400px" },
+    "isOpen": { "type": "boolean", "default": false }
+  },
+  "variants": {
+    "right": { "right": "0", "top": "0", "bottom": "0" },
+    "left": { "left": "0", "top": "0", "bottom": "0" },
+    "bottom": { "left": "0", "right": "0", "bottom": "0", "height": "50vh" }
+  },
+  "slots": ["header", "content", "footer"],
+  "states": ["closed", "open"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-drawer",
+    "desktop": "crm-ui/src/components/ or egui side drawer"
+  }
+}

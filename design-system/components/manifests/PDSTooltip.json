@@ -1,0 +1,19 @@
+{
+  "name": "PDSTooltip",
+  "type": "primitive",
+  "description": "Informational popover micro-label anchored to a trigger element",
+  "props": {
+    "content": { "type": "string", "required": true },
+    "position": { "type": "string", "enum": ["top", "bottom", "left", "right"], "default": "top" }
+  },
+  "variants": {
+    "dark": { "bg": "canvas.base", "color": "text.main", "border": "border.subtle" }
+  },
+  "states": ["hidden", "visible"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-tooltip",
+    "desktop": "crm-ui/src/components/ or egui tooltip"
+  }
+}

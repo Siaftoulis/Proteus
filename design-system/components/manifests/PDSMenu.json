@@ -1,0 +1,34 @@
+{
+  "name": "PDSMenu",
+  "type": "component",
+  "description": "Dropdown contextual menu for actions and navigation",
+  "props": {
+    "triggerLabel": { "type": "string", "required": true },
+    "items": {
+      "type": "array",
+      "required": true,
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "icon": { "type": "string" },
+          "destructive": { "type": "boolean" },
+          "disabled": { "type": "boolean" }
+        }
+      }
+    },
+    "align": { "type": "string", "enum": ["start", "end"], "default": "start" }
+  },
+  "variants": {
+    "default": { "bg": "canvas.surface", "border": "border.subtle", "radius": "radius.md" }
+  },
+  "states": ["closed", "open"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-menu",
+    "desktop": "crm-ui/src/components/ or egui::menu"
+  }
+}

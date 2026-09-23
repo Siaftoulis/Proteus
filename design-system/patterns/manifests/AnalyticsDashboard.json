@@ -1,0 +1,29 @@
+{
+  "name": "AnalyticsDashboard",
+  "type": "pattern",
+  "description": "Metric-rich operations and business performance dashboard combining KPI stats, time-series charts, and data tables",
+  "layout": "DashboardLayout",
+  "components": [
+    "PDSHeader",
+    "PDSStatCard",
+    "PDSChartCard",
+    "PDSDataTable",
+    "PDSButton"
+  ],
+  "compositionRules": [
+    "Render PDSHeader with time-range filter and refresh action in region 'header'",
+    "Render 4 PDSStatCard components displaying revenue, active tickets, latency, and uptime in region 'statsBanner'",
+    "Render PDSChartCard with revenue and traffic trends in region 'mainContent'",
+    "Render PDSDataTable with recent transaction logs below chart"
+  ],
+  "samplePayload": {
+    "title": "Business Performance & Analytics",
+    "timeframe": "30d",
+    "metrics": [
+      { "title": "MONTHLY REVENUE", "value": "€24,850", "trend": "+12.4%" },
+      { "title": "OPEN TICKETS", "value": "18", "trend": "-3" },
+      { "title": "AVG RESOLUTION TIME", "value": "2.4 hrs", "trend": "-18%" },
+      { "title": "SYSTEM UPTIME", "value": "99.98%", "trend": "Stable" }
+    ]
+  }
+}

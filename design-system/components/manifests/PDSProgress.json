@@ -1,0 +1,25 @@
+{
+  "name": "PDSProgress",
+  "type": "primitive",
+  "description": "Linear progress bar indicating completion percentage or continuous activity",
+  "props": {
+    "value": { "type": "number", "default": 0 },
+    "max": { "type": "number", "default": 100 },
+    "variant": { "type": "string", "enum": ["primary", "success", "warning", "danger"], "default": "primary" },
+    "size": { "type": "string", "enum": ["sm", "md", "lg"], "default": "md" },
+    "indeterminate": { "type": "boolean", "default": false }
+  },
+  "variants": {
+    "primary": { "barColor": "brand.primary", "trackColor": "canvas.surface" },
+    "success": { "barColor": "feedback.success", "trackColor": "canvas.surface" },
+    "warning": { "barColor": "feedback.warning", "trackColor": "canvas.surface" },
+    "danger": { "barColor": "feedback.danger", "trackColor": "canvas.surface" }
+  },
+  "states": ["determinate", "indeterminate"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:progress.pds-progress",
+    "desktop": "crm-ui/src/components/ or egui::ProgressBar"
+  }
+}

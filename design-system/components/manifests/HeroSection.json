@@ -1,0 +1,22 @@
+{
+  "name": "HeroSection",
+  "type": "composite",
+  "description": "Preserved Section 33 marketing hero component with title, subtitle, CTA trigger, and alignment options",
+  "props": {
+    "title": { "type": "string", "required": true },
+    "subtitle": { "type": "string", "required": true },
+    "ctaText": { "type": "string", "required": true },
+    "align": { "type": "string", "enum": ["left", "center"], "default": "center" }
+  },
+  "variants": {
+    "center": { "textAlign": "center", "justifyContent": "center", "maxWidth": "800px" },
+    "left": { "textAlign": "left", "justifyContent": "flex-start", "maxWidth": "960px" }
+  },
+  "states": ["default"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.hero-section",
+    "desktop": "crm-ui/src/components/ or egui hero layout"
+  }
+}

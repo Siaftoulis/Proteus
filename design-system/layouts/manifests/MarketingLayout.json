@@ -1,0 +1,18 @@
+{
+  "name": "MarketingLayout",
+  "type": "layout",
+  "description": "Public marketing and landing page layout featuring full-width hero, feature grids, social proof, pricing, and footer",
+  "regions": [
+    { "name": "navbar", "required": true, "description": "Top sticky navigation bar with brand and sign-in", "defaultComponent": "PDSNavbar" },
+    { "name": "hero", "required": true, "description": "High-impact hero section with primary call to action", "defaultComponent": "HeroSection" },
+    { "name": "features", "required": false, "description": "Multi-column feature grid showcasing core capabilities", "defaultComponent": "FeatureGrid" },
+    { "name": "pricing", "required": false, "description": "Pricing tier comparison matrix", "defaultComponent": "PricingTable" },
+    { "name": "callToAction", "required": false, "description": "Bottom conversion prompt banner", "defaultComponent": "CallToAction" },
+    { "name": "footer", "required": true, "description": "Comprehensive footer with sitemap links and legal notice" }
+  ],
+  "responsive": {
+    "mobile": "Single column flow with collapsed navigation drawer and stacked feature cards",
+    "tablet": "Two-column feature blocks and condensed pricing cards",
+    "desktop": "Full-width hero with multi-column feature and pricing grids"
+  }
+}

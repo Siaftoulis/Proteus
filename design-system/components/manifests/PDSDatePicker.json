@@ -1,0 +1,24 @@
+{
+  "name": "PDSDatePicker",
+  "type": "component",
+  "description": "Calendar date selection input with format validation and range options",
+  "props": {
+    "label": { "type": "string" },
+    "value": { "type": "string" },
+    "placeholder": { "type": "string", "default": "YYYY-MM-DD" },
+    "minDate": { "type": "string" },
+    "maxDate": { "type": "string" },
+    "disabled": { "type": "boolean", "default": false },
+    "error": { "type": "string" }
+  },
+  "variants": {
+    "default": { "border": "border.subtle", "bg": "canvas.base", "color": "text.main" }
+  },
+  "states": ["default", "hover", "focus", "disabled", "error"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:input[type='date'].pds-date",
+    "desktop": "crm-ui/src/components/ or egui date widget"
+  }
+}

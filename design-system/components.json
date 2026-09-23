@@ -1,0 +1,444 @@
+[
+  {
+    "name": "HeroSection",
+    "category": "marketing",
+    "purpose": "Preserved Section 33 marketing hero banner with headline, subtitle, and CTA button",
+    "props": ["title", "subtitle", "ctaText", "align"],
+    "variants": ["left", "center"],
+    "states": ["default"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "FeatureGrid",
+    "category": "marketing",
+    "purpose": "Preserved Section 33 multi-column feature showcase with icon cards",
+    "props": ["sectionTitle", "columns", "items"],
+    "variants": ["2-col", "3-col", "4-col"],
+    "states": ["default"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PricingTable",
+    "category": "marketing",
+    "purpose": "Preserved Section 33 subscription tier pricing comparison cards",
+    "props": ["plans"],
+    "variants": ["standard"],
+    "states": ["default", "hover"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "CallToAction",
+    "category": "marketing",
+    "purpose": "Preserved Section 33 conversion call-to-action banner",
+    "props": ["title", "buttonText", "style"],
+    "variants": ["primary", "minimal"],
+    "states": ["default", "hover"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "ContactForm",
+    "category": "marketing",
+    "purpose": "Preserved Section 33 lead capture and inquiry form",
+    "props": ["headline", "showPhoneField", "submitLabel"],
+    "variants": ["card", "minimal"],
+    "states": ["idle", "submitting", "success", "error"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSButton",
+    "category": "action",
+    "purpose": "Triggers an action or operation",
+    "props": ["label", "variant", "size", "disabled", "loading", "icon", "fullWidth"],
+    "variants": ["primary", "secondary", "ghost", "destructive", "success"],
+    "sizes": ["sm", "md", "lg"],
+    "states": ["default", "hover", "focus", "active", "disabled", "loading"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSIconButton",
+    "category": "action",
+    "purpose": "Compact icon action button with accessible label",
+    "props": ["icon", "ariaLabel", "variant", "size", "disabled"],
+    "variants": ["ghost", "secondary", "primary"],
+    "sizes": ["sm", "md", "lg"],
+    "states": ["default", "hover", "focus", "active", "disabled"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSLink",
+    "category": "action",
+    "purpose": "Accessible navigational or external link",
+    "props": ["href", "label", "variant", "external"],
+    "variants": ["default", "subtle", "underline"],
+    "states": ["default", "hover", "focus", "visited"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSMenu",
+    "category": "action",
+    "purpose": "Contextual action dropdown menu",
+    "props": ["triggerLabel", "items", "align"],
+    "variants": ["default"],
+    "states": ["closed", "open"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSInput",
+    "category": "input",
+    "purpose": "Standard text input field with error states and clear triggers",
+    "props": ["label", "placeholder", "type", "value", "disabled", "error"],
+    "variants": ["default", "error"],
+    "states": ["default", "hover", "focus", "disabled", "error"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSSelect",
+    "category": "input",
+    "purpose": "Dropdown select menu for picking single option from list",
+    "props": ["label", "placeholder", "options", "value", "disabled", "error"],
+    "variants": ["default", "error"],
+    "states": ["default", "hover", "focus", "disabled", "error"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSCheckbox",
+    "category": "input",
+    "purpose": "Binary checkbox toggle with optional description",
+    "props": ["label", "checked", "disabled", "description"],
+    "variants": ["default"],
+    "states": ["checked", "unchecked", "hover", "focus", "disabled"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSRadio",
+    "category": "input",
+    "purpose": "Mutually exclusive radio selection list",
+    "props": ["name", "options", "selectedValue", "disabled"],
+    "variants": ["vertical", "horizontal"],
+    "states": ["selected", "unselected", "hover", "focus", "disabled"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSSwitch",
+    "category": "input",
+    "purpose": "Instant preference toggle switch",
+    "props": ["label", "enabled", "description", "disabled"],
+    "variants": ["default"],
+    "states": ["on", "off", "hover", "focus", "disabled"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSTextarea",
+    "category": "input",
+    "purpose": "Multi-line text input field",
+    "props": ["label", "placeholder", "value", "rows", "disabled", "error"],
+    "variants": ["default", "error"],
+    "states": ["default", "hover", "focus", "disabled", "error"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSDatePicker",
+    "category": "input",
+    "purpose": "Calendar date selection field",
+    "props": ["label", "value", "placeholder", "minDate", "maxDate", "disabled", "error"],
+    "variants": ["default"],
+    "states": ["default", "hover", "focus", "disabled", "error"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSAlert",
+    "category": "feedback",
+    "purpose": "System feedback banner for notices and warnings",
+    "props": ["variant", "title", "message", "dismissible"],
+    "variants": ["info", "success", "warning", "danger"],
+    "states": ["visible", "dismissed"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSToast",
+    "category": "feedback",
+    "purpose": "Transient floating notification alert",
+    "props": ["variant", "message", "duration"],
+    "variants": ["info", "success", "warning", "danger"],
+    "states": ["entering", "visible", "exiting"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSTooltip",
+    "category": "feedback",
+    "purpose": "Informational popover micro-label",
+    "props": ["content", "position"],
+    "variants": ["dark"],
+    "states": ["hidden", "visible"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSProgress",
+    "category": "feedback",
+    "purpose": "Linear progress bar indicating completion",
+    "props": ["value", "max", "variant", "size", "indeterminate"],
+    "variants": ["primary", "success", "warning", "danger"],
+    "states": ["determinate", "indeterminate"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSSpinner",
+    "category": "feedback",
+    "purpose": "Circular loading indicator",
+    "props": ["size", "color"],
+    "variants": ["primary", "white", "muted"],
+    "states": ["spinning"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSSkeleton",
+    "category": "feedback",
+    "purpose": "Pulsing placeholder block representing loading content",
+    "props": ["variant", "width", "height", "radius"],
+    "variants": ["text", "circular", "rectangular"],
+    "states": ["pulsing"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSBadge",
+    "category": "data",
+    "purpose": "Status pill and categorization badge",
+    "props": ["label", "variant", "size"],
+    "variants": ["neutral", "info", "success", "warning", "danger", "purple"],
+    "states": ["default"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSStatCard",
+    "category": "data",
+    "purpose": "KPI summary metric display card with trend indicator",
+    "props": ["title", "value", "trend", "trendDirection", "badge", "icon", "variant"],
+    "variants": ["default", "highlight"],
+    "states": ["default", "hover"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSChartCard",
+    "category": "data",
+    "purpose": "Metric chart container with timeframe filters",
+    "props": ["title", "subtitle", "chartType", "timeframe", "height", "emptyMessage"],
+    "variants": ["default", "compact"],
+    "states": ["loading", "empty", "rendered"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSDataTable",
+    "category": "data",
+    "purpose": "Structured data table with sorting and empty message",
+    "props": ["columns", "rows", "emptyMessage", "selectable"],
+    "variants": ["default"],
+    "states": ["default", "empty", "loading"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSList",
+    "category": "data",
+    "purpose": "Structured item list with icon, title, subtitle, and badges",
+    "props": ["items", "divided"],
+    "variants": ["default", "bordered"],
+    "states": ["default", "empty"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSNavbar",
+    "category": "navigation",
+    "purpose": "Top application navigation bar with branding and links",
+    "props": ["brandName", "brandLogo", "links"],
+    "variants": ["fixed", "floating"],
+    "states": ["default"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSSidebar",
+    "category": "navigation",
+    "purpose": "Collapsible side navigation bar",
+    "props": ["sections", "collapsed"],
+    "variants": ["expanded", "collapsed"],
+    "states": ["expanded", "collapsed"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSBreadcrumb",
+    "category": "navigation",
+    "purpose": "Hierarchical trail component showing page ancestry",
+    "props": ["items", "separator"],
+    "variants": ["default"],
+    "states": ["default"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSNavTabs",
+    "category": "navigation",
+    "purpose": "View switcher tabs with badge counter support",
+    "props": ["tabs", "activeTab", "variant"],
+    "variants": ["segmented", "underline"],
+    "states": ["default"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSPagination",
+    "category": "navigation",
+    "purpose": "Pagination controls with page numbers and next/prev buttons",
+    "props": ["currentPage", "totalPages", "pageSize", "totalItems", "siblingCount"],
+    "variants": ["default", "compact"],
+    "states": ["default", "firstPage", "lastPage"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSContainer",
+    "category": "structure",
+    "purpose": "Constrains maximum width and centers page content",
+    "props": ["maxWidth", "padding"],
+    "variants": ["sm", "md", "lg", "xl", "full"],
+    "states": ["default"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSSection",
+    "category": "structure",
+    "purpose": "Semantic page section wrapper with background and padding",
+    "props": ["title", "description", "background", "paddingY"],
+    "variants": ["transparent", "surface", "subtle"],
+    "states": ["default"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSStack",
+    "category": "structure",
+    "purpose": "Flexbox spacing primitive for vertical or horizontal layouts",
+    "props": ["direction", "gap", "align", "justify", "wrap"],
+    "variants": ["column", "row"],
+    "states": ["default"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSGrid",
+    "category": "structure",
+    "purpose": "CSS grid container with auto-fit and auto-fill column options",
+    "props": ["columns", "minColWidth", "gap"],
+    "variants": ["autoFit", "autoFill"],
+    "states": ["default"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSCard",
+    "category": "structure",
+    "purpose": "Visual card container for grouping related content and actions",
+    "props": ["title", "subtitle", "variant", "padding", "elevation"],
+    "variants": ["default", "interactive", "highlighted", "inset"],
+    "states": ["default", "hover"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSHeader",
+    "category": "structure",
+    "purpose": "Page title bar with subtitle, breadcrumb slot, and action buttons",
+    "props": ["title", "subtitle", "statusPill", "actions"],
+    "variants": ["default"],
+    "states": ["default"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSModal",
+    "category": "structure",
+    "purpose": "Accessible modal dialog overlay",
+    "props": ["title", "isOpen", "width", "closeOnBackdrop"],
+    "variants": ["default"],
+    "states": ["closed", "open"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSDrawer",
+    "category": "structure",
+    "purpose": "Slide-out side drawer for secondary forms and details",
+    "props": ["title", "position", "width", "isOpen"],
+    "variants": ["right", "left", "bottom"],
+    "states": ["closed", "open"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSEmptyState",
+    "category": "state",
+    "purpose": "Empty dataset state with icon, guidance, and primary action",
+    "props": ["title", "description", "icon", "actionLabel", "actionTarget"],
+    "variants": ["default", "compact"],
+    "states": ["empty"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSErrorState",
+    "category": "state",
+    "purpose": "Error recovery state with code, message, and retry button",
+    "props": ["title", "message", "errorCode", "retryLabel", "supportLabel"],
+    "variants": ["fullscreen", "inline"],
+    "states": ["error"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSLoadingState",
+    "category": "state",
+    "purpose": "Loading feedback with spinner or skeleton blocks",
+    "props": ["message", "variant"],
+    "variants": ["spinner", "skeleton", "inline"],
+    "states": ["loading"],
+    "responsive": true,
+    "accessible": true
+  },
+  {
+    "name": "PDSSuccessState",
+    "category": "state",
+    "purpose": "Operation completion confirmation screen",
+    "props": ["title", "message", "actionLabel", "actionTarget"],
+    "variants": ["default", "inline"],
+    "states": ["success"],
+    "responsive": true,
+    "accessible": true
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "name": "PDSEmptyState",
+  "type": "composite",
+  "description": "Deterministic empty state presentation with icon, title, description, and primary call-to-action",
+  "props": {
+    "title": { "type": "string", "required": true },
+    "description": { "type": "string", "required": true },
+    "icon": { "type": "string", "default": "inbox" },
+    "actionLabel": { "type": "string" },
+    "actionTarget": { "type": "string" }
+  },
+  "variants": {
+    "default": { "padding": "spacing.3xl", "textAlign": "center" },
+    "compact": { "padding": "spacing.xl", "textAlign": "center" }
+  },
+  "states": ["empty"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-empty-state",
+    "desktop": "crm-ui/src/components/ or egui empty state"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "name": "PDSSidebar",
+  "type": "component",
+  "description": "Collapsible side navigation panel with category groupings and workspace switcher",
+  "props": {
+    "sections": {
+      "type": "array",
+      "required": true,
+      "items": {
+        "type": "object",
+        "required": ["title", "items"],
+        "properties": {
+          "title": { "type": "string" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "label", "icon"],
+              "properties": {
+                "id": { "type": "string" },
+                "label": { "type": "string" },
+                "icon": { "type": "string" },
+                "badge": { "type": "string" },
+                "active": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "collapsed": { "type": "boolean", "default": false }
+  },
+  "variants": {
+    "expanded": { "width": "240px", "bg": "canvas.surface" },
+    "collapsed": { "width": "64px", "bg": "canvas.surface" }
+  },
+  "states": ["expanded", "collapsed"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:aside.pds-sidebar",
+    "desktop": "crm-ui/src/components/ or egui side panel"
+  }
+}

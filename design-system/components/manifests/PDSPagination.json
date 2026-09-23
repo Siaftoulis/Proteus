@@ -1,0 +1,23 @@
+{
+  "name": "PDSPagination",
+  "type": "component",
+  "description": "Paginated navigation controls with page numbers, total counts, and next/prev buttons",
+  "props": {
+    "currentPage": { "type": "number", "required": true },
+    "totalPages": { "type": "number", "required": true },
+    "pageSize": { "type": "number", "default": 20 },
+    "totalItems": { "type": "number" },
+    "siblingCount": { "type": "number", "default": 1 }
+  },
+  "variants": {
+    "default": { "gap": "spacing.xs", "alignItems": "center" },
+    "compact": { "gap": "spacing.sm", "showNumbers": false }
+  },
+  "states": ["default", "firstPage", "lastPage"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:nav.pds-pagination",
+    "desktop": "crm-ui/src/components/ or egui pagination controls"
+  }
+}

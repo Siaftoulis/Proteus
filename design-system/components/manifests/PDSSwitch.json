@@ -1,0 +1,21 @@
+{
+  "name": "PDSSwitch",
+  "type": "primitive",
+  "description": "Toggle switch input for instant settings and preferences toggling",
+  "props": {
+    "label": { "type": "string", "required": true },
+    "enabled": { "type": "boolean", "default": false },
+    "description": { "type": "string" },
+    "disabled": { "type": "boolean", "default": false }
+  },
+  "variants": {
+    "default": { "activeColor": "brand.primary", "inactiveColor": "canvas.surfaceHover" }
+  },
+  "states": ["on", "off", "hover", "focus", "disabled"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-switch",
+    "desktop": "crm-ui/src/components/ or egui toggle"
+  }
+}

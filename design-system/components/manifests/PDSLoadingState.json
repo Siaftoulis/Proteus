@@ -1,0 +1,21 @@
+{
+  "name": "PDSLoadingState",
+  "type": "composite",
+  "description": "Deterministic loading state showing spinner or skeleton blocks with status message",
+  "props": {
+    "message": { "type": "string", "default": "Loading data..." },
+    "variant": { "type": "string", "enum": ["spinner", "skeleton", "inline"], "default": "spinner" }
+  },
+  "variants": {
+    "spinner": { "textAlign": "center", "padding": "spacing.3xl" },
+    "skeleton": { "gap": "spacing.md", "padding": "spacing.lg" },
+    "inline": { "display": "inline-flex", "gap": "spacing.sm" }
+  },
+  "states": ["loading"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-loading-state",
+    "desktop": "crm-ui/src/components/ or egui loading screen"
+  }
+}

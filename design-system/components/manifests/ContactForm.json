@@ -1,0 +1,21 @@
+{
+  "name": "ContactForm",
+  "type": "composite",
+  "description": "Preserved Section 33 lead capture and customer inquiry form",
+  "props": {
+    "headline": { "type": "string", "required": true },
+    "showPhoneField": { "type": "boolean", "default": false },
+    "submitLabel": { "type": "string", "default": "Send Message" }
+  },
+  "variants": {
+    "card": { "bg": "canvas.surface", "border": "border.subtle", "padding": "spacing.xl" },
+    "minimal": { "bg": "transparent", "border": "none", "padding": "spacing.md" }
+  },
+  "states": ["idle", "submitting", "success", "error"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.contact-form",
+    "desktop": "crm-ui/src/components/ or egui contact form"
+  }
+}

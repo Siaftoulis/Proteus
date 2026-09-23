@@ -1,0 +1,23 @@
+{
+  "name": "PDSSkeleton",
+  "type": "primitive",
+  "description": "Pulsing placeholder block representing content while loading",
+  "props": {
+    "variant": { "type": "string", "enum": ["text", "circular", "rectangular"], "default": "text" },
+    "width": { "type": "string", "default": "100%" },
+    "height": { "type": "string", "default": "16px" },
+    "radius": { "type": "string", "default": "radius.sm" }
+  },
+  "variants": {
+    "text": { "height": "16px", "radius": "radius.xs" },
+    "circular": { "radius": "radius.full" },
+    "rectangular": { "radius": "radius.md" }
+  },
+  "states": ["pulsing"],
+  "responsive": true,
+  "accessible": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_css.rs:.pds-skeleton",
+    "desktop": "crm-ui/src/components/ or egui skeleton block"
+  }
+}
