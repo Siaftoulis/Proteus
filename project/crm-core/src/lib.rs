@@ -45,6 +45,8 @@ pub enum DbError {
     Lock(String),
     #[error("Not found")]
     NotFound,
+    #[error("Validation error: {0}")]
+    Validation(String),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

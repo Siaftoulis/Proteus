@@ -236,6 +236,9 @@ impl eframe::App for ProteusApp {
                     }
                 });
         }
+
+        // ── COMMAND PALETTE (Ctrl+K) ──
+        components::command_palette::show(self, ctx);
     }
 }
 

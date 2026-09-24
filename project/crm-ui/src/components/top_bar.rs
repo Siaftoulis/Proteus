@@ -12,8 +12,25 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
             ui.horizontal(|ui| {
                 ui.label(egui::RichText::new("PROTEUS").size(16.).color(p.accent).strong());
                 ui.label(egui::RichText::new("Workspace").size(10.).color(p.text_dim).strong());
-                ui.add_space(12.); ui.separator(); ui.add_space(12.);
                 ui.label(egui::RichText::new(format!("📂 {}", app.pname)).size(13.).color(p.text));
+                ui.add_space(8.);
+
+                let search_btn = ui.add(
+                    egui::Button::new(
+                        egui::RichText::new("🔍 Search & Commands (Ctrl+K)")
+                            .size(11.)
+                            .color(p.text_dim),
+                    )
+                    .fill(p.elevated)
+                    .stroke(egui::Stroke::new(1., p.border))
+                    .corner_radius(egui::CornerRadius::same(6))
+                    .min_size(egui::vec2(210., 25.)),
+                );
+                if search_btn.clicked() {
+                    app.show_command_palette = true;
+                    app.command_palette_query.clear();
+                    app.command_palette_sel_idx = 0;
+                }
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if let Some(u) = &app.auth {
                         ui.label(egui::RichText::new(format!("👤 {}", u)).size(12.).color(p.text_dim));

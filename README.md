@@ -58,7 +58,7 @@ The Proteus ecosystem operates across 4 interconnected tiers (`crm-core`, `crm-u
 - [x] Core — RBAC separation of Business Analyst (`BA`) and Data Analyst (`DA`).
 - [x] **Slot Board & Bidding Engine (`proteus-web`)**: Interactive project slot board with dynamic 6-role escrow splits and instant accept offers (P0).
 - [x] **Complexity Floor Calculator (`crm-core`)**: Automated formula calculating minimum project value based on screen, entity, trigger, and hardware counts (P0).
-- [ ] **Data Model Engine**: Standardize the `records` table for all entities (EAV pattern) and build the `DataEngine` inside `crm-core` (P0).
+- [x] **Data Model Engine**: Standardize the `records` table for all entities (EAV pattern) and build the `DataEngine` inside `crm-core` (P0).
 - [ ] **Data-bound Widgets**: Develop `DataBoundTable` and `DynamicForm` widgets that read/write directly to SQLite instead of using mock data (P0).
 
 ### Mid-Term Goals (Next Steps)
