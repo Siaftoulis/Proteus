@@ -18,6 +18,7 @@ pub enum Mode {
     Pipeline,
     Studio,
     Tasks,
+    Settings,
 }
 
 #[derive(Clone, PartialEq, Debug)]

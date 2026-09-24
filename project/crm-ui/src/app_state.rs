@@ -103,6 +103,7 @@ pub struct ProteusApp {
     pub networking_state: views::networking::NetworkingState,
     pub troubleshoot_state: views::troubleshoot::TroubleshootState,
     pub connected_data_state: views::connected_data::ConnectedDataState,
+    pub settings_state: views::settings::SettingsState,
 
     // Command Palette (Ctrl+K)
     pub show_command_palette: bool,
@@ -380,6 +381,7 @@ impl Default for ProteusApp {
             networking_state: views::networking::NetworkingState::default(),
             troubleshoot_state: views::troubleshoot::TroubleshootState::default(),
             connected_data_state: views::connected_data::ConnectedDataState::default(),
+            settings_state: views::settings::SettingsState::default(),
             show_command_palette: false,
             command_palette_query: String::new(),
             command_palette_sel_idx: 0,

@@ -40,6 +40,11 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                         app.toast(format!("Auto-Deploy LAN: {}", status));
                         ui.close_menu();
                     }
+                    ui.separator();
+                    if ui.button("⚙ Studio Settings (Ctrl+,)").clicked() {
+                        app.mode = Mode::Settings;
+                        ui.close_menu();
+                    }
                 });
 
                 // Edit Menu
@@ -177,6 +182,11 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                     }
                     if ui.selectable_label(app.mode == Mode::ConnectedData, "🗄 Server & Connected Data").clicked() {
                         app.mode = Mode::ConnectedData;
+                        ui.close_menu();
+                    }
+                    ui.separator();
+                    if ui.selectable_label(app.mode == Mode::Settings, "⚙ Studio Settings & Preferences").clicked() {
+                        app.mode = Mode::Settings;
                         ui.close_menu();
                     }
                 });

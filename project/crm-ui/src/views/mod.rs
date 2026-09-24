@@ -10,4 +10,4 @@ pub mod analyst;
 pub mod networking;
 pub mod troubleshoot;
 pub mod connected_data;
-
+pub mod settings;

@@ -127,6 +127,7 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                     (Mode::Pipeline,    "▤", "Pipeline"),
                     (Mode::Tasks,       "☰", "Tasks"),
                     (Mode::Studio,      "✦", "Freehand"),
+                    (Mode::Settings,    "⚙", "Settings"),
                 ];
 
                 for (mode, icon, label) in secondary_tools {

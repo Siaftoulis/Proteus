@@ -48,6 +48,14 @@ impl eframe::App for ProteusApp {
 
         let p = self.palette(ctx);
 
+        if ctx.input(|i| i.modifiers.command && i.key_pressed(egui::Key::Comma)) {
+            if self.mode == Mode::Settings {
+                self.mode = Mode::Designer;
+            } else {
+                self.mode = Mode::Settings;
+            }
+        }
+
         // ── TOP BARS ──
         menu_bar::show(self, ctx);
         components::top_bar::show(self, ctx);
@@ -77,6 +85,7 @@ impl eframe::App for ProteusApp {
                     Mode::Studio => views::studio::show_left(self, ui),
                     Mode::Play => views::play::show_left(self, ui),
                     Mode::DataViewer => views::data_viewer::show_left(self, ui),
+                    Mode::Settings => views::settings::show_left(&mut self.settings_state, ui),
                 }
             });
 
@@ -94,6 +103,7 @@ impl eframe::App for ProteusApp {
             Mode::Pipeline => "DEAL DETAIL",
             Mode::Studio => "LAYERS",
             Mode::Tasks => "TASK DETAIL",
+            Mode::Settings => "STUDIO SETTINGS",
         };
         let (right_w, right_min) = if self.mode == Mode::Designer {
             (260., 240.)
@@ -130,6 +140,7 @@ impl eframe::App for ProteusApp {
                     Mode::Studio => views::studio::show_right(self, ui),
                     Mode::Play => views::play::show_right(self, ui),
                     Mode::DataViewer => views::data_viewer::show_right(self, ui),
+                    Mode::Settings => views::settings::show_right(self, ui),
                 }
             });
 
@@ -204,6 +215,7 @@ impl eframe::App for ProteusApp {
                     Mode::Play => views::play::show_central(self, ui, &pnt, r),
                     Mode::DataViewer => views::data_viewer::show_central(self, ui),
                     Mode::FlowBuilder => views::flow_builder::show_central(self, ctx, ui, &pnt, r, mpos, mdown),
+                    Mode::Settings => views::settings::show_central(self, ui),
                 }
 
                 // Toast overlay

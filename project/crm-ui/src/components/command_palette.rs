@@ -347,6 +347,13 @@ fn get_all_actions() -> Vec<PaletteAction> {
             shortcut: None,
             action: ActionKind::SwitchMode(Mode::Studio),
         },
+        PaletteAction {
+            icon: "⚙",
+            title: "Settings — Ρυθμίσεις Συστήματος & PDS Studio",
+            category: "Workspaces",
+            shortcut: Some("Ctrl+,"),
+            action: ActionKind::SwitchMode(Mode::Settings),
+        },
         // Quick Actions
         PaletteAction {
             icon: "💾",

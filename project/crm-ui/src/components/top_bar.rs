@@ -65,6 +65,17 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                     if ui.selectable_label(app.layout == LayoutMode::Grid, "🌐 Grid").clicked() {
                         app.layout = if app.layout == LayoutMode::Grid { LayoutMode::Free } else { LayoutMode::Grid };
                     }
+                    let is_settings = app.mode == crate::models::Mode::Settings;
+                    if ui.selectable_label(is_settings, "⚙ Settings")
+                        .on_hover_text("Studio Settings & Preferences (Ctrl+,)")
+                        .clicked()
+                    {
+                        if is_settings {
+                            app.mode = crate::models::Mode::Designer;
+                        } else {
+                            app.mode = crate::models::Mode::Settings;
+                        }
+                    }
                 });
             });
         });
