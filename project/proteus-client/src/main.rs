@@ -15,8 +15,8 @@ fn main() -> eframe::Result<()> {
     let native_options = NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("Proteus Client — Service BOS")
-            .with_inner_size([1200.0, 760.0])
-            .with_min_inner_size([960.0, 620.0])
+            .with_maximized(true)
+            .with_min_inner_size([960.0, 600.0])
             .with_active(true),
         ..Default::default()
     };

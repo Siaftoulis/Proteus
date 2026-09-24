@@ -256,8 +256,8 @@ fn main() {
         eframe::NativeOptions {
             viewport: egui::ViewportBuilder::default()
                 .with_title("Proteus - The Visual OS for Business")
-                .with_inner_size([1400., 900.])
-                .with_min_inner_size([800., 500.])
+                .with_maximized(true)
+                .with_min_inner_size([960., 600.])
                 .with_active(true),
             ..Default::default()
         },
