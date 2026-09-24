@@ -6,6 +6,7 @@
 mod contracts;
 mod marketplace;
 mod portal;
+mod slot_board;
 mod ui;
 mod ui_certifications;
 mod ui_contracts;
@@ -15,7 +16,7 @@ mod ui_landing;
 mod ui_marketplace;
 
 use axum::{
-    extract::Json,
+    extract::{Extension, Json, Path},
     http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
@@ -23,12 +24,15 @@ use axum::{
 };
 use marketplace::{compile_package_gate, CertificationTier, PackageCompileRequest};
 use portal::{calculate_subscription_quote, PricingQuoteRequest};
+use slot_board::{AcceptSlotRequest, FloorCalculatorRequest, SlotBoardManager, SubmitBidRequest};
 use tower_http::cors::CorsLayer;
 use tracing::info;
 
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
+
+    let slot_manager = SlotBoardManager::new();
 
     let app = Router::new()
         .route("/", get(ui_landing::landing_page_handler))
@@ -44,6 +48,12 @@ async fn main() {
         .route("/api/v1/contracts/fund", post(contract_fund_handler))
         .route("/api/v1/contracts/payout", post(contract_payout_handler))
         .route("/api/v1/marketplace/packages", get(packages_handler))
+        .route("/api/v1/marketplace/slot-boards", get(slot_boards_handler))
+        .route("/api/v1/marketplace/slot-boards/:id", get(slot_board_get_handler))
+        .route("/api/v1/marketplace/slot-boards/accept", post(slot_board_accept_handler))
+        .route("/api/v1/marketplace/slot-boards/bid", post(slot_board_bid_handler))
+        .route("/api/v1/pricing/floor-calculator", post(floor_calculator_handler))
+        .layer(Extension(slot_manager))
         .layer(CorsLayer::permissive());
 
     let addr = "0.0.0.0:8080";
@@ -220,5 +230,65 @@ async fn contact_submit_handler(Json(payload): Json<ContactSubmission>) -> impl 
             "has_phone": payload.phone.is_some()
         })),
     )
+}
+
+async fn slot_boards_handler(Extension(mgr): Extension<SlotBoardManager>) -> impl IntoResponse {
+    let boards = mgr.list_boards();
+    (StatusCode::OK, Json(boards))
+}
+
+async fn slot_board_get_handler(
+    Extension(mgr): Extension<SlotBoardManager>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match mgr.get_board(&id) {
+        Some(board) => (StatusCode::OK, Json(board)).into_response(),
+        None => (
+            StatusCode::NOT_FOUND,
+            Json(serde_json::json!({ "error": format!("Slot board '{}' not found", id) })),
+        )
+            .into_response(),
+    }
+}
+
+async fn slot_board_accept_handler(
+    Extension(mgr): Extension<SlotBoardManager>,
+    Json(payload): Json<AcceptSlotRequest>,
+) -> impl IntoResponse {
+    match mgr.accept_slot(&payload) {
+        Ok(board) => (
+            StatusCode::OK,
+            Json(serde_json::json!({ "success": true, "board": board })),
+        )
+            .into_response(),
+        Err(err) => (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({ "success": false, "error": err })),
+        )
+            .into_response(),
+    }
+}
+
+async fn slot_board_bid_handler(
+    Extension(mgr): Extension<SlotBoardManager>,
+    Json(payload): Json<SubmitBidRequest>,
+) -> impl IntoResponse {
+    match mgr.submit_bid(&payload) {
+        Ok(board) => (
+            StatusCode::OK,
+            Json(serde_json::json!({ "success": true, "board": board })),
+        )
+            .into_response(),
+        Err(err) => (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({ "success": false, "error": err })),
+        )
+            .into_response(),
+    }
+}
+
+async fn floor_calculator_handler(Json(payload): Json<FloorCalculatorRequest>) -> impl IntoResponse {
+    let res = SlotBoardManager::evaluate_floor(&payload);
+    (StatusCode::OK, Json(res))
 }
 

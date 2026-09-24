@@ -18,6 +18,7 @@ pub mod merkle;
 pub mod migrations;
 pub mod package;
 pub mod paths;
+pub mod pricing;
 pub mod printer;
 pub mod replication;
 pub mod roles;

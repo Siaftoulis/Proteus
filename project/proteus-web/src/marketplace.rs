@@ -4,6 +4,7 @@
 //! - Monthly badge subscriptions (30€/mo base).
 //! - Walled garden compiler gate: packages are only compiled on-platform and bound to paying client shops.
 
+use crm_core::pricing::{compute_floor_price, ProjectComplexityMetrics};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -77,6 +78,8 @@ pub struct PackageCompileRequest {
     pub target_client_shop_id: String,
     pub gross_amount_eur: f64,
     pub is_escrow_funded: bool,
+    #[serde(default)]
+    pub complexity_metrics: Option<ProjectComplexityMetrics>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -99,6 +102,23 @@ pub fn compile_package_gate(req: &PackageCompileRequest) -> PackageCompileResult
             partner_payout_eur: 0.0,
             message: "Αποτυχία: Η πληρωμή δεν έχει δεσμευτεί στο In-Platform Escrow. Το compilation απορρίφθηκε.".to_string(),
         };
+    }
+
+    if let Some(metrics) = req.complexity_metrics {
+        let breakdown = compute_floor_price(&metrics);
+        if req.gross_amount_eur < breakdown.total_floor_price_eur {
+            let deficit = ((breakdown.total_floor_price_eur - req.gross_amount_eur) * 100.0).round() / 100.0;
+            return PackageCompileResult {
+                success: false,
+                package_hash: None,
+                platform_fee_eur: 0.0,
+                partner_payout_eur: 0.0,
+                message: format!(
+                    "Αποτυχία Anti-Scam: Το ποσό €{:.2} είναι χαμηλότερο από το ελάχιστο αλγοριθμικό πάτωμα €{:.2} (Έλλειμμα: €{:.2}). Απορρίφθηκε για αποτροπή παράκαμψης πλατφόρμας.",
+                    req.gross_amount_eur, breakdown.total_floor_price_eur, deficit
+                ),
+            };
+        }
     }
 
     if req.target_client_shop_id.trim().is_empty() {
@@ -286,6 +306,7 @@ mod tests {
             target_client_shop_id: "SHOP_01".to_string(),
             gross_amount_eur: 350.0,
             is_escrow_funded: false,
+            complexity_metrics: None,
         };
         let res = compile_package_gate(&req_unfunded);
         assert!(!res.success);
@@ -298,6 +319,25 @@ mod tests {
         assert!(res_ok.success);
         assert_eq!(res_ok.platform_fee_eur, 122.50);
         assert_eq!(res_ok.partner_payout_eur, 227.50);
+    }
+
+    #[test]
+    fn test_compiler_gate_anti_scam_floor_price_rejection() {
+        let req = PackageCompileRequest {
+            designer_id: "user_02".to_string(),
+            designer_tier: CertificationTier::Tier1Associate,
+            project_name: "ComplexPOS".to_string(),
+            target_client_shop_id: "SHOP_02".to_string(),
+            gross_amount_eur: 200.0, // Proposed 200€
+            is_escrow_funded: true,
+            complexity_metrics: Some(ProjectComplexityMetrics::new(3, 2, 2, 1)), // Floor: 150 + 135 + 70 + 50 + 60 = 465€
+        };
+
+        let res = compile_package_gate(&req);
+        assert!(!res.success);
+        assert!(res.message.contains("Αποτυχία Anti-Scam"));
+        assert!(res.message.contains("465.00"));
+        assert!(res.message.contains("265.00")); // Deficit
     }
 
     #[test]
