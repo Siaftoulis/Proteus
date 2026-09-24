@@ -5,7 +5,7 @@ use crate::views::auth::ClientAuthState;
 use crate::views::navigation::{NavTab, RoleWorkspace};
 use crm_core::roles::{RolePermissions, UserRole};
 use crm_core::tickets::list_tickets;
-use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
+use egui::{Align2, Color32, CornerRadius, FontId, Frame, Margin, Pos2, Rect, RichText, Shape, Stroke, Ui};
 use rusqlite::Connection;
 
 pub struct TopBarState<'a> {
@@ -183,24 +183,95 @@ pub fn render_sub_bar(
             Frame::new()
                 .fill(crate::theme::BG_CARD)
                 .stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
-                .inner_margin(Margin::symmetric(14, 6)),
+                .inner_margin(Margin::symmetric(14, 5)),
         )
         .show(ctx, |ui| {
             ui.horizontal(|ui| {
-                for (tab, label) in sub_tabs {
-                    let is_active = *tab == *active_tab;
-                    let btn = if is_active {
-                        egui::Button::new(RichText::new(*label).strong().size(12.0).color(Color32::WHITE))
-                            .fill(crate::theme::ACCENT_PRIMARY)
-                    } else {
-                        egui::Button::new(RichText::new(*label).size(12.0).color(crate::theme::TEXT_SECONDARY))
-                            .fill(crate::theme::BG_CARD)
-                    };
+                let bar_id = ui.make_persistent_id(format!("sub_bar_{}", active_workspace.short_code()));
+                let font_id = FontId::proportional(11.5);
+                let pill_indigo = crate::theme::ACCENT_PRIMARY;
+                let text_muted = crate::theme::TEXT_SECONDARY;
+                let text_hover = Color32::WHITE;
 
-                    if ui.add(btn).clicked() {
-                        *active_tab = *tab;
-                    }
-                    ui.add_space(2.0);
+                let mut clicked_tab: Option<NavTab> = None;
+
+                Frame::new()
+                    .fill(Color32::from_rgb(18, 22, 30))
+                    .stroke(Stroke::new(1.0, Color32::from_rgb(38, 44, 58)))
+                    .corner_radius(CornerRadius::same(18))
+                    .inner_margin(Margin::symmetric(3, 3))
+                    .show(ui, |ui| {
+                        ui.horizontal(|ui| {
+                            ui.spacing_mut().item_spacing.x = 2.0;
+
+                            let bg_shape_idx = ui.painter().add(Shape::Noop);
+                            let mut target_rect: Option<Rect> = None;
+
+                            for (tab, label) in sub_tabs {
+                                let is_active = *tab == *active_tab;
+
+                                let text_width = ui.painter()
+                                    .layout_no_wrap((*label).to_string(), font_id.clone(), Color32::WHITE)
+                                    .size()
+                                    .x;
+                                let item_size = egui::vec2(text_width + 18.0, 25.0);
+
+                                let (rect, resp) = ui.allocate_exact_size(item_size, egui::Sense::click());
+
+                                if resp.hovered() {
+                                    ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                                }
+
+                                if is_active {
+                                    target_rect = Some(rect);
+                                }
+
+                                if resp.clicked() && !is_active {
+                                    clicked_tab = Some(*tab);
+                                }
+
+                                let text_color = if is_active {
+                                    Color32::WHITE
+                                } else if resp.hovered() {
+                                    text_hover
+                                } else {
+                                    text_muted
+                                };
+
+                                ui.painter().text(
+                                    rect.center(),
+                                    Align2::CENTER_CENTER,
+                                    *label,
+                                    font_id.clone(),
+                                    text_color,
+                                );
+                            }
+
+                            if let Some(target) = target_rect {
+                                let anim_min_x = ui.ctx().animate_value_with_time(bar_id.with("min_x"), target.min.x, 0.18);
+                                let anim_max_x = ui.ctx().animate_value_with_time(bar_id.with("max_x"), target.max.x, 0.18);
+                                let anim_min_y = ui.ctx().animate_value_with_time(bar_id.with("min_y"), target.min.y, 0.18);
+                                let anim_max_y = ui.ctx().animate_value_with_time(bar_id.with("max_y"), target.max.y, 0.18);
+
+                                let anim_rect = Rect::from_min_max(
+                                    Pos2::new(anim_min_x, anim_min_y),
+                                    Pos2::new(anim_max_x, anim_max_y),
+                                );
+
+                                ui.painter().set(
+                                    bg_shape_idx,
+                                    Shape::rect_filled(
+                                        anim_rect,
+                                        CornerRadius::same(14),
+                                        pill_indigo,
+                                    ),
+                                );
+                            }
+                        });
+                    });
+
+                if let Some(t) = clicked_tab {
+                    *active_tab = t;
                 }
 
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
@@ -234,51 +305,93 @@ fn render_workspace_pills_ui(
     permissions: &RolePermissions,
     active_role: UserRole,
 ) {
-    ui.horizontal(|ui| {
-        for ws in workspaces {
-            let is_active = *ws == *active_workspace;
-            let (bg, border_color, text_color) = if is_active {
-                (
-                    Color32::from_rgb(30, 41, 59),
-                    crate::theme::ACCENT_CYAN,
-                    Color32::WHITE,
-                )
-            } else {
-                (
-                    Color32::from_rgb(18, 21, 27),
-                    crate::theme::BORDER_SUBTLE,
-                    crate::theme::TEXT_SECONDARY,
-                )
-            };
+    let bar_id = ui.make_persistent_id("affinity_client_workspaces_bar");
+    let font_id = FontId::proportional(11.5);
+    let pill_cyan = Color32::from_rgb(0, 212, 255);
+    let text_dark = Color32::from_rgb(10, 15, 26);
+    let text_muted = Color32::from_rgb(160, 168, 182);
+    let text_hover = Color32::from_rgb(240, 245, 255);
 
-            let stroke = if is_active {
-                Stroke::new(1.5, border_color)
-            } else {
-                Stroke::new(1.0, border_color)
-            };
+    let mut next_ws: Option<RoleWorkspace> = None;
 
-            Frame::new()
-                .fill(bg)
-                .stroke(stroke)
-                .corner_radius(CornerRadius::same(5))
-                .inner_margin(Margin::symmetric(10, 5))
-                .show(ui, |ui| {
-                    let resp = ui.add(
-                        egui::Label::new(
-                            RichText::new(ws.display_label())
-                                .strong()
-                                .size(12.0)
-                                .color(text_color),
-                        )
-                        .sense(egui::Sense::click()),
-                    );
-                    if resp.clicked() && !is_active {
-                        *active_workspace = *ws;
-                        *active_tab = ws.default_tab(permissions, active_role);
+    Frame::new()
+        .fill(Color32::from_rgb(14, 16, 22))
+        .stroke(Stroke::new(1.0, Color32::from_rgb(34, 38, 50)))
+        .corner_radius(CornerRadius::same(20))
+        .inner_margin(Margin::symmetric(3, 3))
+        .show(ui, |ui| {
+            ui.horizontal(|ui| {
+                ui.spacing_mut().item_spacing.x = 2.0;
+
+                let bg_shape_idx = ui.painter().add(Shape::Noop);
+                let mut target_rect: Option<Rect> = None;
+
+                for ws in workspaces {
+                    let is_active = *ws == *active_workspace;
+                    let label = ws.display_label();
+
+                    let text_width = ui.painter()
+                        .layout_no_wrap(label.to_string(), font_id.clone(), Color32::WHITE)
+                        .size()
+                        .x;
+                    let item_size = egui::vec2(text_width + 20.0, 27.0);
+
+                    let (rect, resp) = ui.allocate_exact_size(item_size, egui::Sense::click());
+
+                    if resp.hovered() {
+                        ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                     }
-                });
 
-            ui.add_space(3.0);
-        }
-    });
+                    if is_active {
+                        target_rect = Some(rect);
+                    }
+
+                    if resp.clicked() && !is_active {
+                        next_ws = Some(*ws);
+                    }
+
+                    let text_color = if is_active {
+                        text_dark
+                    } else if resp.hovered() {
+                        text_hover
+                    } else {
+                        text_muted
+                    };
+
+                    ui.painter().text(
+                        rect.center(),
+                        Align2::CENTER_CENTER,
+                        label,
+                        font_id.clone(),
+                        text_color,
+                    );
+                }
+
+                if let Some(target) = target_rect {
+                    let anim_min_x = ui.ctx().animate_value_with_time(bar_id.with("min_x"), target.min.x, 0.18);
+                    let anim_max_x = ui.ctx().animate_value_with_time(bar_id.with("max_x"), target.max.x, 0.18);
+                    let anim_min_y = ui.ctx().animate_value_with_time(bar_id.with("min_y"), target.min.y, 0.18);
+                    let anim_max_y = ui.ctx().animate_value_with_time(bar_id.with("max_y"), target.max.y, 0.18);
+
+                    let anim_rect = Rect::from_min_max(
+                        Pos2::new(anim_min_x, anim_min_y),
+                        Pos2::new(anim_max_x, anim_max_y),
+                    );
+
+                    ui.painter().set(
+                        bg_shape_idx,
+                        Shape::rect_filled(
+                            anim_rect,
+                            CornerRadius::same(15),
+                            pill_cyan,
+                        ),
+                    );
+                }
+            });
+        });
+
+    if let Some(ws) = next_ws {
+        *active_workspace = ws;
+        *active_tab = ws.default_tab(permissions, active_role);
+    }
 }
