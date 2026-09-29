@@ -6,7 +6,7 @@ tags:
 
 > [[Board|Kanban Board]] | [[Project Status|Status]]
 
-## Sprint 5: Pre-Enlistment Windows MVP (Sep 14 – Oct 31, 2026) — ACTIVE
+## Sprint 5: Pre-Enlistment Windows MVP (Sep 14 – Oct 31, 2026) (Complete)
 
 ### 5.1 Storage & Schema Layer
 - [x] Direct SQLite path to `%APPDATA%\Proteus\data\store.db` (Zero-privilege)
@@ -50,7 +50,7 @@ tags:
 - [x] Resilient Background Outbox Worker with Full Jitter Exponential Backoff & Circuit Breaker
 - [x] Two-Stage Authentication & Dynamic Purchased PR Package Mounting
 
-## Sprint 7: Next-Gen UI/UX Engine, VRR, Custom Theming & Flow Runtime (ACTIVE)
+## Sprint 7: Next-Gen UI/UX Engine, VRR, Custom Theming & Flow Runtime (Complete)
 - [x] Flow Condition Engine & DAG Walker Upgrades (`ConditionOp`, true/false branching, payload merge)
 - [x] Flow Builder Condition & Notification Node Palette (`Condition (IF)`, `Notification`)
 - [x] Play Mode Runtime Condition Evaluation against active form state
@@ -136,6 +136,32 @@ tags:
   - [x] `GET /api/v1/backups/list` endpoint
   - [x] `POST /api/v1/backups/create` endpoint
   - [x] `GET /api/v1/backups/download/:filename` endpoint
+- [x] **10.7 Component Genealogy, Serial Number Tracking & Centralized RMA Hub (`proteus-core` & `proteus-client`)**
+  - [x] Full physical lifecycle tracking (`SupplierIntake` ➔ `WarehouseStock` ➔ `InstalledInCustomerDevice` ➔ `RmaClaimInitiated` ➔ `RmaReplacedBySupplier` ➔ `CreditNoteIssued`)
+  - [x] Real-time dynamic warranty countdown (`WarrantyStatus::Valid` vs `WarrantyStatus::Expired`)
+  - [x] Embedded RMA & Serial Number Inspector in ticket detail modal (`embedded_genealogy.rs`)
+  - [x] Centralized RMA Hub monitoring active supplier warranty claims across store branches (`genealogy_rma.rs`)
+- [x] **10.8 High-Concurrency SQLite & Cryptographic Hardening (`proteus-core` & `auth-server`)**
+  - [x] Storage tuning: `PRAGMA journal_mode = WAL;`, `PRAGMA synchronous = NORMAL;`, and `PRAGMA busy_timeout = 5000;` across all connections
+  - [x] Axum `auth-server`: Hardened runtime fallback in release mode using `OsRng` 256-bit random key if `JWT_SECRET` is unset
+  - [x] Protected LAN receiver (port 7443) with strict payload capping and DoS mitigation
+- [x] **10.9 Unbreakable 6-Stage Automated Verification Pipeline (`scripts/verify_pipeline.ps1` & `.bat`)**
+  - [x] Gate 1: Type check, Gate 2: Storage pragmas, Gate 3: Zero-mock scan, Gate 4: 304/304 tests, Gate 5: Binaries, Gate 6: Modularity
+  - [x] 100% passing tests across all 7 workspace crates (304 tests passing, 0 warnings, 0 failures)
+
+## Sprint 11: Global Logistics, Digital Shipping Note & Dispatch Companion (ACTIVE)
+- [ ] **11.1 SQLite Schema & DDL for Digital Shipping Notes (`proteus-core`)**
+  - [ ] Tables: `shipping_notes`, `shipping_note_items`, `shipping_dispatches`
+  - [ ] Fields: Sender AFM, Recipient AFM, Vehicle plate, Departure/Arrival timestamps, Gross weight, Transport purpose
+- [ ] **11.2 IAPR / myDATA & e-CMR QR-Code Generator (`proteus-core`)**
+  - [ ] Standardized QR payload generation complying with Greek AADE digital transport mandate
+  - [ ] Cryprographic hash verification and offline checksum
+- [ ] **11.3 ESC/POS Thermal Delivery Waybill Voucher (`proteus-core` & `proteus-client`)**
+  - [ ] Printable 80mm & 58mm delivery note format with items summary, QR code, and driver/receiver signature line
+- [ ] **11.4 Van Sales & Offline Dispatch Outbox Queue (`proteus-core`)**
+  - [ ] Store-and-forward outbox (`shipping_outbox`) for delivery drivers with weak/no cellular reception
+- [ ] **11.5 Frontline Dispatch Inspector View (`proteus-client`)**
+  - [ ] Route list, vehicle selection, 1-click delivery sign-off, and thermal voucher reprinting
 
 ## Phase 2: Military Service Period (Nov 2026 – May 2027)
 - [ ] 2–3 shop pilot testing & bugfixing during leaves

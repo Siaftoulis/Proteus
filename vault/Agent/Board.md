@@ -158,15 +158,46 @@ tags:
 - [x] PCDA 79€ exam voucher & 149€ bundle catalog tracks in `proteus-web`
 - [x] 143/143 workspace unit tests passing (100% green, 0 compiler warnings)
 
-## Sprint 7 (Next-Gen UI/UX Engine, VRR & Theming) — ACTIVE
+## Sprint 7 (Next-Gen UI/UX Engine, VRR & Theming) — Complete
 - [x] Flow Condition Engine & DAG Walker Upgrades (`ConditionOp`, branching, context payload)
 - [x] Flow Builder Condition & Notification Node Palette (`Condition (IF)`, `Notification`)
 - [x] Play Mode Runtime Condition Evaluation against active form state
 - [x] Adaptive Variable Refresh Rate (VRR) Engine (`Reactive`, 30/60/120/144Hz throttling)
 - [x] Dynamic Dual-Mode Theme Engine & System Theme Synchronization (`System`, `Dark`, `Light`, 6 Accents)
 - [x] Hit-Test First Context Dispatcher & Enhanced Canvas Selection (Auto-select on right click, multi-selection actions)
-- [ ] Micro-connection wiring & Polish across all 5 Workspaces
+- [x] Micro-connection wiring & Polish across all Workspaces
 - [x] 210 workspace unit tests passing (100% green, 0 compiler warnings)
+
+## Sprint 8 (Universal Database Harmony & Frontline Retail) — Complete
+- [x] SMLM Content-driven data profiler (AFM modulo 11, E.164, GS1-128, IBAN, VIN, IMO)
+- [x] Multi-lingual semantic ontology dictionary (Greek, Greeklish, English, ERP acronyms)
+- [x] Entry-by-Entry Reconciler with natural composite keys & LWW conflict resolution
+- [x] Contractor Job-Site Sub-ledger (Καρτέλα Μάστορα ανά Έργο/Οικοδομή) in SQLite
+- [x] Supplier Price Catalog Reconciler (1-click vendor CSV/TSV price sheet ingestion)
+
+## Sprint 9 (Bespoke Brief Engine & ESC/POS Canvas Viewport) — Complete
+- [x] Bespoke Brief Ingestion Modal & 1-Click Canvas Scaffolding in `proteus-design-studio`
+- [x] Authentic 80mm & 58mm ESC/POS Thermal Canvas Viewports with character guide margins
+- [x] Interactive Cubic Bezier Visual Wiring Overlay connecting buttons, screens, and database entities
+- [x] Domain Reseller & Registrar Gateway (.gr, .com, .eu, .shop) in `proteus-web`
+- [x] Managed Cloud Hosting Subscriptions & extra DB provisioning in `proteus-web`
+
+## Sprint 10 (Genealogy/RMA Hub & Unbreakable Quality Pipeline) — Complete
+- [x] Component Genealogy & full physical lifecycle tracking (`SupplierIntake` to `CreditNoteIssued`)
+- [x] Dynamic real-time warranty countdown with visual status pills
+- [x] Embedded RMA & Serial Number Inspector in ticket detail modal
+- [x] Centralized RMA Hub (`genealogy_rma.rs`) monitoring active vendor claims
+- [x] Storage concurrency tuning: `PRAGMA busy_timeout = 5000;` & WAL mode across all DB instances
+- [x] Axum `auth-server` OsRng fallback & LAN receiver DoS protection
+- [x] Automated 6-Gate Unbreakable Verification Pipeline (`scripts/verify_pipeline.ps1` & `.bat`)
+- [x] 304/304 passing automated tests across all 7 workspace crates
+
+## Sprint 11 (Digital Shipping Note & Dispatch Companion) — ACTIVE
+- [ ] DDL and SQLite schema for `shipping_notes` and `shipping_note_items`
+- [ ] IAPR / myDATA & e-CMR QR-code waybill generator
+- [ ] ESC/POS 80mm/58mm thermal printable delivery slip with recipient signature line
+- [ ] Van Sales & Offline Dispatch Outbox Queue (`shipping_outbox`) for store-and-forward sync
+- [ ] Frontline Dispatch Inspector in `proteus-client` with vehicle selection and 1-click delivery sign-off
 
 ## Future (Phase 2 - Post-Military Commercial Launch)
 - [ ] Merchant of Record setup (Lemon Squeezy / Paddle)

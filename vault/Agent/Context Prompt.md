@@ -33,17 +33,18 @@
 
 ## 2. Technical Architecture: The 3 Product Pillars
 
-The project is structured as a **Cargo Workspace** with 6 bespoke crates:
+The project is structured as a **Cargo Workspace** with 7 bespoke crates:
 
 ```
 project/
-├── Cargo.toml                  # Workspace manifest (members: proteus-core, proteus-design-studio, proteus-client, proteus-web, auth-server, license-server)
-├── proteus-core/                   # Shared backend engine (DB, crypto, print, roles, audit, sync)
-├── proteus-design-studio/                     # Pillar 1: Proteus Designer (Visual canvas & studio .exe)
-├── proteus-client/             # Pillar 2: Proteus Client (Shop counter runtime .exe)
+├── Cargo.toml                  # Workspace manifest (members: proteus-core, proteus-design-studio, proteus-client, proteus-web, proteus-mobile, auth-server, license-server)
+├── proteus-core/               # Shared backend engine (DB, SMLM, crypto, print, roles, audit, genealogy, sync)
+├── proteus-design-studio/      # Pillar 1: Proteus Designer (Visual canvas, Flow DAG, ESC/POS studio .exe)
+├── proteus-client/             # Pillar 2: Proteus Client (Shop counter & technician runtime .exe)
 ├── proteus-web/                # Pillar 3: Web Portal & Marketplace API (Axum REST backend)
-├── auth-server/                # Microservice: JWT, Argon2id, Google OAuth
-└── license-server/             # Microservice: Machine activation, seat limits
+├── proteus-mobile/             # Pillar 4: Handheld Touch Companion (iOS/Android touch UI, LAN outbox)
+├── auth-server/                # Microservice: JWT, Argon2id, rate limiting
+└── license-server/             # Microservice: HMAC-SHA256 activation, machine-binding
 ```
 
 ### 2.1 Pillar 1: Proteus Designer (`proteus-design-studio`)

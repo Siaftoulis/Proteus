@@ -1,79 +1,149 @@
-# Proteus (CRM Builder)
+# Proteus (BOS & CRM Builder)
 
-Welcome to **Proteus** — a next-generation CRM platform built from the ground up using **Rust and egui**. It operates as a fast, native, cross-platform desktop application.
+[![Build & Test Status](https://img.shields.io/badge/tests-304%20passed%20%2F%20100%25-brightgreen)](https://github.com/Siaftoulis/Proteus)
+[![Rust Version](https://img.shields.io/badge/rust-1.80%2B-blue)](https://www.rust-lang.org/)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Android-lightgrey)](https://github.com/Siaftoulis/Proteus)
+[![License](https://img.shields.io/badge/license-Proprietary-red)](LICENSE)
 
-## Vision & Goal
-The main goal of Proteus is to empower non-technical users to design and deploy custom CRM interfaces (forms, data tables, automation flows) through an intuitive visual editor. Think of it as **Figma or Penpot specifically tailored for CRM systems**. 
+Welcome to **Proteus** — an autonomous, next-generation Business Operating System (BOS) and visual CRM builder engineered from first principles in **100% native Rust and egui**. 
 
-Our philosophy is simple: **No premature abstractions and a true offline-first approach**.
-
----
-
-## What Has Been Built So Far
-
-### Core Architecture
-- **Offline-first Database**: Built on top of SQLite (`proteus-core`), storing projects, custom records, contacts, deals, tasks, and flow graphs without requiring an active internet connection.
-- **Desktop Application (`proteus-design-studio`)**: A unified, single-window UI with a Windows 11 / Linear.app hybrid dark theme. It seamlessly switches between contexts: **Designer, Contacts, Pipeline, Studio, and Tasks**.
-- **No-Dependency State Management**: Centralized application state without complex reducers or external state frameworks.
-
-### Features & Capabilities
-- **Visual Designer**: 
-  - Infinite canvas with smooth pan & zoom (scroll / middle-mouse).
-  - Robust Scene Graph handling hierarchical nodes (parent/child) with Z-order rendering.
-  - Complete transform controls including 8-point resize handles, smart snapping, and grid modes.
-  - Drag-and-drop widget palette and contextual menus.
-- **CRM-Specific Widgets**: Native widgets like `InputField`, `DataTable`, `Dropdown`, and `Button` built specifically to bind to CRM entities.
-- **Flow Builder**: A visual automation editor featuring trigger, action, condition, and gate nodes that can be connected via edges.
-- **Built-in CRM Modules**: 
-  - **Contacts**: List, search, inline edit, and notes.
-  - **Pipeline (Deals)**: Kanban board with drag-and-drop between stages.
-  - **Tasks**: Filterable task list by status and priority.
+Proteus replaces monolithic legacy ERPs and brittle web-app stacks with ultra-fast, local-first native executables that run offline with zero external dependencies and zero cloud integration tax.
 
 ---
 
-## Ecosystem Architecture & 6-Role Specialization
+## Strategic Vision & Core Philosophy
 
-The Proteus ecosystem operates across 4 interconnected tiers (`proteus-core`, `proteus-design-studio`, `proteus-client`, `proteus-web`) with 6 distinct roles:
-1. **Customer Support (CS)**: Client onboarding, profile intake, and quote proposal management.
-2. **Business Analyst (BA)**: Operational workflow blueprints, business logic, SLAs, and approval hierarchies.
-3. **Data Analyst & Architect (DA)**: SQLite schema design, foreign keys, triggers, validation rules, and data migration.
-4. **UI/UX Designer (PCD)**: Desktop & POS layout design, Penpot-standard styling, component tokens, and user experience.
-5. **IT & Systems Specialist (PCSS)**: Enterprise LAN mesh networking, Merkle audit trails, outbox replication, and backups.
-6. **Field Support Deployer (PCDS)**: On-site hardware calibration (ESC/POS thermal printer, cash drawer kick, barcode scanner) and activation handshake.
-
-### Commercial Models & Anti-Scam Protection
-- **No Direct Export**: PDS never exports unencrypted `.pr` bundles directly; all delivery runs through `proteus-web`.
-- **Bare Minimum Floor Engine**: Algorithmic floor pricing based on project complexity prevents under-the-table evasion.
-- **Project Slot Board**: Small businesses with constrained budgets post their project as an open 6-slot board with automated escrow allocation, enabling community freelancers to accept offers or bid competitively.
-- **Hardware-Locked DRM**: Packages compile strictly bound to the store's unique Machine ID with SHA-256 certificate validation.
+1. **100% Original Codebase (Zero Copied Boilerplate)**: Every layout engine, scene graph, reconciler, and database routine is designed and written bespoke from first principles.
+2. **Zero Mock Data Policy**: Every interface, table, and metric reads and writes to real local SQLite storage (`store.db`), real hardware ports, or live federation endpoints.
+3. **Average Joe Principle (Minimalist UX)**: Clean, high-density, low-cognitive-overhead native interfaces designed for frontline shop clerks, technicians, and warehouse dispatchers.
+4. **Offline-First & Sovereign**: Immediate sub-millisecond execution with local SQLite WAL caching, background Merkle audit chains, and peer-to-peer LAN replication.
 
 ---
 
-## Roadmap & Tasks Checklist
+## Workspace Architecture (7 Modular Crates)
 
-### Active Items (Current Sprint)
-- [x] Designer — 8-point resize handles & context menus.
-- [x] Client — Clean role-driven workspace navigation (`SHOP`, `BA`, `DA`, `PCSS`, `PCDS`, `HQ`).
-- [x] Web — Professional company services, workshops, and talent marketplace portal.
-- [x] Core — RBAC separation of Business Analyst (`BA`) and Data Analyst (`DA`).
-- [x] **Slot Board & Bidding Engine (`proteus-web`)**: Interactive project slot board with dynamic 6-role escrow splits and instant accept offers (P0).
-- [x] **Complexity Floor Calculator (`proteus-core`)**: Automated formula calculating minimum project value based on screen, entity, trigger, and hardware counts (P0).
-- [x] **Data Model Engine**: Standardize the `records` table for all entities (EAV pattern) and build the `DataEngine` inside `proteus-core` (P0).
-- [x] **Data-bound Widgets**: Develop `DataBoundTable` and `DynamicForm` widgets that read/write directly to SQLite instead of using mock data (P0).
-- [x] **Live Data Preview**: Visualize real database data within the Designer mode (P0).
-- [x] **Universal Database Harmony & SMLM Engine (`proteus-core`)**: High-speed offline Semantic Content Profiler & multi-lingual ontology for zero-rewrite database federation (P0).
-- [x] **Entry-by-Entry Reconciler (`proteus-core`)**: Natural key matching (AFM, phone, email, EAN) and conflict resolution with confidence scoring (P0).
-- [x] **Federation Bridge Node Block (`proteus-design-studio`)**: Visual drag-and-drop node connecting external partner databases to local SQLite (P0).
-- [x] **Hardware & Trades Retail Profile (PDS / Client)**: Quick-pills for non-barcoded bulk items (screws, cables by meter), dual unit-of-measure conversion, and job-site contractor subledgers (καρτέλα μάστορα).
-- [x] **Supplier Price List Auto-Updater & Reconciliation**: Instant drag-and-drop reconciliation of vendor CSV/TSV price lists via SMLM with direct SQLite price/item updates.
-- [x] **PDS Mobile Handheld Touch Client (`proteus-mobile`)**: Standalone touch client with Apple HIG/Android 44pt touch targets, offline outbox replication, and direct LAN sync (port 7443).
-- [x] **macOS & iOS Virtualization & Simulation**: Dynamic Island & macOS traffic light frame simulators in Designer, plus turnkey Docker-OSX container and Mach-O cross-compiler toolchains.
+The project is structured as a cohesive Rust Cargo workspace with zero circular dependencies:
 
-### Mid-Term Goals (Next Steps)
-- [ ] **Flow Runtime Engine**: Implement a synchronous DAG walker in Rust to execute defined automation flows.
-- [ ] **Global Logistics & Regulatory Profiles**: Digital Dispatch Note (myDATA / e-CMR QR outbox), Van Sales / Sign-on-Glass, Consignment Stock (VMI), and Cold Chain HACCP telemetry.
-- [ ] **Hardware Calibration Suite**: Interactive visual tester in PCDS for ESC/POS baud rate, cut type, and drawer pin.
+```
+project/
+├── proteus-core/           # Sovereign Headless Engine (SMLM, Reconciler, Genealogy, Merkle, Outbox)
+├── proteus-design-studio/  # Visual IDE & Canvas Builder (Penpot-like Scene Graph, Flow DAG, ESC/POS)
+├── proteus-client/         # Front-Desk Terminal (Service Intake, Kanban, RMA, Appointments, Cashier)
+├── proteus-web/            # Sovereign Web Hub (Domain Reseller, Hosting Subscriptions, Custom Briefs)
+├── proteus-mobile/         # Handheld Android/iOS Touch Companion (44pt touch targets, LAN outbox)
+├── auth-server/            # Headless Axum Auth Service (Argon2id, JWT, Sliding-window Rate Limiter)
+└── license-server/         # Cryptographic License & Activation Gateway (HMAC-SHA256, Machine-Binding)
+```
 
 ---
 
-*Proteus is currently in active development. Architecture decisions prioritize maximum control, high performance, and an unmatched user experience over unnecessary complexity.*
+## What Has Been Built & Operational
+
+### 1. Visual Designer & Flow DAG Builder (`proteus-design-studio`)
+- **Penpot-like Infinite Canvas**: Infinite pan/zoom, 8-point resize handles, multi-selection, and smart edge/center snapping.
+- **Hierarchical Scene Graph**: Deterministic parent-child world-space coordinate accumulation, Z-order layering, and hit testing.
+- **ESC/POS Thermal Canvas Viewport**: Dedicated 80mm & 58mm thermal presets with visual character guide margins, serrated paper tear-off cutlines, and direct raw spooling.
+- **Interactive Wiring Overlay**: Cubic bezier visual wires connecting buttons, destination screens, and database entities with glowing connection ports and action badges.
+- **Visual Flow Automation**: Reactive execution graph with `Trigger`, `Action`, `Condition (IF)`, `Notification`, and `FederationBridge` nodes.
+
+### 2. Frontline Shop Operations & Terminal (`proteus-client`)
+- **Service Intake Form**: Instant ticket generation with phone/name validation, device faults, and 1-click ESC/POS receipt generation.
+- **Kanban Pipeline**: 6 operational stages (`received`, `in_progress`, `waiting_parts`, `ready`, `delivered`, `cancelled`) with fast text search and drag-and-drop workflow.
+- **Ticket Detail Inspector**: Modal editing for technical notes, cost estimation, status updates, thermal reprints, and S/N linkage.
+- **Contractor Job-Site Sub-ledger (Καρτέλα Μάστορα)**: Real SQLite tracking of credit balances, materials supplied per construction site, and cash disbursements.
+- **Supplier Price Catalog Reconciler**: 1-click CSV/TSV vendor price ingestion with automated schema alignment and direct database updates.
+
+### 3. Component Genealogy, Serial Number Tracking & RMA Hub (`proteus-core`)
+- **Full Physical Lifecycle Tracking**: Tracks parts through `SupplierIntake` ➔ `WarehouseStock` ➔ `InstalledInCustomerDevice` ➔ `RmaClaimInitiated` ➔ `RmaReplacedBySupplier` ➔ `CreditNoteIssued`.
+- **Dynamic Real-Time Warranty Countdown**: Automatic status computation (`WarrantyStatus::Valid { days_remaining }` vs `WarrantyStatus::Expired { days_expired }`).
+- **Embedded RMA & S/N Inspector**: 1-click warranty claims, replacement serial binding, and chronological event audit trails directly within ticket details.
+- **Centralized RMA Hub (`genealogy_rma.rs`)**: Dedicated queue monitoring active vendor warranty claims across all branches.
+
+### 4. SMLM & Universal Database Harmony (`proteus-core`)
+- **Small Language Context Model (SMLM)**: Fast, offline, content-driven data profiler:
+  - Greek Tax ID (ΑΦΜ modulo 11 validation).
+  - E.164 international phone formats.
+  - GS1-128 barcodes, EAN-13, and SSCC container codes.
+  - IBAN accounts, vehicle VINs, and IMO identifiers.
+- **Multi-Lingual Semantic Ontology**: Automatic matching across Greek, Greeklish, English, and ERP acronyms (`pelatis`, `customer_name`, `cust_nm` ➔ `CustomerName`).
+- **Entry-by-Entry Reconciler**: Composite natural key matching, Last-Write-Wins (LWW) conflict resolution, and automated database federation.
+
+### 5. Cryptography, Security & Verification
+- **High-Concurrency SQLite Storage**: `PRAGMA journal_mode = WAL;`, `PRAGMA synchronous = NORMAL;`, and `PRAGMA busy_timeout = 5000;` preventing multi-threaded write lock crashes.
+- **Tamper-Proof Merkle Audit Backlog**: Cryptographic SHA-256 hash chains verifying transaction integrity.
+- **Encrypted Backup Engine**: Argon2id KDF + XChaCha20-Poly1305 encryption for local/cloud snapshot archives (`.bak`).
+- **Network Hardening**: Protected LAN receiver (port 7443) with strict payload capping and DoS mitigation.
+- **Unbreakable Verification Pipeline (`verify_pipeline.bat` / `.ps1`)**: Automated 6-stage verification gate enforcing 100% test passes, storage safety, zero mock data, and compilation integrity.
+
+---
+
+## Automated Verification Pipeline
+
+To ensure the codebase never breaks, execute the automated 6-gate verification pipeline:
+
+```powershell
+# Run the complete verification suite
+.\scripts\verify_pipeline.ps1
+
+# Or via double-click on Windows:
+scripts\verify_pipeline.bat
+```
+
+### Pipeline Verification Gates:
+1. **Gate 1**: Static Type & Compilation Audit (`cargo check --workspace --all-targets`).
+2. **Gate 2**: Security & Storage Pragma Audit (`WAL` mode + `busy_timeout = 5000`).
+3. **Gate 3**: Zero Mock Data Policy Audit (scans views for forbidden mock arrays).
+4. **Gate 4**: 100% Automated Test Suite (`cargo test --workspace` — **304/304 passing**).
+5. **Gate 5**: Executable Binary Artifact Compilation (`proteus-client`, `proteus-design-studio`).
+6. **Gate 6**: Source Code Modularity & Line Threshold Audit.
+
+---
+
+## Quick Start & Running Locally
+
+### Prerequisites
+- [Rust 1.80+](https://rustup.rs/) (stable toolchain)
+- Windows 10/11, macOS, or Linux
+
+### Launching Applications
+
+```bash
+# 1. Launch Proteus Design Studio (Visual IDE & Flow Canvas)
+pds.bat
+# or
+cargo run -p proteus-design-studio
+
+# 2. Launch Proteus Client (Front-Desk Shop & POS Terminal)
+launch.bat
+# or
+cargo run -p proteus-client
+
+# 3. Launch Proteus Web Portal & Marketplace
+cargo run -p proteus-web
+
+# 4. Launch Entire Ecosystem in Background
+launch_ecosystem.bat
+
+# 5. Stop All Background Ecosystem Services
+stop_ecosystem.bat
+```
+
+---
+
+## Roadmap & Upcoming Milestones
+
+- [x] **Universal Database Harmony & SMLM Engine** (Completed)
+- [x] **Contractor Job-Site Sub-ledger & Supplier Reconciler** (Completed)
+- [x] **Serial Number Genealogy & RMA Tracking Hub** (Completed)
+- [x] **Rebranding & Identity Unification** (`proteus-core` / `proteus-design-studio`) (Completed)
+- [x] **Unbreakable Quality & Security Verification Pipeline** (Completed)
+- [ ] **Digital Shipping Note & Dispatch Companion (`shipping_note`)**: myDATA / e-CMR QR-code waybill generation, ESC/POS delivery slips, and offline dispatch outbox.
+- [ ] **Van Sales & Mobile Sign-on-Glass**: Mobile on-the-road delivery signature capture and Bluetooth thermal printing.
+- [ ] **Vendor-Managed Inventory (VMI) & Consignment Tracking**: Automated vendor replenishment signals on stock threshold breach.
+- [ ] **Cold Chain HACCP Telemetry**: Automated temperature/humidity threshold logging with Merkle audit verification.
+
+---
+
+## License
+
+Proprietary — All rights reserved. Designed and developed by **Siaftoulis / Proteus BOS Core Team**.

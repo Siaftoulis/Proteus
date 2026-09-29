@@ -7,9 +7,9 @@ aliases:
 ---
 # Project Status
 
-> **Phase:** Sprint 5 — **Pre-Enlistment Windows MVP (Sep 14 – Oct 31, 2026)**  
+> **Phase:** Sprint 11 — **Global Logistics & Digital Shipping Note (Sep 29 – Oct 31, 2026)**  
 > **Master Blueprint:** [[../Developer/14 - Proteus BOS Blueprint|14 - Proteus BOS Blueprint]]  
-> **Current Objective:** Build single autonomous Windows binary for Service & Intake Tracking with local SQLite and ESC/POS thermal printing before military enlistment on Nov 1, 2026.
+> **Current Objective:** Build Digital Shipping Note / Dispatch Companion (`shipping_note`) with myDATA / e-CMR QR-code waybill generation, ESC/POS delivery slips, and offline dispatch outbox before military enlistment on Nov 1, 2026.
 
 ```dataviewjs
 dv.table(["Milestone", "Status"],
@@ -24,7 +24,11 @@ dv.table(["Milestone", "Status"],
     ["Sprint 4: Core CRM (data model, records, offline, undo/redo, shortcuts, CSV)", "[x] Done (Sept 10)"],
     ["Sprint 5: Windows Standalone MVP & Hardware Spooler", "[x] Done (Sept 16)"],
     ["Sprint 6: PCDA Inference, Multi-Store HQ & Priority Outbox", "[x] Done (Sept 22)"],
-    ["Sprint 7: Next-Gen UI/UX, VRR, Theming Engine & Flow DAG", "[ ] In Progress"],
+    ["Sprint 7: Next-Gen UI/UX, VRR, Theming Engine & Flow DAG", "[x] Done (Sept 25)"],
+    ["Sprint 8: Universal Database Harmony, SMLM & Frontline Retail Profiles", "[x] Done (Sept 27)"],
+    ["Sprint 9: Bespoke Brief Engine, Domain Gateway & ESC/POS Viewport", "[x] Done (Sept 28)"],
+    ["Sprint 10: Sovereign Distribution, Genealogy/RMA & Verification Pipeline", "[x] Done (Sept 29)"],
+    ["Sprint 11: Digital Shipping Note & Dispatch Companion (myDATA / e-CMR)", "[ ] In Progress"],
     ["Phase 2: 6-Month Military Service (Zero-cost maintenance & feedback)", "[ ] Nov 2026 - May 2027"],
     ["Phase 3: Commercial Launch via Lemon Squeezy / Paddle (MoR)", "[ ] May 2027"],
     ["Phase 4: Single-Member IKE Formation (gov.gr post-revenue >2,000€)", "[ ] Post-Launch"],
@@ -36,23 +40,24 @@ dv.table(["Milestone", "Status"],
 
 | Area | Status | Notes |
 |------|--------|-------|
-| Architectural Vision | ✅ Finalized | 3-Pillar Ecosystem (Designer Suite, Marketplace, Runtime Client) |
-| Infrastructure & Security | ✅ Solid | `%APPDATA%` Zero-privilege, Argon2id, Merkle Chain, Ed25519 |
-| Core Records Engine | ✅ Complete | Multi-tenant schema, SQLite WAL, Flow DAG walker with branching |
-| Native Desktop UI | ✅ Advanced | Pure Rust `eframe`/`egui`, undo/redo, shortcuts, touch viewport profiles |
-| Backend (Rust) | ✅ Excellent | 5 modular workspace crates (`proteus-core`, `proteus-design-studio`, `proteus-client`, `proteus-web`, `license-server`) |
-| Tests | ✅ 100% Pass | 210 total passing tests, 0 warnings (123 core, 56 ui, 17 client, 8 web, 6 license) |
+| Architectural Vision | ✅ Finalized | 3-Pillar Ecosystem (Designer Studio, Marketplace Hub, Runtime Client) |
+| Infrastructure & Security | ✅ Solid | `%APPDATA%` Zero-privilege, Argon2id, Merkle Chain, Ed25519, `busy_timeout=5000` |
+| Core Records Engine | ✅ Complete | Multi-tenant schema, SMLM Data Profiler, SQLite WAL, Flow DAG walker with branching |
+| Native Desktop UI | ✅ Advanced | Pure Rust `eframe`/`egui`, undo/redo, shortcuts, touch viewport profiles, ESC/POS canvas |
+| Backend (Rust) | ✅ Excellent | 7 modular workspace crates (`proteus-core`, `proteus-design-studio`, `proteus-client`, `proteus-web`, `proteus-mobile`, `auth-server`, `license-server`) |
+| Tests | ✅ 100% Pass | **304 total passing tests**, 0 warnings, 0 failures (100% green across all 7 crates) |
+| Verification Pipeline | ✅ Active | Unbreakable 6-stage automated gate (`verify_pipeline.ps1` / `.bat`) |
 
-## Component Progress (Sprint 7 — ACTIVE)
+## Component Progress (Sprint 11 — ACTIVE)
 
 | Component | Status | Target Date | Notes |
 |-----------|--------|-------------|-------|
-| Flow Condition Engine | ✅ Done | Sprint 7.1 | `ConditionOp`, true/false branching, payload merge in DAG |
-| Flow Builder Palette | ✅ Done | Sprint 7.1 | `Condition (IF)` & `Notification` nodes, visual inspector editors |
-| Play Mode Flow Runner | ✅ Done | Sprint 7.1 | Form state dynamic resolution & conditional branch gating |
-| Adaptive VRR Engine | ✅ Done | Sprint 7.2 | `Reactive` (0% idle CPU) vs 30/60/120/Max throttling |
-| Dual-Mode Theme Engine | ✅ Done | Sprint 7.3 | System theme auto-sync, Dark/Light modes, 6 luxury accent palettes |
-| Context Menu & Selection | ✅ Done | Sprint 7.4 | Hit-test first context menu, auto-selection, multi-select alignment |
-| Micro-Connections Polish | ⏳ In Progress | Sprint 7.5 | Inter-module event bus and seamless workspace integration |
+| Component Genealogy & Lifecycle | ✅ Done | Sprint 10 | Parts lifecycle from intake to installation, RMA claim, and credit notes |
+| Serial Number & RMA Hub | ✅ Done | Sprint 10 | Dynamic warranty countdown, 1-click claims, replacement binding (`genealogy_rma.rs`) |
+| Unbreakable Quality Pipeline | ✅ Done | Sprint 10 | 6-gate verification: types, storage pragmas, zero-mock scan, tests, binaries, modularity |
+| Digital Shipping Note Schema | ⏳ In Progress | Sprint 11.1 | DDL for `shipping_notes` with sender/recipient AFM, vehicle license, dispatch timestamp |
+| myDATA / e-CMR QR Generator | ⏳ In Progress | Sprint 11.2 | QR code format complying with IAPR / AADE real-time transport tracking |
+| ESC/POS Delivery Waybill Slip | ⏳ In Progress | Sprint 11.3 | Thermal 80mm/58mm printable delivery voucher with goods table and driver signature area |
+| Dispatch Outbox & Offline Queue | ⏳ In Progress | Sprint 11.4 | Local SQLite store-and-forward outbox for van drivers with weak or zero cellular signal |
 
 Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P28)]]
