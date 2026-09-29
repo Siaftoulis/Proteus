@@ -56,7 +56,7 @@ QA Lead -- responsible for quality, testing, and bug tracking. The paranoid one 
 ## Test Strategy (2026-07-05)
 
 ### Current State
-- **62 total tests**: 39 crm-core + 6 auth-server + 6 license-server + 11 frontend
+- **62 total tests**: 39 proteus-core + 6 auth-server + 6 license-server + 11 frontend
 - **All passing, zero warnings** (as of Sprint 3 end)
 - **Test gaps**: Frontend coverage low (11 tests), no data model tests, no flow tests
 
@@ -71,7 +71,7 @@ QA Lead -- responsible for quality, testing, and bug tracking. The paranoid one 
 ### Scope
 | Layer | Tool | Coverage Target | When |
 |-------|------|----------------|------|
-| Rust core (crm-core) | Rust built-in `#[test]` | 80% lines | Sprint 1-3 (done) |
+| Rust core (proteus-core) | Rust built-in `#[test]` | 80% lines | Sprint 1-3 (done) |
 | Rust server (auth) | Rust + `axum-test` | 80% lines | Sprint 2 (done) |
 | Frontend (React) | Vitest + React Testing Library | 60% lines | Sprint 1 + 4 |
 | Data model | Rust `#[test]` | 90% lines | Sprint 4 |

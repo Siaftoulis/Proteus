@@ -2,7 +2,7 @@
 //! Allows front-desk staff to schedule customer intakes, diagnostics, deliveries, and contract appointments.
 //! Emits audit events to the centralized system timeline.
 
-use crm_core::audit::{log_audit_event, SystemEvent};
+use proteus_core::audit::{log_audit_event, SystemEvent};
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};

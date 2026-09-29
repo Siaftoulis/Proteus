@@ -18,6 +18,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:.stat-item",
-    "desktop": "crm-ui/src/components/ or egui::Frame"
+    "desktop": "proteus-design-studio/src/components/ or egui::Frame"
   }
 }

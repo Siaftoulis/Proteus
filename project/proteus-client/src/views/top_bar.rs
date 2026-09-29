@@ -3,8 +3,8 @@
 
 use crate::views::auth::ClientAuthState;
 use crate::views::navigation::{NavTab, RoleWorkspace};
-use crm_core::roles::{RolePermissions, UserRole};
-use crm_core::tickets::list_tickets;
+use proteus_core::roles::{RolePermissions, UserRole};
+use proteus_core::tickets::list_tickets;
 use egui::{Align2, Color32, CornerRadius, FontId, Frame, Margin, Pos2, Rect, RichText, Shape, Stroke, Ui};
 use rusqlite::Connection;
 
@@ -21,6 +21,8 @@ pub struct TopBarState<'a> {
     pub conn: &'a Connection,
     pub lan_beacon_active: bool,
     pub replication_synced: Option<usize>,
+    pub shop_name: &'a str,
+    pub logo_icon: &'a str,
 }
 
 /// Renders the top primary navigation bar (Brand, Role, Workspace Pills, Actions).
@@ -34,25 +36,33 @@ pub fn render_top_bar(ctx: &egui::Context, state: &mut TopBarState<'_>) {
         )
         .show(ctx, |ui| {
             ui.horizontal(|ui| {
-                // Logo & Brand
+                // Logo & Store Brand
                 ui.horizontal(|ui| {
-                    ui.label(RichText::new("PROTEUS").strong().size(17.0).color(crate::theme::ACCENT_CYAN));
-                    ui.label(RichText::new("BOS").size(13.0).color(crate::theme::TEXT_MUTED));
+                    crate::views::logo::render_store_logo_widget(
+                        ui,
+                        egui::vec2(22.0, 22.0),
+                        state.logo_icon,
+                        state.shop_name,
+                        true,
+                    );
+                    ui.add_space(6.0);
+                    ui.label(RichText::new(state.shop_name).strong().size(14.0).color(crate::theme::TEXT_PRIMARY));
+                    ui.label(RichText::new("BOS").size(11.0).color(crate::theme::TEXT_MUTED));
                 });
 
                 ui.add_space(6.0);
 
                 // Mounted PR Package Badge
                 Frame::new()
-                    .fill(Color32::from_rgb(18, 28, 45))
-                    .stroke(Stroke::new(1.0, Color32::from_rgb(56, 130, 220)))
+                    .fill(crate::theme::BADGE_MOUNTED_BG)
+                    .stroke(Stroke::new(1.0, crate::theme::BADGE_MOUNTED_BORDER))
                     .corner_radius(CornerRadius::same(4))
                     .inner_margin(Margin::symmetric(7, 3))
                     .show(ui, |ui| {
                         ui.label(
-                            RichText::new(format!("📦 {}", state.mounted_bundle_title))
+                            RichText::new(state.mounted_bundle_title)
                                 .size(11.0)
-                                .color(Color32::from_rgb(140, 195, 255)),
+                                .color(crate::theme::BADGE_MOUNTED_TEXT),
                         );
                     });
 
@@ -64,7 +74,7 @@ pub fn render_top_bar(ctx: &egui::Context, state: &mut TopBarState<'_>) {
                         RichText::new(state.active_role.display_name())
                             .strong()
                             .size(12.0)
-                            .color(Color32::WHITE),
+                            .color(crate::theme::TEXT_PRIMARY),
                     )
                     .show_ui(ui, |ui| {
                         for role in UserRole::all() {
@@ -102,66 +112,66 @@ pub fn render_top_bar(ctx: &egui::Context, state: &mut TopBarState<'_>) {
                 // Right Side: Quick Action buttons & Connectivity Badges
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if ui
-                        .button(RichText::new("🚪 Έξοδος").size(11.0))
+                        .button(RichText::new("Έξοδος").size(11.0).color(crate::theme::BTN_TOP_TEXT))
                         .on_hover_text("Αποσύνδεση από λογαριασμό Marketplace")
                         .clicked()
                     {
                         state.auth_state.logout();
                     }
                     if ui
-                        .button(RichText::new("🔄 Αλλαγή CRM").size(11.0))
+                        .button(RichText::new("Αλλαγή CRM").size(11.0).color(crate::theme::BTN_TOP_TEXT))
                         .on_hover_text("Επιλογή άλλου CRM project από τον Launcher")
                         .clicked()
                     {
                         state.auth_state.switch_project();
                     }
                     if ui
-                        .button(RichText::new("🔒 Κλείδωμα").size(11.0))
+                        .button(RichText::new("Κλείδωμα").size(11.0).color(crate::theme::BTN_TOP_TEXT))
                         .on_hover_text("Κλείδωμα τερματικού (Απαιτεί Master / Staff PIN)")
                         .clicked()
                     {
                         state.auth_state.lock_terminal();
                     }
 
-                    // Offline-first pill
+                    // Offline-first pill (PDS unified tokens)
                     Frame::new()
-                        .fill(Color32::from_rgb(16, 50, 35))
-                        .stroke(Stroke::new(1.0, Color32::from_rgb(52, 211, 153)))
+                        .fill(crate::theme::LOCAL_STATUS_BG)
+                        .stroke(Stroke::new(1.0, crate::theme::LOCAL_STATUS_BORDER))
                         .corner_radius(CornerRadius::same(4))
                         .inner_margin(Margin::symmetric(7, 3))
                         .show(ui, |ui| {
                             ui.label(
                                 RichText::new("● 100% Τοπική Λειτουργία")
                                     .size(11.0)
-                                    .color(Color32::from_rgb(52, 211, 153)),
+                                    .color(crate::theme::LOCAL_STATUS_TEXT),
                             );
                         });
 
-                    let pending_sync = crm_core::replication::count_pending_outbox(state.conn).unwrap_or(0);
+                    let pending_sync = proteus_core::replication::count_pending_outbox(state.conn).unwrap_or(0);
                     if pending_sync > 0 {
                         Frame::new()
-                            .fill(Color32::from_rgb(60, 40, 10))
-                            .stroke(Stroke::new(1.0, Color32::from_rgb(251, 146, 60)))
+                            .fill(crate::theme::LOCAL_STATUS_BG)
+                            .stroke(Stroke::new(1.0, crate::theme::BORDER_STRONG))
                             .corner_radius(CornerRadius::same(4))
                             .inner_margin(Margin::symmetric(7, 3))
                             .show(ui, |ui| {
                                 ui.label(
-                                    RichText::new(format!("⚡ {} Εκκρεμή", pending_sync))
+                                    RichText::new(format!("Sync: {} Εκκρεμή", pending_sync))
                                         .size(11.0)
-                                        .color(Color32::from_rgb(251, 146, 60)),
+                                        .color(crate::theme::TEXT_PRIMARY),
                                 );
                             });
                     }
 
                     if state.lan_beacon_active {
-                        ui.label(RichText::new("📡 LAN Ready").size(11.0).color(Color32::from_rgb(56, 189, 248)));
+                        ui.label(RichText::new("LAN Ready").size(11.0).color(crate::theme::TEXT_SECONDARY));
                     }
 
                     if let Some(pushed) = state.replication_synced {
                         ui.label(
-                            RichText::new(format!("🔄 Sync ({})", pushed))
+                            RichText::new(format!("Sync ({})", pushed))
                                 .size(11.0)
-                                .color(Color32::from_rgb(52, 211, 153)),
+                                .color(crate::theme::TEXT_SECONDARY),
                         );
                     }
                 });
@@ -189,16 +199,13 @@ pub fn render_sub_bar(
             ui.horizontal(|ui| {
                 let bar_id = ui.make_persistent_id(format!("sub_bar_{}", active_workspace.short_code()));
                 let font_id = FontId::proportional(11.5);
-                let pill_indigo = crate::theme::ACCENT_PRIMARY;
-                let text_muted = crate::theme::TEXT_SECONDARY;
-                let text_hover = Color32::WHITE;
 
                 let mut clicked_tab: Option<NavTab> = None;
 
                 Frame::new()
-                    .fill(Color32::from_rgb(18, 22, 30))
-                    .stroke(Stroke::new(1.0, Color32::from_rgb(38, 44, 58)))
-                    .corner_radius(CornerRadius::same(18))
+                    .fill(crate::theme::TAB_CONTAINER_BG)
+                    .stroke(Stroke::new(1.0, crate::theme::TAB_CONTAINER_STROKE))
+                    .corner_radius(CornerRadius::same(6))
                     .inner_margin(Margin::symmetric(3, 3))
                     .show(ui, |ui| {
                         ui.horizontal(|ui| {
@@ -214,7 +221,7 @@ pub fn render_sub_bar(
                                     .layout_no_wrap((*label).to_string(), font_id.clone(), Color32::WHITE)
                                     .size()
                                     .x;
-                                let item_size = egui::vec2(text_width + 18.0, 25.0);
+                                let item_size = egui::vec2(text_width + 18.0, 24.0);
 
                                 let (rect, resp) = ui.allocate_exact_size(item_size, egui::Sense::click());
 
@@ -231,11 +238,11 @@ pub fn render_sub_bar(
                                 }
 
                                 let text_color = if is_active {
-                                    Color32::WHITE
+                                    crate::theme::TAB_ACTIVE_TEXT
                                 } else if resp.hovered() {
-                                    text_hover
+                                    crate::theme::TAB_HOVER_TEXT
                                 } else {
-                                    text_muted
+                                    crate::theme::TAB_INACTIVE_TEXT
                                 };
 
                                 ui.painter().text(
@@ -262,8 +269,8 @@ pub fn render_sub_bar(
                                     bg_shape_idx,
                                     Shape::rect_filled(
                                         anim_rect,
-                                        CornerRadius::same(14),
-                                        pill_indigo,
+                                        CornerRadius::same(5),
+                                        crate::theme::TAB_ACTIVE_FILL,
                                     ),
                                 );
                             }
@@ -307,17 +314,17 @@ fn render_workspace_pills_ui(
 ) {
     let bar_id = ui.make_persistent_id("affinity_client_workspaces_bar");
     let font_id = FontId::proportional(11.5);
-    let pill_cyan = Color32::from_rgb(0, 212, 255);
-    let text_dark = Color32::from_rgb(10, 15, 26);
-    let text_muted = Color32::from_rgb(160, 168, 182);
-    let text_hover = Color32::from_rgb(240, 245, 255);
+    let pill_fill = crate::theme::TAB_ACTIVE_FILL;
+    let text_active = crate::theme::TAB_ACTIVE_TEXT;
+    let text_muted = crate::theme::TAB_INACTIVE_TEXT;
+    let text_hover = crate::theme::TAB_HOVER_TEXT;
 
     let mut next_ws: Option<RoleWorkspace> = None;
 
     Frame::new()
-        .fill(Color32::from_rgb(14, 16, 22))
-        .stroke(Stroke::new(1.0, Color32::from_rgb(34, 38, 50)))
-        .corner_radius(CornerRadius::same(20))
+        .fill(crate::theme::TAB_CONTAINER_BG)
+        .stroke(Stroke::new(1.0, crate::theme::TAB_CONTAINER_STROKE))
+        .corner_radius(CornerRadius::same(6))
         .inner_margin(Margin::symmetric(3, 3))
         .show(ui, |ui| {
             ui.horizontal(|ui| {
@@ -334,7 +341,7 @@ fn render_workspace_pills_ui(
                         .layout_no_wrap(label.to_string(), font_id.clone(), Color32::WHITE)
                         .size()
                         .x;
-                    let item_size = egui::vec2(text_width + 20.0, 27.0);
+                    let item_size = egui::vec2(text_width + 18.0, 26.0);
 
                     let (rect, resp) = ui.allocate_exact_size(item_size, egui::Sense::click());
 
@@ -351,7 +358,7 @@ fn render_workspace_pills_ui(
                     }
 
                     let text_color = if is_active {
-                        text_dark
+                        text_active
                     } else if resp.hovered() {
                         text_hover
                     } else {
@@ -382,8 +389,8 @@ fn render_workspace_pills_ui(
                         bg_shape_idx,
                         Shape::rect_filled(
                             anim_rect,
-                            CornerRadius::same(15),
-                            pill_cyan,
+                            CornerRadius::same(5),
+                            pill_fill,
                         ),
                     );
                 }

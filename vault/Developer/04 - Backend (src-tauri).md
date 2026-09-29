@@ -24,4 +24,4 @@ tags:
 3. Auto-detect column types
 4. Return JSON with headers + rows + types
 
-Related: [[02 - Architecture|Architecture]] | [[03 - Backend (crm-core)|Core Library]] | [[07 - Import System|Import]]
+Related: [[02 - Architecture|Architecture]] | [[03 - Backend (proteus-core)|Core Library]] | [[07 - Import System|Import]]

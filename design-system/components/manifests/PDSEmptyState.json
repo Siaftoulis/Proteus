@@ -18,6 +18,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:.pds-empty-state",
-    "desktop": "crm-ui/src/components/ or egui empty state"
+    "desktop": "proteus-design-studio/src/components/ or egui empty state"
   }
 }

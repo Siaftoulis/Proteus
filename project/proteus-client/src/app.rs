@@ -12,11 +12,11 @@ use crate::views::store_director::{draw_store_director_view, StoreDirectorState}
 use crate::views::support::{draw_support_view, SupportViewState};
 use crate::views::ticket_detail::{draw_ticket_detail_modal, TicketDetailState};
 use crate::views::top_bar::{render_sub_bar, render_top_bar, TopBarState};
-use crm_core::audit::init_audit_schema;
-use crm_core::enterprise::{init_enterprise_schema, seed_default_enterprise_if_empty};
-use crm_core::paths::{ensure_database_dir_exists, get_database_path};
-use crm_core::printer::ShopReceiptConfig;
-use crm_core::roles::UserRole;
+use proteus_core::audit::init_audit_schema;
+use proteus_core::enterprise::{init_enterprise_schema, seed_default_enterprise_if_empty};
+use proteus_core::paths::{ensure_database_dir_exists, get_database_path};
+use proteus_core::printer::{init_shop_settings_schema, load_shop_config, ShopReceiptConfig};
+use proteus_core::roles::UserRole;
 use egui::{Frame, Margin};
 use rusqlite::Connection;
 
@@ -40,8 +40,12 @@ pub struct ProteusClientApp {
     analyst_state: AnalystStudioState,
     enterprise_hq_state: EnterpriseHqState,
     store_director_state: StoreDirectorState,
+    fleet_radar_state: crate::views::fleet_radar::FleetRadarState,
+    contractor_ledger_state: crate::views::contractor_ledger::ContractorLedgerState,
+    supplier_reconcile_state: crate::views::supplier_reconcile::SupplierReconcileState,
+    genealogy_rma_state: crate::views::genealogy_rma::GenealogyRmaState,
     lan_receiver: Option<crate::lan_receiver::LanPackageReceiver>,
-    lan_beacon: Option<crm_core::lan::LanDiscoveryDaemon>,
+    lan_beacon: Option<proteus_core::lan::LanDiscoveryDaemon>,
     replication_daemon: Option<crate::replication_daemon::ReplicationDaemon>,
     device_label_ref: std::sync::Arc<std::sync::Mutex<String>>,
     pending_migration: Option<crate::views::schema_diff_modal::PendingMigrationReview>,
@@ -58,14 +62,18 @@ impl ProteusClientApp {
             Connection::open_in_memory().expect("Critical: Failed to open SQLite")
         });
 
-        let _ = crm_core::apply_storage_tuning(&conn);
-        let _ = crm_core::tickets::init_tickets_schema(&conn);
+        let _ = proteus_core::apply_storage_tuning(&conn);
+        let _ = proteus_core::tickets::init_tickets_schema(&conn);
         let _ = init_audit_schema(&conn);
-        let _ = crm_core::merkle::init_merkle_schema(&conn);
+        let _ = proteus_core::merkle::init_merkle_schema(&conn);
         let _ = init_enterprise_schema(&conn);
         let _ = seed_default_enterprise_if_empty(&conn);
-        let _ = crm_core::replication::init_outbox_schema(&conn);
+        let _ = proteus_core::replication::init_outbox_schema(&conn);
+        let _ = init_shop_settings_schema(&conn);
+        let _ = proteus_core::genealogy::init_genealogy_schema(&conn);
         crate::views::audit_log::seed_initial_audit_events_if_empty(&conn);
+
+        let receipt_config = load_shop_config(&conn);
 
         Self {
             conn,
@@ -77,7 +85,7 @@ impl ProteusClientApp {
             pipeline_search: String::new(),
             selected_ticket_id: None,
             ticket_detail_state: TicketDetailState::default(),
-            receipt_config: ShopReceiptConfig::default(),
+            receipt_config,
             settings_state: SettingsViewState::default(),
             support_state: SupportViewState::default(),
             specialist_state: SpecialistDashboardState::default(),
@@ -87,6 +95,10 @@ impl ProteusClientApp {
             analyst_state: AnalystStudioState::default(),
             enterprise_hq_state: EnterpriseHqState::default(),
             store_director_state: StoreDirectorState::default(),
+            fleet_radar_state: crate::views::fleet_radar::FleetRadarState::default(),
+            contractor_ledger_state: crate::views::contractor_ledger::ContractorLedgerState::default(),
+            supplier_reconcile_state: crate::views::supplier_reconcile::SupplierReconcileState::default(),
+            genealogy_rma_state: crate::views::genealogy_rma::GenealogyRmaState::default(),
             lan_receiver: crate::lan_receiver::LanPackageReceiver::start(7443).ok(),
             lan_beacon: {
                 let init_label = format!("Proteus Terminal ({})", UserRole::Ceo.display_name());
@@ -98,7 +110,7 @@ impl ProteusClientApp {
                         .map(|d| d.as_millis())
                         .unwrap_or(0)
                 );
-                crm_core::lan::LanDiscoveryDaemon::start(
+                proteus_core::lan::LanDiscoveryDaemon::start(
                     node_id,
                     "ProteusClient".to_string(),
                     label_ref.clone(),
@@ -204,6 +216,8 @@ impl eframe::App for ProteusClientApp {
             conn: &self.conn,
             lan_beacon_active: self.lan_beacon.is_some(),
             replication_synced: self.replication_daemon.as_ref().map(|d| d.total_pushed()),
+            shop_name: &self.receipt_config.shop_name,
+            logo_icon: &self.receipt_config.logo_icon,
         };
         render_top_bar(ctx, &mut top_bar_state);
 
@@ -227,9 +241,18 @@ impl eframe::App for ProteusClientApp {
                     &mut self.intake_state,
                     &self.receipt_config,
                     &self.settings_state.printer_name,
+                    &self.operator_name,
+                    self.active_role.short_code(),
                 ),
                 NavTab::Pipeline => {
-                    draw_pipeline_view(ui, &self.conn, &mut self.pipeline_search, &mut self.selected_ticket_id)
+                    draw_pipeline_view(
+                        ui,
+                        &self.conn,
+                        &mut self.pipeline_search,
+                        &mut self.selected_ticket_id,
+                        &self.operator_name,
+                        self.active_role.short_code(),
+                    )
                 }
                 NavTab::Appointments => draw_appointments_view(
                     ui,
@@ -257,6 +280,22 @@ impl eframe::App for ProteusClientApp {
                 NavTab::AnalystStudio => render_analyst_studio(ui, &mut self.analyst_state),
                 NavTab::EnterpriseHQ => draw_enterprise_hq_view(ui, &self.conn, &mut self.enterprise_hq_state),
                 NavTab::StoreDirector => draw_store_director_view(ui, &self.conn, &mut self.store_director_state),
+                NavTab::FleetRadar => crate::views::fleet_radar::draw_fleet_radar_view(ui, &mut self.fleet_radar_state),
+                NavTab::ContractorLedger => crate::views::contractor_ledger::draw_contractor_ledger_view(ui, &self.conn, &mut self.contractor_ledger_state),
+                NavTab::SupplierReconcile => crate::views::supplier_reconcile::draw_supplier_reconcile_view(
+                    ui,
+                    &mut self.conn,
+                    &mut self.supplier_reconcile_state,
+                    &self.operator_name,
+                    self.active_role.short_code(),
+                ),
+                NavTab::GenealogyRma => crate::views::genealogy_rma::draw_genealogy_rma_view(
+                    ui,
+                    &self.conn,
+                    &mut self.genealogy_rma_state,
+                    &self.operator_name,
+                    self.active_role.short_code(),
+                ),
             });
 
         // Ticket Detail Modal (if a card is clicked)
@@ -267,6 +306,8 @@ impl eframe::App for ProteusClientApp {
             &mut self.ticket_detail_state,
             &self.receipt_config,
             &self.settings_state.printer_name,
+            &self.operator_name,
+            self.active_role.short_code(),
         );
 
         // Visual Schema Diff & Migration Confirmation Modal

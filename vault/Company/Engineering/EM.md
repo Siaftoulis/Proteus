@@ -58,10 +58,10 @@ Engineering Manager -- responsible for developer assignments, code review, and d
 ### Sprint 1: "Safety Net" -- July 7-14
 
 **Backend Developer**
-- Rust test framework setup (crm-core)
+- Rust test framework setup (proteus-core)
 - Write unit tests for all existing alpha code (lib.rs, license.rs)
 - Error handling: replace `unwrap()` with `Result` + `thiserror`
-- Structured logging: add `tracing` crate to crm-core + src-tauri
+- Structured logging: add `tracing` crate to proteus-core + src-tauri
 
 **Frontend Developer**
 - Vitest + React Testing Library setup

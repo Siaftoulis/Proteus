@@ -29,6 +29,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:.pds-menu",
-    "desktop": "crm-ui/src/components/ or egui::menu"
+    "desktop": "proteus-design-studio/src/components/ or egui::menu"
   }
 }

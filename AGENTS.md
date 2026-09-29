@@ -20,3 +20,7 @@
 - Do NOT use unsupported Markdown (no tables, no complex links).
 - No unnecessary emojis. Keep styling strictly minimalist, clean, and direct.
 
+## 5. Zero Mock Data (Strict Rule)
+- **Zero Mock / Dummy Data**: Under NO circumstances should mock, fake, or hardcoded dummy arrays/data be used in engine, backend, database or client code, unless explicitly requested by the user.
+- **Real Execution**: Everything must read and write to real endpoints, real SQLite database (`store.db` / `proteus-core::DataEngine`), real config files, or real hardware APIs so that the application can be genuinely and authentically tested. Leave endpoints and APIs open for live real-world interaction.
+

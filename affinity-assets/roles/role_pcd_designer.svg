@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="12" fill="#1E2A3A" stroke="#526D82" stroke-width="1.5"/>
+  <!-- Penpot / Designer Pen & Curve -->
+  <path d="M 20 44 L 20 34 L 38 16 C 41 13 46 13 49 16 C 52 19 52 24 49 27 L 31 45 L 20 45 Z" fill="none" stroke="#DDE6ED" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="34" cy="30" r="2" fill="#DDE6ED"/>
+  <!-- Bezier handle line -->
+  <line x1="14" y1="52" x2="50" y2="52" stroke="#526D82" stroke-width="2" stroke-dasharray="3 3"/>
+  <rect x="12" y="50" width="4" height="4" fill="#9DB2BF"/>
+  <rect x="48" y="50" width="4" height="4" fill="#9DB2BF"/>
+</svg>

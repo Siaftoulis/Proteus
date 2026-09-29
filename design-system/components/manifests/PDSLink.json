@@ -18,6 +18,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:a.pds-link",
-    "desktop": "crm-ui/src/components/ or egui::Hyperlink"
+    "desktop": "proteus-design-studio/src/components/ or egui::Hyperlink"
   }
 }

@@ -30,6 +30,7 @@ const HTML_HEAD: &str = r##"<!DOCTYPE html>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
 "##;
 
@@ -41,7 +42,7 @@ const HTML_BODY: &str = r##"
     <header class="landing-header">
         <div class="brand-wrap">
             <a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.75rem;">
-                <div class="brand-logo-icon">✦</div>
+                <img src="/assets/logo.png" alt="Proteus Emblem" class="brand-logo-img" />
                 <div class="brand">
                     <span>PROTEUS</span>
                     <span class="brand-badge">BUSINESS ENGINE</span>
@@ -65,6 +66,9 @@ const HTML_BODY: &str = r##"
     <main class="landing-main">
         <!-- 1. HERO SECTION -->
         <section class="hero-section">
+            <div class="hero-emblem-wrap">
+                <img src="/assets/logo.png" alt="King Proteus Sovereign Emblem" class="hero-emblem-img" />
+            </div>
             <div class="hero-pill">
                 <span class="pulse-dot"></span>
                 <span>NATIVE RUST &bull; LOCAL SQLITE &bull; 0% CLOUD LOCK-IN</span>
@@ -136,8 +140,8 @@ const HTML_BODY: &str = r##"
                 </div>
                 <div class="workflow-card">
                     <div class="step-badge">02</div>
-                    <h3 class="workflow-title">Παραμετροποίηση & Ροές Καταστήματος</h3>
-                    <p class="workflow-desc">Επιλέγετε έτοιμες προκαθορισμένες φόρμες καταστήματος ή προσαρμόζετε πεδία και DDL με τον ενσωματωμένο visual designer.</p>
+                    <h3 class="workflow-title">Εξατομικευμένο Brief & Ροές Καταστήματος</h3>
+                    <p class="workflow-desc">Περιγράφετε αναλυτικά τη λειτουργία της επιχείρησής σας, και πιστοποιημένοι designers (PCD-App / Web) διαμορφώνουν τις εξατομικευμένες οθόνες και DDL.</p>
                 </div>
                 <div class="workflow-card">
                     <div class="step-badge">03</div>
@@ -314,9 +318,12 @@ const HTML_BODY: &str = r##"
     <footer class="landing-footer">
         <div class="footer-inner">
             <div class="footer-brand">
-                <div class="brand">PROTEUS</div>
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <img src="/assets/logo.png" alt="Proteus Logo" style="width: 28px; height: 28px; object-fit: contain; border-radius: 4px;" />
+                    <div class="brand">PROTEUS</div>
+                </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem;">
-                    The Open Business Engine & CRM. 100% Original Bespoke Rust Architecture.
+                    The Sovereign Business OS & CRM. 100% Original Bespoke Rust Architecture.
                 </p>
             </div>
             <div class="footer-links">

@@ -1,9 +1,9 @@
 //! Screen 4: Shop Profile & Hardware Printer Settings.
 //! Printer name configuration, paper width selection (58mm/80mm), and test print.
 
-use crm_core::paths::get_database_path;
-use crm_core::printer::{generate_intake_receipt, print_raw_bytes, PaperWidth, ShopReceiptConfig};
-use crm_core::tickets::ServiceTicket;
+use proteus_core::paths::get_database_path;
+use proteus_core::printer::{generate_intake_receipt, print_raw_bytes, PaperWidth, ShopReceiptConfig};
+use proteus_core::tickets::ServiceTicket;
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
 use rusqlite::Connection;
 
@@ -13,8 +13,9 @@ pub struct SettingsViewState {
     pub package_mount_msg: Option<(String, bool)>,
     pub license_key: String,
     pub machine_id: String,
-    pub license_info: Option<crm_core::license::LicenseInfo>,
+    pub license_info: Option<proteus_core::license::LicenseInfo>,
     pub license_msg: Option<(String, bool)>,
+    pub save_shop_msg: Option<(String, bool)>,
 }
 
 impl Default for SettingsViewState {
@@ -25,7 +26,7 @@ impl Default for SettingsViewState {
             std::env::var("COMPUTERNAME").unwrap_or_else(|_| "DEFAULT-HOST".into()).hash(&mut hasher);
             hasher.finish()
         });
-        let cached = crm_core::license::get_license_info(None, &machine_id);
+        let cached = proteus_core::license::get_license_info(None, &machine_id);
         Self {
             printer_name: "POS-80".to_string(),
             test_print_msg: None,
@@ -34,6 +35,7 @@ impl Default for SettingsViewState {
             machine_id,
             license_info: if cached.valid { Some(cached) } else { None },
             license_msg: None,
+            save_shop_msg: None,
         }
     }
 }
@@ -60,24 +62,55 @@ pub fn draw_settings_view(
             ui.add_space(8.0);
         }
 
-        // Section 1: Shop Profile
+        if let Some((msg, is_ok)) = &state.save_shop_msg {
+            let col = if *is_ok {
+                Color32::from_rgb(52, 211, 153)
+            } else {
+                Color32::from_rgb(244, 63, 94)
+            };
+            ui.label(RichText::new(msg).color(col).strong());
+            ui.add_space(8.0);
+        }
+
+        // Section 1: Shop Profile & Store Branding
         Frame::new()
             .fill(crate::theme::BG_CARD)
             .stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
             .corner_radius(CornerRadius::same(8))
             .inner_margin(Margin::same(16))
             .show(ui, |ui| {
-                ui.label(RichText::new("ΣΤΟΙΧΕΙΑ ΕΠΙΧΕΙΡΗΣΗΣ (ΚΕΦΑΛΙΔΑ ΑΠΟΔΕΙΞΕΩΝ)").strong().color(crate::theme::TEXT_MUTED));
+                ui.label(RichText::new("ΣΤΟΙΧΕΙΑ ΕΠΙΧΕΙΡΗΣΗΣ & CUSTOM LOGO (ΤΑΥΤΟΤΗΤΑ ΚΑΤΑΣΤΗΜΑΤΟΣ)").strong().color(crate::theme::TEXT_MUTED));
                 ui.add_space(8.0);
 
                 ui.columns(2, |cols| {
                     cols[0].vertical(|ui| {
-                        ui.label("Επωνυμία Καταστήματος:");
+                        ui.label("Επωνυμία Καταστήματος (Εμφάνιση στο Top Bar & Αποδείξεις):");
                         ui.add(egui::TextEdit::singleline(&mut config.shop_name).desired_width(f32::INFINITY));
                         ui.add_space(8.0);
 
                         ui.label("Διεύθυνση / Πόλη:");
                         ui.add(egui::TextEdit::singleline(&mut config.address).desired_width(f32::INFINITY));
+                        ui.add_space(8.0);
+
+                        ui.label("Λογότυπο / Εικονίδιο Κλάδου Επιχείρησης:");
+                        egui::ComboBox::from_id_salt("shop_logo_combo")
+                            .selected_text(match config.logo_icon.as_str() {
+                                "wrench" => "Service & Workshop / Επισκευές",
+                                "hardware" => "Hardware & Fasteners / Σιδηρικά",
+                                "anchor" => "Marine & Nautical / Ναυτιλιακά",
+                                "auto" => "Auto Garage / Συνεργείο Αυτοκινήτων",
+                                "store" => "General Store & Trades / Εμπορικό",
+                                "default" => "King Proteus Emblem (Official)",
+                                other => other,
+                            })
+                            .width(f32::INFINITY)
+                            .show_ui(ui, |ui| {
+                                for (val, label) in crate::views::logo::STORE_ICONS {
+                                    ui.selectable_value(&mut config.logo_icon, val.to_string(), *label);
+                                }
+                            });
+                        ui.label(RichText::new("Ή πληκτρολογήστε 2 γράμματα για αυτόματο Monogram αρχικών:").size(11.0).color(crate::theme::TEXT_MUTED));
+                        ui.add(egui::TextEdit::singleline(&mut config.logo_icon).hint_text("π.χ. AL ή wrench").desired_width(120.0));
                     });
 
                     cols[1].vertical(|ui| {
@@ -85,8 +118,38 @@ pub fn draw_settings_view(
                         ui.add(egui::TextEdit::singleline(&mut config.phone).desired_width(f32::INFINITY));
                         ui.add_space(8.0);
 
-                        ui.label("Μήνυμα Υποσέλιδου (Footer):");
+                        ui.label("Μήνυμα Υποσέλιδου (Footer Αποδείξεων):");
                         ui.add(egui::TextEdit::singleline(&mut config.footer_message).desired_width(f32::INFINITY));
+                        ui.add_space(10.0);
+
+                        ui.label(RichText::new("ΠΡΟΕΠΙΣΚΟΠΗΣΗ ΤΑΥΤΟΤΗΤΑΣ:").size(11.0).color(crate::theme::TEXT_MUTED).strong());
+                        Frame::new()
+                            .fill(crate::theme::BG_PANEL)
+                            .stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
+                            .corner_radius(CornerRadius::same(6))
+                            .inner_margin(Margin::same(10))
+                            .show(ui, |ui| {
+                                ui.horizontal(|ui| {
+                                    crate::views::logo::render_store_logo_widget(ui, egui::vec2(28.0, 28.0), &config.logo_icon, &config.shop_name, true);
+                                    ui.add_space(8.0);
+                                    ui.vertical(|ui| {
+                                        ui.label(RichText::new(&config.shop_name).strong().size(14.0).color(crate::theme::TEXT_PRIMARY));
+                                        ui.label(RichText::new(&config.phone).size(11.0).color(crate::theme::TEXT_MUTED));
+                                    });
+                                });
+                            });
+
+                        ui.add_space(10.0);
+                        if ui.button(RichText::new("💾 Αποθήκευση Στοιχείων Καταστήματος").strong()).clicked() {
+                            match proteus_core::printer::save_shop_config(conn, config) {
+                                Ok(_) => {
+                                    state.save_shop_msg = Some(("✓ Τα στοιχεία και το λογότυπο του καταστήματος αποθηκεύτηκαν επιτυχώς στη SQLite!".to_string(), true));
+                                }
+                                Err(e) => {
+                                    state.save_shop_msg = Some((format!("Σφάλμα αποθήκευσης: {}", e), false));
+                                }
+                            }
+                        }
                     });
                 });
             });
@@ -233,7 +296,7 @@ pub fn draw_settings_view(
                                 
                                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                                     if ui.button(format!("📥 Προσάρτηση {}", bundle_id)).clicked() {
-                                        let mut pkg = crm_core::package::PrPackage::new(bundle_id, title, author);
+                                        let mut pkg = proteus_core::package::PrPackage::new(bundle_id, title, author);
                                         pkg.schema.ddl_statements.push(ddl.to_string());
                                         let db_path = get_database_path();
                                         match pkg.mount(conn, Some(&db_path), "Admin") {
@@ -308,31 +371,62 @@ pub fn draw_settings_view(
 
                         ui.add_space(10.0);
                         ui.horizontal(|ui| {
-                            let activate_btn = egui::Button::new(RichText::new("🔑 Ενεργοποίηση Online").strong().color(Color32::WHITE))
+                            let activate_btn = egui::Button::new(RichText::new("🔑 Ενεργοποίηση").strong().color(Color32::WHITE))
                                 .fill(crate::theme::ACCENT_PRIMARY);
                             if ui.add(activate_btn).clicked() {
-                                if state.license_key.trim().is_empty() {
-                                    state.license_msg = Some(("❌ Εισάγετε έγκυρο κλειδί άδειας.".into(), false));
+                                let key = state.license_key.trim();
+                                if key.is_empty() {
+                                    state.license_msg = Some(("❌ Εισάγετε έγκυρο κλειδί άδειας ή offline token.".into(), false));
+                                } else if key.starts_with("PROT-LIC-") {
+                                    match proteus_core::license::install_offline_token(key, &state.machine_id) {
+                                        Ok(info) => {
+                                            proteus_core::audio::play_barcode_chime();
+                                            state.license_info = Some(info.clone());
+                                            state.license_msg = Some((format!("✓ Επιτυχής εγκατάσταση offline άδειας ({} χρήστες)! Λήξη: {}", info.max_users, info.expires_at), true));
+                                        }
+                                        Err(e) => {
+                                            proteus_core::audio::play_error_tone();
+                                            state.license_msg = Some((format!("❌ Σφάλμα offline άδειας: {}", e), false));
+                                        }
+                                    }
                                 } else {
-                                    match crm_core::license::verify_online(state.license_key.trim(), &state.machine_id) {
+                                    match proteus_core::license::verify_online(key, &state.machine_id) {
                                         Ok(info) => {
                                             let is_val = info.valid;
                                             state.license_info = Some(info.clone());
                                             if is_val {
+                                                proteus_core::audio::play_barcode_chime();
                                                 state.license_msg = Some((format!("✓ Επιτυχής ενεργοποίηση άδειας! Μέγιστοι χρήστες: {}", info.max_users), true));
                                             } else {
+                                                proteus_core::audio::play_error_tone();
                                                 state.license_msg = Some(("❌ Το κλειδί δεν είναι έγκυρο ή έχει εξαντληθεί το όριο ενεργοποιήσεων.".into(), false));
                                             }
                                         }
                                         Err(e) => {
+                                            proteus_core::audio::play_error_tone();
                                             state.license_msg = Some((format!("❌ Αποτυχία σύνδεσης με τον License Server: {}", e), false));
                                         }
                                     }
                                 }
                             }
 
+                            if ui.button("⚡ Έκδοση Pilot Token (30 Ημέρες)").clicked() {
+                                let shop = if config.shop_name.is_empty() { "Pilot Workshop" } else { &config.shop_name };
+                                match proteus_core::license::issue_pilot_token(shop, "000000000", Some(&state.machine_id), 30) {
+                                    Ok(token) => {
+                                        proteus_core::audio::play_affirm_tone();
+                                        state.license_key = token;
+                                        state.license_msg = Some(("✓ Παρήχθη νέο υπογεγραμμένο Pilot Token 30 ημερών. Πατήστε 'Ενεργοποίηση'.".into(), true));
+                                    }
+                                    Err(e) => {
+                                        proteus_core::audio::play_error_tone();
+                                        state.license_msg = Some((format!("❌ Σφάλμα παραγωγής: {}", e), false));
+                                    }
+                                }
+                            }
+
                             if ui.button("🔄 Έλεγχος Cache").clicked() {
-                                let info = crm_core::license::get_license_info(None, &state.machine_id);
+                                let info = proteus_core::license::get_license_info(None, &state.machine_id);
                                 let is_val = info.valid;
                                 state.license_info = Some(info.clone());
                                 if is_val {
@@ -341,6 +435,30 @@ pub fn draw_settings_view(
                                     state.license_msg = Some(("Δεν βρέθηκε αποθηκευμένη έγκυρη άδεια στην τοπική μνήμη.".into(), false));
                                 }
                             }
+                        });
+                    });
+                });
+            });
+
+        ui.add_space(14.0);
+
+        // Section 6: Sovereign Brand & System Identity Card
+        Frame::new()
+            .fill(crate::theme::BG_CARD)
+            .stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
+            .corner_radius(CornerRadius::same(8))
+            .inner_margin(Margin::same(16))
+            .show(ui, |ui| {
+                ui.horizontal(|ui| {
+                    crate::views::logo::render_store_logo_widget(ui, egui::vec2(44.0, 44.0), "default", "Proteus Business OS", true);
+                    ui.add_space(12.0);
+                    ui.vertical(|ui| {
+                        ui.label(RichText::new("PROTEUS BUSINESS OS // SYSTEM IDENTITY").strong().color(crate::theme::TEXT_PRIMARY).size(13.0));
+                        ui.label(RichText::new("King Proteus Sovereign Core Engine • Local SQLite Store • 100% Bespoke Architecture").size(11.0).color(crate::theme::TEXT_MUTED));
+                        ui.horizontal(|ui| {
+                            ui.label(RichText::new("Core: v2.2.0-sovereign").size(10.0).color(crate::theme::ACCENT_CYAN));
+                            ui.label(RichText::new("•").size(10.0).color(crate::theme::TEXT_MUTED));
+                            ui.label(RichText::new("Status: Live Real SQLite Connected").size(10.0).color(Color32::from_rgb(52, 211, 153)));
                         });
                     });
                 });
@@ -358,5 +476,7 @@ mod tests {
         assert_eq!(state.printer_name, "POS-80");
         assert!(!state.machine_id.is_empty());
         assert!(state.license_key.is_empty());
+        assert!(state.save_shop_msg.is_none());
+        assert!(!crate::views::logo::STORE_ICONS.is_empty());
     }
 }

@@ -1,8 +1,9 @@
 //! Screen 1: New Service Intake Form (Νέα Παραλαβή).
 //! Fast operational data entry with instant ESC/POS receipt generation.
 
-use crm_core::printer::{generate_intake_receipt, print_raw_bytes, ShopReceiptConfig};
-use crm_core::tickets::{create_ticket, ServiceTicket};
+use proteus_core::audio::{play_barcode_chime, play_error_tone};
+use proteus_core::printer::{generate_intake_receipt, print_raw_bytes, ShopReceiptConfig};
+use proteus_core::tickets::{create_ticket, ServiceTicket};
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
 use rusqlite::Connection;
 
@@ -35,13 +36,15 @@ pub fn draw_intake_view(
     state: &mut IntakeFormState,
     printer_config: &ShopReceiptConfig,
     printer_name: &str,
+    operator_name: &str,
+    operator_role: &str,
 ) {
     ui.vertical(|ui| {
         // Header
         ui.horizontal(|ui| {
-            ui.heading(RichText::new("⚡ Νέα Παραλαβή Συσκευής").strong().size(22.0));
+            ui.heading(RichText::new("Νέα Παραλαβή Συσκευής").strong().size(20.0));
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                if ui.button("⟲ Καθαρισμός").clicked() {
+                if ui.button("Καθαρισμός").clicked() {
                     state.reset();
                 }
             });
@@ -172,6 +175,7 @@ pub fn draw_intake_view(
                     || state.device_model.trim().is_empty()
                     || state.reported_fault.trim().is_empty()
                 {
+                    play_error_tone();
                     state.status_message = Some(("Παρακαλώ συμπληρώστε όλα τα απαραίτητα πεδία με (*).".to_string(), false));
                 } else {
                     let cost: f64 = state.estimated_cost_str.trim().parse().unwrap_or(0.0);
@@ -188,14 +192,27 @@ pub fn draw_intake_view(
 
                     match create_ticket(conn, &mut ticket) {
                         Ok(_) => {
+                            play_barcode_chime();
                             let ticket_num = ticket.ticket_number;
                             let payload = serde_json::to_string(&ticket).unwrap_or_default();
-                            let _ = crm_core::replication::enqueue_outbox(
+                            let _ = proteus_core::replication::enqueue_outbox(
                                 conn,
                                 "tickets",
                                 &ticket_num.to_string(),
-                                crm_core::replication::ChangeOp::Insert,
+                                proteus_core::replication::ChangeOp::Insert,
                                 &payload,
+                            );
+                            let _ = proteus_core::audit::log_audit_event(
+                                conn,
+                                &proteus_core::audit::SystemEvent::new(
+                                    "TICKET",
+                                    &ticket.ticket_id,
+                                    "INTAKE_CREATED",
+                                    operator_name,
+                                    operator_role,
+                                    format!("Νέα παραλαβή συσκευής {} ({}) - #{}", ticket.device_model, ticket.customer_name, ticket_num),
+                                    &payload,
+                                ),
                             );
 
                             let mut msg = format!("✓ Το Δελτίο #{} καταχωρήθηκε επιτυχώς!", ticket_num);
@@ -216,6 +233,7 @@ pub fn draw_intake_view(
                             state.status_message = Some((msg, true));
                         }
                         Err(err) => {
+                            play_error_tone();
                             state.status_message = Some((format!("Σφάλμα βάσης δεδομένων: {}", err), false));
                         }
                     }

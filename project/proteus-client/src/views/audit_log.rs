@@ -1,7 +1,7 @@
 //! Audit Log & Activity Timeline View (Ιστορικό Κινήσεων).
 //! Provides full transparency into every movement, state change, and operational action.
 
-use crm_core::audit::{list_audit_events, log_audit_event, SystemEvent};
+use proteus_core::audit::{list_audit_events, log_audit_event, SystemEvent};
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, ScrollArea, Stroke, Ui};
 use rusqlite::Connection;
 
@@ -54,7 +54,7 @@ pub struct AuditLogViewState {
     pub selected_role_filter: Option<String>,
     pub selected_event_type: Option<String>,
     pub expanded_event_id: Option<String>,
-    pub merkle_report: Option<crm_core::merkle::ChainIntegrityReport>,
+    pub merkle_report: Option<proteus_core::merkle::ChainIntegrityReport>,
 }
 
 pub fn draw_audit_log_view(
@@ -93,9 +93,9 @@ pub fn draw_audit_log_view(
                     }
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui.button(RichText::new("🔍 Έλεγχος Ακεραιότητας").strong()).clicked() {
-                            match crm_core::merkle::verify_chain_integrity(conn) {
+                            match proteus_core::merkle::verify_chain_integrity(conn) {
                                 Ok(rep) => state.merkle_report = Some(rep),
-                                Err(e) => state.merkle_report = Some(crm_core::merkle::ChainIntegrityReport {
+                                Err(e) => state.merkle_report = Some(proteus_core::merkle::ChainIntegrityReport {
                                     is_valid: false,
                                     total_blocks: 0,
                                     tampered_at_sequence: None,

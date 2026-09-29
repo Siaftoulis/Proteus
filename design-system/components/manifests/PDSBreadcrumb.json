@@ -26,6 +26,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:nav.pds-breadcrumb",
-    "desktop": "crm-ui/src/components/ or egui breadcrumb layout"
+    "desktop": "proteus-design-studio/src/components/ or egui breadcrumb layout"
   }
 }

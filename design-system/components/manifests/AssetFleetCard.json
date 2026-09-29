@@ -1,0 +1,22 @@
+{
+  "name": "AssetFleetCard",
+  "type": "composite",
+  "description": "Information card displaying vessel or aircraft telemetry, speed, heading, signal source, and dead-reckoning status",
+  "props": {
+    "assetId": { "type": "string", "required": true },
+    "name": { "type": "string", "required": true },
+    "identifier": { "type": "string", "required": true },
+    "sector": { "type": "string", "enum": ["maritime", "aviation", "ground"], "required": true },
+    "coordinates": { "type": "string", "required": true },
+    "speedKnots": { "type": "number", "required": true },
+    "headingDeg": { "type": "number", "required": true },
+    "signalSource": { "type": "string", "required": true },
+    "isPredictive": { "type": "boolean", "default": false }
+  },
+  "states": ["active", "offline_predictive", "hover"],
+  "responsive": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_telemetry.rs:.fleet-card",
+    "desktop": "proteus-client/src/views/fleet_radar.rs"
+  }
+}

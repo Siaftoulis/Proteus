@@ -915,24 +915,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "crm-core"
-version = "0.1.0"
-dependencies = [
- "argon2",
- "chacha20poly1305",
- "chrono",
- "rand",
- "rusqlite",
- "serde",
- "serde_json",
- "sha2",
- "thiserror 2.0.18",
- "tracing",
- "ureq",
- "uuid",
-]
-
-[[package]]
 name = "crossbeam-utils"
 version = "0.8.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3172,16 +3154,50 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3d595e54a326bc53c1c197b32d295e14b169e3cfeaa8dc82b529f947fba6bcf5"
 
 [[package]]
-name = "proteus"
+name = "proteus-client"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "eframe",
+ "egui 0.31.1",
+ "proteus-core",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tracing",
+ "tracing-subscriber",
+ "ureq",
+]
+
+[[package]]
+name = "proteus-core"
+version = "0.1.0"
+dependencies = [
+ "argon2",
+ "chacha20poly1305",
+ "chrono",
+ "rand",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror 2.0.18",
+ "tracing",
+ "ureq",
+ "uuid",
+]
+
+[[package]]
+name = "proteus-design-studio"
 version = "0.1.0"
 dependencies = [
  "bincode",
  "chacha20poly1305",
  "chrono",
- "crm-core",
  "eframe",
  "egui 0.31.1",
  "egui_dock",
+ "proteus-core",
  "rand",
  "rusqlite",
  "serde",
@@ -3192,19 +3208,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "proteus-client"
+name = "proteus-mobile"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "crm-core",
  "eframe",
  "egui 0.31.1",
+ "proteus-core",
  "rusqlite",
  "serde",
  "serde_json",
- "tracing",
- "tracing-subscriber",
- "ureq",
 ]
 
 [[package]]
@@ -3213,7 +3226,7 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "chrono",
- "crm-core",
+ "proteus-core",
  "rusqlite",
  "serde",
  "serde_json",

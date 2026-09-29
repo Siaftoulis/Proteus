@@ -112,7 +112,7 @@ From infrastructure → **core CRM functionality**:
 ### Architecture
 
 - Data model stored in same SQLite database as project
-- New crate module: `crm-core/src/data.rs` for entity + record management
+- New crate module: `proteus-core/src/data.rs` for entity + record management
 - Widgets query data via a simple in-memory cache + SQLite
 - Flow runtime: synchronous DAG walker in Rust, invoked from Tauri commands
 

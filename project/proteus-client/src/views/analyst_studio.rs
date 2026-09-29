@@ -1,9 +1,10 @@
 //! Analyst Studio View for Proteus Certified Data/Business Analysts (PCDA).
 //! Provides visual schema inference, GS1-128 barcode inspection, and business rules validation.
 
-use crm_core::gs1::{Gs1BarcodeData, Gs1Parser};
-use crm_core::inference::{InferredTable, SchemaInferer};
-use crm_core::rules::{BusinessRule, BusinessRulesEngine, RuleAction, RuleCondition};
+use proteus_core::audio::{play_barcode_chime, play_error_tone};
+use proteus_core::gs1::{Gs1BarcodeData, Gs1Parser};
+use proteus_core::inference::{InferredTable, SchemaInferer};
+use proteus_core::rules::{BusinessRule, BusinessRulesEngine, RuleAction, RuleCondition};
 use eframe::egui::{self, Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
 use serde_json::Value;
 use crate::views::mapping_canvas::{render_mapping_canvas, MappingCanvasState};
@@ -142,7 +143,7 @@ pub fn render_analyst_studio(ui: &mut Ui, state: &mut AnalystStudioState) {
                     ui.add_space(8.0);
                     ui.horizontal(|ui| {
                         if ui.button(RichText::new("📦 Εξαγωγή .pr Package").color(Color32::from_rgb(52, 211, 153)).strong()).clicked() {
-                            let pkg = crm_core::package::PrPackage::from_inferred_table(table, "PCDA Analyst");
+                            let pkg = proteus_core::package::PrPackage::from_inferred_table(table, "PCDA Analyst");
                             match pkg.to_bytes() {
                                 Ok(bytes) => {
                                     state.status_message = Some((
@@ -160,7 +161,7 @@ pub fn render_analyst_studio(ui: &mut Ui, state: &mut AnalystStudioState) {
                             .fill(crate::theme::ACCENT_PRIMARY))
                             .clicked()
                         {
-                            let pkg = crm_core::package::PrPackage::from_inferred_table(table, "PCDA Analyst");
+                            let pkg = proteus_core::package::PrPackage::from_inferred_table(table, "PCDA Analyst");
                             match pkg.deploy_to_client("http://127.0.0.1:7443") {
                                 Ok(summary) => {
                                     state.status_message = Some((
@@ -191,6 +192,11 @@ pub fn render_analyst_studio(ui: &mut Ui, state: &mut AnalystStudioState) {
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui.button("🏷 Decode Barcode").clicked() {
                             let parsed = Gs1Parser::parse(&state.gs1_input);
+                            if parsed.gtin.is_some() || parsed.batch_lot.is_some() || parsed.serial_number.is_some() || parsed.expiry_date.is_some() {
+                                play_barcode_chime();
+                            } else {
+                                play_error_tone();
+                            }
                             state.parsed_gs1 = Some(parsed);
                         }
                     });
@@ -199,7 +205,16 @@ pub fn render_analyst_studio(ui: &mut Ui, state: &mut AnalystStudioState) {
                 ui.add_space(6.0);
                 ui.horizontal(|ui| {
                     ui.label("Barcode:");
-                    ui.add(egui::TextEdit::singleline(&mut state.gs1_input).desired_width(400.0).font(egui::TextStyle::Monospace));
+                    let resp = ui.add(egui::TextEdit::singleline(&mut state.gs1_input).desired_width(400.0).font(egui::TextStyle::Monospace));
+                    if resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) && !state.gs1_input.trim().is_empty() {
+                        let parsed = Gs1Parser::parse(&state.gs1_input);
+                        if parsed.gtin.is_some() || parsed.batch_lot.is_some() || parsed.serial_number.is_some() || parsed.expiry_date.is_some() {
+                            play_barcode_chime();
+                        } else {
+                            play_error_tone();
+                        }
+                        state.parsed_gs1 = Some(parsed);
+                    }
                 });
 
                 if let Some(data) = &state.parsed_gs1 {

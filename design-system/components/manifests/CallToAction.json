@@ -16,6 +16,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:.cta-banner",
-    "desktop": "crm-ui/src/components/ or egui CTA panel"
+    "desktop": "proteus-design-studio/src/components/ or egui CTA panel"
   }
 }

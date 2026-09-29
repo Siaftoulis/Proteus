@@ -13,7 +13,7 @@ tags:
 2. **Platform-as-a-Protocol & Headless Operational Architecture**:
    - Established strict headless policy: the core team/founder develops native software engines and protocols; all client implementations, database setups, and field support are decentralized to certified independent partners via the internal marketplace.
 3. **Multi-Database & Cross-Platform Technical Specification**:
-   - Specified direct driver integration for **PostgreSQL** and **MySQL** in `crm-core` alongside local-first **SQLite** caching.
+   - Specified direct driver integration for **PostgreSQL** and **MySQL** in `proteus-core` alongside local-first **SQLite** caching.
    - Specified portability strategy via static libraries (`.dll`, `.dylib`, C-bindings/NDK for iOS and Android).
 4. **Formal Certification Curriculum & Pricing Confirmation**:
    - Confirmed 3 professional certifications: PCD (Designer), PCSS (Systems & DB), PCDS (Deployer & Support) at 79€ voucher / 39€ annual badge / 149€ bundle.
@@ -21,22 +21,22 @@ tags:
 5. **Sprint 6 Execution: PCDA Pipeline & Universal Connector**:
    - Codified `vault/Developer/22 - Business Data Analyst Pipeline & Universal Connector.md`.
    - Introduced the 4th official role: **PCDA (Proteus Certified Data/Business Analyst)** as the primary customer-facing data architect.
-   - Built Schema Inference engine (`crm-core::inference`) with JSON/CSV ingestion, key heuristics, flattening, type deduction, DDL generation, and fuzzy field name matching (Levenshtein + substring containment).
-   - Implemented GS1-128 barcode Application Identifier parser (`crm-core::gs1`) with AI `(01)` GTIN, `(10)` Lot, `(17)` Expiration date, `(21)` Serial, `(00)` SSCC.
-   - Built declarative Business Rules Engine ("IF X THEN Y") in `crm-core::rules` with safe sandboxed evaluation.
-   - Created thread-safe in-process Event Bus (`crm-core::event_bus`) for cross-subsystem event dispatching.
-   - Built bespoke Visual Field Mapping engine (`crm-core::mapping`) supporting PassThrough, Concatenation, Date format conversion, Lookup dictionaries, Math multiplier (VAT), and case transforms.
+   - Built Schema Inference engine (`proteus-core::inference`) with JSON/CSV ingestion, key heuristics, flattening, type deduction, DDL generation, and fuzzy field name matching (Levenshtein + substring containment).
+   - Implemented GS1-128 barcode Application Identifier parser (`proteus-core::gs1`) with AI `(01)` GTIN, `(10)` Lot, `(17)` Expiration date, `(21)` Serial, `(00)` SSCC.
+   - Built declarative Business Rules Engine ("IF X THEN Y") in `proteus-core::rules` with safe sandboxed evaluation.
+   - Created thread-safe in-process Event Bus (`proteus-core::event_bus`) for cross-subsystem event dispatching.
+   - Built bespoke Visual Field Mapping engine (`proteus-core::mapping`) supporting PassThrough, Concatenation, Date format conversion, Lookup dictionaries, Math multiplier (VAT), and case transforms.
    - Implemented interactive `MappingCanvasView` in `proteus-client::views::mapping_canvas` with 3-column layout (Source Fields, Connection/Transform Hub, Target Fields), Fuzzy AI Auto-Match, and live record transformation preview.
    - Embedded the mapping canvas directly inside `AnalystStudioView` in `proteus-client::views::analyst_studio` with automated feed from schema inference.
    - Integrated PCDA certification tracks (79€ voucher, 149€ bundle) in `proteus-web::marketplace`.
-6. **Additive Schema Migration Runner & Automated Snapshots (`crm-core::migrations` & `views::developer`)**:
+6. **Additive Schema Migration Runner & Automated Snapshots (`proteus-core::migrations` & `views::developer`)**:
    - Built zero-data-loss migration runner enforcing strict additive-only invariants (`CREATE TABLE`, `ALTER TABLE ADD COLUMN`, `CREATE INDEX`).
    - Rejects destructive statements (`DROP TABLE`, `DROP COLUMN`, `TRUNCATE`).
    - Automatically creates atomic timestamped `.bak` SQLite snapshots prior to execution.
    - Provides sandboxed dry-run validation using rollback transactions.
    - Fully wired into `DeveloperStudioView` in `proteus-client::views::developer` with 1-click execution and syntax verification.
    - Workspace test suite expanded to **149 tests passing (100% green, 0 compiler warnings)**.
-7. **Declarative `.pr` Package Architecture & Runtime Mounting Engine (`crm-core::package` & `views::settings`)**:
+7. **Declarative `.pr` Package Architecture & Runtime Mounting Engine (`proteus-core::package` & `views::settings`)**:
    - Built binary `.pr` container format (`PRPK` magic header + SHA-256 integrity seal).
    - Bundles metadata manifest (`PrManifest`), additive schema definitions (`PrSchemaBundle`), declarative UI view layouts (`PrViewLayout`), and reactive flow triggers (`PrFlowTrigger`).
    - Implemented the 4-step ingestion transaction: Checksum verification -> Additive schema DDL execution with automated `.bak` snapshot -> View hydration -> Audit trail logging (`PACKAGE / MOUNTED`).
@@ -46,11 +46,11 @@ tags:
 ## 2026-09-16: Role-Based Access Control (RBAC), Event Audit Trail & Appointments Subsystem
 
 ### Key Deliverables & Accomplishments
-1. **Granular Role-Based Access Control (`crm-core::roles`)**:
+1. **Granular Role-Based Access Control (`proteus-core::roles`)**:
    - `UserRole` enum (`Ceo`, `CustomerService`, `Technician`, `SalesConsultant`, `Developer`) with bespoke permission flags:
      - `can_view_audit_trail`, `can_view_financials`, `can_edit_schema`, `can_intake_tickets`, `can_manage_pipeline`, `can_edit_technical_notes`, `can_manage_contracts`, `can_book_appointments`, `can_manage_settings`.
    - Dynamic tab navigation and active role switching in `proteus-client::app`.
-2. **Event-Sourced Activity Logging & Audit Trail (`crm-core::audit` & `views::audit_log`)**:
+2. **Event-Sourced Activity Logging & Audit Trail (`proteus-core::audit` & `views::audit_log`)**:
    - Monotonic UUIDv7 event identifiers, entity tracking (`ticket`, `appointment`, `schema`, `contract`), operator identity/role, human-readable descriptions, and JSON payload diffs.
    - Beautiful visual presentation: live text search, role filter combobox, color-coded badges (Gold CEO, Sky Blue Customer Service, Emerald Tech, Warm Orange Sales, Indigo Developer), relative time badges ("μόλις τώρα", "πριν X λεπτά"), and collapsible JSON payload inspector.
 3. **Customer Service Appointments Subsystem (`views::appointments`)**:
@@ -100,13 +100,13 @@ tags:
    - **Screen 2 (Kanban Pipeline / Ροή Επισκευών)**: 6 status lanes (`Received`, `InProgress`, `WaitingParts`, `Ready`, `Delivered`, `Cancelled`), live instant search, stage advance buttons.
    - **Screen 3 (Ticket Detail Modal / Καρτέλα Επισκευής)**: Detailed inspection modal with technician notes editor, repair cost updater, status changer, reprint button.
    - **Screen 4 (Shop Settings / Ρυθμίσεις)**: Business header/footer metadata, paper width toggle (58mm/80mm), Win32 spooler printer selection, test print.
-3. **Core ESC/POS Thermal Printing Engine (`crm-core::printer`)**:
+3. **Core ESC/POS Thermal Printing Engine (`proteus-core::printer`)**:
    - Native Win32 Spooler RAW pass-through (`winspool.drv`) without third-party dependencies.
    - Ticket receipt generator with formatted text, dashed dividers, cost summary, and automatic paper cut command (`GS V 66 0`).
-4. **Storage & Zero-Privilege Path (`crm-core::paths` & `crm-core::tickets`)**:
+4. **Storage & Zero-Privilege Path (`proteus-core::paths` & `proteus-core::tickets`)**:
    - Default database path at `%APPDATA%\Proteus\data\store.db` (zero Windows administrator privileges required).
    - Monotonic UUIDv7 IDs, composite indexes, and `system_events` audit/sync outbox.
-6. **Visual Design & Studio Overhaul (`crm-ui`)**:
+6. **Visual Design & Studio Overhaul (`proteus-design-studio`)**:
    - **Selection & Dimension HUD (`renderer.rs`)**: Replaced raw outlines with vibrant accent stroke, sleek circular handles (`circle_filled` with `Stroke::new(1.5, theme::ACCENT)`), and a real-time floating monospace dimension badge pill (`W × H`) rendered directly beneath the selection.
    - **Quick Alignment Bar (`inspector.rs`)**: Added 1-click alignment toolbar (`⇤` Left, `⇋` Center H, `⇥` Right, `⤒` Top, `⥯` Middle V, `⤓` Bottom) relative to parent frame or canvas.
    - **Curated Color Swatches (`inspector.rs`)**: 10 harmonious obsidian/luxury dark/accent swatches for 1-click styling without guessing RGB values.
@@ -190,15 +190,15 @@ tags:
 
 ### New Files Created
 
-- `crm-core/src/data.rs` — Record CRUD (create, list, update, delete, list entities) — 7 tests
-- `crm-core/src/flow.rs` — Minimal DAG flow engine (trigger walker, action exec) — 3 tests
+- `proteus-core/src/data.rs` — Record CRUD (create, list, update, delete, list entities) — 7 tests
+- `proteus-core/src/flow.rs` — Minimal DAG flow engine (trigger walker, action exec) — 3 tests
 - `src-tauri/src/lib.rs` — 5 new Tauri commands: create_record, list_records, update_record, delete_record, list_record_entities, execute_flow
 
 ### Final Test Stats
 
 | Layer | Tests | Status |
 |-------|-------|--------|
-| crm-core Rust | 49 | ✅ All passing |
+| proteus-core Rust | 49 | ✅ All passing |
 | auth-server | 6 | ✅ All passing |
 | license-server | 6 | ✅ All passing |
 | Frontend (React) | 11 | ✅ All passing |

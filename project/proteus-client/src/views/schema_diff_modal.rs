@@ -1,10 +1,10 @@
 //! Visual Schema Diffing & Migration Confirmation Modal for Proteus Client.
 //! Designed from first principles for zero-friction review of schema modifications.
 
-use crm_core::migrations::MigrationRunner;
-use crm_core::package::PrPackage;
-use crm_core::paths::get_database_path;
-use crm_core::schema_diff::{ColumnChangeKind, DiffSafety, SchemaDiff, TableChangeKind};
+use proteus_core::migrations::MigrationRunner;
+use proteus_core::package::PrPackage;
+use proteus_core::paths::get_database_path;
+use proteus_core::schema_diff::{ColumnChangeKind, DiffSafety, SchemaDiff, TableChangeKind};
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
 use rusqlite::Connection;
 
@@ -224,7 +224,7 @@ pub fn draw_schema_diff_modal(
                     }
                 }
             } else if !rev.ddl_statements.is_empty() {
-                let mut plan = crm_core::migrations::MigrationPlan::new(
+                let mut plan = proteus_core::migrations::MigrationPlan::new(
                     "MANUAL-DIFF-APPLY",
                     rev.source_title.clone(),
                     "Developer",

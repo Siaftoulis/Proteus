@@ -37,16 +37,16 @@ The project is structured as a **Cargo Workspace** with 6 bespoke crates:
 
 ```
 project/
-├── Cargo.toml                  # Workspace manifest (members: crm-core, crm-ui, proteus-client, proteus-web, auth-server, license-server)
-├── crm-core/                   # Shared backend engine (DB, crypto, print, roles, audit, sync)
-├── crm-ui/                     # Pillar 1: Proteus Designer (Visual canvas & studio .exe)
+├── Cargo.toml                  # Workspace manifest (members: proteus-core, proteus-design-studio, proteus-client, proteus-web, auth-server, license-server)
+├── proteus-core/                   # Shared backend engine (DB, crypto, print, roles, audit, sync)
+├── proteus-design-studio/                     # Pillar 1: Proteus Designer (Visual canvas & studio .exe)
 ├── proteus-client/             # Pillar 2: Proteus Client (Shop counter runtime .exe)
 ├── proteus-web/                # Pillar 3: Web Portal & Marketplace API (Axum REST backend)
 ├── auth-server/                # Microservice: JWT, Argon2id, Google OAuth
 └── license-server/             # Microservice: Machine activation, seat limits
 ```
 
-### 2.1 Pillar 1: Proteus Designer (`crm-ui`)
+### 2.1 Pillar 1: Proteus Designer (`proteus-design-studio`)
 - **Nature:** 100% Free native desktop visual builder (Windows, macOS).
 - **Infinite GPU Canvas:** Smooth pan & zoom (0.1x to 5.0x), grid snap, freeform layout.
 - **Node Tree & Scene System:** Visual containers, buttons, inputs, tables, cards, and 1-click pre-styled composite blocks (*KPI Metric Card*, *Intake Form Card*).
@@ -84,7 +84,7 @@ project/
 - **In-Platform Escrow & SLA Contracts:** Two-party digital signatures (shop + technician) with milestone payout release.
 - **Pricing Quote Engine:** Real-time mathematical calculation of bracketed licensing and cloud add-ons.
 
-### 2.4 Shared Core Engine (`crm-core`)
+### 2.4 Shared Core Engine (`proteus-core`)
 - **Database:** Local SQLite engine with custom encryption (**XChaCha20-Poly1305** + **Argon2id KDF**).
 - **Upcoming Drivers:** Direct native connectors for **PostgreSQL** and **MySQL**.
 - **Hardware Printing:** Native ESC/POS raw command generator and Win32 Spooler interface.
@@ -199,10 +199,10 @@ Stock-In    Carrier Plans Quick Pay     Repairs           Stock-In      Receipts
 ## 7. Master Execution Roadmap (Target: May 2027)
 
 ### Phase 1 — Core Construction (Current $\rightarrow$ May 2027)
-- [x] Shared Rust Core (`crm-core`): SQLite, crypto, audit logs, roles, ESC/POS printer spooler.
+- [x] Shared Rust Core (`proteus-core`): SQLite, crypto, audit logs, roles, ESC/POS printer spooler.
 - [x] Standalone Shop Runtime (`proteus-client`): Intake, Kanban, appointments, audit timeline, specialist dashboards.
 - [x] Web Backend Engine (`proteus-web`): Pricing brackets, certification tiers, escrow contracts, compiler gate.
-- [ ] Direct Database Drivers: Direct connection to **PostgreSQL** and **MySQL** in `crm-core`.
+- [ ] Direct Database Drivers: Direct connection to **PostgreSQL** and **MySQL** in `proteus-core`.
 - [ ] Multi-platform static libraries (`.dll`, `.dylib`, C-bindings/NDK for iOS/Android).
 - [ ] Sandboxed 1-click migration runner with automated `.bak` rollback snapshot.
 
@@ -219,8 +219,8 @@ Stock-In    Carrier Plans Quick Pay     Repairs           Stock-In      Receipts
 
 ## 8. Key Repository Paths & Documentation Quick-Links
 - **Rust Workspace:** `project/Cargo.toml`
-- **Core Engine:** `project/crm-core/src/` (`lib.rs`, `audit.rs`, `roles.rs`, `tickets.rs`, `printer.rs`, `encryption.rs`, `db.rs`, `sync.rs`)
-- **Designer Tool:** `project/crm-ui/src/` (`main.rs`, `renderer.rs`, `inspector.rs`, `flow.rs`, `scene/`)
+- **Core Engine:** `project/proteus-core/src/` (`lib.rs`, `audit.rs`, `roles.rs`, `tickets.rs`, `printer.rs`, `encryption.rs`, `db.rs`, `sync.rs`)
+- **Designer Tool:** `project/proteus-design-studio/src/` (`main.rs`, `renderer.rs`, `inspector.rs`, `flow.rs`, `scene/`)
 - **Client App:** `project/proteus-client/src/` (`main.rs`, `app.rs`, `views/` [`intake.rs`, `pipeline.rs`, `ticket_detail.rs`, `appointments.rs`, `audit_log.rs`, `settings.rs`, `support.rs`, `dashboards.rs`, `developer.rs`])
 - **Web Backend:** `project/proteus-web/src/` (`main.rs`, `marketplace.rs`, `portal.rs`, `contracts.rs`)
 - **Vault Documentation:** `vault/Developer/` (Docs 01 to 21, including `17 - Ecosystem Standards`, `18 - Financial Model`, `19 - RBAC & Audit`, `20 - Anti-SAP Manifesto`, `21 - Master Brief`)

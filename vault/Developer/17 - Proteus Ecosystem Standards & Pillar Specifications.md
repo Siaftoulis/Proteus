@@ -220,17 +220,42 @@ aliases:
 * **Σύγκριση με Ανταγωνισμό**:
   * Πίνακας σύγκρισης (Proteus vs Generic Cloud CRMs): Μηδενικό lag, λειτουργία χωρίς internet, απευθείας υποστήριξη θερμικών POS εκτυπωτών, χαμηλό μηνιαίο κόστος (7.99€ vs 30-70€).
 
-#### Ενότητα 2: Web Marketplace Προτύπων (`.pr` Store)
-* **Κατηγορίες Πακέτων**:
-  1. *Συνεργεία & Μοτοσυκλέτες* (Πινακίδες, χιλιόμετρα, ιστορικό service, ανταλλακτικά).
-  2. *Επισκευές Τηλεφώνων & Υπολογιστών* (IMEI, κωδικοί κλειδώματος, backup disclaimer, οθόνες/μπαταρίες).
-  3. *Ηλεκτρολογεία & Ψυκτικοί* (Δελτία εξωτερικής εργασίας, υλικά, ώρες εργασίας).
-  4. *Ωρολογοποιεία & Κοσμήματα* (Εκτίμηση αξίας, φωτογραφίες αντικειμένου, γραμμάρια).
-* **Κάρτα Πακέτου στο Marketplace**:
-  * Τίτλος πακέτου, όνομα πιστοποιημένου designer, βαθμολογία (ratings & reviews).
-  * Screenshots από το Studio και το Client, κατάλογος προκαθορισμένων entities.
-  * Τιμή (Δωρεάν ή Εφάπαξ αγορά π.χ. 19€ – 49€).
-  * Κουμπί `Λήψη Πακέτου (.pr)` ή `Άμεση Εγκατάσταση στο Client`.
+#### Ενότητα 2: Προσαρμοσμένη Υποβολή Έργου & Slot Board (Zero Presets / 100% Bespoke)
+* **Απόλυτη Αρχή: Μηδενικά Προκατασκευασμένα Presets**:
+  * Το Proteus ΔΕΝ διαθέτει ούτε πουλάει έτοιμα, generic "πακέτα-κονσέρβα" (όχι συνεργεία, όχι ιατρεία, όχι έτοιμα templates λιανικής).
+  * Ο ίδιος ο πελάτης συντάσσει λεπτομερώς το επιχειρησιακό του προφίλ μέσα από τη φόρμα υποβολής:
+    1. *Τι ακριβώς είναι η επιχείρησή του και ποιες είναι οι καθημερινές της ανάγκες*.
+    2. *Ποιες είναι οι ροές εργασίας, τα μηχανήματα, οι ιδιαιτερότητες και οι πελάτες της*.
+    3. *Τι ακριβώς απαιτεί να σχεδιαστεί (ειδικές οθόνες ταμείου, αποθήκη, τιμολόγηση, φόρμες, εκτυπώσεις)*.
+  * **Αρχή Ευθύνης Επιχειρηματία**: Αν ένας πελάτης δεν μπορεί να περιγράψει αναλυτικά τις ανάγκες της επιχείρησής του, δεν μπορεί να αποκτήσει λειτουργικό λογισμικό.
+* **Ανάρτηση Έργου στο 7-Slot Board & Ανάθεση Ρόλων**:
+  * Το αναλυτικό brief του πελάτη μετατρέπεται σε επίσημο project στο Slot Board του Web Portal.
+  * Το έργο στελεχώνεται από πιστοποιημένους freelancers μέσω In-Platform Escrow:
+    1. *Business Analyst (BA)*: Επιχειρησιακοί κανόνες, λογική εγκρίσεων και προδιαγραφές.
+    2. *Data Analyst (DA)*: Σχεδιασμός SQLite σχημάτων, πίνακες, σχέσεις, επικυρώσεις.
+    3. *Software UI/UX Designer (PCD-App)*: Σχεδίαση διεπαφής του εσωτερικού λογισμικού καταστήματος/ταμείου στο Proteus Studio.
+    4. *Web & E-Commerce Designer (PCD-Web)*: Σχεδίαση της δημόσιας ιστοσελίδας / e-shop που συνδέεται ζωντανά με τη βάση.
+    5. *Systems IT Specialist (PCSS)*: LAN δικτύωση, Merkle logs, Cloudflare Tunnels, ασφάλεια και replication.
+    6. *Field Support Deployer (PCDS)*: Ρύθμιση φυσικού hardware (θερμικός εκτυπωτής, συρτάρι, barcode scanner).
+    7. *Customer Support (CS)*: Onboarding και εκπαίδευση προσωπικού.
+  * **Ευελιξία Full-Stack**: Ένας επαγγελματίας που κατέχει πολλαπλές βεβαιώσεις μπορεί να αναλάβει 2, 3 ή και όλα τα slots του έργου μόνος του.
+
+#### Ενότητα 2.1: Υπηρεσίες Domain, Managed Web Hosting & Επεκτασιμότητα (Νέα Ροή Εσόδων)
+* **Κατοχύρωση & Ενοικίαση Domain Names**:
+  * Διασύνδεση με Registrar API (π.χ. Cloudflare Registrar / Namecheap / Papaki API).
+  * Ο πελάτης αναζητά και κατοχυρώνει το επίσημο domain της επιχείρησής του (π.χ. `.gr`, `.com`) απευθείας μέσα από την πύλη του Proteus.
+  * Αυτόματη παραμετροποίηση DNS (A, CNAME, TXT, SSL/TLS) χωρίς καμία τεχνική δυσκολία για τον πελάτη.
+  * Πρόσθετο recurring έσοδο για την πλατφόρμα από την προμήθεια ετήσιας ανανέωσης domain.
+* **Μοντέλα Φιλοξενίας Ιστοσελίδας / E-shop**:
+  1. *Managed Cloud Hosting (Proteus Infrastructure)*:
+     * Φιλοξενία στο δίκτυο του Proteus (`proteus-web` μέσω Cloudflare Tunnel / Edge).
+     * Μηνιαία συνδρομή φιλοξενίας & διαχείρισης (π.χ. 15€ – 35€ / μήνα ανάλογα με τον όγκο δεδομένων).
+     * Αυτόματα SSL, απεριόριστο bandwidth, αυτόματο incremental backup της βάσης.
+  2. *Self-Hosting (Ιδιόκτητος Server Πελάτη)*:
+     * Ο πελάτης φιλοξενεί την ιστοσελίδα και τις βάσεις του στο δικό του μηχάνημα/hardware.
+     * Πληρώνει μόνο το εφάπαξ setup fee και τη βασική άδεια συγχρονισμού.
+* **Επεκτασιμότητα & Custom Αλληλεπιδράσεις Πελατών**:
+  * Δυνατότητα προσθήκης έξτρα βάσεων δεδομένων και custom web endpoints (π.χ. B2B portal παραγγελιών, portal ραντεβού, customer loyalty accounts), όλα συνδεδεμένα με το τοπικό SQLite core.
 
 #### Ενότητα 3: Πύλη Αδειών & Μαθηματική Κλιμάκωση Συνδρομών
 * **Proteus Core License (Τοπική Άδεια / Self-Hosted)**:
@@ -253,26 +278,19 @@ aliases:
 #### Ενότητα 4: Marketplace, Πιστοποιήσεις & Creator Economy
 
 ##### Α. Οικονομικά Πιστοποιήσεων (Certifications Unit Economics)
-Οι πιστοποιήσεις απευθύνονται σε φοιτητές και νέους επαγγελματίες με σχεδόν μηδενικό οριακό κόστος ($COGS \approx 0$):
-* **Εξέταση & Έκδοση (One-off Exam Voucher):** **79€** (Κόστος grading ~4€ $\rightarrow$ **Καθαρό κέρδος 75€ / 95%**).
-* **Ετήσιο Verified Partner Badge (Maintenance/Listing Fee):** **39€ / έτος** (διατήρηση στον επίσημο κατάλογο).
-* **Δέσμη 3 Ρόλων (Designer + DB + Deployer Bundle):** **149€** εφάπαξ.
+Οι πιστοποιήσεις διαχωρίζονται αυστηρά ανάλογα με την εξειδίκευση του επαγγελματία, καθώς το UI/UX λογισμικού διαφέρει ριζικά από το UI/UX ιστοσελίδων/e-shop:
+* **PCD-App Exam Voucher (Software & Desktop UI/UX):** **79€** (Σχεδιασμός εσωτερικού λογισμικού, πυκνότητα πληροφορίας, συντομεύσεις πληκτρολογίου, εργονομία ταμείου).
+* **PCD-Web Exam Voucher (Website & E-Commerce UI/UX):** **79€** (Σχεδιασμός δημόσιας ιστοσελίδας, storefront, responsive mobile web, conversion rates, online checkout).
+* **Dual Full-Stack Designer Bundle (PCD-App + PCD-Web):** **129€** (Καλύπτει και τους δύο ρόλους σχεδίασης).
+* **Master Partner All-Roles Bundle (BA, DA, PCD-App, PCD-Web, PCSS, PCDS):** **249€** εφάπαξ.
+* **Ετήσιο Verified Partner Badge (Maintenance/Listing Fee):** **39€ / έτος** (διατήρηση στο επίσημο μητρώο πιστοποιημένων συνεργατών).
 
-$$\text{Ετήσια Έσοδα} = (N_{\text{νέοι}} \times 79€) + (N_{\text{ενεργοί}} \times 39€)$$
-
-| Ενεργοί Πιστοποιημένοι | Νέες Εξετάσεις / Έτος | Ανανεώσεις Badges | Ετήσιο Έσοδο (ARR) | Μηνιαίο Ισοδύναμο |
-| :--- | :--- | :--- | :--- | :--- |
-| **50 άτομα** | 50 | 0 | **3.950€** | ~330€ / μήνα |
-| **200 άτομα** | 150 | 50 | **13.800€** | **1.150€ / μήνα** |
-| **500 άτομα** | 300 | 200 | **31.500€** | **2.625€ / μήνα** |
-
-##### Β. Οικονομικά Marketplace & Υπηρεσιών (Take-Rate)
+##### Β. Οικονομικά Υπηρεσιών Slot Board & Escrow (Take-Rate)
 Η πλατφόρμα λειτουργεί ως εκκαθαριστής πληρωμών με απόλυτη διαφάνεια (Anti-Rent-Seeking):
 * **Προμήθεια Πλατφόρμας (Take-Rate):** **18%** Gross (16% καθαρά στο Proteus, 2% Stripe/Banking fees).
 * **Καθαρή Αμοιβή Συνεργάτη:** **82%** καθαρά.
-* **Setup / Custom Deployment Gig (Μέση τιμή: 350€):** Πελάτης πληρώνει 350€ $\rightarrow$ Συνεργάτης 287€ $\rightarrow$ **Proteus 63€**.
-* **Μηνιαίο Support Retainer (Μέση τιμή: 80€ / μήνα):** Συνεργάτης 65,60€ $\rightarrow$ **Proteus 14,40€ / μήνα**.
-* **Marketplace Templates (Μέση τιμή: 45€ one-off):** 30% take-rate ψηφιακών αγαθών $\rightarrow$ **Proteus 13,50€ ανά πώληση** (70% στον δημιουργό).
+* **Custom Project Slot (Μέση τιμή ανά ρόλο: 350€):** Πελάτης πληρώνει 350€ $\rightarrow$ Συνεργάτης 287€ $\rightarrow$ **Proteus 63€**.
+* **Domain & Hosting Recurring:** Πελάτης πληρώνει 25€/μήνα $\rightarrow$ Κόστος υποδομής ~3€ $\rightarrow$ **Καθαρό κέρδος Proteus 22€/μήνα**.
 
 ##### Γ. Συνδυαστικές Προβολές Εσόδων (Target Projections)
 | Φάση Ανάπτυξης | Πιστοποιημένοι Συνεργάτες | Ενεργές Επιχειρήσεις | Μηνιαία Έσοδα Συνδρομών | Μηνιαία Έσοδα Marketplace / Services | Μηνιαία Έσοδα Certifications | Συνολικό Μηνιαίο MRR |
@@ -286,30 +304,44 @@ $$\text{Ετήσια Έσοδα} = (N_{\text{νέοι}} \times 79€) + (N_{\tex
 ## 5. Διάγραμμα Ροής Δεδομένων & Αλληλεπίδρασης (Data & Token Flow)
 
 ```
-+-------------------------+
-|   DESIGNER (Studio)     |
-|  - Φτιάχνει Layouts     |
-|  - Ορίζει Entities      |
-|  - Σχεδιάζει Receipt    |
-+------------+------------+
-             |
-             | 1. Export Signed Package (.pr)
-             v
-+-------------------------+             2. Δημοσίευση & Verification
-|  PROTEUS WEB HUB        | <------------------------------------------+
-|  - Marketplace          |                                            |
-|  - Paddle MoR Checkout  | 3. Αγορά Πακέτου / License Key             |
-+------------+------------+                                            |
-             |                                                         |
-             | 4. Download & Lease Token                               |
-             v                                                         |
-+-------------------------+                                            |
-|    SHOP COUNTER CLIENT  |                                            |
-|  - Mounts .pr Package   |                                            |
-|  - Local SQLite Store   |                                            |
-|  - Win32 Raw ESC/POS    | -------------------------------------------+
-|  - 100% Offline Ops     |    (Προαιρετικό Snapshot Sync / License Refresh)
-+-------------------------+
++-------------------------------------------------------------------------------------------------+
+|                                1. BESPOKE CLIENT PROJECT BRIEF                                  |
+|  - Πελάτης συμπληρώνει: Επιχειρησιακό Προφίλ, Καθημερινές Ροές, Οθόνες, Εκτυπωτές, Προϋπολογισμό|
++------------------------------------------------+------------------------------------------------+
+                                                 |
+                                                 v
++-------------------------------------------------------------------------------------------------+
+|                             2. PROTEUS WEB HUB (7-SLOT BOARD & ESCROW)                          |
+|  - Ανάρτηση Έργου στο 7-Slot Board (BA, DA, PCD-App, PCD-Web, PCSS, PCDS, CS)                  |
+|  - In-Platform Escrow Δέσμευση Κεφαλαίων & Anti-Bypass Algorithmic Floor Protection            |
+|  - Κατοχύρωση Domain (.gr/.com) & Επιλογή Hosting (Managed Cloud vs Self-Hosted)                |
++-------------------+----------------------------+-----------------------------+------------------+
+                    |                            |                             |
+      (PCD-App Slot)|              (PCD-Web Slot)|                (DA/DB Slot) | (PCSS/PCDS Slot)
+                    v                            v                             v                  v
++-----------------------+     +----------------------+     +----------------------+   +-----------+
+| PROTEUS STUDIO (App)  |     | PROTEUS STUDIO (Web) |     | DATA STUDIO & SMLM   |   | HARDWARE  |
+| - Layouts Ταμείου POS |     | - Storefront & E-Shop|     | - Additive Migrations|   | - ESC/POS |
+| - Dense Desktop Forms |     | - Responsive Breakpts|     | - DDL & SQLite Tables|   | - LAN Sync|
++-----------+-----------+     +----------+-----------+     +----------+-----------+   +-----+-----+
+            |                            |                            |                     |
+            +----------------------------+-------------+--------------+---------------------+
+                                                       |
+                                                       v
++-------------------------------------------------------------------------------------------------+
+|                         3. CLOUD COMPILER GATE & ENCRYPTED DELIVERY (.pr)                       |
+|  - Cloud Verification & Ed25519 Cryptographic Signature (Μηδενικό τοπικό compile bypass)       |
+|  - Αποδέσμευση Escrow Αμοιβών (82% Συνεργάτες / 18% Proteus)                                   |
++------------------------------------------------+------------------------------------------------+
+                                                 |
+                                                 v
++-------------------------------------------------------------------------------------------------+
+|                      4. FRONTLINE SHOP COUNTER RUNTIME (`proteus-client.exe`)                   |
+|  - Mounts Signed .pr Package & Offline Local SQLite Store (`store.db`)                          |
+|  - Native Win32 Raw ESC/POS Thermal Printing & Barcode Scanning                                 |
+|  - Real-time LAN Peer Sync με Handheld Mobile Companion (`proteus-mobile`)                      |
+|  - Federation Bridge με Cloud Databases (`web_orders`, `web_customers`, `appointments_db`)    |
++-------------------------------------------------------------------------------------------------+
 ```
 
 ---
@@ -317,14 +349,19 @@ $$\text{Ετήσια Έσοδα} = (N_{\text{νέοι}} \times 79€) + (N_{\tex
 ## 6. Οδικός Χάρτης Υλοποίησης (Implementation Blueprint)
 
 1. **Άμεσο Βήμα 1 (Εκτελέστηκε)**:
-   * Υλοποίηση του πυρήνα `crm-core` (διαδρομές `%APPDATA%`, DDL `service_tickets`, raw ESC/POS printing).
-   * Υλοποίηση του αυτόνομου `proteus-client` (Intake, Kanban, Detail Modal, Settings) σε native binary (5.0 MB).
-   * Αναβάθμιση του `proteus-studio` (`crm-ui`) με dimension HUD, alignment bar, luxury swatches, floating canvas HUD, component templates.
-2. **Επόμενο Βήμα 2 (Active)**:
-   * Υλοποίηση της επίσημης ιστοσελίδας / portal (`proteus-hub` showcase & landing page), πλήρως εναρμονισμένης με τα παραπάνω πρότυπα.
-3. **Βήμα 3 (Προ της Κατάταξης - Οκτώβριος 2026)**:
+   * Υλοποίηση του πυρήνα `proteus-core` (διαδρομές `%APPDATA%`, DDL `service_tickets`, raw ESC/POS printing, SMLM semantic profiler, supplier catalog reconciler).
+   * Υλοποίηση του αυτόνομου `proteus-client` (Intake, Kanban, Detail Modal, Settings, Supplier Reconciliation, Contractor Ledger) σε native binary (5.0 MB).
+   * Αναβάθμιση του `proteus-studio` (`proteus-design-studio`) με dimension HUD, alignment bar, luxury swatches, floating canvas HUD, Track Switcher (PCD-App vs PCD-Web).
+   * Υλοποίηση του `proteus-mobile` (Handheld Companion για τεχνικούς αποθήκης & delivery, με TCP sync στο LAN).
+2. **Βήμα 2: Web Portal, Domain Gateway & Escrow (Εκτελέστηκε)**:
+   * Επίσημο Web Hub & Portal (`proteus-web` σε Rust/Axum).
+   * Υποβολή Bespoke Project Briefs & 7-Slot Board matching.
+   * Διαχωρισμός πιστοποιήσεων: PCD-App (79€), PCD-Web (79€), Dual Bundle (129€), Master Bundle (249€).
+   * Domain Reseller Gateway (`.gr`, `.com`, `.eu`, `.shop`) με αυτόματη DNS ζώνη και SSL tokens.
+   * Managed Cloud Hosting vs Self-Hosting & δυναμική σύνδεση πρόσθετων cloud βάσεων (`web_orders`, `web_customers`).
+3. **Βήμα 3: Πιλοτική Εγκατάσταση (Οκτώβριος 2026)**:
    * Πιλοτική εγκατάσταση του `proteus-client.exe` σε 2–3 συνεργεία / καταστήματα επισκευής για συλλογή πραγματικού feedback.
-   * Ενσωμάτωση του δηλωτικού format `.pr` για εισαγωγή/εξαγωγή templates.
+   * Δοκιμή LAN synchronization μεταξύ ταμείου και mobile handheld συσκευής.
 
 ---
 *Έγγραφο εγκεκριμένο από την Ομάδα Ανάπτυξης Proteus — Πλήρης ευθυγράμμιση με τις αρχές του Founder.*

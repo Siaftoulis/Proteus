@@ -19,6 +19,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:.icon-btn",
-    "desktop": "crm-ui/src/components/ or egui::Button"
+    "desktop": "proteus-design-studio/src/components/ or egui::Button"
   }
 }

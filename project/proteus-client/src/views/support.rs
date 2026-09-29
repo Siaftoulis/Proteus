@@ -1,8 +1,8 @@
 //! Screen 5: Certified IT Support & Remote Assistance (Τεχνική Υποστήριξη).
 //! Hardware diagnostics, remote support sessions, and certified partner SLA management.
 
-use crm_core::paths::get_database_path;
-use crm_core::tickets::list_tickets;
+use proteus_core::paths::get_database_path;
+use proteus_core::tickets::list_tickets;
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
 use rusqlite::Connection;
 
@@ -36,7 +36,7 @@ pub fn draw_support_view(
     conn: &Connection,
     state: &mut SupportViewState,
     printer_name: &str,
-    discovered_peers: &[crm_core::lan::DiscoveredPeer],
+    discovered_peers: &[proteus_core::lan::DiscoveredPeer],
 ) {
     ui.vertical(|ui| {
         ui.heading(RichText::new("🛠 Τεχνική Υποστήριξη & PCDS Hardware Spooler").strong().size(22.0));
@@ -97,13 +97,13 @@ pub fn draw_support_view(
                         ui.horizontal(|ui| {
                             ui.label(RichText::new("Δοκιμή Hardware:").size(11.0).color(crate::theme::TEXT_MUTED));
                             if ui.button(RichText::new("🖨 ESC/POS Print").size(11.0)).clicked() {
-                                match crm_core::printer::test_printer_connection(printer_name) {
+                                match proteus_core::printer::test_printer_connection(printer_name) {
                                     Ok(_) => state.hardware_test_result = Some(("✓ Επιτυχής αποστολή δοκιμαστικής εκτύπωσης (RAW Spooler OK)".to_string(), true)),
                                     Err(e) => state.hardware_test_result = Some((format!("❌ {}", e), false)),
                                 }
                             }
                             if ui.button(RichText::new("💵 Drawer Kick").size(11.0)).clicked() {
-                                match crm_core::printer::kick_cash_drawer(printer_name) {
+                                match proteus_core::printer::kick_cash_drawer(printer_name) {
                                     Ok(_) => state.hardware_test_result = Some(("✓ Παλμός συρταριού εστάλη επιτυχώς (RJ-11 Pin 2)".to_string(), true)),
                                     Err(e) => state.hardware_test_result = Some((format!("❌ {}", e), false)),
                                 }
@@ -233,18 +233,18 @@ pub fn draw_support_view(
 
                             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                                 if ui.small_button("🚀 Deploy Test").clicked() {
-                                    let test_table = crm_core::inference::InferredTable {
+                                    let test_table = proteus_core::inference::InferredTable {
                                         table_name: "pcds_test_diagnostics".into(),
                                         columns: vec![
-                                            crm_core::inference::InferredColumn {
+                                            proteus_core::inference::InferredColumn {
                                                 name: "diag_id".into(),
-                                                col_type: crm_core::inference::InferredType::Text,
+                                                col_type: proteus_core::inference::InferredType::Text,
                                                 is_nullable: false,
                                                 is_primary_key: true,
                                             },
-                                            crm_core::inference::InferredColumn {
+                                            proteus_core::inference::InferredColumn {
                                                 name: "latency_ms".into(),
-                                                col_type: crm_core::inference::InferredType::Integer,
+                                                col_type: proteus_core::inference::InferredType::Integer,
                                                 is_nullable: false,
                                                 is_primary_key: false,
                                             },
@@ -252,7 +252,7 @@ pub fn draw_support_view(
                                         primary_key: Some("diag_id".into()),
                                         sample_rows_count: 1,
                                     };
-                                    let pkg = crm_core::package::PrPackage::from_inferred_table(&test_table, "PCDS Deployer");
+                                    let pkg = proteus_core::package::PrPackage::from_inferred_table(&test_table, "PCDS Deployer");
                                     match pkg.deploy_to_client(&peer.endpoint_url()) {
                                         Ok(sum) => {
                                             state.lan_ping_msg = Some(format!("✓ Το πακέτο '{}' εγκαταστάθηκε επιτυχώς στο {}", sum.package_name, peer.device_name));
@@ -281,44 +281,47 @@ pub fn draw_support_view(
             .corner_radius(CornerRadius::same(8))
             .inner_margin(Margin::same(14))
             .show(ui, |ui| {
+                let stores = if let Ok(Some(ent)) = proteus_core::enterprise::get_primary_enterprise(conn) {
+                    proteus_core::enterprise::list_enterprise_stores(conn, &ent.enterprise_id).unwrap_or_default()
+                } else {
+                    Vec::new()
+                };
+
                 ui.horizontal(|ui| {
                     ui.label(RichText::new("ΠΕΛΑΤΟΛΟΓΙΟ ΤΕΧΝΙΚΟΥ & ΕΠΟΠΤΕΙΑ ΚΑΤΑΣΤΗΜΑΤΩΝ (CLIENT SHOP ROSTER)").strong().color(crate::theme::TEXT_MUTED));
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        ui.label(RichText::new("3 Συνδεδεμένα Καταστήματα").size(11.0).color(crate::theme::ACCENT_CYAN));
+                        ui.label(RichText::new(format!("{} Συνδεδεμένα Καταστήματα", stores.len())).size(11.0).color(crate::theme::ACCENT_CYAN));
                     });
                 });
                 ui.add_space(8.0);
 
-                let shops = [
-                    ("AutoService Alpha (Νέα Σμύρνη)", "PR-SHOP-082", "POS-80 OK", "SLA 24/7 Escrow", "350€ Δεσμευμένα", true),
-                    ("TechFix Glyfada (Γλυφάδα)", "PR-SHOP-119", "Generic POS OK", "SLA 8x5 Escrow", "80€/μήνα Ενεργό", true),
-                    ("MotoSpeed Piraeus (Πειραιάς)", "PR-SHOP-241", "Εκτός Σύνδεσης", "Εκκρεμεί Έλεγχος", "80€/μήνα Ενεργό", false),
-                ];
+                if stores.is_empty() {
+                    ui.label(RichText::new("Δεν βρέθηκαν καταχωρημένα καταστήματα.").size(12.0).color(crate::theme::TEXT_MUTED));
+                } else {
+                    for store in &stores {
+                        ui.horizontal(|ui| {
+                            let is_online = store.is_active;
+                            let status_col = if is_online {
+                                Color32::from_rgb(52, 211, 153)
+                            } else {
+                                Color32::from_rgb(251, 146, 60)
+                            };
+                            ui.label(RichText::new(if is_online { "●" } else { "○" }).color(status_col).size(12.0));
+                            ui.label(RichText::new(&store.store_name).strong().color(crate::theme::TEXT_PRIMARY));
+                            ui.label(RichText::new(format!("({})", store.store_code)).size(11.0).color(crate::theme::TEXT_MUTED));
+                            ui.add_space(8.0);
+                            ui.label(RichText::new(&store.address).size(11.0).color(crate::theme::TEXT_SECONDARY));
+                            ui.add_space(8.0);
+                            ui.label(RichText::new(format!("Θέσεις: {}/{}", store.active_seats, store.allocated_seats)).size(11.0).color(crate::theme::ACCENT_CYAN));
 
-                for (name, shop_id, printer, sla, escrow, is_online) in shops {
-                    ui.horizontal(|ui| {
-                        let status_col = if is_online {
-                            Color32::from_rgb(52, 211, 153)
-                        } else {
-                            Color32::from_rgb(251, 146, 60)
-                        };
-                        ui.label(RichText::new(if is_online { "●" } else { "○" }).color(status_col).size(12.0));
-                        ui.label(RichText::new(name).strong().color(crate::theme::TEXT_PRIMARY));
-                        ui.label(RichText::new(format!("({})", shop_id)).size(11.0).color(crate::theme::TEXT_MUTED));
-                        ui.add_space(8.0);
-                        ui.label(RichText::new(printer).size(11.0).color(crate::theme::TEXT_SECONDARY));
-                        ui.add_space(8.0);
-                        ui.label(RichText::new(sla).size(11.0).color(crate::theme::ACCENT_CYAN));
-                        ui.add_space(8.0);
-                        ui.label(RichText::new(escrow).size(11.0).strong().color(Color32::from_rgb(52, 211, 153)));
-
-                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                            if ui.small_button("🔍 Έλεγχος").clicked() {
-                                state.status_message = Some(format!("Σύνδεση με {}...", name));
-                            }
+                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                if ui.small_button("🔍 Έλεγχος").clicked() {
+                                    state.status_message = Some(format!("Σύνδεση με {} ({})...", store.store_name, store.store_code));
+                                }
+                            });
                         });
-                    });
-                    ui.add_space(4.0);
+                        ui.add_space(4.0);
+                    }
                 }
             });
     });

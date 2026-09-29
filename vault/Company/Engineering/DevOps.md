@@ -58,7 +58,7 @@ DevOps Engineer -- responsible for infrastructure, CI/CD, and keeping everything
 ### Sprint 1 (July 7-14)
 - [ ] GitHub Actions CI pipeline:
   - Trigger: push to any branch
-  - Jobs: `cargo test` (crm-core, license-server) + `npm test` (frontend) + `cargo build` (release)
+  - Jobs: `cargo test` (proteus-core, license-server) + `npm test` (frontend) + `cargo build` (release)
   - Cache: Rust target dir + node_modules
 - [ ] Pin all dependency versions in Cargo.toml and package.json
 - [ ] Document branching strategy (feature branches, protected main)

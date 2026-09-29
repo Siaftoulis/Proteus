@@ -6,8 +6,8 @@
 //! - Enterprise Developer Work Orders & In-Platform Escrow contracts
 
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
-use crm_core::migrations::{MigrationPlan, MigrationRunner};
-use crm_core::drivers::{ConnectionConfig, DatabaseDriver, RemoteDriverMock};
+use proteus_core::migrations::{MigrationPlan, MigrationRunner};
+use proteus_core::drivers::{create_driver, ConnectionConfig};
 use rusqlite::Connection;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -53,7 +53,7 @@ pub struct DeveloperStudioState {
     pub status_message: Option<String>,
     pub enterprise_work_order: EnterpriseWorkOrder,
     pub remote_db_url: String,
-    pub active_schema_diff: Option<crm_core::schema_diff::SchemaDiff>,
+    pub active_schema_diff: Option<proteus_core::schema_diff::SchemaDiff>,
 }
 
 #[derive(Debug, Clone)]
@@ -218,7 +218,7 @@ pub fn draw_developer_studio_view(ui: &mut Ui, conn: &mut Connection, state: &mu
                                 }
                             }
                             if ui.button("🔍 Visual Diff").clicked() {
-                                match crm_core::schema_diff::SchemaDiff::from_ddl(conn, std::slice::from_ref(&migration_sql)) {
+                                match proteus_core::schema_diff::SchemaDiff::from_ddl(conn, std::slice::from_ref(&migration_sql)) {
                                     Ok(d) => {
                                         state.active_schema_diff = Some(d);
                                         state.status_message = Some("✓ Υπολογίστηκε το οπτικό Schema Diff.".into());
@@ -229,7 +229,7 @@ pub fn draw_developer_studio_view(ui: &mut Ui, conn: &mut Connection, state: &mu
                             if ui.button(RichText::new("🚀 Εκτέλεση (.bak)").strong()).clicked() {
                                 let mut plan = MigrationPlan::new("DEV-APPLY", "Dev Studio Applied Migration", "Developer");
                                 plan.add_statement(migration_sql.clone());
-                                let db_path = crm_core::paths::get_database_path();
+                                let db_path = proteus_core::paths::get_database_path();
                                 match MigrationRunner::execute(conn, &plan, Some(&db_path)) {
                                     Ok(res) => {
                                         state.status_message = Some(format!("✓ Εφαρμόστηκε σε {}ms! (Snapshot: {:?})", res.elapsed_ms, res.snapshot_path));
@@ -260,7 +260,7 @@ pub fn draw_developer_studio_view(ui: &mut Ui, conn: &mut Connection, state: &mu
                                             ui.horizontal(|ui| {
                                                 ui.label(RichText::new("+").color(Color32::from_rgb(52, 211, 153)).strong());
                                                 ui.label(RichText::new(&c.column_name).color(Color32::from_rgb(52, 211, 153)));
-                                                if let crm_core::schema_diff::ColumnChangeKind::Added { ref data_type, .. } = c.kind {
+                                                if let proteus_core::schema_diff::ColumnChangeKind::Added { ref data_type, .. } = c.kind {
                                                     ui.label(RichText::new(data_type).size(10.0).color(crate::theme::TEXT_MUTED));
                                                 }
                                             });
@@ -288,32 +288,34 @@ pub fn draw_developer_studio_view(ui: &mut Ui, conn: &mut Connection, state: &mu
                         ui.horizontal(|ui| {
                             if ui.button("🔌 Ping Driver").clicked() {
                                 match ConnectionConfig::parse_url(&state.remote_db_url) {
-                                    Ok(cfg) => {
-                                        let driver = RemoteDriverMock::new(cfg);
-                                        match driver.ping() {
+                                    Ok(cfg) => match create_driver(cfg) {
+                                        Ok(driver) => match driver.ping() {
                                             Ok(_) => state.status_message = Some("✓ Σύνδεση επιτυχής με απομακρυσμένη βάση!".into()),
                                             Err(e) => state.status_message = Some(format!("❌ Σφάλμα σύνδεσης: {}", e)),
-                                        }
-                                    }
+                                        },
+                                        Err(e) => state.status_message = Some(format!("❌ Σφάλμα οδηγού: {}", e)),
+                                    },
                                     Err(e) => state.status_message = Some(format!("❌ Μη έγκυρο URL: {}", e)),
                                 }
                             }
-                            let pending_count = crm_core::replication::count_pending_outbox(conn).unwrap_or(0);
+                            let pending_count = proteus_core::replication::count_pending_outbox(conn).unwrap_or(0);
                             let sync_label = format!("🔄 Sync Outbox ({})", pending_count);
                             if ui.button(sync_label).clicked() {
                                 match ConnectionConfig::parse_url(&state.remote_db_url) {
-                                    Ok(cfg) => {
-                                        let driver = RemoteDriverMock::new(cfg);
-                                        match crm_core::replication::sync_outbox_to_driver(conn, &driver, 50) {
-                                            Ok(summary) => {
-                                                state.status_message = Some(format!(
-                                                    "✓ Συγχρονίστηκαν {} εγγραφές! (Εκκρεμούν: {})",
-                                                    summary.records_pushed, summary.pending_remaining
-                                                ));
+                                    Ok(cfg) => match create_driver(cfg) {
+                                        Ok(driver) => {
+                                            match proteus_core::replication::sync_outbox_to_driver(conn, driver.as_ref(), 50) {
+                                                Ok(summary) => {
+                                                    state.status_message = Some(format!(
+                                                        "✓ Συγχρονίστηκαν {} εγγραφές! (Εκκρεμούν: {})",
+                                                        summary.records_pushed, summary.pending_remaining
+                                                    ));
+                                                }
+                                                Err(e) => state.status_message = Some(format!("❌ Σφάλμα συγχρονισμού: {}", e)),
                                             }
-                                            Err(e) => state.status_message = Some(format!("❌ Σφάλμα συγχρονισμού: {}", e)),
                                         }
-                                    }
+                                        Err(e) => state.status_message = Some(format!("❌ Σφάλμα οδηγού: {}", e)),
+                                    },
                                     Err(e) => state.status_message = Some(format!("❌ Μη έγκυρο URL: {}", e)),
                                 }
                             }

@@ -52,7 +52,7 @@ stateDiagram-v2
 
 ## 2. Inspector Panel Two-Zone Layout (Proteus Dual-Zone Standard)
 
-The right panel (`project/crm-ui/src/inspector.rs`) is partitioned vertically into two distinct zones:
+The right panel (`project/proteus-design-studio/src/inspector.rs`) is partitioned vertically into two distinct zones:
 
 ### Zone 1: Properties & Styling (Upper 2/3)
 1. **Transform & Sizing:**

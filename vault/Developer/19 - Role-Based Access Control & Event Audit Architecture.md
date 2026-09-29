@@ -17,11 +17,11 @@
 
 ---
 
-## 2. Αρχιτεκτονική Πυρήνα: `crm-core::roles` & `crm-core::audit`
+## 2. Αρχιτεκτονική Πυρήνα: `proteus-core::roles` & `proteus-core::audit`
 
 ### 2.1 Πίνακας Δικαιωμάτων Ρόλων (`RolePermissions`)
 
-Στο crate `crm-core::roles`, κάθε ρόλος ορίζεται από το enum `UserRole` και συνοδεύεται από τη δομή `RolePermissions`:
+Στο crate `proteus-core::roles`, κάθε ρόλος ορίζεται από το enum `UserRole` και συνοδεύεται από τη δομή `RolePermissions`:
 
 | Δικαίωμα (`Permission Flag`) | CEO | Customer Service | Technician | Sales | Developer |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -35,7 +35,7 @@
 | `can_book_appointments` | ✅ | ✅ | ❌ | ✅ | ❌ |
 | `can_manage_settings` | ✅ | ❌ | ❌ | ❌ | ✅ |
 
-### 2.2 Event-Sourced Audit Trail (`crm-core::audit`)
+### 2.2 Event-Sourced Audit Trail (`proteus-core::audit`)
 
 Κάθε σημαντική κίνηση στο CRM δημιουργεί ένα `SystemEvent` με τα εξής πεδία:
 - `event_id`: Μονοτονικό αναγνωριστικό UUIDv7 (διασφαλίζει χρονολογική ταξινόμηση).
@@ -110,4 +110,4 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_operator ON audit_logs(operator_role);
 ## 5. Επαλήθευση & Έλεγχοι Ποιότητας (Verification)
 - **100% Original Codebase**: Όλος ο κώδικας των ρόλων, των audit logs και των UI views γράφτηκε από το μηδέν χωρίς αντιγραφή εξωτερικών βιβλιοθηκών.
 - **Αρχιτεκτονική Κλάσεων**: Όλα τα αρχεία (`roles.rs`, `audit.rs`, `audit_log.rs`, `appointments.rs`) παραμένουν αυστηρά κάτω από 400 γραμμές.
-- **121/121 Workspace Tests Passing**: Πλήρης κάλυψη unit tests σε ολόκληρο το workspace (`crm-core`, `crm-ui`, `proteus-client`, `proteus-web`, `auth-server`, `license-server`).
+- **121/121 Workspace Tests Passing**: Πλήρης κάλυψη unit tests σε ολόκληρο το workspace (`proteus-core`, `proteus-design-studio`, `proteus-client`, `proteus-web`, `auth-server`, `license-server`).

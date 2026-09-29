@@ -1,7 +1,8 @@
 //! Screen 2: 6-Stage Kanban Pipeline (Ροή Επισκευών).
 //! Visual stage tracking, instant search, and drag/click stage advancement.
 
-use crm_core::tickets::{search_tickets, update_ticket_status, ServiceTicket, TicketStatus};
+use proteus_core::audio::{play_affirm_tone, play_barcode_chime, play_error_tone};
+use proteus_core::tickets::{search_tickets, update_ticket_status, ServiceTicket, TicketStatus};
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui, Vec2};
 use rusqlite::Connection;
 
@@ -10,18 +11,27 @@ pub fn draw_pipeline_view(
     conn: &Connection,
     search_query: &mut String,
     selected_ticket_id: &mut Option<String>,
+    operator_name: &str,
+    operator_role: &str,
 ) {
+    let mut enter_pressed = false;
+
     ui.vertical(|ui| {
         // Header & Search Bar
         ui.horizontal(|ui| {
             ui.heading(RichText::new("📋 Ροή Επισκευών (Kanban)").strong().size(22.0));
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                ui.add(
+                let search_resp = ui.add(
                     egui::TextEdit::singleline(search_query)
                         .hint_text("🔍 Αναζήτηση με Όνομα, Τηλέφωνο, Συσκευή, #...")
                         .desired_width(320.0),
                 );
+                if (search_resp.lost_focus() || search_resp.has_focus())
+                    && ui.input(|i| i.key_pressed(egui::Key::Enter))
+                {
+                    enter_pressed = true;
+                }
             });
         });
 
@@ -31,6 +41,14 @@ pub fn draw_pipeline_view(
 
         // Fetch filtered tickets
         let tickets = search_tickets(conn, search_query).unwrap_or_default();
+
+        if enter_pressed && !search_query.trim().is_empty() {
+            if !tickets.is_empty() {
+                play_barcode_chime();
+            } else {
+                play_error_tone();
+            }
+        }
 
         // 6-Lane Columns
         let stages = TicketStatus::all();
@@ -52,6 +70,8 @@ pub fn draw_pipeline_view(
                                 stage,
                                 &stage_tickets,
                                 selected_ticket_id,
+                                operator_name,
+                                operator_role,
                             );
                             ui.add_space(8.0);
                         }
@@ -67,6 +87,8 @@ fn draw_kanban_column(
     stage: TicketStatus,
     tickets: &[&ServiceTicket],
     selected_ticket_id: &mut Option<String>,
+    operator_name: &str,
+    operator_role: &str,
 ) {
     let col_width = 240.0;
     let col_color = crate::theme::status_color(stage);
@@ -111,7 +133,7 @@ fn draw_kanban_column(
             .show(ui, |ui| {
                 ui.vertical(|ui| {
                     for ticket in tickets {
-                        draw_ticket_card(ui, conn, ticket, selected_ticket_id);
+                        draw_ticket_card(ui, conn, ticket, selected_ticket_id, operator_name, operator_role);
                         ui.add_space(6.0);
                     }
                 });
@@ -124,6 +146,8 @@ fn draw_ticket_card(
     conn: &Connection,
     ticket: &ServiceTicket,
     selected_ticket_id: &mut Option<String>,
+    operator_name: &str,
+    operator_role: &str,
 ) {
     let card_response = Frame::new()
         .fill(crate::theme::BG_CARD)
@@ -171,6 +195,32 @@ fn draw_ticket_card(
                 if let Some(next_stage) = get_next_stage(ticket.current_status) {
                     if ui.small_button(format!("→ {}", next_stage.display_name())).clicked() {
                         let _ = update_ticket_status(conn, &ticket.ticket_id, next_stage);
+                        let _ = proteus_core::audit::log_audit_event(
+                            conn,
+                            &proteus_core::audit::SystemEvent::new(
+                                "TICKET",
+                                &ticket.ticket_id,
+                                "STATUS_ADVANCED",
+                                operator_name,
+                                operator_role,
+                                format!("Προώθηση σταδίου σε {} (#{})", next_stage.display_name(), ticket.ticket_number),
+                                serde_json::json!({
+                                    "from_status": ticket.current_status.display_name(),
+                                    "to_status": next_stage.display_name(),
+                                    "ticket_number": ticket.ticket_number,
+                                }).to_string(),
+                            ),
+                        );
+                        let mut updated_ticket = ticket.clone();
+                        updated_ticket.current_status = next_stage;
+                        let _ = proteus_core::replication::enqueue_outbox(
+                            conn,
+                            "tickets",
+                            &ticket.ticket_number.to_string(),
+                            proteus_core::replication::ChangeOp::Update,
+                            &serde_json::to_string(&updated_ticket).unwrap_or_default(),
+                        );
+                        play_affirm_tone();
                     }
                 }
             });

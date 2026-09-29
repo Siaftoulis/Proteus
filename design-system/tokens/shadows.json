@@ -1,11 +1,12 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "shadows",
+  "description": "Minimalist hairline depth without muddy floating shadows",
   "tokens": {
     "none": "none",
-    "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.3)",
-    "md": "0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3)",
-    "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4)",
-    "focusRing": "0 0 0 2px rgba(59, 130, 246, 0.5)"
+    "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.2)",
+    "md": "0 2px 4px 0 rgba(0, 0, 0, 0.25)",
+    "focusRing": "0 0 0 1px #526D82",
+    "focusRingLight": "0 0 0 1px #9DB2BF"
   }
 }

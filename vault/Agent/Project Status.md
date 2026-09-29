@@ -40,7 +40,7 @@ dv.table(["Milestone", "Status"],
 | Infrastructure & Security | ✅ Solid | `%APPDATA%` Zero-privilege, Argon2id, Merkle Chain, Ed25519 |
 | Core Records Engine | ✅ Complete | Multi-tenant schema, SQLite WAL, Flow DAG walker with branching |
 | Native Desktop UI | ✅ Advanced | Pure Rust `eframe`/`egui`, undo/redo, shortcuts, touch viewport profiles |
-| Backend (Rust) | ✅ Excellent | 5 modular workspace crates (`crm-core`, `crm-ui`, `proteus-client`, `proteus-web`, `license-server`) |
+| Backend (Rust) | ✅ Excellent | 5 modular workspace crates (`proteus-core`, `proteus-design-studio`, `proteus-client`, `proteus-web`, `license-server`) |
 | Tests | ✅ 100% Pass | 210 total passing tests, 0 warnings (123 core, 56 ui, 17 client, 8 web, 6 license) |
 
 ## Component Progress (Sprint 7 — ACTIVE)

@@ -2,7 +2,7 @@
 //! Manages top-level role workspaces (Shop Counter, Analyst Studio, Systems IT, Hardware, Enterprise HQ)
 //! and their contextual sub-navigation views, eliminating UI clutter.
 
-use crm_core::roles::{RolePermissions, UserRole};
+use proteus_core::roles::{RolePermissions, UserRole};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NavTab {
@@ -17,6 +17,10 @@ pub enum NavTab {
     AnalystStudio,
     EnterpriseHQ,
     StoreDirector,
+    FleetRadar,
+    ContractorLedger,
+    SupplierReconcile,
+    GenealogyRma,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -31,11 +35,11 @@ pub enum RoleWorkspace {
 impl RoleWorkspace {
     pub fn display_label(&self) -> &'static str {
         match self {
-            Self::ShopCounter => "🏪 Κατάστημα",
-            Self::AnalystStudio => "📊 Data Analyst",
-            Self::SystemsIT => "💻 IT & Systems",
-            Self::HardwareSupport => "🛠 Hardware",
-            Self::EnterpriseHQ => "🏢 Enterprise HQ",
+            Self::ShopCounter => "Κατάστημα",
+            Self::AnalystStudio => "Data Analyst",
+            Self::SystemsIT => "IT & Systems",
+            Self::HardwareSupport => "Hardware",
+            Self::EnterpriseHQ => "Enterprise HQ",
         }
     }
 
@@ -54,18 +58,23 @@ impl RoleWorkspace {
         match self {
             Self::ShopCounter => {
                 if permissions.can_intake_tickets {
-                    tabs.push((NavTab::Intake, "⚡ Νέα Παραλαβή"));
+                    tabs.push((NavTab::Intake, "Νέα Παραλαβή"));
                 }
                 if permissions.can_manage_pipeline {
-                    tabs.push((NavTab::Pipeline, "📋 Ροή Επισκευών"));
+                    tabs.push((NavTab::Pipeline, "Ροή Επισκευών"));
                 }
                 if permissions.can_book_appointments {
-                    tabs.push((NavTab::Appointments, "📅 Ραντεβού"));
+                    tabs.push((NavTab::Appointments, "Ραντεβού"));
+                }
+                tabs.push((NavTab::ContractorLedger, "Ταμείο Υλικών & Μάστορες"));
+                tabs.push((NavTab::GenealogyRma, "Ιστορικό S/N & RMA"));
+                if active_role == UserRole::Ceo || active_role == UserRole::SalesConsultant {
+                    tabs.push((NavTab::SupplierReconcile, "Τιμοκατάλογοι Προμηθευτών"));
                 }
             }
             Self::AnalystStudio => {
                 if permissions.can_infer_schemas {
-                    tabs.push((NavTab::AnalystStudio, "📊 Ingestion & Pipeline"));
+                    tabs.push((NavTab::AnalystStudio, "Ingestion & Pipeline"));
                 }
                 if permissions.can_define_business_rules
                     || active_role == UserRole::Ceo
@@ -73,18 +82,18 @@ impl RoleWorkspace {
                     || active_role == UserRole::BusinessAnalyst
                     || active_role == UserRole::DataAnalyst
                 {
-                    tabs.push((NavTab::Specialist, "📈 Ειδικά Dashboards"));
+                    tabs.push((NavTab::Specialist, "Ειδικά Dashboards"));
                 }
             }
             Self::SystemsIT => {
                 if permissions.can_edit_schema {
-                    tabs.push((NavTab::Developer, "💻 Dev & Migrations"));
+                    tabs.push((NavTab::Developer, "Dev & Migrations"));
                 }
                 if permissions.can_view_audit_trail {
-                    tabs.push((NavTab::AuditLog, "📜 Merkle Audit"));
+                    tabs.push((NavTab::AuditLog, "Merkle Audit"));
                 }
                 if permissions.can_manage_settings {
-                    tabs.push((NavTab::Settings, "⚙ Ρυθμίσεις"));
+                    tabs.push((NavTab::Settings, "Ρυθμίσεις"));
                 }
             }
             Self::HardwareSupport => {
@@ -92,13 +101,16 @@ impl RoleWorkspace {
                     || active_role == UserRole::Technician
                     || active_role == UserRole::Developer
                 {
-                    tabs.push((NavTab::Support, "🛠 Spooler & LAN Diagnostics"));
+                    tabs.push((NavTab::Support, "Spooler & LAN Diagnostics"));
+                    tabs.push((NavTab::GenealogyRma, "Ιστορικό S/N & RMA"));
                 }
             }
             Self::EnterpriseHQ => {
                 if active_role == UserRole::Ceo || active_role == UserRole::BusinessAnalyst {
-                    tabs.push((NavTab::EnterpriseHQ, "🏢 Multi-Store Fleet"));
-                    tabs.push((NavTab::StoreDirector, "🏪 Store Director KPIs"));
+                    tabs.push((NavTab::EnterpriseHQ, "Multi-Store Fleet"));
+                    tabs.push((NavTab::FleetRadar, "🛰 Live Telemetry Radar"));
+                    tabs.push((NavTab::StoreDirector, "Store Director KPIs"));
+                    tabs.push((NavTab::SupplierReconcile, "Τιμοκατάλογοι Προμηθευτών"));
                 }
             }
         }
@@ -171,10 +183,12 @@ mod tests {
 
         let p = UserRole::CustomerService.permissions();
         let tabs = RoleWorkspace::ShopCounter.sub_tabs(&p, UserRole::CustomerService);
-        assert_eq!(tabs.len(), 3);
+        assert_eq!(tabs.len(), 5);
         assert_eq!(tabs[0].0, NavTab::Intake);
         assert_eq!(tabs[1].0, NavTab::Pipeline);
         assert_eq!(tabs[2].0, NavTab::Appointments);
+        assert_eq!(tabs[3].0, NavTab::ContractorLedger);
+        assert_eq!(tabs[4].0, NavTab::GenealogyRma);
     }
 
     #[test]
@@ -187,13 +201,15 @@ mod tests {
 
         let p = UserRole::Technician.permissions();
         let tabs = RoleWorkspace::ShopCounter.sub_tabs(&p, UserRole::Technician);
-        // Technician cannot intake tickets, so only pipeline
-        assert_eq!(tabs.len(), 1);
+        assert_eq!(tabs.len(), 3);
         assert_eq!(tabs[0].0, NavTab::Pipeline);
+        assert_eq!(tabs[1].0, NavTab::ContractorLedger);
+        assert_eq!(tabs[2].0, NavTab::GenealogyRma);
 
         let hw_tabs = RoleWorkspace::HardwareSupport.sub_tabs(&p, UserRole::Technician);
-        assert_eq!(hw_tabs.len(), 1);
+        assert_eq!(hw_tabs.len(), 2);
         assert_eq!(hw_tabs[0].0, NavTab::Support);
+        assert_eq!(hw_tabs[1].0, NavTab::GenealogyRma);
     }
 
     #[test]
@@ -278,7 +294,7 @@ mod tests {
         assert_eq!(RoleWorkspace::HardwareSupport.short_code(), "PCDS");
         assert_eq!(RoleWorkspace::EnterpriseHQ.short_code(), "HQ");
 
-        assert_eq!(RoleWorkspace::ShopCounter.display_label(), "🏪 Κατάστημα");
-        assert_eq!(RoleWorkspace::AnalystStudio.display_label(), "📊 Data Analyst");
+        assert_eq!(RoleWorkspace::ShopCounter.display_label(), "Κατάστημα");
+        assert_eq!(RoleWorkspace::AnalystStudio.display_label(), "Data Analyst");
     }
 }

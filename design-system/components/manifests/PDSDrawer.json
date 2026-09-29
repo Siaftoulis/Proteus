@@ -19,6 +19,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:.pds-drawer",
-    "desktop": "crm-ui/src/components/ or egui side drawer"
+    "desktop": "proteus-design-studio/src/components/ or egui side drawer"
   }
 }

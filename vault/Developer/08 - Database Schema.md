@@ -119,4 +119,4 @@ CREATE TABLE IF NOT EXISTS sync_outbox (
 
 ---
 
-Related: [[02 - Architecture|Architecture]] | [[14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[03 - Backend (crm-core)|Core Library]]
+Related: [[02 - Architecture|Architecture]] | [[14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[03 - Backend (proteus-core)|Core Library]]

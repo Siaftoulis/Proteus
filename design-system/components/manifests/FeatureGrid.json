@@ -29,6 +29,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:.feature-grid",
-    "desktop": "crm-ui/src/components/ or egui grid"
+    "desktop": "proteus-design-studio/src/components/ or egui grid"
   }
 }

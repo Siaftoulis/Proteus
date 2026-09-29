@@ -127,7 +127,7 @@ Stock-In    Carrier Plans Quick Pay     Repairs           Stock-In      Receipts
 
 ## 4. Αρχιτεκτονική Βάσης Δεδομένων: Σχεδιασμός DDL
 
-Η υποδομή multi-tenant / multi-store ενσωματώνεται στον πυρήνα του `crm-core`:
+Η υποδομή multi-tenant / multi-store ενσωματώνεται στον πυρήνα του `proteus-core`:
 
 ```sql
 -- 1. Οργανισμός / Εταιρεία (Enterprise Entity)
@@ -268,7 +268,7 @@ docker run -d --name proteus-enterprise-hub \
 | Φάση | Παραδοτέο | Κατάσταση |
 | :--- | :--- | :---: |
 | **Phase 1: Foundation** | Granular RBAC, Audit Logs, Offline-First SQLite, ESC/POS Spooler | ✅ Ολοκληρώθηκε (121/121 tests) |
-| **Phase 2: Multi-Store Engine** | DDL Enterprises, Stores, Departments & Delegated Provisioning | 🔄 Σε εξέλιξη (`crm-core`) |
+| **Phase 2: Multi-Store Engine** | DDL Enterprises, Stores, Departments & Delegated Provisioning | 🔄 Σε εξέλιξη (`proteus-core`) |
 | **Phase 3: Cryptographic Backlog** | Merkle Hash-Chained Audit Trail & Tamper-Proof Validation | 📅 Επόμενο Sprint |
 | **Phase 4: Store Director UI** | Οθόνη διαχείρισης θέσεων και προσωπικού στο `proteus-client` | 📅 Προγραμματισμένο |
 | **Phase 5: 1-Click Cloud Hub** | Single-binary Docker hub με αυτόματο Let's Encrypt TLS & Snapshots | 📅 Προγραμματισμένο |

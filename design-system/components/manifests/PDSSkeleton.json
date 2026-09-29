@@ -18,6 +18,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:.pds-skeleton",
-    "desktop": "crm-ui/src/components/ or egui skeleton block"
+    "desktop": "proteus-design-studio/src/components/ or egui skeleton block"
   }
 }

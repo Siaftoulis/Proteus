@@ -2,7 +2,7 @@
 //! Enables autonomous store-level employee lifecycle management without central IT overhead,
 //! enforcing store seat quotas and recording all changes to the Merkle hash-chain audit log.
 
-use crm_core::enterprise::{
+use proteus_core::enterprise::{
     deactivate_store_user, get_primary_enterprise, list_enterprise_stores,
     list_store_departments, list_store_users, provision_store_user, EnterpriseStore,
     EnterpriseUser, StoreDepartment,
@@ -351,9 +351,9 @@ mod tests {
     #[test]
     fn test_store_director_state_reload() {
         let conn = Connection::open_in_memory().unwrap();
-        crm_core::merkle::init_merkle_schema(&conn).unwrap();
-        crm_core::enterprise::init_enterprise_schema(&conn).unwrap();
-        crm_core::enterprise::seed_default_enterprise_if_empty(&conn).unwrap();
+        proteus_core::merkle::init_merkle_schema(&conn).unwrap();
+        proteus_core::enterprise::init_enterprise_schema(&conn).unwrap();
+        proteus_core::enterprise::seed_default_enterprise_if_empty(&conn).unwrap();
 
         let mut state = StoreDirectorState::default();
         assert!(state.selected_store_id.is_none());

@@ -34,24 +34,24 @@ pub const FREELANCE_HTML: &str = r#"
                 </div>
 
                 <div class="card-header" style="margin-top: 0.75rem; border-top: 1px solid var(--border); padding-top: 0.75rem;">
-                    <span>Ενεργά CRM Projects στο Desktop Launcher</span>
+                    <span>Ενεργά Bespoke Projects στο Desktop Launcher</span>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                     <label class="checkbox-row">
                         <input type="checkbox" id="crm-auto" checked>
-                        <span>Automotive Service & Repair BOS (PKG-SERVICE-AUTO)</span>
+                        <span>Speedy Garage (Custom Intake & POS) [PRJ-SPEEDY-GARAGE]</span>
                     </label>
                     <label class="checkbox-row">
                         <input type="checkbox" id="crm-retail" checked>
-                        <span>Multi-Store Retail & Cashier BOS (PKG-RETAIL-POS)</span>
+                        <span>Artisan Bakery (Dual Touch POS) [PRJ-KIFISIA-BAKERY]</span>
                     </label>
                     <label class="checkbox-row">
                         <input type="checkbox" id="crm-clinic">
-                        <span>Medical & Dental Practice Suite (PKG-CLINIC-HEALTH)</span>
+                        <span>Dental Care Pro (Patient File) [PRJ-ATHENS-DENTAL]</span>
                     </label>
                     <label class="checkbox-row">
-                        <input type="checkbox" id="crm-moto" checked>
-                        <span>Motorcycle Workshop & Tuning BOS (PKG-MOTO-PRO)</span>
+                        <input type="checkbox" id="crm-bespoke" checked>
+                        <span>Custom In-House Enterprise Build [PRJ-BESPOKE-STORE]</span>
                     </label>
                     <label class="checkbox-row">
                         <input type="checkbox" id="crm-designer" checked>
@@ -74,7 +74,13 @@ pub const FREELANCE_HTML: &str = r#"
                     <div style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem;">
                         <label class="checkbox-row" style="font-weight: 600;">
                             <input type="checkbox" id="role-designer" checked>
-                            <span>🎨 PCD Designer (Σχεδιασμός Φορμών & Canvas Layouts)</span>
+                            <span>🎨 PCD-App Software Designer (Εσωτερικό Λογισμικό & POS)</span>
+                        </label>
+                    </div>
+                    <div style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem;">
+                        <label class="checkbox-row" style="font-weight: 600;">
+                            <input type="checkbox" id="role-web-designer" checked>
+                            <span>🌐 PCD-Web Storefront Designer (Δημόσια Ιστοσελίδα & E-Shop)</span>
                         </label>
                     </div>
                     <div style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem;">
@@ -92,7 +98,7 @@ pub const FREELANCE_HTML: &str = r#"
                     <div style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem;">
                         <label class="checkbox-row" style="font-weight: 600;">
                             <input type="checkbox" id="role-support" checked>
-                            <span>🛠 Customer Support & Επισκευές (Tickets & Service)</span>
+                            <span>🛠 PCDS Deployer & Support (Hardware POS & Εκτυπωτές)</span>
                         </label>
                     </div>
                     <div style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem;">
@@ -138,8 +144,10 @@ pub const FREELANCE_HTML: &str = r#"
                 <div class="field-group">
                     <label>Απαιτούμενη Εξειδίκευση</label>
                     <select id="req-role" style="background: var(--bg-base); color: #fff; border: 1px solid var(--border); padding: 0.5rem; border-radius: 8px; font-family: inherit; font-size: 0.85rem;">
-                        <option value="PCD Designer">PCD Designer (UI, Οθόνες, Φόρμες)</option>
-                        <option value="PCDA Business Analyst">PCDA Business Analyst (Ανάλυση, KPIs, Εισαγωγή Δεδομένων)</option>
+                        <option value="PCD-App Designer">PCD-App — Software UI/UX (POS, Οθόνες Ταμείου, Συντομεύσεις)</option>
+                        <option value="PCD-Web Designer">PCD-Web — Website & E-Commerce (Storefront, Καλάθι, Online Checkout)</option>
+                        <option value="Dual Full-Stack Designer">Dual Full-Stack Designer (Software + Web Storefront)</option>
+                        <option value="PCDA Business Analyst">PCDA Business & Data Analyst (Ανάλυση, KPIs, DDL Migration)</option>
                         <option value="PCSS Systems DB">PCSS Systems DB (SQLite DDL & Micro-Triggers)</option>
                         <option value="PCDS Deployer">PCDS Deployer (Εγκατάσταση LAN & Θερμικοί Εκτυπωτές)</option>
                     </select>

@@ -77,9 +77,9 @@ Backend & Frontend Developers -- implementation, code quality, shipping features
 
 ### Backend (Maria) -- Sprint 1
 - [ ] Rust test framework: `cargo test` runner + test modules structure
-- [ ] Write tests for `crm-core/src/lib.rs` (all Project CRUD operations)
-- [ ] Write tests for `crm-core/src/license.rs` (verification, cache, max_users)
-- [ ] Replace all `unwrap()` with `Result` + `thiserror` in crm-core
+- [ ] Write tests for `proteus-core/src/lib.rs` (all Project CRUD operations)
+- [ ] Write tests for `proteus-core/src/license.rs` (verification, cache, max_users)
+- [ ] Replace all `unwrap()` with `Result` + `thiserror` in proteus-core
 - [ ] Replace all `unwrap()` with proper handling in src-tauri (Tauri commands)
 - [ ] Add `tracing` crate, set up structured logging
 - [ ] Pin Cargo.toml dependency versions

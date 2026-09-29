@@ -1,8 +1,9 @@
 //! Screen 3: Service Ticket Detail Modal / Inspector.
 //! Detailed technician notes, cost editing, status switching, and thermal reprint.
 
-use crm_core::printer::{generate_intake_receipt, print_raw_bytes, ShopReceiptConfig};
-use crm_core::tickets::{get_ticket, update_ticket_details, update_ticket_status, ServiceTicket, TicketStatus};
+use proteus_core::genealogy::{get_genealogy, get_genealogy_timeline, GenealogyEvent, SerialGenealogy};
+use proteus_core::printer::{generate_intake_receipt, print_raw_bytes, ShopReceiptConfig};
+use proteus_core::tickets::{get_ticket, update_ticket_details, update_ticket_status, ServiceTicket, TicketStatus};
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
 use rusqlite::Connection;
 
@@ -13,6 +14,13 @@ pub struct TicketDetailState {
     pub notes_edit: String,
     pub cost_edit: String,
     pub feedback_msg: Option<String>,
+    pub show_genealogy: bool,
+    pub genealogy_record: Option<SerialGenealogy>,
+    pub genealogy_timeline: Vec<GenealogyEvent>,
+    pub rma_fault_input: String,
+    pub rma_replacement_sn: String,
+    pub intake_supplier: String,
+    pub intake_warranty_months: u32,
 }
 
 pub fn draw_ticket_detail_modal(
@@ -22,6 +30,8 @@ pub fn draw_ticket_detail_modal(
     state: &mut TicketDetailState,
     printer_config: &ShopReceiptConfig,
     printer_name: &str,
+    operator_name: &str,
+    operator_role: &str,
 ) {
     if let Some(target_id) = selected_id.clone() {
         // Load ticket if not already loaded
@@ -29,6 +39,19 @@ pub fn draw_ticket_detail_modal(
             if let Ok(Some(t)) = get_ticket(conn, &target_id) {
                 state.notes_edit = t.internal_notes.clone();
                 state.cost_edit = format!("{:.2}", t.estimated_cost);
+                if let Some(sn) = &t.serial_number {
+                    state.genealogy_record = get_genealogy(conn, sn).unwrap_or(None);
+                    state.genealogy_timeline = get_genealogy_timeline(conn, sn).unwrap_or_default();
+                    state.rma_fault_input = t.reported_fault.clone();
+                } else {
+                    state.genealogy_record = None;
+                    state.genealogy_timeline.clear();
+                    state.rma_fault_input.clear();
+                }
+                state.show_genealogy = false;
+                state.rma_replacement_sn.clear();
+                state.intake_supplier = "Επίσημη Αντιπροσωπεία".to_string();
+                state.intake_warranty_months = 24;
                 state.ticket = Some(t);
                 state.loaded_id = Some(target_id);
                 state.feedback_msg = None;
@@ -52,7 +75,7 @@ pub fn draw_ticket_detail_modal(
             .default_size([580.0, 520.0])
             .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
             .show(ctx, |ui| {
-                draw_modal_content(ui, conn, state, printer_config, printer_name);
+                draw_modal_content(ui, conn, state, printer_config, printer_name, operator_name, operator_role);
             });
 
         if !is_open {
@@ -68,6 +91,8 @@ fn draw_modal_content(
     state: &mut TicketDetailState,
     printer_config: &ShopReceiptConfig,
     printer_name: &str,
+    operator_name: &str,
+    operator_role: &str,
 ) {
     let ticket = match state.ticket.as_ref() {
         Some(t) => t.clone(),
@@ -117,7 +142,17 @@ fn draw_modal_content(
                 if let Some(sn) = &ticket.serial_number {
                     if !sn.is_empty() {
                         ui.label(RichText::new("S/N:").color(crate::theme::TEXT_MUTED));
-                        ui.label(RichText::new(sn).strong());
+                        ui.horizontal(|ui| {
+                            ui.label(RichText::new(sn).strong().color(crate::theme::ACCENT_CYAN));
+                            let gene_btn_txt = if state.show_genealogy { "▲ Απόκρυψη S/N" } else { "🔍 Ιστορικό S/N & RMA" };
+                            if ui.small_button(gene_btn_txt).clicked() {
+                                state.show_genealogy = !state.show_genealogy;
+                                if state.show_genealogy {
+                                    state.genealogy_record = get_genealogy(conn, sn).unwrap_or(None);
+                                    state.genealogy_timeline = get_genealogy_timeline(conn, sn).unwrap_or_default();
+                                }
+                            }
+                        });
                         ui.end_row();
                     }
                 }
@@ -126,6 +161,27 @@ fn draw_modal_content(
                 ui.label(RichText::new(&ticket.reported_fault).italics());
                 ui.end_row();
             });
+
+        if state.show_genealogy {
+            if let Some(sn) = &ticket.serial_number {
+                ui.add_space(8.0);
+                crate::views::embedded_genealogy::draw_embedded_genealogy(
+                    ui,
+                    conn,
+                    &mut state.genealogy_record,
+                    &mut state.genealogy_timeline,
+                    &mut state.rma_fault_input,
+                    &mut state.rma_replacement_sn,
+                    &mut state.intake_supplier,
+                    &mut state.intake_warranty_months,
+                    &mut state.feedback_msg,
+                    &ticket,
+                    sn,
+                    operator_name,
+                    operator_role,
+                );
+            }
+        }
 
         ui.add_space(8.0);
         ui.separator();
@@ -146,6 +202,31 @@ fn draw_modal_content(
 
                 if ui.add(btn).clicked() && !is_active {
                     let _ = update_ticket_status(conn, &ticket.ticket_id, s);
+                    let _ = proteus_core::audit::log_audit_event(
+                        conn,
+                        &proteus_core::audit::SystemEvent::new(
+                            "TICKET",
+                            &ticket.ticket_id,
+                            "STATUS_CHANGED",
+                            operator_name,
+                            operator_role,
+                            format!("Αλλαγή σταδίου σε {} (#{})", s.display_name(), ticket.ticket_number),
+                            serde_json::json!({
+                                "from_status": ticket.current_status.display_name(),
+                                "to_status": s.display_name(),
+                                "ticket_number": ticket.ticket_number,
+                            }).to_string(),
+                        ),
+                    );
+                    let mut updated_ticket = ticket.clone();
+                    updated_ticket.current_status = s;
+                    let _ = proteus_core::replication::enqueue_outbox(
+                        conn,
+                        "tickets",
+                        &ticket.ticket_number.to_string(),
+                        proteus_core::replication::ChangeOp::Update,
+                        &serde_json::to_string(&updated_ticket).unwrap_or_default(),
+                    );
                     if let Ok(Some(refreshed)) = get_ticket(conn, &ticket.ticket_id) {
                         state.ticket = Some(refreshed);
                         state.feedback_msg = Some("✓ Το στάδιο ενημερώθηκε.".to_string());
@@ -173,6 +254,32 @@ fn draw_modal_content(
                     let cost: f64 = state.cost_edit.trim().parse().unwrap_or(ticket.estimated_cost);
                     match update_ticket_details(conn, &ticket.ticket_id, state.notes_edit.trim(), cost) {
                         Ok(_) => {
+                            let _ = proteus_core::audit::log_audit_event(
+                                conn,
+                                &proteus_core::audit::SystemEvent::new(
+                                    "TICKET",
+                                    &ticket.ticket_id,
+                                    "DETAILS_SAVED",
+                                    operator_name,
+                                    operator_role,
+                                    format!("Ενημέρωση σημειώσεων/κόστους (#{})", ticket.ticket_number),
+                                    serde_json::json!({
+                                        "ticket_number": ticket.ticket_number,
+                                        "cost": cost,
+                                        "notes": state.notes_edit.trim(),
+                                    }).to_string(),
+                                ),
+                            );
+                            let mut updated = ticket.clone();
+                            updated.internal_notes = state.notes_edit.trim().to_string();
+                            updated.estimated_cost = cost;
+                            let _ = proteus_core::replication::enqueue_outbox(
+                                conn,
+                                "tickets",
+                                &ticket.ticket_number.to_string(),
+                                proteus_core::replication::ChangeOp::Update,
+                                &serde_json::to_string(&updated).unwrap_or_default(),
+                            );
                             if let Ok(Some(refreshed)) = get_ticket(conn, &ticket.ticket_id) {
                                 state.ticket = Some(refreshed);
                                 state.feedback_msg = Some("✓ Οι σημειώσεις αποθηκεύτηκαν.".to_string());
@@ -213,3 +320,4 @@ fn draw_modal_content(
         });
     });
 }
+

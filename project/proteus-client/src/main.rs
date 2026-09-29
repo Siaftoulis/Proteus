@@ -15,6 +15,11 @@ fn main() -> eframe::Result<()> {
     let native_options = NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("Proteus Client — Service BOS")
+            .with_icon(egui::IconData {
+                rgba: include_bytes!("../../assets/proteus_emblem_128.rgba").to_vec(),
+                width: 128,
+                height: 128,
+            })
             .with_maximized(true)
             .with_min_inner_size([960.0, 600.0])
             .with_active(true),

@@ -2,7 +2,7 @@
 
 ## 1. Testing framework
 
-- **Current**: 49 unit tests via `cargo test` in `crm-core/` — flow engine, node types, graph ops
+- **Current**: 49 unit tests via `cargo test` in `proteus-core/` — flow engine, node types, graph ops
 - **Add integration tests** in `tests/` at workspace root — uses `eframe::__private::testing` to render `main.rs` egui app, assert widgets present after simulated clicks
 - **Add unit tests** in `studio/` and `designer/` — layer add/remove/reorder, palette item drag state, tool selection
 - **Add property-based tests** (via `proptest`) for serialization roundtrips: `Contact` → JSON → `Contact`, `SaveFile` → bincode → `SaveFile`

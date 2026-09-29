@@ -39,6 +39,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:aside.pds-sidebar",
-    "desktop": "crm-ui/src/components/ or egui side panel"
+    "desktop": "proteus-design-studio/src/components/ or egui side panel"
   }
 }

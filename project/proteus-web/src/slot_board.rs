@@ -5,11 +5,11 @@
 //! - Algorithmic floor price validation against under-the-table evasion.
 
 use std::sync::{Arc, Mutex};
-use crm_core::pricing::{
+use proteus_core::pricing::{
     compute_floor_price, validate_project_budget, FloorPriceBreakdown,
     ProjectComplexityMetrics, ProjectSlotBoard, RoleEscrowSplit, SlotBid,
 };
-use crm_core::roles::UserRole;
+use proteus_core::roles::UserRole;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -100,6 +100,11 @@ impl SlotBoardManager {
         lock.iter().find(|b| b.project_id == project_id).cloned()
     }
 
+    pub fn add_board(&self, board: ProjectSlotBoard) {
+        let mut lock = self.boards.lock().unwrap_or_else(|e| e.into_inner());
+        lock.push(board);
+    }
+
     pub fn accept_slot(&self, req: &AcceptSlotRequest) -> Result<ProjectSlotBoard, String> {
         let mut lock = self.boards.lock().unwrap_or_else(|e| e.into_inner());
         if let Some(board) = lock.iter_mut().find(|b| b.project_id == req.project_id) {
@@ -188,7 +193,7 @@ mod tests {
 
         let board = res.unwrap();
         let tech_slot = board.slots.iter().find(|s| s.role == UserRole::Technician).unwrap();
-        assert_eq!(tech_slot.status, crm_core::pricing::SlotStatus::Assigned);
+        assert_eq!(tech_slot.status, proteus_core::pricing::SlotStatus::Assigned);
         assert_eq!(tech_slot.assigned_specialist_id.as_deref(), Some("spec_technician_01"));
 
         // Second accept on same slot should fail
@@ -214,7 +219,7 @@ mod tests {
 
         let board = res.unwrap();
         let pcd_slot = board.slots.iter().find(|s| s.role == UserRole::Developer).unwrap();
-        assert_eq!(pcd_slot.status, crm_core::pricing::SlotStatus::BidPending);
+        assert_eq!(pcd_slot.status, proteus_core::pricing::SlotStatus::BidPending);
         assert_eq!(pcd_slot.bids.len(), 1);
         assert_eq!(pcd_slot.bids[0].specialist_name, "Alex Papadopoulos");
     }

@@ -33,7 +33,7 @@ flowchart TB
         UI["React UI
         Designer + Flow Modes"]
         Core["Core Services
-        crm-core library"]
+        proteus-core library"]
         Encrypt["Encryption Layer
         XChaCha20-Poly1305"]
         Sync["P2P Sync
@@ -68,7 +68,7 @@ gantt
     dateFormat  YYYY-MM-DD
     section Backend
     Rust test framework setup           :t1, 2026-07-07, 2d
-    Tests for alpha code (crm-core)     :t2, after t1, 3d
+    Tests for alpha code (proteus-core)     :t2, after t1, 3d
     Replace unwrap() with Result        :t3, after t2, 3d
     Structured logging (tracing)        :t4, after t3, 2d
     Pin Cargo.toml versions             :t5, 2026-07-07, 1d

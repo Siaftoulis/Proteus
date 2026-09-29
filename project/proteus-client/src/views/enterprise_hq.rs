@@ -1,7 +1,7 @@
 //! Screen 11: Enterprise Multi-Store HQ & Anti-SAP Governance Dashboard.
 //! Decentralized multi-store management, branch seat quotas, and departmental oversight.
 
-use crm_core::enterprise::{
+use proteus_core::enterprise::{
     calculate_seat_utilization, create_enterprise_store, create_store_department,
     get_primary_enterprise, list_enterprise_stores, list_store_departments, Enterprise,
     EnterpriseStore, StoreDepartment,
@@ -348,8 +348,8 @@ pub mod tests {
     #[test]
     fn test_enterprise_hq_state_reload() {
         let conn = rusqlite::Connection::open_in_memory().unwrap();
-        crm_core::enterprise::init_enterprise_schema(&conn).unwrap();
-        crm_core::enterprise::seed_default_enterprise_if_empty(&conn).unwrap();
+        proteus_core::enterprise::init_enterprise_schema(&conn).unwrap();
+        proteus_core::enterprise::seed_default_enterprise_if_empty(&conn).unwrap();
 
         let mut state = EnterpriseHqState::default();
         state.reload(&conn);

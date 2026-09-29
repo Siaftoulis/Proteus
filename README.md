@@ -12,8 +12,8 @@ Our philosophy is simple: **No premature abstractions and a true offline-first a
 ## What Has Been Built So Far
 
 ### Core Architecture
-- **Offline-first Database**: Built on top of SQLite (`crm-core`), storing projects, custom records, contacts, deals, tasks, and flow graphs without requiring an active internet connection.
-- **Desktop Application (`crm-ui`)**: A unified, single-window UI with a Windows 11 / Linear.app hybrid dark theme. It seamlessly switches between contexts: **Designer, Contacts, Pipeline, Studio, and Tasks**.
+- **Offline-first Database**: Built on top of SQLite (`proteus-core`), storing projects, custom records, contacts, deals, tasks, and flow graphs without requiring an active internet connection.
+- **Desktop Application (`proteus-design-studio`)**: A unified, single-window UI with a Windows 11 / Linear.app hybrid dark theme. It seamlessly switches between contexts: **Designer, Contacts, Pipeline, Studio, and Tasks**.
 - **No-Dependency State Management**: Centralized application state without complex reducers or external state frameworks.
 
 ### Features & Capabilities
@@ -33,7 +33,7 @@ Our philosophy is simple: **No premature abstractions and a true offline-first a
 
 ## Ecosystem Architecture & 6-Role Specialization
 
-The Proteus ecosystem operates across 4 interconnected tiers (`crm-core`, `crm-ui`, `proteus-client`, `proteus-web`) with 6 distinct roles:
+The Proteus ecosystem operates across 4 interconnected tiers (`proteus-core`, `proteus-design-studio`, `proteus-client`, `proteus-web`) with 6 distinct roles:
 1. **Customer Support (CS)**: Client onboarding, profile intake, and quote proposal management.
 2. **Business Analyst (BA)**: Operational workflow blueprints, business logic, SLAs, and approval hierarchies.
 3. **Data Analyst & Architect (DA)**: SQLite schema design, foreign keys, triggers, validation rules, and data migration.
@@ -57,13 +57,21 @@ The Proteus ecosystem operates across 4 interconnected tiers (`crm-core`, `crm-u
 - [x] Web — Professional company services, workshops, and talent marketplace portal.
 - [x] Core — RBAC separation of Business Analyst (`BA`) and Data Analyst (`DA`).
 - [x] **Slot Board & Bidding Engine (`proteus-web`)**: Interactive project slot board with dynamic 6-role escrow splits and instant accept offers (P0).
-- [x] **Complexity Floor Calculator (`crm-core`)**: Automated formula calculating minimum project value based on screen, entity, trigger, and hardware counts (P0).
-- [x] **Data Model Engine**: Standardize the `records` table for all entities (EAV pattern) and build the `DataEngine` inside `crm-core` (P0).
-- [ ] **Data-bound Widgets**: Develop `DataBoundTable` and `DynamicForm` widgets that read/write directly to SQLite instead of using mock data (P0).
+- [x] **Complexity Floor Calculator (`proteus-core`)**: Automated formula calculating minimum project value based on screen, entity, trigger, and hardware counts (P0).
+- [x] **Data Model Engine**: Standardize the `records` table for all entities (EAV pattern) and build the `DataEngine` inside `proteus-core` (P0).
+- [x] **Data-bound Widgets**: Develop `DataBoundTable` and `DynamicForm` widgets that read/write directly to SQLite instead of using mock data (P0).
+- [x] **Live Data Preview**: Visualize real database data within the Designer mode (P0).
+- [x] **Universal Database Harmony & SMLM Engine (`proteus-core`)**: High-speed offline Semantic Content Profiler & multi-lingual ontology for zero-rewrite database federation (P0).
+- [x] **Entry-by-Entry Reconciler (`proteus-core`)**: Natural key matching (AFM, phone, email, EAN) and conflict resolution with confidence scoring (P0).
+- [x] **Federation Bridge Node Block (`proteus-design-studio`)**: Visual drag-and-drop node connecting external partner databases to local SQLite (P0).
+- [x] **Hardware & Trades Retail Profile (PDS / Client)**: Quick-pills for non-barcoded bulk items (screws, cables by meter), dual unit-of-measure conversion, and job-site contractor subledgers (καρτέλα μάστορα).
+- [x] **Supplier Price List Auto-Updater & Reconciliation**: Instant drag-and-drop reconciliation of vendor CSV/TSV price lists via SMLM with direct SQLite price/item updates.
+- [x] **PDS Mobile Handheld Touch Client (`proteus-mobile`)**: Standalone touch client with Apple HIG/Android 44pt touch targets, offline outbox replication, and direct LAN sync (port 7443).
+- [x] **macOS & iOS Virtualization & Simulation**: Dynamic Island & macOS traffic light frame simulators in Designer, plus turnkey Docker-OSX container and Mach-O cross-compiler toolchains.
 
 ### Mid-Term Goals (Next Steps)
-- [ ] **Live Data Preview**: Visualize real database data within the Designer mode.
 - [ ] **Flow Runtime Engine**: Implement a synchronous DAG walker in Rust to execute defined automation flows.
+- [ ] **Global Logistics & Regulatory Profiles**: Digital Dispatch Note (myDATA / e-CMR QR outbox), Van Sales / Sign-on-Glass, Consignment Stock (VMI), and Cold Chain HACCP telemetry.
 - [ ] **Hardware Calibration Suite**: Interactive visual tester in PCDS for ESC/POS baud rate, cut type, and drawer pin.
 
 ---

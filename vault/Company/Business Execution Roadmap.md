@@ -31,7 +31,7 @@ aliases:
 Μετά το πρόσφατο refactoring, καταργήθηκε το μονολιθικό αρχείο και επιβλήθηκε αυστηρός κανόνας **κανένα αρχείο να μην υπερβαίνει τις 300–400 γραμμές**:
 
 ```
-project/crm-ui/src/
+project/proteus-design-studio/src/
 ├── main.rs                 # Ελαφρύς συντονιστής (~450 γραμμές, lifecycle & routing)
 ├── theme.rs                # Windows 11 / Linear dark design system
 ├── models.rs               # Domain types (Contact, Deal, Task, Viewport, Presets)

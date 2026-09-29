@@ -16,6 +16,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:.contact-form",
-    "desktop": "crm-ui/src/components/ or egui contact form"
+    "desktop": "proteus-design-studio/src/components/ or egui contact form"
   }
 }

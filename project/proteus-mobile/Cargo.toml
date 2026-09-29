@@ -1,0 +1,25 @@
+[package]
+name = "proteus-mobile"
+version = "0.1.0"
+edition = "2021"
+description = "Proteus Mobile (Android NDK & iOS Touch Client Placeholder)"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+proteus-core = { path = "../proteus-core" }
+eframe = "0.31"
+egui = "0.31"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = "0.4"
+rusqlite = { version = "0.31", features = ["bundled"] }
+
+[package.metadata.android]
+package = "com.proteus.crm"
+build_targets = ["aarch64-linux-android", "x86_64-linux-android"]
+min_sdk_version = 26
+target_sdk_version = 34
+icon = "@mipmap/ic_launcher"
+label = "Proteus CRM"

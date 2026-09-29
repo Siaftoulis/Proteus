@@ -2,7 +2,7 @@
 //! Stage 1: Cloud & Marketplace Account Verification (Email/Password or Google OAuth).
 //! Stage 2: CRM Project / Workspace Selection & Role Assignment.
 
-use crm_core::roles::UserRole;
+use proteus_core::roles::UserRole;
 use eframe::egui::{self, Color32, CornerRadius, Frame, Margin, RichText, Stroke, Vec2};
 use serde::{Deserialize, Serialize};
 
@@ -52,34 +52,10 @@ impl Default for ClientAuthState {
             owner_pin_input: String::new(),
             available_packages: vec![
                 LicensedPackageInfo {
-                    bundle_id: "PKG-SERVICE-AUTO".to_string(),
-                    title: "Automotive Service & Repair BOS".to_string(),
-                    version: "1.4.0".to_string(),
-                    category: "Automotive".to_string(),
-                },
-                LicensedPackageInfo {
-                    bundle_id: "PKG-RETAIL-POS".to_string(),
-                    title: "Multi-Store Retail & Cashier BOS".to_string(),
-                    version: "2.1.0".to_string(),
-                    category: "Retail".to_string(),
-                },
-                LicensedPackageInfo {
-                    bundle_id: "PKG-CLINIC-HEALTH".to_string(),
-                    title: "Medical & Dental Practice Suite".to_string(),
-                    version: "1.0.2".to_string(),
-                    category: "Healthcare".to_string(),
-                },
-                LicensedPackageInfo {
-                    bundle_id: "PKG-MOTO-PRO".to_string(),
-                    title: "Motorcycle Workshop & Tuning BOS".to_string(),
-                    version: "1.1.0".to_string(),
-                    category: "Automotive".to_string(),
-                },
-                LicensedPackageInfo {
-                    bundle_id: "PKG-CUSTOM-STUDIO".to_string(),
-                    title: "Proteus Custom Designer Canvas".to_string(),
-                    version: "2.0.0".to_string(),
-                    category: "Designer".to_string(),
+                    bundle_id: "PRJ-BESPOKE-STORE".to_string(),
+                    title: "Προσαρμοσμένο Έργο Επιχείρησης".to_string(),
+                    version: "1.0.0".to_string(),
+                    category: "Bespoke Project".to_string(),
                 },
             ],
             selected_package_index: 0,
@@ -189,23 +165,33 @@ pub fn render_auth_modal(state: &mut ClientAuthState, ctx: &egui::Context) -> Op
                 ui.add_space(40.);
 
                 Frame::new()
-                    .fill(Color32::from_rgb(20, 23, 31))
-                    .stroke(Stroke::new(1., Color32::from_rgb(38, 44, 61)))
+                    .fill(crate::theme::BG_PANEL)
+                    .stroke(Stroke::new(1., crate::theme::BORDER_SUBTLE))
                     .corner_radius(CornerRadius::same(12))
                     .inner_margin(Margin::same(24))
                     .show(ui, |ui| {
                         ui.set_max_width(520.);
 
+                        ui.vertical_centered(|ui| {
+                            crate::views::logo::render_store_logo_widget(ui, Vec2::new(60.0, 60.0), "default", "Proteus", true);
+                            ui.add_space(6.0);
+                            ui.label(RichText::new("PROTEUS BUSINESS OS").strong().size(16.0).color(crate::theme::ICY_MIST));
+                            ui.label(RichText::new("Sovereign Visual Operating System • 100% Offline").size(10.5).color(crate::theme::FROST_GRAY));
+                        });
+                        ui.add_space(12.0);
+                        ui.separator();
+                        ui.add_space(12.0);
+
                         match &state.stage {
                             AuthStage::Stage1MarketplaceLogin => {
                                 ui.horizontal(|ui| {
-                                    ui.label(RichText::new("PROTEUS LAUNCHER").strong().size(15.).color(Color32::WHITE));
+                                    ui.label(RichText::new("AUTHENTICATION GATEWAY").strong().size(13.).color(crate::theme::ICY_MIST));
                                     Frame::new()
-                                        .fill(Color32::from_rgb(30, 41, 59))
+                                        .fill(crate::theme::BG_CARD)
                                         .corner_radius(CornerRadius::same(4))
                                         .inner_margin(Margin::symmetric(6, 2))
                                         .show(ui, |ui| {
-                                            ui.label(RichText::new("WORKSPACE GATEWAY").size(9.5).color(Color32::from_rgb(148, 163, 184)));
+                                            ui.label(RichText::new("CLOUD PORTAL").size(9.5).color(crate::theme::FROST_GRAY));
                                         });
                                 });
                                 ui.add_space(4.);
@@ -405,7 +391,7 @@ mod tests {
         state.owner_pin_input = "0000".to_string();
         let session = state.submit_store_access().expect("Session created");
         assert_eq!(session.role, UserRole::Ceo);
-        assert_eq!(session.mounted_bundle_id, "PKG-SERVICE-AUTO");
+        assert_eq!(session.mounted_bundle_id, "PRJ-BESPOKE-STORE");
         assert_eq!(session.marketplace_email, "owner@business.com");
 
         // Lock terminal goes back to Stage 2 PIN

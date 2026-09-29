@@ -10,7 +10,7 @@ tags:
 
 ```
 project/
-  crm-core/           Rust library (DB, models, license)
+  proteus-core/           Rust library (DB, models, license)
   src-tauri/          Tauri v2 + commands
   src/                React frontend
   license-server/     License verification server

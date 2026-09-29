@@ -46,7 +46,7 @@
 
 ## 2. Τεχνική Αρχιτεκτονική: Core Modules
 
-### 2.1 Universal API Connector & Schema Inference (`crm-core::inference`)
+### 2.1 Universal API Connector & Schema Inference (`proteus-core::inference`)
 - **JSON Flattening & Column Normalization:**
   - Αυτόματη μετατροπή βαθιά εμφωλευμένων JSON objects σε καθαρές σχεσιακές στήλες (π.χ. `customer.address.city` $\rightarrow$ `customer_address_city`).
   - Υποστήριξη πρωτογενών τύπων: `Integer`, `Real`, `Text`, `Boolean`, `Jsonb` (για σύνθετες λίστες).
@@ -55,7 +55,7 @@
 - **Ανοχή σε Ακατάστατα Δεδομένα (Messy / Semi-Structured Ingestion):**
   - Ανάλυση πολλαπλών εγγραφών δείγματος (sample batch profiling) για εύρεση του πληρέστερου συνόλου στηλών.
 
-### 2.2 Αποκωδικοποίηση Προτύπου GS1 (`crm-core::gs1`)
+### 2.2 Αποκωδικοποίηση Προτύπου GS1 (`proteus-core::gs1`)
 Υποστήριξη γραμμωτών κωδίκων **GS1-128** με ανάλυση Application Identifiers (AIs):
 - `(01)` GTIN (Global Trade Item Number - 14 ψηφία)
 - `(10)` Αριθμός Παρτίδας (Batch / Lot Number)
@@ -63,12 +63,12 @@
 - `(21)` Σειριακός Αριθμός (Serial Number)
 - `(00)` SSCC (Serial Shipping Container Code)
 
-### 2.3 Μηχανή Επιχειρησιακών Κανόνων (`crm-core::rules`)
+### 2.3 Μηχανή Επιχειρησιακών Κανόνων (`proteus-core::rules`)
 - Δηλωτική γλώσσα κανόνων (Event-Driven Rules): `"IF <condition> THEN <action>"`.
 - Επικύρωση τιμών, αυτόματες εκπτώσεις, δεσμεύσεις αποθεμάτων, και triggers ειδοποιήσεων.
 - **Αμιγώς Sandboxed Rust Evaluator:** Μηδενικός κίνδυνος εκτέλεσης κακόβουλου κώδικα, καμία πρόσβαση σε αρχεία συστήματος ή δίκτυο, προστασία από ατέρμονους βρόχους (infinite loops).
 
-### 2.4 Visual Mapping Canvas (`crm-ui` / `proteus-client`)
+### 2.4 Visual Mapping Canvas (`proteus-design-studio` / `proteus-client`)
 - Σύγχρονος καμβάς σε **egui 0.31** για αντιστοίχιση εξωτερικών πεδίων API σε σχεσιακούς πίνακες.
 - **Αλγόριθμος Fuzzy Matching:** Αυτόματη προ-αντιστοίχιση παρόμοιων ονομάτων πεδίων (π.χ. `cust_name` $\leftrightarrow$ `customer_name`).
 - Live Data Preview: Προεπισκόπηση των πρώτων 10 εγγραφών σε πραγματικό χρόνο πριν την οριστικοποίηση του σχήματος.
@@ -88,14 +88,14 @@
 ## 4. Χρονοδιάγραμμα Υλοποίησης 4 Φάσεων
 
 1. **Φάση 1 (Core Data & Schema Inference Engine + GS1 Parser):**
-   - Υλοποίηση `crm-core::inference` (flattening, type inference, PK detection).
-   - Υλοποίηση `crm-core::gs1` (GS1-128 Application Identifiers).
-   - Επέκταση `crm-core::roles` με τον νέο ρόλο `UserRole::BusinessAnalyst`.
+   - Υλοποίηση `proteus-core::inference` (flattening, type inference, PK detection).
+   - Υλοποίηση `proteus-core::gs1` (GS1-128 Application Identifiers).
+   - Επέκταση `proteus-core::roles` με τον νέο ρόλο `UserRole::BusinessAnalyst`.
 2. **Φάση 2 (Business Rules Engine & Event Bus):**
-   - Υλοποίηση `crm-core::rules` (declarative rule evaluator).
+   - Υλοποίηση `proteus-core::rules` (declarative rule evaluator).
    - Ενδοσυστημικός Event Bus για ασύγχρονη επικοινωνία.
 3. **Φάση 3 (Visual Mapping Canvas σε egui 0.31):**
-   - Δημιουργία διαδραστικού UI στο `crm-ui` για drag & drop αντιστοίχιση API fields $\rightarrow$ schema fields.
+   - Δημιουργία διαδραστικού UI στο `proteus-design-studio` για drag & drop αντιστοίχιση API fields $\rightarrow$ schema fields.
 4. **Φάση 4 (Analyst Studio & Web Marketplace Integration):**
    - Νέο tab `AnalystStudio` στο `proteus-client` για τον πιστοποιημένο PCDA.
    - Ενημέρωση των endpoints πιστοποιήσεων και bundles στο `proteus-web`.

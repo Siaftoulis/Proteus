@@ -12,19 +12,23 @@ pub async fn index_page_handler() -> Html<&'static str> {
 }
 
 fn build_index_html() -> String {
-    let mut out = String::with_capacity(49152);
+    let mut out = String::with_capacity(65536);
     out.push_str(HTML_HEAD_START);
     out.push_str(crate::ui_css::CSS_STYLES);
     out.push_str(HTML_NAV_AND_OVERVIEW);
     out.push_str(crate::ui_marketplace::MARKETPLACE_HTML);
+    out.push_str(crate::ui_domains_hosting::DOMAINS_HOSTING_HTML);
     out.push_str(crate::ui_freelance::FREELANCE_HTML);
     out.push_str(crate::ui_certifications::CERTIFICATIONS_HTML);
     out.push_str(crate::ui_contracts::CONTRACTS_HTML);
+    out.push_str(crate::ui_telemetry::TELEMETRY_HTML);
     out.push_str(HTML_PRICING_AND_SCRIPTS_START);
     out.push_str(crate::ui_marketplace::MARKETPLACE_JS);
+    out.push_str(crate::ui_domains_hosting::DOMAINS_HOSTING_JS);
     out.push_str(crate::ui_freelance::FREELANCE_JS);
     out.push_str(crate::ui_certifications::CERTIFICATIONS_JS);
     out.push_str(crate::ui_contracts::CONTRACTS_JS);
+    out.push_str(crate::ui_telemetry::TELEMETRY_JS);
     out.push_str(HTML_SCRIPTS_END);
     out
 }
@@ -38,6 +42,7 @@ const HTML_HEAD_START: &str = r#"<!DOCTYPE html>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
 "#;
 
@@ -47,22 +52,27 @@ const HTML_NAV_AND_OVERVIEW: &str = r#"
 <body>
     <header>
         <div class="brand-wrap">
-            <div class="brand">
-                <span>PROTEUS</span>
-                <span class="brand-badge">HUB & MARKETPLACE</span>
-            </div>
+            <a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.75rem;">
+                <img src="/assets/logo.png" alt="Proteus Emblem" class="brand-logo-img" />
+                <div class="brand">
+                    <span>PROTEUS</span>
+                    <span class="brand-badge">HUB & MARKETPLACE</span>
+                </div>
+            </a>
             <nav class="nav-tabs">
-                <button class="tab-btn active" onclick="switchTab('overview', this)">📊 Επισκόπηση</button>
-                <button class="tab-btn" onclick="switchTab('marketplace', this)">🛒 Marketplace</button>
-                <button class="tab-btn" onclick="switchTab('account', this)">👥 Λογαριασμός & Ρόλοι</button>
-                <button class="tab-btn" onclick="switchTab('freelance', this)">💼 Freelancing Hub</button>
-                <button class="tab-btn" onclick="switchTab('certifications', this)">🎓 Πιστοποιήσεις</button>
-                <button class="tab-btn" onclick="switchTab('contracts', this)">📜 Συμβόλαια SLA</button>
-                <button class="tab-btn" onclick="switchTab('pricing', this)">⚡ Κοστολόγηση</button>
+                <button class="tab-btn active" onclick="switchTab('overview', this)">Επισκόπηση</button>
+                <button class="tab-btn" onclick="switchTab('marketplace', this)">Έργα & Briefs</button>
+                <button class="tab-btn" onclick="switchTab('domains-hosting', this)">Domains & Hosting</button>
+                <button class="tab-btn" onclick="switchTab('account', this)">Λογαριασμός & Ρόλοι</button>
+                <button class="tab-btn" onclick="switchTab('freelance', this)">Freelancing Hub</button>
+                <button class="tab-btn" onclick="switchTab('certifications', this)">Πιστοποιήσεις</button>
+                <button class="tab-btn" onclick="switchTab('contracts', this)">Συμβόλαια SLA</button>
+                <button class="tab-btn" onclick="switchTab('pricing', this)">Κοστολόγηση</button>
+                <button class="tab-btn" onclick="switchTab('telemetry', this)">Στόλος & Radar</button>
             </nav>
         </div>
         <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <a href="/" class="btn btn-secondary btn-sm" style="text-decoration: none;">🏠 Αρχική Website</a>
+            <a href="/" class="btn btn-secondary btn-sm" style="text-decoration: none;">Αρχική Σελίδα</a>
             <div class="status-pill">
                 <span class="status-dot"></span>
                 <span>Online (Port 8080)</span>

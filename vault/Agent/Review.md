@@ -20,8 +20,8 @@ tags:
 | Auth server crate + review chain (12 fixes) | Maria | Peer(Alex) → EM → QA → PM → CEO | approved | 2026-07-04 |
 | Ponytail cleanup (dead code, inlined distro, unused deps) | Maria | Self-review (ponytail) | approved | 2026-07-04 |
 | Launcher auth gate (LoginScreen + token store) | Alex | Peer(Maria) → EM → QA → PM → CEO | approved | 2026-07-04 |
-| crm-core: thiserror + tracing | Maria | Peer(Alex) → EM → QA → PM | approved | 2026-07-04 |
-| crm-core: 17 unit tests | Maria | Peer(Alex) → EM → QA → PM | approved | 2026-07-04 |
+| proteus-core: thiserror + tracing | Maria | Peer(Alex) → EM → QA → PM | approved | 2026-07-04 |
+| proteus-core: 17 unit tests | Maria | Peer(Alex) → EM → QA → PM | approved | 2026-07-04 |
 | src-tauri: error mapping | Maria | Peer(Alex) → EM → QA → PM | approved | 2026-07-04 |
 | Frontend: Vitest + 14 tests | Alex | Peer(Maria) → EM → QA → PM | approved | 2026-07-04 |
 | Frontend: toast notifications | Alex | Peer(Maria) → EM → QA → PM | approved | 2026-07-04 |

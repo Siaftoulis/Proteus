@@ -2,8 +2,8 @@
 //! Periodically polls and drains the prioritized Outbox queue (Critical -> High -> Normal -> Low)
 //! using an independent SQLite read connection compatible with WAL mode.
 
-use crm_core::replication::worker::{OutboxWorker, RemoteTransport};
-use crm_core::replication::OutboxRecord;
+use proteus_core::replication::worker::{OutboxWorker, RemoteTransport};
+use proteus_core::replication::OutboxRecord;
 use rusqlite::Connection;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
@@ -126,8 +126,8 @@ mod tests {
 
         {
             let conn = Connection::open(&db_path).unwrap();
-            crm_core::replication::init_outbox_schema(&conn).unwrap();
-            crm_core::replication::enqueue_outbox(&conn, "test_ent", "REC-1", crm_core::replication::ChangeOp::Insert, "{}").unwrap();
+            proteus_core::replication::init_outbox_schema(&conn).unwrap();
+            proteus_core::replication::enqueue_outbox(&conn, "test_ent", "REC-1", proteus_core::replication::ChangeOp::Insert, "{}").unwrap();
         }
 
         let daemon = ReplicationDaemon::start(db_path, 50).unwrap();

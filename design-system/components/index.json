@@ -44,6 +44,8 @@
     { "name": "PDSEmptyState", "manifest": "components/manifests/PDSEmptyState.json", "category": "state" },
     { "name": "PDSErrorState", "manifest": "components/manifests/PDSErrorState.json", "category": "state" },
     { "name": "PDSLoadingState", "manifest": "components/manifests/PDSLoadingState.json", "category": "state" },
-    { "name": "PDSSuccessState", "manifest": "components/manifests/PDSSuccessState.json", "category": "state" }
+    { "name": "PDSSuccessState", "manifest": "components/manifests/PDSSuccessState.json", "category": "state" },
+    { "name": "TelemetryRadar", "manifest": "components/manifests/TelemetryRadar.json", "category": "telemetry" },
+    { "name": "AssetFleetCard", "manifest": "components/manifests/AssetFleetCard.json", "category": "telemetry" }
   ]
 }

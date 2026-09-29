@@ -20,8 +20,8 @@ pub const CERTIFICATIONS_HTML: &str = r#"
                     <div style="background: var(--bg-base); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.85rem 1rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <div style="font-weight: 600; color: #fff;">PCD — Proteus Certified Designer</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Σχεδιασμός οθονών, visual layouts και UX ροών.</div>
+                                <div style="font-weight: 600; color: #fff;">PCD-App — Software UI/UX Designer</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">Σχεδιασμός εσωτερικού λογισμικού καταστήματος, συντομεύσεις, εργονομία ταμείου POS.</div>
                             </div>
                             <span class="badge badge-green" style="font-size: 0.85rem;">79 €</span>
                         </div>
@@ -30,8 +30,28 @@ pub const CERTIFICATIONS_HTML: &str = r#"
                     <div style="background: var(--bg-base); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.85rem 1rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <div style="font-weight: 600; color: #fff;">PCSS — Systems & DB Specialist</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Αρχιτεκτονική SQLite, DDL migrations και high-speed triggers.</div>
+                                <div style="font-weight: 600; color: #fff;">PCD-Web — Website & E-Commerce Designer</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">Σχεδιασμός δημόσιας ιστοσελίδας / e-shop, responsive mobile web, online checkout.</div>
+                            </div>
+                            <span class="badge badge-green" style="font-size: 0.85rem;">79 €</span>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: var(--radius); padding: 0.85rem 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 700; color: #38bdf8;">Dual Full-Stack Designer (PCD-App + PCD-Web)</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">Καλύπτει και τους 2 ρόλους σχεδίασης — επιτρέπει ανάληψη ολόκληρου του design solo.</div>
+                            </div>
+                            <span class="badge badge-blue" style="font-size: 0.85rem; font-weight: 700;">129 €</span>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-base); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.85rem 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; color: #fff;">PCBA — Business Analyst</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">Επιχειρησιακοί κανόνες, ροές εγκρίσεων, ανάλυση απαιτήσεων καταστήματος.</div>
                             </div>
                             <span class="badge badge-green" style="font-size: 0.85rem;">79 €</span>
                         </div>
@@ -40,8 +60,8 @@ pub const CERTIFICATIONS_HTML: &str = r#"
                     <div style="background: var(--bg-base); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.85rem 1rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <div style="font-weight: 600; color: #fff;">PCDS — Deployer / Support Specialist</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Εγκατάσταση δικτύων LAN, POS εκτυπωτών και SLA υποστήριξη.</div>
+                                <div style="font-weight: 600; color: #fff;">PCDA — Data Analyst & DB Architect</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">SQLite σχήματα, additive migrations, data pipelines και visual KPIs.</div>
                             </div>
                             <span class="badge badge-green" style="font-size: 0.85rem;">79 €</span>
                         </div>
@@ -50,8 +70,18 @@ pub const CERTIFICATIONS_HTML: &str = r#"
                     <div style="background: var(--bg-base); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.85rem 1rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <div style="font-weight: 600; color: #fff;">PCDA — Business & Data Analyst</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Data pipelines, KPI visual reporting και επιχειρησιακά dashboards.</div>
+                                <div style="font-weight: 600; color: #fff;">PCSS — Systems & Network Specialist</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">LAN peer mesh, UDP beacons, Cloudflare Tunnels και replication.</div>
+                            </div>
+                            <span class="badge badge-green" style="font-size: 0.85rem;">79 €</span>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-base); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.85rem 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; color: #fff;">PCDS — Deployer / Hardware Specialist</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">Ρύθμιση φυσικού hardware, θερμικοί εκτυπωτές ESC/POS, barcode scanners.</div>
                             </div>
                             <span class="badge badge-green" style="font-size: 0.85rem;">79 €</span>
                         </div>
@@ -60,10 +90,10 @@ pub const CERTIFICATIONS_HTML: &str = r#"
                     <div style="background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: var(--radius); padding: 0.85rem 1rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <div style="font-weight: 700; color: #c084fc;">Proteus Master Bundle (Όλα τα 4)</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Πλήρης πιστοποίηση PCD + PCSS + PCDS + PCDA με έκπτωση.</div>
+                                <div style="font-weight: 700; color: #c084fc;">Proteus Master Partner Bundle (Όλοι οι Ρόλοι)</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">Πλήρες πακέτο πιστοποίησης όλων των ειδικοτήτων με ενιαία εξέταση.</div>
                             </div>
-                            <span class="badge badge-purple" style="font-size: 0.9rem; font-weight: 700;">149 €</span>
+                            <span class="badge badge-purple" style="font-size: 0.9rem; font-weight: 700;">249 €</span>
                         </div>
                     </div>
                 </div>

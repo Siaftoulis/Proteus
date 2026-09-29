@@ -1,0 +1,17 @@
+{
+  "name": "TelemetryRadar",
+  "type": "composite",
+  "description": "Real-time geolocation & fleet radar view for maritime vessels, aviation aircraft, and mobile units with dead-reckoning support",
+  "props": {
+    "title": { "type": "string", "default": "Live Fleet & Telemetry Radar" },
+    "filterCategory": { "type": "string", "enum": ["all", "maritime", "aviation", "ground"], "default": "all" },
+    "refreshIntervalSeconds": { "type": "number", "default": 3 },
+    "enableDeadReckoning": { "type": "boolean", "default": true }
+  },
+  "states": ["live", "offline_predictive", "connecting"],
+  "responsive": true,
+  "implementation": {
+    "web": "proteus-web/src/ui_telemetry.rs",
+    "desktop": "proteus-client/src/views/fleet_radar.rs"
+  }
+}

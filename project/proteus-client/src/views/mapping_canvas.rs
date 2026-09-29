@@ -2,8 +2,8 @@
 //! Provides drag-and-drop / connection mapping between external payloads and native entities,
 //! fuzzy auto-matching, and real-time live preview.
 
-use crm_core::inference::find_best_field_match;
-use crm_core::mapping::{FieldMapping, FieldTransform, SchemaMappingContract};
+use proteus_core::inference::find_best_field_match;
+use proteus_core::mapping::{FieldMapping, FieldTransform, SchemaMappingContract};
 use eframe::egui::{self, Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
 use serde_json::Value;
 

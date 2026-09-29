@@ -7,7 +7,7 @@ tags:
 
 ## Sprint 1 (Safety Net) -- Done (July 4)
 
-- [x] Tests for existing alpha code (crm-core + React) -- [[../Company/Engineering/Developers|Developers]]
+- [x] Tests for existing alpha code (proteus-core + React) -- [[../Company/Engineering/Developers|Developers]]
 - [x] Error handling: replace `unwrap()` with `Result` -- [[../Company/Engineering/Developers|Developers]]
 - [x] Structured logging (tracing) -- [[../Company/Engineering/Developers|Developers]]
 - [x] Dependency version pinning -- [[../Company/Engineering/Developers|Developers]]
@@ -40,7 +40,7 @@ tags:
 - [x] Roles and permissions (role field, editor default)
 - [x] P2P sync (HTTP server, pull/push, merge, last-write-wins) -- 5 tests
 - [x] Health endpoints + backup script + monitoring docs
-- [x] 39 crm-core + 6 auth-server + 6 license-server + 11 frontend = **62 tests, all passing, zero warnings**
+- [x] 39 proteus-core + 6 auth-server + 6 license-server + 11 frontend = **62 tests, all passing, zero warnings**
 - [x] Full 6-step review chain completed (10 QA BLOCKs → B1-B3 fixed, B4-B10 clean)
 - [x] PM review: "Infrastructure solid, core CRM features placeholder"
 - [x] CEO verdict: **No-Go for public beta. Conditional Go in 4-6 weeks**
@@ -95,9 +95,9 @@ tags:
 - [x] "Print Ticket" trigger on intake submission
 
 ### 5.4 Declarative `.pr` Package Architecture (Atomic Step 4)
-- [x] Define `.pr` bundle format specification (SHA-256 sealed container, manifest, additive DDL, views, flows & mounting engine in `crm-core::package`)
-- [x] Additive-only schema migration runner (`CREATE TABLE`, `ALTER TABLE ADD COLUMN`, rejecting `DROP`) in `crm-core::migrations`
-- [x] Automatic `.bak` SQLite snapshot before any package import or migration in `crm-core::migrations`
+- [x] Define `.pr` bundle format specification (SHA-256 sealed container, manifest, additive DDL, views, flows & mounting engine in `proteus-core::package`)
+- [x] Additive-only schema migration runner (`CREATE TABLE`, `ALTER TABLE ADD COLUMN`, rejecting `DROP`) in `proteus-core::migrations`
+- [x] Automatic `.bak` SQLite snapshot before any package import or migration in `proteus-core::migrations`
 
 ### 5.5 Standalone Packaging & Pilot Testing (Atomic Step 5)
 - [x] Release build profile (`Proteus.exe`) with stripped symbols & LTO
@@ -105,9 +105,9 @@ tags:
 - [ ] Pilot testing and feedback collection with 2–3 local repair shops
 
 ### 5.6 Role-Based Access Control, Event Audit Trail & Appointments Subsystem
-- [x] Bespoke RBAC engine in `crm-core::roles` (CEO, Customer Service, Technician, Sales, Developer)
+- [x] Bespoke RBAC engine in `proteus-core::roles` (CEO, Customer Service, Technician, Sales, Developer)
 - [x] Dynamic TopBar role switcher & navigation tab permission filtering in `proteus-client`
-- [x] Event-sourced Audit Trail in `crm-core::audit` with SQLite `audit_logs` table & monotonic UUIDv7
+- [x] Event-sourced Audit Trail in `proteus-core::audit` with SQLite `audit_logs` table & monotonic UUIDv7
 - [x] Visual Activity Timeline (`AuditLogView`) with role filtering, search, badges, relative timestamps & JSON diff viewer
 - [x] Customer Service Appointments subsystem (`AppointmentsView`) with scheduling, validation & automated audit logging
 - [x] Comprehensive documentation in `vault/Developer/19 - Role-Based Access Control & Event Audit Architecture.md`
@@ -127,30 +127,30 @@ tags:
 - [x] Rust Core multi-database architecture specified (PostgreSQL & MySQL direct connectors alongside SQLite local caching)
 - [x] Multi-platform compilation strategy specified (static library `.dll`, `.dylib`, C-bindings/NDK for iOS/Android)
 - [x] Certification curriculum defined: PCD (Designer), PCSS (Systems & DB), PCDS (Deployer & Support) with 79€ voucher / 39€ badge
-- [x] Direct PostgreSQL driver integration in `crm-core`
-- [x] Direct MySQL driver integration in `crm-core`
-- [x] Cross-platform C-FFI export layer in `crm-core` for multi-platform compilation (`.dll`, `.dylib`, NDK)
+- [x] Direct PostgreSQL driver integration in `proteus-core`
+- [x] Direct MySQL driver integration in `proteus-core`
+- [x] Cross-platform C-FFI export layer in `proteus-core` for multi-platform compilation (`.dll`, `.dylib`, NDK)
 - [x] Hybrid offline-first replication engine with conflict resolution & outbox queue
-- [x] Sandboxed 1-click migration runner with automated `.bak` rollback snapshot (`crm-core::migrations` & `views::developer`)
+- [x] Sandboxed 1-click migration runner with automated `.bak` rollback snapshot (`proteus-core::migrations` & `views::developer`)
 
 ## Sprint 6 (PCDA Pipeline & Universal Connector) — In Progress
 
-### 6.1 Core Data & Schema Inference Engine (`crm-core`)
-- [x] Automatic JSON $\rightarrow$ Relational Schema flattening (`crm-core::inference`)
+### 6.1 Core Data & Schema Inference Engine (`proteus-core`)
+- [x] Automatic JSON $\rightarrow$ Relational Schema flattening (`proteus-core::inference`)
 - [x] Primary key detection (`id`, `uuid`, `_id`, `sku`, `barcode`, `code`)
 - [x] Column data type deduction (`Integer`, `Real`, `Text`, `Boolean`, `Jsonb`)
-- [x] GS1-128 Application Identifier barcode parser (`crm-core::gs1`)
+- [x] GS1-128 Application Identifier barcode parser (`proteus-core::gs1`)
 - [x] Expand `UserRole` and permissions with `BusinessAnalyst` (PCDA)
 
-### 6.2 Business Rules & Event Bus (`crm-core`)
-- [x] Declarative event-driven business rules engine ("IF X THEN Y") (`crm-core::rules`)
+### 6.2 Business Rules & Event Bus (`proteus-core`)
+- [x] Declarative event-driven business rules engine ("IF X THEN Y") (`proteus-core::rules`)
 - [x] Safe, sandboxed Rust expression evaluation engine
-- [x] Internal Event Bus for cross-subsystem event propagation (`crm-core::event_bus`)
+- [x] Internal Event Bus for cross-subsystem event propagation (`proteus-core::event_bus`)
 
-### 6.3 Visual Mapping Canvas (`crm-ui` & `proteus-client`)
+### 6.3 Visual Mapping Canvas (`proteus-design-studio` & `proteus-client`)
 - [x] Connection & endpoint-to-schema field mapping in egui 0.31 (`views/mapping_canvas.rs`)
-- [x] Fuzzy field name matching (Levenshtein distance & substring heuristic in `crm-core::inference`)
-- [x] Live preview table for inspected API payloads & configurable transforms (`crm-core::mapping`)
+- [x] Fuzzy field name matching (Levenshtein distance & substring heuristic in `proteus-core::inference`)
+- [x] Live preview table for inspected API payloads & configurable transforms (`proteus-core::mapping`)
 
 ### 6.4 Analyst Studio & PCDA Certification Marketplace (`proteus-client` & `proteus-web`)
 - [x] Dedicated PCDA Analyst Studio view in `proteus-client` (`views/analyst_studio.rs`)
@@ -193,7 +193,7 @@ tags:
 - [x] Flow Mode (React Flow, 4 custom nodes)
 - [x] Import System (CSV, XLSX, SQLite)
 - [x] License Server
-- [x] License module (crm-core)
+- [x] License module (proteus-core)
 - [x] Vault with visual architecture
 - [x] Company agent structure (9 agents with personalities)
 - [x] Business model + pricing

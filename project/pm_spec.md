@@ -6,7 +6,7 @@
 - `Deal` struct: id, title, value, stage, contact_id, expected_close, notes, created_at, updated_at
 - egui (immediate mode) UI with modes: Designer, Flow, Contacts, Pipeline, Studio
 - No email, task, or invoicing capability yet
-- No OAuth or HTTP client deps in `crm-core`
+- No OAuth or HTTP client deps in `proteus-core`
 
 ---
 
@@ -16,7 +16,7 @@
 
 **P0 | Complexity: Medium**
 
-**Data model (add to `crm-core`):**
+**Data model (add to `proteus-core`):**
 - Standardize the `records` table for all entities (contacts, deals).
 - `DataEngine` — A Rust struct to manage connections and handle serialization/deserialization to JSON `fields`.
 
@@ -58,7 +58,7 @@
 
 **UI components:**
 - Integrate the existing Flow Mode (React Flow / egui) to output the `FlowDefinition` JSON.
-- A synchronous DAG (Directed Acyclic Graph) walker in Rust (`crm-core`) to execute the nodes.
+- A synchronous DAG (Directed Acyclic Graph) walker in Rust (`proteus-core`) to execute the nodes.
 
 **Dependencies:**
 - Rust graph library (or a simple custom walker).

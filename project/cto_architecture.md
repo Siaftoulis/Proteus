@@ -26,9 +26,9 @@
 
 ## 3. Plugin Architecture
 
-- **Rhai scripting**: Embedded Rhai engine in crm-core. Scripts stored in `records` table (entity="script"), loaded at runtime. Triggers: `on_click`, `on_save`, `on_stage_change`. Rhai scripts access CRM data via registered Rust functions (e.g. `db_query()`, `db_insert()`).
+- **Rhai scripting**: Embedded Rhai engine in proteus-core. Scripts stored in `records` table (entity="script"), loaded at runtime. Triggers: `on_click`, `on_save`, `on_stage_change`. Rhai scripts access CRM data via registered Rust functions (e.g. `db_query()`, `db_insert()`).
 - **WASM plugins**: Phase 3+. WASM modules loaded via `wasmtime` runtime, sandboxed (no filesystem, limited memory). Exports a `Plugin` trait: `fn execute(context: &PluginContext) -> Result<PluginOutput>`.
-- **Plugin marketplace**: JSON manifest (`name`, `version`, `url`, `description`, `permissions`). `crm-core/plugin.rs` handles download + verification (SHA-256 hash in manifest). Store in local filesystem `<app_dir>/plugins/<name>/`. Registry at a static URL or self-hosted.
+- **Plugin marketplace**: JSON manifest (`name`, `version`, `url`, `description`, `permissions`). `proteus-core/plugin.rs` handles download + verification (SHA-256 hash in manifest). Store in local filesystem `<app_dir>/plugins/<name>/`. Registry at a static URL or self-hosted.
 
 ## 4. Multi-Tenant (Phase 4)
 
@@ -40,7 +40,7 @@
 ## 5. Offline-First
 
 - **SQLite local** — already the storage engine. Single `crm.db` per user.
-- **Sync via project-level merge** — `crm-core/src/sync.rs` already implements `merge_projects` with last-writer-wins on `updated_at` timestamp. `SyncPayload` wraps `Vec<Project>`.
+- **Sync via project-level merge** — `proteus-core/src/sync.rs` already implements `merge_projects` with last-writer-wins on `updated_at` timestamp. `SyncPayload` wraps `Vec<Project>`.
 - **Current gap**: sync only operates at project granularity — no per-record or per-field conflict resolution. The `records` table has individual `updated_at` timestamps, so extending merge to record-level is straightforward.
 - **Near-term needs**:
   - Conflict resolution UI (show diff between local and remote record, let user pick)
@@ -57,4 +57,4 @@
   - Deal in "Proposal" >7 days → suggest follow-up email
   - Contact without activity in 30 days → suggest outreach
   - These start as Rhai scripts, graduate to ML when volume justifies it.
-- **Architecture**: AI features live behind a `trait AiProvider` in crm-core with two impls: `LocalProvider` (llama.cpp) and `CloudProvider` (OpenAI API). User picks at onboarding. All enrichment runs async (background thread, results written back to DB via callbacks).
+- **Architecture**: AI features live behind a `trait AiProvider` in proteus-core with two impls: `LocalProvider` (llama.cpp) and `CloudProvider` (OpenAI API). User picks at onboarding. All enrichment runs async (background thread, results written back to DB via callbacks).

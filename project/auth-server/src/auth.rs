@@ -8,7 +8,27 @@ use tracing::instrument;
 use crate::models::TokenClaims;
 
 fn jwt_secret() -> String {
-    std::env::var("JWT_SECRET").unwrap_or_else(|_| "crm-builder-dev-secret".to_string())
+    match std::env::var("JWT_SECRET") {
+        Ok(s) if !s.trim().is_empty() => s,
+        _ => {
+            #[cfg(debug_assertions)]
+            {
+                "crm-builder-dev-secret".to_string()
+            }
+            #[cfg(not(debug_assertions))]
+            {
+                static RUNTIME_SECRET: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+                RUNTIME_SECRET
+                    .get_or_init(|| {
+                        use rand::RngCore;
+                        let mut b = [0u8; 32];
+                        rand::rngs::OsRng.fill_bytes(&mut b);
+                        hex::encode(b)
+                    })
+                    .clone()
+            }
+        }
+    }
 }
 const ACCESS_TOKEN_EXPIRY: usize = 3600;
 

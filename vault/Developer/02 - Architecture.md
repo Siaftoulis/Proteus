@@ -18,7 +18,7 @@ aliases:
 
 ```mermaid
 flowchart TB
-    subgraph DesktopApp["Desktop Application (Proteus / crm-ui)"]
+    subgraph DesktopApp["Desktop Application (Proteus / proteus-design-studio)"]
         direction TB
         Main["main.rs (Coordinator)"]
         Theme["theme.rs (Win11 / Linear Theme)"]
@@ -51,7 +51,7 @@ flowchart TB
     end
 
     subgraph BackendCrates["Workspace Backend Crates"]
-        CRMCore["crm-core (SQLite, Encryption, Sync, Licenses)"]
+        CRMCore["proteus-core (SQLite, Encryption, Sync, Licenses)"]
         AuthServer["auth-server (JWT, OAuth, Accounts)"]
         LicenseServer["license-server (License Key & Activations)"]
     end
@@ -68,7 +68,7 @@ flowchart TB
 Each source file has a single responsibility and is constrained to **100–400 lines** to prevent monolithic sprawl:
 
 ```
-project/crm-ui/src/
+project/proteus-design-studio/src/
 ├── main.rs                 # App bootstrap, eframe update loop, coordinator (~450 lines)
 ├── theme.rs                # Windows 11 / Linear dark design system tokens & visuals
 ├── models.rs               # Domain types (Contact, Deal, Task, Viewport2D, Presets)
@@ -107,7 +107,7 @@ sequenceDiagram
     participant User
     participant Designer as Designer Canvas
     participant Storage as storage.rs
-    participant Crypto as crm-core::encryption
+    participant Crypto as proteus-core::encryption
     participant Disk as Local File (.crmb / .json)
 
     User->>Designer: Modifies nodes / entities

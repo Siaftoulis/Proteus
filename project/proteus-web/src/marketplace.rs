@@ -4,7 +4,7 @@
 //! - Monthly badge subscriptions (30€/mo base).
 //! - Walled garden compiler gate: packages are only compiled on-platform and bound to paying client shops.
 
-use crm_core::pricing::{compute_floor_price, ProjectComplexityMetrics};
+use proteus_core::pricing::{compute_floor_price, ProjectComplexityMetrics};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -149,9 +149,8 @@ pub fn compile_package_gate(req: &PackageCompileRequest) -> PackageCompileResult
     }
 }
 
-/// A published `.pr` package listing in the Proteus Marketplace.
+/// A published bespoke project or verified .pr build in the Proteus Showcase.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[allow(dead_code)]
 pub struct MarketplacePackageListing {
     pub bundle_id: String,
     pub title: String,
@@ -163,47 +162,51 @@ pub struct MarketplacePackageListing {
     pub licensed_accounts: Vec<String>,
 }
 
-/// Retrieve the complete catalog of verified .pr business packages on the Marketplace.
+/// Re-export canonical Bespoke Client Brief structures from proteus-core.
+pub use proteus_core::brief::ClientProjectBrief;
+
+/// Retrieve verified bespoke business implementations in the Proteus Showcase.
+/// No pre-made presets: Each entry represents an authentic bespoke project crafted for a real client.
 pub fn get_all_marketplace_packages() -> Vec<MarketplacePackageListing> {
     vec![
         MarketplacePackageListing {
-            bundle_id: "PKG-SERVICE-AUTO".to_string(),
-            title: "Automotive Service & Repair BOS".to_string(),
-            description: "Εντολές εργασίας, αποθήκη ανταλλακτικών μηχανικού και ESC/POS διαγνωστικές αποδείξεις.".to_string(),
-            author_designer: "PCD Senior Partner".to_string(),
+            bundle_id: "PRJ-SPEEDY-GARAGE".to_string(),
+            title: "Speedy Garage — Custom Intake & Thermal POS BOS".to_string(),
+            description: "Εξατομικευμένη ροή συνεργείου: ψηφιακές εντολές εργασίας, αποθήκη μηχανικού και ESC/POS δελτία παραλαβής.".to_string(),
+            author_designer: "PCD-App Senior Partner".to_string(),
             version: "1.4.0".to_string(),
-            price_eur: 180.0,
-            category: "Automotive".to_string(),
+            price_eur: 380.0,
+            category: "Bespoke Automotive".to_string(),
             licensed_accounts: vec!["demo@company.com".to_string(), "owner@autoworks.gr".to_string()],
         },
         MarketplacePackageListing {
-            bundle_id: "PKG-RETAIL-POS".to_string(),
-            title: "Multi-Store Retail & Cashier BOS".to_string(),
-            description: "Barcode scanning, άμεσο άνοιγμα συρταριού, αυτόματη αναπαραγγελία και συγχρονισμός καταστημάτων.".to_string(),
-            author_designer: "PCDA Analyst Group".to_string(),
+            bundle_id: "PRJ-KIFISIA-BAKERY".to_string(),
+            title: "Artisan Bakery — Dual Touch POS & Cash Drawer".to_string(),
+            description: "Ταμείο λιανικής αρτοποιείου: Barcode scanning, άμεσο άνοιγμα συρταριού, touch κατηγορίες και αποθήκη.".to_string(),
+            author_designer: "Dual Full-Stack Partner".to_string(),
             version: "2.1.0".to_string(),
-            price_eur: 240.0,
-            category: "Retail".to_string(),
+            price_eur: 420.0,
+            category: "Bespoke Retail".to_string(),
             licensed_accounts: vec!["demo@company.com".to_string(), "admin@retailchain.com".to_string()],
         },
         MarketplacePackageListing {
-            bundle_id: "PKG-CLINIC-HEALTH".to_string(),
-            title: "Medical & Dental Practice Suite".to_string(),
+            bundle_id: "PRJ-ATHENS-DENTAL".to_string(),
+            title: "Dental Care Pro — Patient File & Multi-Doctor Scheduling".to_string(),
             description: "Ιατρικό ιστορικό ασθενών, ημερολόγιο ραντεβού, GDPR audit logs και τιμολόγηση ασφαλιστικών ταμείων.".to_string(),
             author_designer: "PCSS Systems Architect".to_string(),
             version: "1.0.2".to_string(),
-            price_eur: 320.0,
-            category: "Healthcare".to_string(),
+            price_eur: 480.0,
+            category: "Bespoke Healthcare".to_string(),
             licensed_accounts: vec!["doctor@clinic.org".to_string()],
         },
         MarketplacePackageListing {
-            bundle_id: "PKG-MOTO-PRO".to_string(),
-            title: "Motorcycle Workshop & Tuning BOS".to_string(),
-            description: "Έλεγχος πλαισίου (VIN), καταγραφή βάθους πέλματος ελαστικών και εκτύπωση φύλλου δυναμομέτρησης.".to_string(),
-            author_designer: "PCD Specialist".to_string(),
-            version: "1.1.0".to_string(),
-            price_eur: 120.0,
-            category: "Automotive".to_string(),
+            bundle_id: "PRJ-BESPOKE-STORE".to_string(),
+            title: "Custom Enterprise Storefront & Warehouse BOS".to_string(),
+            description: "Πλήρης εξατομικευμένη υλοποίηση: διασύνδεση τοπικού POS με responsive e-shop, domain και cloud sync.".to_string(),
+            author_designer: "Proteus Engineering Guild".to_string(),
+            version: "1.0.0".to_string(),
+            price_eur: 650.0,
+            category: "Bespoke Multi-Store".to_string(),
             licensed_accounts: vec!["demo@company.com".to_string(), "tuning@motofast.gr".to_string()],
         },
     ]
@@ -223,44 +226,55 @@ pub fn get_licensed_packages_for_account(account_email: &str) -> Vec<Marketplace
         .collect()
 }
 
-
 /// Official Proteus Professional Certification tracks.
-#[allow(dead_code)]
+/// Certified professionals take distinct exams for software vs web UI/UX.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CertificationTrack {
-    PcdDesigner,           // Proteus Certified Designer
-    PcbaBusinessAnalyst,   // Proteus Certified Business Analyst
-    PcdaDataAnalyst,       // Proteus Certified Data Analyst
-    PcssSystemsDb,         // Proteus Certified Systems & DB Specialist
-    PcdsDeployerSupport,   // Proteus Certified Deployer / Support Specialist
-    AllInOneBundle,        // Master Bundle (All Certifications)
+    PcdAppSoftwareDesigner,       // PCD-App: Proteus Certified Desktop/Software UI/UX Designer (79€)
+    PcdWebStorefrontDesigner,     // PCD-Web: Proteus Certified Website & E-Commerce UI/UX Designer (79€)
+    DualDesignerBundle,           // Dual Track Bundle (PCD-App + PCD-Web) (129€)
+    PcbaBusinessAnalyst,          // PCBA: Proteus Certified Business Analyst (79€)
+    PcdaDataAnalyst,              // PCDA: Proteus Certified Data Analyst (79€)
+    PcssSystemsDb,                // PCSS: Proteus Certified Systems & DB Specialist (79€)
+    PcdsDeployerSupport,          // PCDS: Proteus Certified Deployer / Support Specialist (79€)
+    MasterBundleAllRoles,         // Master All-In-One Bundle (249€)
+    // Aliases for backwards compatibility
+    PcdDesigner,
+    AllInOneBundle,
 }
 
-#[allow(dead_code)]
 impl CertificationTrack {
+    #[allow(dead_code)]
     pub fn exam_fee_eur(&self) -> f64 {
         match self {
-            Self::PcdDesigner
+            Self::PcdAppSoftwareDesigner
+            | Self::PcdWebStorefrontDesigner
             | Self::PcbaBusinessAnalyst
             | Self::PcdaDataAnalyst
             | Self::PcssSystemsDb
-            | Self::PcdsDeployerSupport => 79.0,
-            Self::AllInOneBundle => 149.0,
+            | Self::PcdsDeployerSupport
+            | Self::PcdDesigner => 79.0,
+            Self::DualDesignerBundle => 129.0,
+            Self::MasterBundleAllRoles | Self::AllInOneBundle => 249.0,
         }
     }
 
+    #[allow(dead_code)]
     pub fn annual_badge_fee_eur(&self) -> f64 {
         39.0
     }
 
+    #[allow(dead_code)]
     pub fn title(&self) -> &'static str {
         match self {
-            Self::PcdDesigner => "PCD — Proteus Certified Designer",
+            Self::PcdAppSoftwareDesigner | Self::PcdDesigner => "PCD-App — Certified Desktop/Software UI/UX Designer",
+            Self::PcdWebStorefrontDesigner => "PCD-Web — Certified Website & E-Commerce Designer",
+            Self::DualDesignerBundle => "Dual Full-Stack Designer Bundle (PCD-App + PCD-Web)",
             Self::PcbaBusinessAnalyst => "PCBA — Proteus Certified Business Analyst",
             Self::PcdaDataAnalyst => "PCDA — Proteus Certified Data Analyst",
             Self::PcssSystemsDb => "PCSS — Proteus Certified Systems & DB Specialist",
             Self::PcdsDeployerSupport => "PCDS — Proteus Certified Deployer / Support Specialist",
-            Self::AllInOneBundle => "Proteus Master Bundle (PCD + PCBA + PCDA + PCSS + PCDS)",
+            Self::MasterBundleAllRoles | Self::AllInOneBundle => "Proteus Master Partner Bundle (All Specialist Roles)",
         }
     }
 }
@@ -342,12 +356,14 @@ mod tests {
 
     #[test]
     fn test_certification_tracks_pricing() {
-        assert_eq!(CertificationTrack::PcdDesigner.exam_fee_eur(), 79.0);
+        assert_eq!(CertificationTrack::PcdAppSoftwareDesigner.exam_fee_eur(), 79.0);
+        assert_eq!(CertificationTrack::PcdWebStorefrontDesigner.exam_fee_eur(), 79.0);
+        assert_eq!(CertificationTrack::DualDesignerBundle.exam_fee_eur(), 129.0);
         assert_eq!(CertificationTrack::PcbaBusinessAnalyst.exam_fee_eur(), 79.0);
         assert_eq!(CertificationTrack::PcdaDataAnalyst.exam_fee_eur(), 79.0);
         assert_eq!(CertificationTrack::PcssSystemsDb.exam_fee_eur(), 79.0);
         assert_eq!(CertificationTrack::PcdsDeployerSupport.exam_fee_eur(), 79.0);
-        assert_eq!(CertificationTrack::AllInOneBundle.exam_fee_eur(), 149.0);
+        assert_eq!(CertificationTrack::MasterBundleAllRoles.exam_fee_eur(), 249.0);
         assert_eq!(CertificationTrack::PcdaDataAnalyst.annual_badge_fee_eur(), 39.0);
     }
 
@@ -358,13 +374,13 @@ mod tests {
 
         let pkgs = get_licensed_packages_for_account("demo@company.com");
         assert_eq!(pkgs.len(), 3);
-        assert_eq!(pkgs[0].bundle_id, "PKG-SERVICE-AUTO");
-        assert_eq!(pkgs[1].bundle_id, "PKG-RETAIL-POS");
-        assert_eq!(pkgs[2].bundle_id, "PKG-MOTO-PRO");
+        assert_eq!(pkgs[0].bundle_id, "PRJ-SPEEDY-GARAGE");
+        assert_eq!(pkgs[1].bundle_id, "PRJ-KIFISIA-BAKERY");
+        assert_eq!(pkgs[2].bundle_id, "PRJ-BESPOKE-STORE");
 
         let doc_pkgs = get_licensed_packages_for_account("doctor@clinic.org");
         assert_eq!(doc_pkgs.len(), 1);
-        assert_eq!(doc_pkgs[0].bundle_id, "PKG-CLINIC-HEALTH");
+        assert_eq!(doc_pkgs[0].bundle_id, "PRJ-ATHENS-DENTAL");
 
         let empty = get_licensed_packages_for_account("unknown@random.com");
         assert!(empty.is_empty());

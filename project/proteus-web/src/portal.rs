@@ -76,6 +76,75 @@ pub fn calculate_subscription_quote(req: &PricingQuoteRequest) -> PricingQuoteRe
     }
 }
 
+/// Metadata DTO for self-service encrypted shop backups.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BackupEntryDto {
+    pub id: String,
+    pub created_at: String,
+    pub retention_days: u32,
+    pub is_expired: bool,
+    pub storage_tier: String,
+    pub raw_size_bytes: usize,
+    pub encrypted_size_bytes: usize,
+    pub sha256_checksum: String,
+    pub filename: String,
+}
+
+/// Retrieves the list of available encrypted snapshots for the shop.
+pub fn get_backups_list() -> Result<Vec<BackupEntryDto>, String> {
+    let backup_dir = proteus_core::paths::get_backup_dir();
+    let backups = proteus_core::cloud_backup::LocalBackupManager::list_local_backups(&backup_dir)?;
+    let dtos: Vec<BackupEntryDto> = backups
+        .into_iter()
+        .map(|(manifest, path)| {
+            let filename = path.file_name().unwrap_or_default().to_string_lossy().to_string();
+            let is_expired = manifest.is_expired();
+            BackupEntryDto {
+                id: manifest.id,
+                created_at: manifest.created_at,
+                retention_days: manifest.retention_days,
+                is_expired,
+                storage_tier: format!("{:?}", manifest.storage_tier),
+                raw_size_bytes: manifest.raw_bytes_len,
+                encrypted_size_bytes: manifest.encrypted_bytes_len,
+                sha256_checksum: manifest.sha256_checksum,
+                filename,
+            }
+        })
+        .collect();
+    Ok(dtos)
+}
+
+/// Triggers a live encrypted backup snapshot for self-service portal download.
+pub fn trigger_backup_snapshot() -> Result<BackupEntryDto, String> {
+    let db_path = proteus_core::paths::get_database_path();
+    let backup_dir = proteus_core::paths::get_backup_dir();
+    let default_pass = "PROTEUS-MASTER-BACKUP-VAULT";
+    let default_salt = "proteus-device-salt";
+
+    let (manifest, path) = proteus_core::cloud_backup::LocalBackupManager::create_local_snapshot(
+        &db_path,
+        &backup_dir,
+        default_pass,
+        default_salt,
+        30,
+    )?;
+
+    let filename = path.file_name().unwrap_or_default().to_string_lossy().to_string();
+    let is_expired = manifest.is_expired();
+    Ok(BackupEntryDto {
+        id: manifest.id,
+        created_at: manifest.created_at,
+        retention_days: manifest.retention_days,
+        is_expired,
+        storage_tier: format!("{:?}", manifest.storage_tier),
+        raw_size_bytes: manifest.raw_bytes_len,
+        encrypted_size_bytes: manifest.encrypted_bytes_len,
+        sha256_checksum: manifest.sha256_checksum,
+        filename,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -119,5 +188,30 @@ mod tests {
         assert_eq!(q.cloud_sync_monthly, 15.0);
         assert_eq!(q.cloud_backup_monthly, 9.99);
         assert_eq!(q.total_monthly, 32.98);
+    }
+
+    #[test]
+    fn test_backups_list_and_snapshot_lifecycle() {
+        let temp_dir = std::env::temp_dir().join("proteus_web_test_backup_lifecycle");
+        let _ = std::fs::create_dir_all(&temp_dir);
+        let test_db = temp_dir.join("test.db");
+        std::fs::write(&test_db, b"SQLite format 3\0\x10\x00\x01\x01\0\0").unwrap();
+
+        let (manifest, path) = proteus_core::cloud_backup::LocalBackupManager::create_local_snapshot(
+            &test_db,
+            &temp_dir,
+            "test_pass",
+            "test_salt",
+            30,
+        ).unwrap();
+
+        assert!(path.exists());
+        assert_eq!(manifest.storage_tier, proteus_core::cloud_backup::StorageTier::LocalVault);
+
+        let backups = proteus_core::cloud_backup::LocalBackupManager::list_local_backups(&temp_dir).unwrap();
+        assert!(!backups.is_empty());
+        assert_eq!(backups[0].0.id, manifest.id);
+
+        let _ = std::fs::remove_dir_all(&temp_dir);
     }
 }

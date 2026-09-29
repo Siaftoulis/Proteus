@@ -231,4 +231,4 @@ docker run --rm -v auth-data:/data -v $(pwd)/auth-data.tar.gz:/backup.tar.gz alp
 docker compose up -d
 ```
 
-Related: [[02 - Architecture|Architecture]] | [[01 - Getting Started|Setup]] | [[03 - Backend (crm-core)|Core Library]] | [[12 - Auth Server|Auth Server]]
+Related: [[02 - Architecture|Architecture]] | [[01 - Getting Started|Setup]] | [[03 - Backend (proteus-core)|Core Library]] | [[12 - Auth Server|Auth Server]]

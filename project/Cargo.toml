@@ -1,10 +1,11 @@
 [workspace]
 resolver = "2"
 members = [
-    "crm-core",
-    "crm-ui",
+    "proteus-core",
+    "proteus-design-studio",
     "proteus-client",
     "proteus-web",
+    "proteus-mobile",
     "license-server",
     "auth-server"
 ]

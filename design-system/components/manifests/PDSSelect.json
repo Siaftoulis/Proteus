@@ -30,6 +30,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:select.pds-select",
-    "desktop": "crm-ui/src/components/ or egui::ComboBox"
+    "desktop": "proteus-design-studio/src/components/ or egui::ComboBox"
   }
 }

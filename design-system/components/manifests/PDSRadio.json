@@ -29,6 +29,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:input[type='radio']",
-    "desktop": "crm-ui/src/components/ or egui::RadioButton"
+    "desktop": "proteus-design-studio/src/components/ or egui::RadioButton"
   }
 }

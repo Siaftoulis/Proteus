@@ -29,6 +29,6 @@
   "accessible": true,
   "implementation": {
     "web": "proteus-web/src/ui_css.rs:header.pds-navbar",
-    "desktop": "crm-ui/src/components/ or egui top panel"
+    "desktop": "proteus-design-studio/src/components/ or egui top panel"
   }
 }

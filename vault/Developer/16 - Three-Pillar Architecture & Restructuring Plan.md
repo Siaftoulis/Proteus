@@ -80,8 +80,8 @@ aliases:
 * **Χαρακτηριστικά:**
   * **Onboarding & Sign-Up:** Ο πελάτης μπαίνει στο web portal, φτιάχνει λογαριασμό, επιλέγει το πλάνο του (Core, Back-Office seats, Mobile seats).
   * **License Hash Engine:** Ο server παράγει ένα κρυπτογραφικό Hash (Ed25519) και ένα 30-day lease token. Το κατάστημα το εισάγει στο Client και ενεργοποιεί τις δυνατότητες που πλήρωσε.
-  * **Marketplace:** Κατάλογος με έτοιμα templates και προφίλ Certified Designers.
-  * **In-App Share Point & Escrow:** Σύστημα αναθέσεων όπου ο πελάτης δεσμεύει το ποσό, ο designer παραδίδει δοκιμαστικό preview και η εκκαθάριση (90/10) γίνεται αυτόματα μετά την έγκριση.
+  * **Bespoke Slot Board & Custom Projects (Μηδενικά Generic Templates):** Το Proteus δεν διαθέτει προκατασκευασμένα presets. Ο πελάτης καταθέτει το αναλυτικό επιχειρησιακό του brief, το έργο αναρτάται στο ανοιχτό 7-Slot Board (BA, DA, PCD-App, PCD-Web, PCSS, PCDS, CS) και πιστοποιημένοι επαγγελματίες αναλαμβάνουν τον πλήρως εξατομικευμένο σχεδιασμό λογισμικού, ιστοσελίδας/e-shop, κατοχύρωσης domain και φιλοξενίας.
+  * **In-App Share Point & Escrow:** Σύστημα αναθέσεων όπου ο πελάτης δεσμεύει το ποσό, ο designer παραδίδει δοκιμαστικό preview και η εκκαθάριση (82/18) γίνεται αυτόματα μετά την έγκριση.
 
 ---
 
