@@ -21,4 +21,5 @@ pub mod contractor_ledger;
 pub mod supplier_reconcile;
 pub mod genealogy_rma;
 pub mod embedded_genealogy;
+pub mod shipping_notes;
 

@@ -4,6 +4,28 @@ tags:
 ---
 # Session Log
 
+## 2026-09-30: Sprint 11 Complete — Digital Shipping Note, myDATA / e-CMR Transport QR & Dispatch Companion
+
+### Key Deliverables & Accomplishments
+1. **Digital Shipping Note & myDATA / e-CMR Transport Engine (`proteus-core::shipping_note`)**:
+   - Built complete electronic waybill engine (Δελτία Αποστολής / Διακίνησης) with strong enums: `TransportPurpose` (Sale, Repair, BranchTransfer, SupplierReturn, Consignment, Sample), `DispatchStatus` (Draft, Dispatched, InTransit, Delivered, Cancelled), and `ShippingUnit` (τεμ, πακέτο, κιβώτιο, kg, m, παλέτα).
+   - Embedded Greek Tax ID (ΑΦΜ) modulo 11 validation via `ContentProfiler`.
+   - Computed tamper-proof SHA-256 digital signature hashes over canonical waybill records.
+   - Implemented standardized IAPR / myDATA & e-CMR QR payload generator conforming to Greek AADE electronic transport mandates.
+   - Real SQLite schema (`shipping_notes`, `shipping_note_items`, `shipping_outbox`) with composite query indexes.
+   - Built van sales offline store-and-forward outbox (`shipping_outbox`) for delivery drivers with weak/no cellular signal.
+   - Native ESC/POS thermal delivery waybill voucher generator for 80mm & 58mm printers with QR payload and receiver signature box.
+2. **Frontline Dispatch & Waybill View in `proteus-client` (`views/shipping_notes.rs`)**:
+   - Added dedicated "Δελτία Αποστολής" tab to `RoleWorkspace::ShopCounter`.
+   - Fast instant search by note number, AFM, plate, driver, or recipient.
+   - Live status filtering and 1-click stage progression (`Draft` ➔ `Dispatched` ➔ `InTransit` ➔ `Delivered`).
+   - New waybill modal with dynamic item lines and serial number binding (Genealogy S/Ns).
+   - Receiver sign-off modal recording timestamp and notes directly into SQLite `store.db`.
+   - 1-click ESC/POS delivery slip printing.
+3. **Automated Verification Pipeline & Test Suite**:
+   - 6-Stage Unbreakable Verification Pipeline (`scripts/verify_pipeline.ps1`) executed and passed 6/6 gates.
+   - Workspace test suite expanded to **305/305 passing automated tests (100% green, 0 compiler warnings, 0 failures)**.
+
 ## 2026-09-29: Rebranding, Universal Database Harmony, Component Genealogy, RMA Hub & Unbreakable Verification Pipeline
 
 ### Key Deliverables & Accomplishments

@@ -149,19 +149,29 @@ tags:
   - [x] Gate 1: Type check, Gate 2: Storage pragmas, Gate 3: Zero-mock scan, Gate 4: 304/304 tests, Gate 5: Binaries, Gate 6: Modularity
   - [x] 100% passing tests across all 7 workspace crates (304 tests passing, 0 warnings, 0 failures)
 
-## Sprint 11: Global Logistics, Digital Shipping Note & Dispatch Companion (ACTIVE)
-- [ ] **11.1 SQLite Schema & DDL for Digital Shipping Notes (`proteus-core`)**
-  - [ ] Tables: `shipping_notes`, `shipping_note_items`, `shipping_dispatches`
-  - [ ] Fields: Sender AFM, Recipient AFM, Vehicle plate, Departure/Arrival timestamps, Gross weight, Transport purpose
-- [ ] **11.2 IAPR / myDATA & e-CMR QR-Code Generator (`proteus-core`)**
-  - [ ] Standardized QR payload generation complying with Greek AADE digital transport mandate
-  - [ ] Cryprographic hash verification and offline checksum
-- [ ] **11.3 ESC/POS Thermal Delivery Waybill Voucher (`proteus-core` & `proteus-client`)**
-  - [ ] Printable 80mm & 58mm delivery note format with items summary, QR code, and driver/receiver signature line
-- [ ] **11.4 Van Sales & Offline Dispatch Outbox Queue (`proteus-core`)**
-  - [ ] Store-and-forward outbox (`shipping_outbox`) for delivery drivers with weak/no cellular reception
-- [ ] **11.5 Frontline Dispatch Inspector View (`proteus-client`)**
-  - [ ] Route list, vehicle selection, 1-click delivery sign-off, and thermal voucher reprinting
+## Sprint 11: Global Logistics, Digital Shipping Note & Dispatch Companion (Complete)
+- [x] **11.1 SQLite Schema & DDL for Digital Shipping Notes (`proteus-core`)**
+  - [x] Tables: `shipping_notes`, `shipping_note_items`, `shipping_outbox`
+  - [x] Fields: Sender AFM, Recipient AFM, Vehicle plate, Departure/Arrival timestamps, Gross weight, Transport purpose
+- [x] **11.2 IAPR / myDATA & e-CMR QR-Code Generator (`proteus-core`)**
+  - [x] Standardized QR payload generation complying with Greek AADE digital transport mandate
+  - [x] Cryptographic SHA-256 hash verification and offline checksum
+- [x] **11.3 ESC/POS Thermal Delivery Waybill Voucher (`proteus-core` & `proteus-client`)**
+  - [x] Printable 80mm & 58mm delivery note format with items summary, QR code, and driver/receiver signature line
+- [x] **11.4 Van Sales & Offline Dispatch Outbox Queue (`proteus-core`)**
+  - [x] Store-and-forward outbox (`shipping_outbox`) for delivery drivers with weak/no cellular reception
+- [x] **11.5 Frontline Dispatch Inspector View (`proteus-client`)**
+  - [x] Frontline view in `proteus-client` (`shipping_notes.rs`) with search, filter, and 1-click delivery sign-off
+  - [x] 305/305 automated tests passing (100% green)
+
+## Sprint 12: Van Sales, Mobile Sign-on-Glass & Consignment Tracking (ACTIVE)
+- [ ] **12.1 Handheld Touch Sign-on-Glass Capture (`proteus-mobile`)**
+  - [ ] Vector signature path capture on mobile touch screen
+  - [ ] Embedding receiver signature into delivery outbox record
+- [ ] **12.2 Bluetooth Mobile Thermal Slip Printing (`proteus-mobile`)**
+  - [ ] Direct Bluetooth SPP / BLE raw ESC/POS slip generation for mobile belt printers
+- [ ] **12.3 Vendor-Managed Inventory (VMI) & Consignment Tracking (`proteus-core`)**
+  - [ ] Consignment stock ledger tracking goods held at third-party partner premises
 
 ## Phase 2: Military Service Period (Nov 2026 – May 2027)
 - [ ] 2–3 shop pilot testing & bugfixing during leaves

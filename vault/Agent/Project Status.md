@@ -28,7 +28,8 @@ dv.table(["Milestone", "Status"],
     ["Sprint 8: Universal Database Harmony, SMLM & Frontline Retail Profiles", "[x] Done (Sept 27)"],
     ["Sprint 9: Bespoke Brief Engine, Domain Gateway & ESC/POS Viewport", "[x] Done (Sept 28)"],
     ["Sprint 10: Sovereign Distribution, Genealogy/RMA & Verification Pipeline", "[x] Done (Sept 29)"],
-    ["Sprint 11: Digital Shipping Note & Dispatch Companion (myDATA / e-CMR)", "[ ] In Progress"],
+    ["Sprint 11: Digital Shipping Note & Dispatch Companion (myDATA / e-CMR)", "[x] Done (Sept 30)"],
+    ["Sprint 12: Van Sales, Mobile Sign-on-Glass & Consignment Tracking", "[ ] In Progress"],
     ["Phase 2: 6-Month Military Service (Zero-cost maintenance & feedback)", "[ ] Nov 2026 - May 2027"],
     ["Phase 3: Commercial Launch via Lemon Squeezy / Paddle (MoR)", "[ ] May 2027"],
     ["Phase 4: Single-Member IKE Formation (gov.gr post-revenue >2,000€)", "[ ] Post-Launch"],
@@ -45,19 +46,17 @@ dv.table(["Milestone", "Status"],
 | Core Records Engine | ✅ Complete | Multi-tenant schema, SMLM Data Profiler, SQLite WAL, Flow DAG walker with branching |
 | Native Desktop UI | ✅ Advanced | Pure Rust `eframe`/`egui`, undo/redo, shortcuts, touch viewport profiles, ESC/POS canvas |
 | Backend (Rust) | ✅ Excellent | 7 modular workspace crates (`proteus-core`, `proteus-design-studio`, `proteus-client`, `proteus-web`, `proteus-mobile`, `auth-server`, `license-server`) |
-| Tests | ✅ 100% Pass | **304 total passing tests**, 0 warnings, 0 failures (100% green across all 7 crates) |
+| Tests | ✅ 100% Pass | **305 total passing tests**, 0 warnings, 0 failures (100% green across all 7 crates) |
 | Verification Pipeline | ✅ Active | Unbreakable 6-stage automated gate (`verify_pipeline.ps1` / `.bat`) |
 
-## Component Progress (Sprint 11 — ACTIVE)
+## Component Progress (Sprint 11 — Complete)
 
 | Component | Status | Target Date | Notes |
 |-----------|--------|-------------|-------|
-| Component Genealogy & Lifecycle | ✅ Done | Sprint 10 | Parts lifecycle from intake to installation, RMA claim, and credit notes |
-| Serial Number & RMA Hub | ✅ Done | Sprint 10 | Dynamic warranty countdown, 1-click claims, replacement binding (`genealogy_rma.rs`) |
-| Unbreakable Quality Pipeline | ✅ Done | Sprint 10 | 6-gate verification: types, storage pragmas, zero-mock scan, tests, binaries, modularity |
-| Digital Shipping Note Schema | ⏳ In Progress | Sprint 11.1 | DDL for `shipping_notes` with sender/recipient AFM, vehicle license, dispatch timestamp |
-| myDATA / e-CMR QR Generator | ⏳ In Progress | Sprint 11.2 | QR code format complying with IAPR / AADE real-time transport tracking |
-| ESC/POS Delivery Waybill Slip | ⏳ In Progress | Sprint 11.3 | Thermal 80mm/58mm printable delivery voucher with goods table and driver signature area |
-| Dispatch Outbox & Offline Queue | ⏳ In Progress | Sprint 11.4 | Local SQLite store-and-forward outbox for van drivers with weak or zero cellular signal |
+| Digital Shipping Note Schema | ✅ Done | Sprint 11.1 | DDL for `shipping_notes` with sender/recipient AFM, vehicle plate, timestamps |
+| myDATA / e-CMR QR Generator | ✅ Done | Sprint 11.2 | QR code format complying with IAPR / AADE real-time transport tracking & SHA-256 seal |
+| ESC/POS Delivery Waybill Slip | ✅ Done | Sprint 11.3 | Thermal 80mm/58mm printable delivery voucher with goods table, QR payload & signature area |
+| Dispatch Outbox & Offline Queue | ✅ Done | Sprint 11.4 | Local SQLite store-and-forward outbox (`shipping_outbox`) for drivers |
+| Frontline Dispatch Inspector View | ✅ Done | Sprint 11.5 | Frontline view in `proteus-client` (`shipping_notes.rs`) with search, filter, and 1-click delivery sign-off |
 
 Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P28)]]

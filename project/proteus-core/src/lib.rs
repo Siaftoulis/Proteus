@@ -35,6 +35,7 @@ pub mod contractor;
 pub mod supplier_catalog;
 pub mod brief;
 pub mod genealogy;
+pub mod shipping_note;
 
 
 use chrono::Utc;

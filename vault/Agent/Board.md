@@ -192,12 +192,18 @@ tags:
 - [x] Automated 6-Gate Unbreakable Verification Pipeline (`scripts/verify_pipeline.ps1` & `.bat`)
 - [x] 304/304 passing automated tests across all 7 workspace crates
 
-## Sprint 11 (Digital Shipping Note & Dispatch Companion) — ACTIVE
-- [ ] DDL and SQLite schema for `shipping_notes` and `shipping_note_items`
-- [ ] IAPR / myDATA & e-CMR QR-code waybill generator
-- [ ] ESC/POS 80mm/58mm thermal printable delivery slip with recipient signature line
-- [ ] Van Sales & Offline Dispatch Outbox Queue (`shipping_outbox`) for store-and-forward sync
-- [ ] Frontline Dispatch Inspector in `proteus-client` with vehicle selection and 1-click delivery sign-off
+## Sprint 11 (Digital Shipping Note & Dispatch Companion) — Complete
+- [x] DDL and SQLite schema for `shipping_notes` and `shipping_note_items`
+- [x] IAPR / myDATA & e-CMR QR-code waybill generator & SHA-256 seal
+- [x] ESC/POS 80mm/58mm thermal printable delivery slip with recipient signature line
+- [x] Van Sales & Offline Dispatch Outbox Queue (`shipping_outbox`) for store-and-forward sync
+- [x] Frontline Dispatch Inspector in `proteus-client` (`shipping_notes.rs`) with vehicle selection and 1-click delivery sign-off
+- [x] 305/305 passing automated tests across all 7 workspace crates
+
+## Sprint 12 (Van Sales & Mobile Sign-on-Glass) — ACTIVE
+- [ ] Handheld vector sign-on-glass capture (`proteus-mobile`)
+- [ ] Bluetooth mobile thermal receipt printer integration
+- [ ] Vendor-Managed Inventory (VMI) & Consignment Tracking (`proteus-core`)
 
 ## Future (Phase 2 - Post-Military Commercial Launch)
 - [ ] Merchant of Record setup (Lemon Squeezy / Paddle)
