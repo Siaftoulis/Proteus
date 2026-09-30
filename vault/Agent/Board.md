@@ -207,10 +207,16 @@ tags:
 - [x] Vendor-Managed Inventory (VMI) & Consignment Tracking (`proteus-core`)
 - [x] 313/313 passing automated tests across all 7 workspace crates
 
-## Sprint 13 (Cold Chain HACCP Telemetry & IoT Sensor Bridge) — ACTIVE
-- [ ] Cold chain temperature/humidity SQLite tables and breach rules (`proteus-core`)
-- [ ] Cryptographic Merkle hash-chain for HACCP safety certification
-- [ ] Real-time fleet & cold storage telemetry dashboard in `proteus-client`
+## Sprint 13 (Cold Chain HACCP Telemetry & IoT Sensor Bridge) — Complete
+- [x] Cold chain temperature/humidity SQLite tables and breach rules (`proteus-core`)
+- [x] Cryptographic Merkle hash-chain for HACCP safety certification
+- [x] Real-time fleet & cold storage telemetry dashboard in `proteus-client` (`cold_chain.rs`)
+- [x] 319/319 passing automated tests across all 7 workspace crates
+
+## Sprint 14 (Multi-Branch LAN Mesh Synchronization) — ACTIVE
+- [ ] Peer-to-Peer Branch Mesh Discovery Protocol (`proteus-core`)
+- [ ] Differential SQLite Transaction Vector Clock (`proteus-core`)
+- [ ] Multi-Branch Sync Monitor View (`proteus-client`)
 
 ## Future (Phase 2 - Post-Military Commercial Launch)
 - [ ] Merchant of Record setup (Lemon Squeezy / Paddle)

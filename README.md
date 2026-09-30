@@ -1,6 +1,6 @@
 # Proteus (BOS & CRM Builder)
 
-[![Build & Test Status](https://img.shields.io/badge/tests-313%20passed%20%2F%20100%25-brightgreen)](https://github.com/Siaftoulis/Proteus)
+[![Build & Test Status](https://img.shields.io/badge/tests-319%20passed%20%2F%20100%25-brightgreen)](https://github.com/Siaftoulis/Proteus)
 [![Rust Version](https://img.shields.io/badge/rust-1.80%2B-blue)](https://www.rust-lang.org/)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Android-lightgrey)](https://github.com/Siaftoulis/Proteus)
 [![License](https://img.shields.io/badge/license-Proprietary-red)](LICENSE)
@@ -80,6 +80,12 @@ project/
 - **Van Sales Dispatch Companion (`van_sales.rs`)**: Mobile task board listing active delivery waybills, 1-click delivery completion with signature capture, offline outbox queuing, and 58mm Bluetooth thermal slip generation.
 - **Vendor-Managed Inventory (VMI) & Consignment Engine (`consignment.rs`)**: Real SQLite tracking of consignment partners, warehouse item balances, movements (inward transfer, consumption sale, return), and automated replenishment threshold alert triggers (`check_vmi_replenishment_alerts`).
 
+### 7. Cold Chain HACCP Telemetry & IoT Sensor Bridge (`proteus-core` & `proteus-client`)
+- **Regulatory Cold Storage Types**: `DeepFreeze` (-25°C to -18°C), `Chilled` (0°C to +4°C), `ControlledAmbient` (+15°C to +25°C), `PharmaCold` (+2°C to +8°C).
+- **Automated Excursion Breaches**: Automatic severity evaluation (`MinorWarning`, `MajorExcursion`, `CriticalSpoilage`), alarm panel, and operator corrective action audit logging.
+- **Cryptographic Merkle Audit Hash Chain**: Tamper-proof SHA-256 seal per reading packet and official HACCP Compliance Certificate generator.
+- **Real-Time Telemetry Monitor (`cold_chain.rs` view)**: Live sensor indicators, in-spec percentages, door open sensors, and direct SQLite ingestion.
+
 ---
 
 ## Automated Verification Pipeline
@@ -98,7 +104,7 @@ scripts\verify_pipeline.bat
 1. **Gate 1**: Static Type & Compilation Audit (`cargo check --workspace --all-targets`).
 2. **Gate 2**: Security & Storage Pragma Audit (`WAL` mode + `busy_timeout = 5000`).
 3. **Gate 3**: Zero Mock Data Policy Audit (scans views for forbidden mock arrays).
-4. **Gate 4**: 100% Automated Test Suite (`cargo test --workspace` — **313/313 passing**).
+4. **Gate 4**: 100% Automated Test Suite (`cargo test --workspace` — **319/319 passing**).
 5. **Gate 5**: Executable Binary Artifact Compilation (`proteus-client`, `proteus-design-studio`).
 6. **Gate 6**: Source Code Modularity & Line Threshold Audit.
 
@@ -145,7 +151,8 @@ stop_ecosystem.bat
 - [x] **Digital Shipping Note & Dispatch Companion (`shipping_note`)** (Completed)
 - [x] **Van Sales & Mobile Sign-on-Glass**: Mobile on-the-road delivery signature capture and Bluetooth thermal printing (Completed).
 - [x] **Vendor-Managed Inventory (VMI) & Consignment Tracking**: Automated vendor replenishment signals on stock threshold breach (Completed).
-- [ ] **Cold Chain HACCP Telemetry**: Automated temperature/humidity threshold logging with Merkle audit verification.
+- [x] **Cold Chain HACCP Telemetry**: Automated temperature/humidity threshold logging with Merkle audit verification (Completed).
+- [ ] **Multi-Branch LAN Mesh Synchronization**: Direct peer-to-peer ledger sync across physical retail branches without internet dependency.
 
 ---
 

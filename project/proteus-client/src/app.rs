@@ -45,6 +45,7 @@ pub struct ProteusClientApp {
     supplier_reconcile_state: crate::views::supplier_reconcile::SupplierReconcileState,
     genealogy_rma_state: crate::views::genealogy_rma::GenealogyRmaState,
     shipping_notes_state: crate::views::shipping_notes::ShippingNotesViewState,
+    cold_chain_state: crate::views::cold_chain::ColdChainViewState,
     lan_receiver: Option<crate::lan_receiver::LanPackageReceiver>,
     lan_beacon: Option<proteus_core::lan::LanDiscoveryDaemon>,
     replication_daemon: Option<crate::replication_daemon::ReplicationDaemon>,
@@ -73,6 +74,7 @@ impl ProteusClientApp {
         let _ = init_shop_settings_schema(&conn);
         let _ = proteus_core::genealogy::init_genealogy_schema(&conn);
         let _ = proteus_core::shipping_note::init_shipping_schema(&conn);
+        let _ = proteus_core::cold_chain::init_cold_chain_schema(&conn);
         crate::views::audit_log::seed_initial_audit_events_if_empty(&conn);
 
         let receipt_config = load_shop_config(&conn);
@@ -102,6 +104,7 @@ impl ProteusClientApp {
             supplier_reconcile_state: crate::views::supplier_reconcile::SupplierReconcileState::default(),
             genealogy_rma_state: crate::views::genealogy_rma::GenealogyRmaState::default(),
             shipping_notes_state: crate::views::shipping_notes::ShippingNotesViewState::default(),
+            cold_chain_state: crate::views::cold_chain::ColdChainViewState::default(),
             lan_receiver: crate::lan_receiver::LanPackageReceiver::start(7443).ok(),
             lan_beacon: {
                 let init_label = format!("Proteus Terminal ({})", UserRole::Ceo.display_name());
@@ -304,6 +307,12 @@ impl eframe::App for ProteusClientApp {
                     &self.conn,
                     &mut self.shipping_notes_state,
                     &self.receipt_config,
+                ),
+                NavTab::ColdChain => crate::views::cold_chain::draw_cold_chain_view(
+                    ui,
+                    &self.conn,
+                    &mut self.cold_chain_state,
+                    &self.operator_name,
                 ),
             });
 

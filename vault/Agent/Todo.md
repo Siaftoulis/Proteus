@@ -179,14 +179,28 @@ tags:
 - [x] **12.4 Automated Verification Pipeline & Test Suite**
   - [x] 313/313 tests passing across all 7 workspace crates (100% green, 0 compiler warnings)
 
-## Sprint 13: Cold Chain HACCP Telemetry & IoT Sensor Bridge (ACTIVE)
-- [ ] **13.1 Cold Chain HACCP SQLite Schema & Threshold Rules (`proteus-core`)**
-  - [ ] Temperature/humidity sensor logging tables (`cold_chain_logs`, `haccp_breach_events`)
-  - [ ] Automatic breach detection on excursion above/below critical temperature limits
-- [ ] **13.2 Merkle Audit Hash Chain for HACCP Compliance (`proteus-core`)**
-  - [ ] Cryptographic SHA-256 seal per telemetry block for tamper-proof food/pharma safety certification
-- [ ] **13.3 Real-Time Fleet & Cold Storage Telemetry Dashboard (`proteus-client`)**
-  - [ ] Live sensor temperature graphs, excursion alerts, and 1-click HACCP audit report export
+## Sprint 13: Cold Chain HACCP Telemetry & IoT Sensor Bridge (Complete)
+- [x] **13.1 Cold Chain HACCP SQLite Schema & Threshold Rules (`proteus-core`)**
+  - [x] Temperature/humidity sensor logging tables (`cold_chain_sensors`, `cold_chain_logs`, `haccp_breach_events`)
+  - [x] Regulatory cold storage types (`DeepFreeze`, `Chilled`, `ControlledAmbient`, `PharmaCold`)
+  - [x] Automatic breach detection on excursion above/below critical temperature limits with severity classification
+- [x] **13.2 Merkle Audit Hash Chain for HACCP Compliance (`proteus-core`)**
+  - [x] Cryptographic SHA-256 seal per telemetry reading block for tamper-proof food/pharma safety certification
+  - [x] Official HACCP Compliance Certificate generator calculating in-spec percentages and Merkle root hash
+- [x] **13.3 Real-Time Fleet & Cold Storage Telemetry Dashboard (`proteus-client`)**
+  - [x] Dedicated view in `proteus-client` (`cold_chain.rs`) with live sensor cards, temperature indicators, and door sensors
+  - [x] Active Breaches alert panel with 1-click operator corrective action logging modal
+  - [x] 1-click HACCP compliance certificate inspection modal with SHA-256 Merkle root verification
+- [x] **13.4 Verification Pipeline & Test Suite**
+  - [x] 319/319 tests passing across all 7 workspace crates (100% green, 0 compiler warnings)
+
+## Sprint 14: Multi-Branch LAN Mesh Synchronization (ACTIVE)
+- [ ] **14.1 Peer-to-Peer Branch Mesh Discovery Protocol (`proteus-core`)**
+  - [ ] mDNS / UDP broadcast beacon advertising branch ID, epoch, and catalog checksum
+- [ ] **14.2 Differential SQLite Transaction Vector Clock (`proteus-core`)**
+  - [ ] Monotonic vector clocks tracking unmerged mutations across offline branches
+- [ ] **14.3 Multi-Branch Sync Monitor View (`proteus-client`)**
+  - [ ] Visual branch node topology graph showing peer sync status, latency, and pending delta queues
 
 ## Phase 2: Military Service Period (Nov 2026 – May 2027)
 - [ ] 2–3 shop pilot testing & bugfixing during leaves

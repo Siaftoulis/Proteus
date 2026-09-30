@@ -37,6 +37,7 @@ pub mod brief;
 pub mod genealogy;
 pub mod shipping_note;
 pub mod consignment;
+pub mod cold_chain;
 
 
 use chrono::Utc;

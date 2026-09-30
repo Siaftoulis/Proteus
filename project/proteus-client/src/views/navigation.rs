@@ -22,6 +22,7 @@ pub enum NavTab {
     SupplierReconcile,
     GenealogyRma,
     ShippingNote,
+    ColdChain,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -70,6 +71,7 @@ impl RoleWorkspace {
                 tabs.push((NavTab::ContractorLedger, "Ταμείο Υλικών & Μάστορες"));
                 tabs.push((NavTab::GenealogyRma, "Ιστορικό S/N & RMA"));
                 tabs.push((NavTab::ShippingNote, "Δελτία Αποστολής"));
+                tabs.push((NavTab::ColdChain, "❄️ Cold Chain HACCP"));
                 if active_role == UserRole::Ceo || active_role == UserRole::SalesConsultant {
                     tabs.push((NavTab::SupplierReconcile, "Τιμοκατάλογοι Προμηθευτών"));
                 }
@@ -111,6 +113,7 @@ impl RoleWorkspace {
                 if active_role == UserRole::Ceo || active_role == UserRole::BusinessAnalyst {
                     tabs.push((NavTab::EnterpriseHQ, "Multi-Store Fleet"));
                     tabs.push((NavTab::FleetRadar, "🛰 Live Telemetry Radar"));
+                    tabs.push((NavTab::ColdChain, "❄️ Cold Chain HACCP"));
                     tabs.push((NavTab::StoreDirector, "Store Director KPIs"));
                     tabs.push((NavTab::SupplierReconcile, "Τιμοκατάλογοι Προμηθευτών"));
                 }
@@ -185,13 +188,14 @@ mod tests {
 
         let p = UserRole::CustomerService.permissions();
         let tabs = RoleWorkspace::ShopCounter.sub_tabs(&p, UserRole::CustomerService);
-        assert_eq!(tabs.len(), 6);
+        assert_eq!(tabs.len(), 7);
         assert_eq!(tabs[0].0, NavTab::Intake);
         assert_eq!(tabs[1].0, NavTab::Pipeline);
         assert_eq!(tabs[2].0, NavTab::Appointments);
         assert_eq!(tabs[3].0, NavTab::ContractorLedger);
         assert_eq!(tabs[4].0, NavTab::GenealogyRma);
         assert_eq!(tabs[5].0, NavTab::ShippingNote);
+        assert_eq!(tabs[6].0, NavTab::ColdChain);
     }
 
     #[test]
@@ -204,11 +208,12 @@ mod tests {
 
         let p = UserRole::Technician.permissions();
         let tabs = RoleWorkspace::ShopCounter.sub_tabs(&p, UserRole::Technician);
-        assert_eq!(tabs.len(), 4);
+        assert_eq!(tabs.len(), 5);
         assert_eq!(tabs[0].0, NavTab::Pipeline);
         assert_eq!(tabs[1].0, NavTab::ContractorLedger);
         assert_eq!(tabs[2].0, NavTab::GenealogyRma);
         assert_eq!(tabs[3].0, NavTab::ShippingNote);
+        assert_eq!(tabs[4].0, NavTab::ColdChain);
 
         let hw_tabs = RoleWorkspace::HardwareSupport.sub_tabs(&p, UserRole::Technician);
         assert_eq!(hw_tabs.len(), 2);
