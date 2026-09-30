@@ -4,6 +4,26 @@ tags:
 ---
 # Session Log
 
+## 2026-09-30: Sprint 12 Complete — Van Sales, Mobile Sign-on-Glass & Consignment Tracking
+
+### Key Deliverables & Accomplishments
+1. **Touch-Enabled Mobile Sign-on-Glass Vector Capture (`proteus-mobile::sign_on_glass`)**:
+   - Built native pointer and touch vector signature capture pad (`SignOnGlassPad`) with drag capture and sub-pixel resolution.
+   - Implemented compact stroke serialization (`export_compact_string`) for zero-bloat SQLite storage.
+   - Added SVG path export (`export_svg`) generating vector paths for digital archival and official transport compliance.
+2. **Van Sales Dispatch Companion & Bluetooth Slip Generator (`proteus-mobile::van_sales`)**:
+   - Added `MobileTab::VanSales` ("🚚 Van") touch bar navigation for delivery drivers on the road.
+   - Built offline task manager fetching active deliveries directly from local SQLite (`fetch_van_deliveries`).
+   - Implemented 1-click delivery sign-off (`submit_mobile_delivery`) updating waybill status to `Delivered`, recording recipient name/signature, and queueing the offline dispatch outbox.
+   - Engineered direct 58mm ESC/POS raw delivery slip generator (`generate_bluetooth_mobile_slip`) for mobile Bluetooth belt printers, with company header from `ShopReceiptConfig`, Greek character encoding, and myDATA seal.
+3. **Vendor-Managed Inventory (VMI) & Consignment Tracking (`proteus-core::consignment`)**:
+   - Created full consignment stock management engine: `ConsignmentPartner`, `ConsignmentStockItem`, `ConsignmentMovement` (TransferIn, ConsumptionSale, ReturnToSupplier, InventoryAdjustment).
+   - Real SQLite schema with tables `consignment_partners`, `consignment_stock_items`, and `consignment_movements`.
+   - Built automated replenishment threshold alert triggers (`check_vmi_replenishment_alerts`) calculating replenishment suggestions whenever stock breaches `reorder_threshold`.
+4. **Automated Verification Pipeline & Test Suite**:
+   - Executed full 6-Gate Unbreakable Verification Pipeline (`scripts/verify_pipeline.ps1`). All 6 gates passed cleanly.
+   - Workspace test suite expanded to **313/313 passing automated tests (100% green, 0 compiler warnings, 0 failures)**.
+
 ## 2026-09-30: Sprint 11 Complete — Digital Shipping Note, myDATA / e-CMR Transport QR & Dispatch Companion
 
 ### Key Deliverables & Accomplishments

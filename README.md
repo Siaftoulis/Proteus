@@ -1,6 +1,6 @@
 # Proteus (BOS & CRM Builder)
 
-[![Build & Test Status](https://img.shields.io/badge/tests-305%20passed%20%2F%20100%25-brightgreen)](https://github.com/Siaftoulis/Proteus)
+[![Build & Test Status](https://img.shields.io/badge/tests-313%20passed%20%2F%20100%25-brightgreen)](https://github.com/Siaftoulis/Proteus)
 [![Rust Version](https://img.shields.io/badge/rust-1.80%2B-blue)](https://www.rust-lang.org/)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Android-lightgrey)](https://github.com/Siaftoulis/Proteus)
 [![License](https://img.shields.io/badge/license-Proprietary-red)](LICENSE)
@@ -75,6 +75,11 @@ project/
 - **Network Hardening**: Protected LAN receiver (port 7443) with strict payload capping and DoS mitigation.
 - **Unbreakable Verification Pipeline (`verify_pipeline.bat` / `.ps1`)**: Automated 6-stage verification gate enforcing 100% test passes, storage safety, zero mock data, and compilation integrity.
 
+### 6. Van Sales, Mobile Sign-on-Glass & Consignment Tracking (`proteus-mobile` & `proteus-core`)
+- **Touch-Enabled Sign-on-Glass Vector Pad (`sign_on_glass.rs`)**: Sub-pixel pointer drag capture, compact stroke serialization for SQLite, and SVG path export.
+- **Van Sales Dispatch Companion (`van_sales.rs`)**: Mobile task board listing active delivery waybills, 1-click delivery completion with signature capture, offline outbox queuing, and 58mm Bluetooth thermal slip generation.
+- **Vendor-Managed Inventory (VMI) & Consignment Engine (`consignment.rs`)**: Real SQLite tracking of consignment partners, warehouse item balances, movements (inward transfer, consumption sale, return), and automated replenishment threshold alert triggers (`check_vmi_replenishment_alerts`).
+
 ---
 
 ## Automated Verification Pipeline
@@ -93,7 +98,7 @@ scripts\verify_pipeline.bat
 1. **Gate 1**: Static Type & Compilation Audit (`cargo check --workspace --all-targets`).
 2. **Gate 2**: Security & Storage Pragma Audit (`WAL` mode + `busy_timeout = 5000`).
 3. **Gate 3**: Zero Mock Data Policy Audit (scans views for forbidden mock arrays).
-4. **Gate 4**: 100% Automated Test Suite (`cargo test --workspace` — **304/304 passing**).
+4. **Gate 4**: 100% Automated Test Suite (`cargo test --workspace` — **313/313 passing**).
 5. **Gate 5**: Executable Binary Artifact Compilation (`proteus-client`, `proteus-design-studio`).
 6. **Gate 6**: Source Code Modularity & Line Threshold Audit.
 
@@ -138,8 +143,8 @@ stop_ecosystem.bat
 - [x] **Rebranding & Identity Unification** (`proteus-core` / `proteus-design-studio`) (Completed)
 - [x] **Unbreakable Quality & Security Verification Pipeline** (Completed)
 - [x] **Digital Shipping Note & Dispatch Companion (`shipping_note`)** (Completed)
-- [ ] **Van Sales & Mobile Sign-on-Glass**: Mobile on-the-road delivery signature capture and Bluetooth thermal printing.
-- [ ] **Vendor-Managed Inventory (VMI) & Consignment Tracking**: Automated vendor replenishment signals on stock threshold breach.
+- [x] **Van Sales & Mobile Sign-on-Glass**: Mobile on-the-road delivery signature capture and Bluetooth thermal printing (Completed).
+- [x] **Vendor-Managed Inventory (VMI) & Consignment Tracking**: Automated vendor replenishment signals on stock threshold breach (Completed).
 - [ ] **Cold Chain HACCP Telemetry**: Automated temperature/humidity threshold logging with Merkle audit verification.
 
 ---

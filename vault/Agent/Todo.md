@@ -164,14 +164,29 @@ tags:
   - [x] Frontline view in `proteus-client` (`shipping_notes.rs`) with search, filter, and 1-click delivery sign-off
   - [x] 305/305 automated tests passing (100% green)
 
-## Sprint 12: Van Sales, Mobile Sign-on-Glass & Consignment Tracking (ACTIVE)
-- [ ] **12.1 Handheld Touch Sign-on-Glass Capture (`proteus-mobile`)**
-  - [ ] Vector signature path capture on mobile touch screen
-  - [ ] Embedding receiver signature into delivery outbox record
-- [ ] **12.2 Bluetooth Mobile Thermal Slip Printing (`proteus-mobile`)**
-  - [ ] Direct Bluetooth SPP / BLE raw ESC/POS slip generation for mobile belt printers
-- [ ] **12.3 Vendor-Managed Inventory (VMI) & Consignment Tracking (`proteus-core`)**
-  - [ ] Consignment stock ledger tracking goods held at third-party partner premises
+## Sprint 12: Van Sales, Mobile Sign-on-Glass & Consignment Tracking (Complete)
+- [x] **12.1 Handheld Touch Sign-on-Glass Capture (`proteus-mobile`)**
+  - [x] Vector signature path capture on mobile touch screen (`SignOnGlassPad`)
+  - [x] Vector stroke serialization and SVG path export (`export_svg`, `export_compact_string`)
+  - [x] Embedding receiver signature into delivery outbox record and SQLite waybill
+- [x] **12.2 Bluetooth Mobile Thermal Slip Printing (`proteus-mobile`)**
+  - [x] Direct Bluetooth SPP / BLE raw ESC/POS slip generation for 58mm mobile belt printers (`generate_bluetooth_mobile_slip`)
+  - [x] Van sales dispatch companion board with real-time delivery status advancement
+- [x] **12.3 Vendor-Managed Inventory (VMI) & Consignment Tracking (`proteus-core`)**
+  - [x] Consignment stock ledger tracking goods held at third-party partner premises (`ConsignmentPartner`, `ConsignmentStockItem`)
+  - [x] Real SQLite tracking of consignment movements (transfers in, consumption sales, returns)
+  - [x] Automated replenishment threshold alert triggers (`check_vmi_replenishment_alerts`)
+- [x] **12.4 Automated Verification Pipeline & Test Suite**
+  - [x] 313/313 tests passing across all 7 workspace crates (100% green, 0 compiler warnings)
+
+## Sprint 13: Cold Chain HACCP Telemetry & IoT Sensor Bridge (ACTIVE)
+- [ ] **13.1 Cold Chain HACCP SQLite Schema & Threshold Rules (`proteus-core`)**
+  - [ ] Temperature/humidity sensor logging tables (`cold_chain_logs`, `haccp_breach_events`)
+  - [ ] Automatic breach detection on excursion above/below critical temperature limits
+- [ ] **13.2 Merkle Audit Hash Chain for HACCP Compliance (`proteus-core`)**
+  - [ ] Cryptographic SHA-256 seal per telemetry block for tamper-proof food/pharma safety certification
+- [ ] **13.3 Real-Time Fleet & Cold Storage Telemetry Dashboard (`proteus-client`)**
+  - [ ] Live sensor temperature graphs, excursion alerts, and 1-click HACCP audit report export
 
 ## Phase 2: Military Service Period (Nov 2026 – May 2027)
 - [ ] 2–3 shop pilot testing & bugfixing during leaves

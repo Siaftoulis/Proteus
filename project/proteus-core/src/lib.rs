@@ -36,6 +36,7 @@ pub mod supplier_catalog;
 pub mod brief;
 pub mod genealogy;
 pub mod shipping_note;
+pub mod consignment;
 
 
 use chrono::Utc;

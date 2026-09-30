@@ -52,10 +52,14 @@ pub fn render_mobile_logo_widget(ui: &mut Ui, size: Vec2) -> egui::Response {
     resp
 }
 
+pub mod sign_on_glass;
+pub mod van_sales;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MobileTab {
     Tickets,
     NewIntake,
+    VanSales,
     Scanner,
     Profile,
 }
@@ -73,6 +77,7 @@ pub struct MobileAppState {
     pub scanned_code: String,
     pub lan_host: String,
     pub lan_port: u16,
+    pub van_sales_state: crate::van_sales::VanSalesState,
 }
 
 impl Default for MobileAppState {
@@ -85,6 +90,7 @@ impl Default for MobileAppState {
         let _ = proteus_core::tickets::init_tickets_schema(&conn);
         let _ = proteus_core::printer::init_shop_settings_schema(&conn);
         let _ = init_outbox_schema(&conn);
+        let _ = proteus_core::shipping_note::init_shipping_schema(&conn);
         let shop_config = load_shop_config(&conn);
 
         Self {
@@ -100,6 +106,7 @@ impl Default for MobileAppState {
             scanned_code: String::new(),
             lan_host: "127.0.0.1".into(),
             lan_port: 7443,
+            van_sales_state: crate::van_sales::VanSalesState::default(),
         }
     }
 }
@@ -244,6 +251,7 @@ pub fn render_mobile_view(ui: &mut Ui, state: &mut MobileAppState) {
             match state.active_tab {
                 MobileTab::Tickets => render_tickets_tab(ui, state),
                 MobileTab::NewIntake => render_intake_tab(ui, state),
+                MobileTab::VanSales => crate::van_sales::render_van_sales_tab(ui, state),
                 MobileTab::Scanner => render_scanner_tab(ui, state),
                 MobileTab::Profile => render_profile_tab(ui, state),
             }
@@ -259,11 +267,12 @@ pub fn render_mobile_view(ui: &mut Ui, state: &mut MobileAppState) {
                 ui.horizontal(|ui| {
                     let tabs = [
                         (MobileTab::Tickets, "📋 Εντολές"),
-                        (MobileTab::NewIntake, "➕ Παραλαβή"),
+                        (MobileTab::NewIntake, "➕ Νέα"),
+                        (MobileTab::VanSales, "🚚 Van"),
                         (MobileTab::Scanner, "🔍 Scan"),
-                        (MobileTab::Profile, "🏪 Κατάστημα"),
+                        (MobileTab::Profile, "🏪 Store"),
                     ];
-                    let btn_width = (ui.available_width() - 24.0) / 4.0;
+                    let btn_width = (ui.available_width() - 32.0) / 5.0;
                     for (tab, label) in tabs {
                         let is_active = state.active_tab == tab;
                         let btn = ui.add_sized(

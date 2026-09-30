@@ -7,9 +7,9 @@ aliases:
 ---
 # Project Status
 
-> **Phase:** Sprint 11 — **Global Logistics & Digital Shipping Note (Sep 29 – Oct 31, 2026)**  
+> **Phase:** Sprint 12 — **Van Sales, Mobile Sign-on-Glass & Consignment Tracking (Complete)**  
 > **Master Blueprint:** [[../Developer/14 - Proteus BOS Blueprint|14 - Proteus BOS Blueprint]]  
-> **Current Objective:** Build Digital Shipping Note / Dispatch Companion (`shipping_note`) with myDATA / e-CMR QR-code waybill generation, ESC/POS delivery slips, and offline dispatch outbox before military enlistment on Nov 1, 2026.
+> **Current Objective:** Progress into Sprint 13 (Cold Chain HACCP Telemetry & IoT Sensor Bridge) before military enlistment on Nov 1, 2026.
 
 ```dataviewjs
 dv.table(["Milestone", "Status"],
@@ -29,7 +29,8 @@ dv.table(["Milestone", "Status"],
     ["Sprint 9: Bespoke Brief Engine, Domain Gateway & ESC/POS Viewport", "[x] Done (Sept 28)"],
     ["Sprint 10: Sovereign Distribution, Genealogy/RMA & Verification Pipeline", "[x] Done (Sept 29)"],
     ["Sprint 11: Digital Shipping Note & Dispatch Companion (myDATA / e-CMR)", "[x] Done (Sept 30)"],
-    ["Sprint 12: Van Sales, Mobile Sign-on-Glass & Consignment Tracking", "[ ] In Progress"],
+    ["Sprint 12: Van Sales, Mobile Sign-on-Glass & Consignment Tracking", "[x] Done (Sept 30)"],
+    ["Sprint 13: Cold Chain HACCP Telemetry & IoT Sensor Bridge", "[ ] In Progress"],
     ["Phase 2: 6-Month Military Service (Zero-cost maintenance & feedback)", "[ ] Nov 2026 - May 2027"],
     ["Phase 3: Commercial Launch via Lemon Squeezy / Paddle (MoR)", "[ ] May 2027"],
     ["Phase 4: Single-Member IKE Formation (gov.gr post-revenue >2,000€)", "[ ] Post-Launch"],
@@ -46,17 +47,17 @@ dv.table(["Milestone", "Status"],
 | Core Records Engine | ✅ Complete | Multi-tenant schema, SMLM Data Profiler, SQLite WAL, Flow DAG walker with branching |
 | Native Desktop UI | ✅ Advanced | Pure Rust `eframe`/`egui`, undo/redo, shortcuts, touch viewport profiles, ESC/POS canvas |
 | Backend (Rust) | ✅ Excellent | 7 modular workspace crates (`proteus-core`, `proteus-design-studio`, `proteus-client`, `proteus-web`, `proteus-mobile`, `auth-server`, `license-server`) |
-| Tests | ✅ 100% Pass | **305 total passing tests**, 0 warnings, 0 failures (100% green across all 7 crates) |
+| Tests | ✅ 100% Pass | **313 total passing tests**, 0 warnings, 0 failures (100% green across all 7 crates) |
 | Verification Pipeline | ✅ Active | Unbreakable 6-stage automated gate (`verify_pipeline.ps1` / `.bat`) |
 
-## Component Progress (Sprint 11 — Complete)
+## Component Progress (Sprint 12 — Complete)
 
 | Component | Status | Target Date | Notes |
 |-----------|--------|-------------|-------|
-| Digital Shipping Note Schema | ✅ Done | Sprint 11.1 | DDL for `shipping_notes` with sender/recipient AFM, vehicle plate, timestamps |
-| myDATA / e-CMR QR Generator | ✅ Done | Sprint 11.2 | QR code format complying with IAPR / AADE real-time transport tracking & SHA-256 seal |
-| ESC/POS Delivery Waybill Slip | ✅ Done | Sprint 11.3 | Thermal 80mm/58mm printable delivery voucher with goods table, QR payload & signature area |
-| Dispatch Outbox & Offline Queue | ✅ Done | Sprint 11.4 | Local SQLite store-and-forward outbox (`shipping_outbox`) for drivers |
-| Frontline Dispatch Inspector View | ✅ Done | Sprint 11.5 | Frontline view in `proteus-client` (`shipping_notes.rs`) with search, filter, and 1-click delivery sign-off |
+| Handheld Sign-on-Glass Capture | ✅ Done | Sprint 12.1 | Vector pointer drag capture, compact stroke serialization, and SVG path export (`sign_on_glass.rs`) |
+| Bluetooth Mobile Thermal Slip | ✅ Done | Sprint 12.2 | Direct 58mm ESC/POS raw delivery voucher generator for mobile belt printers (`generate_bluetooth_mobile_slip`) |
+| Van Sales Companion Tab | ✅ Done | Sprint 12.2 | Mobile tab in `proteus-mobile` with offline SQLite waybill listing and 1-click delivery sign-off |
+| VMI & Consignment Tracking Engine | ✅ Done | Sprint 12.3 | Consignment partner balances, stock movements (transfers, sales, returns) & threshold alerts (`consignment.rs`) |
+| Verification Pipeline (313 Tests) | ✅ Done | Sprint 12.4 | All 6 verification gates passed cleanly across entire workspace |
 
 Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P28)]]

@@ -200,10 +200,17 @@ tags:
 - [x] Frontline Dispatch Inspector in `proteus-client` (`shipping_notes.rs`) with vehicle selection and 1-click delivery sign-off
 - [x] 305/305 passing automated tests across all 7 workspace crates
 
-## Sprint 12 (Van Sales & Mobile Sign-on-Glass) — ACTIVE
-- [ ] Handheld vector sign-on-glass capture (`proteus-mobile`)
-- [ ] Bluetooth mobile thermal receipt printer integration
-- [ ] Vendor-Managed Inventory (VMI) & Consignment Tracking (`proteus-core`)
+## Sprint 12 (Van Sales, Mobile Sign-on-Glass & Consignment Tracking) — Complete
+- [x] Handheld vector sign-on-glass capture (`proteus-mobile`)
+- [x] Bluetooth mobile thermal receipt printer integration (58mm ESC/POS)
+- [x] Van sales delivery tab in `proteus-mobile` with offline SQLite sync outbox
+- [x] Vendor-Managed Inventory (VMI) & Consignment Tracking (`proteus-core`)
+- [x] 313/313 passing automated tests across all 7 workspace crates
+
+## Sprint 13 (Cold Chain HACCP Telemetry & IoT Sensor Bridge) — ACTIVE
+- [ ] Cold chain temperature/humidity SQLite tables and breach rules (`proteus-core`)
+- [ ] Cryptographic Merkle hash-chain for HACCP safety certification
+- [ ] Real-time fleet & cold storage telemetry dashboard in `proteus-client`
 
 ## Future (Phase 2 - Post-Military Commercial Launch)
 - [ ] Merchant of Record setup (Lemon Squeezy / Paddle)
