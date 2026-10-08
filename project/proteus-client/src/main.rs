@@ -12,6 +12,16 @@ use eframe::NativeOptions;
 fn main() -> eframe::Result<()> {
     tracing_subscriber::fmt::init();
 
+    std::panic::set_hook(Box::new(|info| {
+        use std::io::Write;
+        let p = std::env::current_exe().ok().and_then(|p| p.parent().map(|d| d.join("proteus_client_panic.txt")));
+        if let Some(path) = p {
+            if let Ok(mut f) = std::fs::File::create(path) {
+                let _ = writeln!(f, "PANIC: {:#?}", info);
+            }
+        }
+    }));
+
     let native_options = NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("Proteus Client — Service BOS")

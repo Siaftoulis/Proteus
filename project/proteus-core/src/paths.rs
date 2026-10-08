@@ -58,6 +58,29 @@ pub fn ensure_database_dir_exists(db_path: &std::path::Path) -> std::io::Result<
     Ok(())
 }
 
+/// Opens a connection to the standard store database with full storage tuning:
+/// - WAL journal mode for high concurrency
+/// - NORMAL synchronous mode for crash-safe speed
+/// - 5,000ms busy_timeout eliminating SQLITE_BUSY lockouts
+/// - Auto-creation of parent storage directories
+pub fn open_store_connection() -> Result<rusqlite::Connection, rusqlite::Error> {
+    let db_path = get_database_path();
+    let _ = ensure_database_dir_exists(&db_path);
+    let conn = rusqlite::Connection::open(&db_path)?;
+    crate::apply_storage_tuning(&conn)?;
+    Ok(conn)
+}
+
+/// Opens a tuned connection to any SQLite database path with 5,000ms busy timeout and WAL mode.
+pub fn open_tuned_connection<P: AsRef<std::path::Path>>(path: P) -> Result<rusqlite::Connection, rusqlite::Error> {
+    let p = path.as_ref();
+    let _ = ensure_database_dir_exists(p);
+    let conn = rusqlite::Connection::open(p)?;
+    crate::apply_storage_tuning(&conn)?;
+    Ok(conn)
+}
+
+
 /// Returns the platform-standard backups directory path.
 ///
 /// - Windows: `%APPDATA%\Proteus\backups`

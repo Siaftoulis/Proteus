@@ -5,7 +5,7 @@
 use proteus_core::paths::{ensure_database_dir_exists, get_database_path};
 use proteus_core::printer::{load_shop_config, ShopReceiptConfig};
 use proteus_core::replication::{enqueue_outbox_with_priority, fetch_pending_outbox, init_outbox_schema, ChangeOp, DataPriority};
-use proteus_core::tickets::{create_ticket, list_tickets, ServiceTicket};
+use proteus_core::tickets::{create_ticket, ServiceTicket};
 use egui::{Color32, CornerRadius, FontId, Frame, Margin, RichText, Stroke, Ui, Vec2};
 use rusqlite::Connection;
 
@@ -25,16 +25,13 @@ static EMBLEM_RGBA_128: &[u8] = include_bytes!("../../assets/proteus_emblem_128.
 /// Obtains or caches the King Proteus emblem texture handle for mobile.
 pub fn get_or_load_mobile_emblem_texture(ctx: &egui::Context) -> egui::TextureHandle {
     let id = egui::Id::new("pds_mobile_king_proteus_emblem_tex");
-    ctx.data_mut(|d| {
-        if let Some(tex) = d.get_temp::<egui::TextureHandle>(id) {
-            tex
-        } else {
-            let img = egui::ColorImage::from_rgba_unmultiplied([128, 128], EMBLEM_RGBA_128);
-            let tex = ctx.load_texture("pds_mobile_king_proteus_emblem", img, egui::TextureOptions::LINEAR);
-            d.insert_temp(id, tex.clone());
-            tex
-        }
-    })
+    if let Some(tex) = ctx.data(|d| d.get_temp::<egui::TextureHandle>(id)) {
+        return tex;
+    }
+    let img = egui::ColorImage::from_rgba_unmultiplied([128, 128], EMBLEM_RGBA_128);
+    let tex = ctx.load_texture("pds_mobile_king_proteus_emblem", img, egui::TextureOptions::LINEAR);
+    ctx.data_mut(|d| d.insert_temp(id, tex.clone()));
+    tex
 }
 
 /// Helper widget to render the official King Proteus logo emblem on mobile touch surfaces.
@@ -52,7 +49,14 @@ pub fn render_mobile_logo_widget(ui: &mut Ui, size: Vec2) -> egui::Response {
     resp
 }
 
+pub mod device;
+pub mod hotspot_bridge;
+pub mod intake_tab;
+pub mod profile;
+pub mod scanner;
 pub mod sign_on_glass;
+pub mod sync_daemon;
+pub mod tickets_tab;
 pub mod van_sales;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -77,7 +81,14 @@ pub struct MobileAppState {
     pub scanned_code: String,
     pub lan_host: String,
     pub lan_port: u16,
+    pub paired_terminal: Option<String>,
+    pub store_id: Option<String>,
+    pub terminal_id: Option<String>,
+    pub relay_url: Option<String>,
+    pub auth_token: Option<String>,
+    pub sync_controller: crate::sync_daemon::MobileSyncController,
     pub van_sales_state: crate::van_sales::VanSalesState,
+    pub device_ctx: crate::device::DeviceContext,
 }
 
 impl Default for MobileAppState {
@@ -106,7 +117,14 @@ impl Default for MobileAppState {
             scanned_code: String::new(),
             lan_host: "127.0.0.1".into(),
             lan_port: 7443,
+            paired_terminal: None,
+            store_id: None,
+            terminal_id: None,
+            relay_url: Some("https://relay.proteus-bos.gr:8443".to_string()),
+            auth_token: None,
+            sync_controller: crate::sync_daemon::MobileSyncController::default(),
             van_sales_state: crate::van_sales::VanSalesState::default(),
+            device_ctx: crate::device::DeviceContext::default(),
         }
     }
 }
@@ -114,6 +132,22 @@ impl Default for MobileAppState {
 impl MobileAppState {
     pub fn reload_config(&mut self) {
         self.shop_config = load_shop_config(&self.conn);
+    }
+
+    pub fn relay_params(&self) -> Option<crate::sync_daemon::RelaySyncParams> {
+        let relay_url = self.relay_url.as_ref()?;
+        let store_id = self.store_id.as_ref()?;
+        let terminal_id = self.terminal_id.as_ref()?;
+        let secret = self.auth_token.as_ref()?;
+
+        Some(crate::sync_daemon::RelaySyncParams {
+            relay_url: relay_url.clone(),
+            session_id: format!("sess-{}-{}", store_id, crate::sync_daemon::current_epoch_secs()),
+            client_id: "mobile-companion".to_string(),
+            store_id: store_id.clone(),
+            recipient_terminal_id: terminal_id.clone(),
+            pairing_secret: secret.clone(),
+        })
     }
 
     pub fn submit_ticket(&mut self) -> Result<String, String> {
@@ -144,6 +178,7 @@ impl MobileAppState {
                 self.intake_phone.clear();
                 self.intake_device.clear();
                 self.intake_problem.clear();
+                self.sync_controller.trigger_immediate();
                 Ok(ticket_id)
             }
             Err(e) => Err(format!("Σφάλμα SQLite: {}", e)),
@@ -151,48 +186,56 @@ impl MobileAppState {
     }
 
     pub fn sync_outbox_to_lan(&mut self) -> Result<usize, String> {
-        use std::io::{Read, Write};
-        use std::net::TcpStream;
-        use std::time::Duration;
-
-        let pending = fetch_pending_outbox(&self.conn, 50).map_err(|e| e.to_string())?;
-        if pending.is_empty() {
-            return Ok(0);
-        }
-
-        let payload = serde_json::to_string(&pending).map_err(|e| e.to_string())?;
-        let target = format!("{}:{}", self.lan_host, self.lan_port);
-        let mut stream = TcpStream::connect_timeout(
-            &target.parse().map_err(|_| format!("Μη έγκυρη διεύθυνση {}", target))?,
-            Duration::from_secs(3),
-        ).map_err(|e| format!("Αποτυχία σύνδεσης LAN σε {}: {}", target, e))?;
-
-        let req = format!(
-            "POST /api/sync/outbox HTTP/1.1\r\nHost: {}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
-            target, payload.len(), payload
+        let r_params = self.relay_params();
+        let res = crate::sync_daemon::perform_resilient_sync(
+            &self.conn,
+            &self.lan_host,
+            self.lan_port,
+            self.auth_token.as_deref(),
+            r_params.as_ref(),
         );
+        match &res {
+            Ok((cnt, transport)) => self.sync_controller.record_success(*cnt, *transport),
+            Err(e) => self.sync_controller.record_failure(e.clone()),
+        }
+        res.map(|(cnt, _)| cnt)
+    }
 
-        stream.write_all(req.as_bytes()).map_err(|e| format!("Σφάλμα αποστολής: {}", e))?;
-        let mut resp = String::new();
-        let _ = stream.read_to_string(&mut resp);
-
-        if resp.contains("200 OK") {
-            for rec in &pending {
-                let _ = proteus_core::replication::mark_outbox_status(
-                    &self.conn,
-                    &rec.id,
-                    proteus_core::replication::SyncStatus::Synced,
-                );
+    pub fn auto_sync_tick(&mut self) {
+        let r_params = self.relay_params();
+        if let Some(res) = crate::sync_daemon::step_resilient_auto_sync(
+            &self.conn,
+            &mut self.sync_controller,
+            &self.lan_host,
+            self.lan_port,
+            self.auth_token.as_deref(),
+            r_params.as_ref(),
+        ) {
+            match res {
+                Ok((cnt, transport)) if cnt > 0 => {
+                    let transport_label = match transport {
+                        crate::sync_daemon::SyncTransport::LanDirect => "LAN",
+                        crate::sync_daemon::SyncTransport::CloudRelay => "Cloud Relay",
+                    };
+                    self.status_message = Some((
+                        format!("✓ Συγχρονίστηκαν {} εγγραφές μέσω {}!", cnt, transport_label),
+                        true,
+                    ));
+                }
+                Err(e) => {
+                    self.status_message = Some((format!("📶 Σφάλμα συγχρονισμού: {}", e), false));
+                }
+                _ => {}
             }
-            Ok(pending.len())
-        } else {
-            Err(format!("Σφάλμα συγχρονισμού: {}", resp.lines().next().unwrap_or("Άγνωστο")))
         }
     }
 }
 
 /// Renders the mobile PDS client touch UI.
 pub fn render_mobile_view(ui: &mut Ui, state: &mut MobileAppState) {
+    // 0. Auto-sync periodic tick
+    state.auto_sync_tick();
+
     // 1. Mobile Top Status Bar & Branding (Safe Area Top)
     Frame::new()
         .fill(BG_PANEL)
@@ -208,23 +251,44 @@ pub fn render_mobile_view(ui: &mut Ui, state: &mut MobileAppState) {
                         .color(TEXT_TITLE),
                 );
                 let pending = fetch_pending_outbox(&state.conn, 100).map(|v| v.len()).unwrap_or(0);
+                let now = crate::sync_daemon::current_epoch_secs();
+                let status_info = state.sync_controller.status_display(pending, now);
+
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    if pending == 0 {
-                        ui.label(
-                            RichText::new("🟢 Synced")
-                                .font(FontId::proportional(11.0))
-                                .color(Color32::from_rgb(56, 161, 105)),
-                        );
-                    } else {
-                        let sync_text = format!("⚡ Sync ({})", pending);
-                        if ui.button(RichText::new(sync_text).font(FontId::proportional(11.0)).color(ACCENT_GOLD)).clicked() {
-                            match state.sync_outbox_to_lan() {
-                                Ok(cnt) => {
-                                    state.status_message = Some((format!("✓ Συγχρονίστηκαν {} εγγραφές!", cnt), true));
+                    match status_info {
+                        crate::sync_daemon::SyncStatusInfo::Synced { transport } => {
+                            let (icon, label, color) = match transport {
+                                crate::sync_daemon::SyncTransport::LanDirect => {
+                                    ("🟢", "LAN Synced", Color32::from_rgb(56, 161, 105))
                                 }
-                                Err(e) => {
-                                    state.status_message = Some((e, false));
+                                crate::sync_daemon::SyncTransport::CloudRelay => {
+                                    ("🌐", "Relay Synced", Color32::from_rgb(129, 140, 248))
                                 }
+                            };
+                            ui.label(
+                                RichText::new(format!("{} {}", icon, label))
+                                    .font(FontId::proportional(11.0))
+                                    .color(color),
+                            );
+                        }
+                        crate::sync_daemon::SyncStatusInfo::Syncing => {
+                            ui.label(
+                                RichText::new("🔄 Syncing...")
+                                    .font(FontId::proportional(11.0))
+                                    .color(Color32::from_rgb(56, 189, 248)),
+                            );
+                        }
+                        crate::sync_daemon::SyncStatusInfo::Pending(cnt) => {
+                            let sync_text = format!("⚡ Sync ({})", cnt);
+                            if ui.button(RichText::new(sync_text).font(FontId::proportional(11.0)).color(ACCENT_GOLD)).clicked() {
+                                let _ = state.sync_outbox_to_lan();
+                            }
+                        }
+                        crate::sync_daemon::SyncStatusInfo::Offline { retrying_in_secs } => {
+                            let retry_text = format!("📶 Offline ({}s)", retrying_in_secs);
+                            if ui.button(RichText::new(retry_text).font(FontId::proportional(10.5)).color(TEXT_BODY)).clicked() {
+                                state.sync_controller.trigger_immediate();
+                                let _ = state.sync_outbox_to_lan();
                             }
                         }
                     }
@@ -249,11 +313,11 @@ pub fn render_mobile_view(ui: &mut Ui, state: &mut MobileAppState) {
         .max_height(avail_height)
         .show(ui, |ui| {
             match state.active_tab {
-                MobileTab::Tickets => render_tickets_tab(ui, state),
-                MobileTab::NewIntake => render_intake_tab(ui, state),
+                MobileTab::Tickets => crate::tickets_tab::render_tickets_tab(ui, state),
+                MobileTab::NewIntake => crate::intake_tab::render_intake_tab(ui, state),
                 MobileTab::VanSales => crate::van_sales::render_van_sales_tab(ui, state),
-                MobileTab::Scanner => render_scanner_tab(ui, state),
-                MobileTab::Profile => render_profile_tab(ui, state),
+                MobileTab::Scanner => crate::scanner::render_scanner_tab(ui, state),
+                MobileTab::Profile => crate::profile::render_profile_tab(ui, state),
             }
         });
 
@@ -295,175 +359,6 @@ pub fn render_mobile_view(ui: &mut Ui, state: &mut MobileAppState) {
     });
 }
 
-fn render_tickets_tab(ui: &mut Ui, state: &mut MobileAppState) {
-    ui.horizontal(|ui| {
-        ui.add_sized(
-            Vec2::new(ui.available_width(), 38.0),
-            egui::TextEdit::singleline(&mut state.search_query).hint_text("🔍 Αναζήτηση πελάτη ή συσκευής..."),
-        );
-    });
-    ui.add_space(8.0);
-
-    let tickets = list_tickets(&state.conn).unwrap_or_default();
-    let q = state.search_query.to_lowercase();
-    let filtered: Vec<&ServiceTicket> = tickets
-        .iter()
-        .filter(|t| {
-            q.is_empty()
-                || t.customer_name.to_lowercase().contains(&q)
-                || t.device_model.to_lowercase().contains(&q)
-                || t.ticket_id.to_lowercase().contains(&q)
-        })
-        .collect();
-
-    if filtered.is_empty() {
-        ui.label(RichText::new("Δεν βρέθηκαν ενεργές εντολές στη βάση SQLite.").color(TEXT_BODY));
-        return;
-    }
-
-    for t in filtered {
-        Frame::new()
-            .fill(BG_CARD)
-            .stroke(Stroke::new(1.0, BORDER_LINE))
-            .corner_radius(CornerRadius::same(6))
-            .inner_margin(Margin::same(10))
-            .show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    ui.label(RichText::new(&t.customer_name).strong().color(TEXT_TITLE));
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        ui.label(RichText::new(t.current_status.display_name()).size(11.0).color(ACCENT_GOLD));
-                    });
-                });
-                ui.label(RichText::new(format!("{} | {}", t.device_model, t.reported_fault)).size(11.5).color(TEXT_BODY));
-                ui.label(RichText::new(format!("#{}: {}", t.ticket_number, t.ticket_id)).size(9.5).color(BORDER_LINE));
-            });
-        ui.add_space(6.0);
-    }
-}
-
-fn render_intake_tab(ui: &mut Ui, state: &mut MobileAppState) {
-    ui.label(RichText::new("Γρήγορη Παραλαβή Συσκευής").strong().size(14.0).color(TEXT_TITLE));
-    ui.add_space(6.0);
-
-    ui.label(RichText::new("Ονοματεπώνυμο:").size(11.5).color(TEXT_BODY));
-    ui.add_sized(Vec2::new(ui.available_width(), 38.0), egui::TextEdit::singleline(&mut state.intake_customer));
-
-    ui.label(RichText::new("Τηλέφωνο:").size(11.5).color(TEXT_BODY));
-    ui.add_sized(Vec2::new(ui.available_width(), 38.0), egui::TextEdit::singleline(&mut state.intake_phone));
-
-    ui.label(RichText::new("Μοντέλο / Συσκευή:").size(11.5).color(TEXT_BODY));
-    ui.add_sized(Vec2::new(ui.available_width(), 38.0), egui::TextEdit::singleline(&mut state.intake_device));
-
-    ui.label(RichText::new("Περιγραφή Βλάβης:").size(11.5).color(TEXT_BODY));
-    ui.add_sized(Vec2::new(ui.available_width(), 60.0), egui::TextEdit::multiline(&mut state.intake_problem));
-
-    ui.add_space(10.0);
-    let submit_btn = ui.add_sized(
-        Vec2::new(ui.available_width(), MIN_TOUCH_TARGET),
-        egui::Button::new(RichText::new("💾 Καταχώρηση στη SQLite").strong().color(TEXT_TITLE))
-            .fill(BG_PANEL)
-            .stroke(Stroke::new(1.0, ACCENT_GOLD))
-            .corner_radius(CornerRadius::same(6)),
-    );
-
-    if submit_btn.clicked() {
-        match state.submit_ticket() {
-            Ok(id) => {
-                state.status_message = Some((format!("✓ Η εντολή {} καταχωρήθηκε επιτυχώς!", id), true));
-                state.active_tab = MobileTab::Tickets;
-            }
-            Err(e) => {
-                state.status_message = Some((e, false));
-            }
-        }
-    }
-}
-
-fn render_scanner_tab(ui: &mut Ui, state: &mut MobileAppState) {
-    ui.label(RichText::new("Barcode & QR Scanner (Handheld)").strong().size(14.0).color(TEXT_TITLE));
-    ui.label(RichText::new("Υποδομή κάμερας / optical scanner για άμεση εύρεση εντολής.").size(11.5).color(TEXT_BODY));
-    ui.add_space(12.0);
-
-    Frame::new()
-        .fill(BG_BASE)
-        .stroke(Stroke::new(1.5, ACCENT_GOLD))
-        .corner_radius(CornerRadius::same(8))
-        .inner_margin(Margin::same(20))
-        .show(ui, |ui| {
-            ui.vertical_centered(|ui| {
-                ui.label(RichText::new("📷").size(32.0));
-                ui.label(RichText::new("[ Optical Scanner Window ]").color(TEXT_BODY).size(12.0));
-            });
-        });
-
-    ui.add_space(12.0);
-    ui.label(RichText::new("Χειροκίνητη εισαγωγή ID ή σάρωση:").size(11.5).color(TEXT_BODY));
-    ui.add_sized(Vec2::new(ui.available_width(), 38.0), egui::TextEdit::singleline(&mut state.scanned_code));
-
-    if ui.add_sized(Vec2::new(ui.available_width(), MIN_TOUCH_TARGET), egui::Button::new("Αναζήτηση Εντολής")).clicked() {
-        state.search_query = state.scanned_code.clone();
-        state.active_tab = MobileTab::Tickets;
-    }
-}
-
-fn render_profile_tab(ui: &mut Ui, state: &mut MobileAppState) {
-    state.reload_config();
-    ui.label(RichText::new("Στοιχεία Καταστήματος (SQLite)").strong().size(14.0).color(TEXT_TITLE));
-    ui.add_space(8.0);
-
-    Frame::new()
-        .fill(BG_CARD)
-        .stroke(Stroke::new(1.0, BORDER_LINE))
-        .corner_radius(CornerRadius::same(6))
-        .inner_margin(Margin::same(12))
-        .show(ui, |ui| {
-            ui.horizontal(|ui| {
-                render_mobile_logo_widget(ui, Vec2::new(36.0, 36.0));
-                ui.add_space(8.0);
-                ui.vertical(|ui| {
-                    ui.label(RichText::new(&state.shop_config.shop_name).strong().size(13.0).color(TEXT_TITLE));
-                    ui.label(RichText::new("Proteus Business OS Mobile").size(11.0).color(TEXT_BODY));
-                });
-            });
-            ui.add_space(8.0);
-            ui.label(RichText::new(format!("Διεύθυνση: {}", state.shop_config.address)).size(11.5).color(TEXT_BODY));
-            ui.label(RichText::new(format!("Τηλέφωνο: {}", state.shop_config.phone)).size(11.5).color(TEXT_BODY));
-            ui.label(RichText::new(format!("Footer: {}", state.shop_config.footer_message)).size(11.5).color(TEXT_BODY));
-            ui.label(RichText::new(format!("Λογότυπο / Εικονίδιο: {}", state.shop_config.logo_icon)).size(11.5).color(ACCENT_GOLD));
-        });
-
-    ui.add_space(10.0);
-    ui.label(RichText::new("Ρυθμίσεις LAN Συγχρονισμού").strong().size(13.0).color(TEXT_TITLE));
-    Frame::new()
-        .fill(BG_CARD)
-        .stroke(Stroke::new(1.0, BORDER_LINE))
-        .corner_radius(CornerRadius::same(6))
-        .inner_margin(Margin::same(12))
-        .show(ui, |ui| {
-            ui.horizontal(|ui| {
-                ui.label(RichText::new("Host IP:").color(TEXT_BODY).size(11.5));
-                ui.add_sized(Vec2::new(140.0, 30.0), egui::TextEdit::singleline(&mut state.lan_host));
-                ui.label(RichText::new("Port:").color(TEXT_BODY).size(11.5));
-                let mut port_str = state.lan_port.to_string();
-                if ui.add_sized(Vec2::new(60.0, 30.0), egui::TextEdit::singleline(&mut port_str)).changed() {
-                    if let Ok(p) = port_str.parse::<u16>() {
-                        state.lan_port = p;
-                    }
-                }
-            });
-            ui.add_space(6.0);
-            if ui.add_sized(Vec2::new(ui.available_width(), MIN_TOUCH_TARGET), egui::Button::new("⚡ Άμεσος Συγχρονισμός Outbox")).clicked() {
-                match state.sync_outbox_to_lan() {
-                    Ok(cnt) => {
-                        state.status_message = Some((format!("✓ Συγχρονίστηκαν {} εγγραφές στο κατάστημα!", cnt), true));
-                    }
-                    Err(e) => {
-                        state.status_message = Some((e, false));
-                    }
-                }
-            }
-        });
-}
 
 #[cfg(test)]
 mod tests {

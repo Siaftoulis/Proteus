@@ -44,6 +44,16 @@ impl AppDb {
                 checksum TEXT NOT NULL,
                 released_at TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id TEXT PRIMARY KEY,
+                event_type TEXT NOT NULL,
+                user_id TEXT,
+                ip_address TEXT NOT NULL,
+                details TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_auth_audit_created ON audit_logs(created_at DESC);
+            CREATE INDEX IF NOT EXISTS idx_auth_audit_user ON audit_logs(user_id);
             ",
         )
         .map_err(|e| e.to_string())?;
@@ -258,4 +268,45 @@ impl AppDb {
             .ok();
         Ok(result)
     }
+
+    #[instrument(skip(self))]
+    pub fn log_auth_event(&self, event_type: &str, user_id: Option<&str>, ip: &str, details: &str) -> Result<(), String> {
+        let conn = self.conn.lock().map_err(|e| e.to_string())?;
+        let id = uuid::Uuid::new_v4().to_string();
+        let now = chrono::Utc::now().to_rfc3339();
+        conn.execute(
+            "INSERT INTO audit_logs (id, event_type, user_id, ip_address, details, created_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![id, event_type, user_id, ip, details, now],
+        )
+        .map_err(|e| e.to_string())?;
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
+    pub fn delete_user(&self, user_id: &str) -> Result<bool, String> {
+        let conn = self.conn.lock().map_err(|e| e.to_string())?;
+        conn.execute("DELETE FROM refresh_tokens WHERE user_id = ?1", params![user_id])
+            .map_err(|e| e.to_string())?;
+        conn.execute("DELETE FROM user_licenses WHERE user_id = ?1", params![user_id])
+            .map_err(|e| e.to_string())?;
+        let rows = conn.execute("DELETE FROM users WHERE id = ?1", params![user_id])
+            .map_err(|e| e.to_string())?;
+        Ok(rows > 0)
+    }
+
+    #[instrument(skip(self))]
+    pub fn export_user_data(&self, user_id: &str) -> Result<Option<serde_json::Value>, String> {
+        let user = match self.get_user_by_id(user_id)? {
+            Some(u) => u,
+            None => return Ok(None),
+        };
+        let license = self.get_license_key(user_id)?;
+        Ok(Some(serde_json::json!({
+            "user": user,
+            "license_key": license,
+            "exported_at": chrono::Utc::now().to_rfc3339(),
+        })))
+    }
 }
+

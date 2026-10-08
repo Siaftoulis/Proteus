@@ -29,7 +29,11 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                         ui.close_menu();
                     }
                     if ui.button("📦 Export as .pr Package (Ctrl+E)").clicked() {
-                        let _ = app.export_pr_package();
+                        app.run_linter_preflight();
+                        ui.close_menu();
+                    }
+                    if ui.button("🤝 Share Point & Client Sandbox...").clicked() {
+                        app.show_sharepoint_modal = true;
                         ui.close_menu();
                     }
                     if ui.button("📥 Import UI Schema (Figma / Penpot JSON)").clicked() {

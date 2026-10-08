@@ -24,8 +24,16 @@ impl PaperWidth {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ShopReceiptConfig {
     pub shop_name: String,
+    pub legal_name: String,
+    pub afm: String,
+    pub doy: String,
+    pub activity_description: String,
     pub address: String,
     pub phone: String,
+    pub branch_code: i32,
+    pub mydata_user_id: String,
+    pub mydata_subscription_key: String,
+    pub mydata_sandbox: bool,
     pub footer_message: String,
     pub paper_width: PaperWidth,
     pub logo_icon: String,
@@ -35,8 +43,16 @@ impl Default for ShopReceiptConfig {
     fn default() -> Self {
         Self {
             shop_name: "PROTEUS SERVICE LAB".to_string(),
+            legal_name: "PROTEUS MONOPROSOPI IKE".to_string(),
+            afm: "802194512".to_string(),
+            doy: "Δ' ΑΘΗΝΩΝ".to_string(),
+            activity_description: "ΥΠΗΡΕΣΙΕΣ ΠΛΗΡΟΦΟΡΙΚΗΣ & ΤΕΧΝΙΚΗ ΥΠΟΣΤΗΡΙΞΗ".to_string(),
             address: "Τεχνικό Κέντρο Επισκευών".to_string(),
             phone: "+30 210 1234567".to_string(),
+            branch_code: 0,
+            mydata_user_id: String::new(),
+            mydata_subscription_key: String::new(),
+            mydata_sandbox: true,
             footer_message: "Ευχαριστούμε για την προτίμηση!\nΦυλάξτε το παρόν δελτίο παραλαβής.".to_string(),
             paper_width: PaperWidth::Width80mm,
             logo_icon: "default".to_string(),
@@ -44,27 +60,47 @@ impl Default for ShopReceiptConfig {
     }
 }
 
-/// Initializes the shop_settings table in SQLite for 100% real persistence of store branding.
+/// Initializes the shop_settings table in SQLite for 100% real persistence of store branding & fiscal profile.
 pub fn init_shop_settings_schema(conn: &rusqlite::Connection) -> Result<(), rusqlite::Error> {
     conn.execute_batch(
         "CREATE TABLE IF NOT EXISTS shop_settings (
             id INTEGER PRIMARY KEY CHECK (id = 1),
             shop_name TEXT NOT NULL,
+            legal_name TEXT NOT NULL DEFAULT '',
+            afm TEXT NOT NULL DEFAULT '',
+            doy TEXT NOT NULL DEFAULT '',
+            activity_description TEXT NOT NULL DEFAULT '',
             address TEXT NOT NULL,
             phone TEXT NOT NULL,
+            branch_code INTEGER NOT NULL DEFAULT 0,
+            mydata_user_id TEXT NOT NULL DEFAULT '',
+            mydata_subscription_key TEXT NOT NULL DEFAULT '',
+            mydata_sandbox INTEGER NOT NULL DEFAULT 1,
             footer_message TEXT NOT NULL,
             paper_width TEXT NOT NULL,
             logo_icon TEXT NOT NULL DEFAULT 'default',
             updated_at TEXT NOT NULL
         );"
-    )
+    )?;
+    let _ = conn.execute("ALTER TABLE shop_settings ADD COLUMN legal_name TEXT NOT NULL DEFAULT ''", []);
+    let _ = conn.execute("ALTER TABLE shop_settings ADD COLUMN afm TEXT NOT NULL DEFAULT ''", []);
+    let _ = conn.execute("ALTER TABLE shop_settings ADD COLUMN doy TEXT NOT NULL DEFAULT ''", []);
+    let _ = conn.execute("ALTER TABLE shop_settings ADD COLUMN activity_description TEXT NOT NULL DEFAULT ''", []);
+    let _ = conn.execute("ALTER TABLE shop_settings ADD COLUMN branch_code INTEGER NOT NULL DEFAULT 0", []);
+    let _ = conn.execute("ALTER TABLE shop_settings ADD COLUMN mydata_user_id TEXT NOT NULL DEFAULT ''", []);
+    let _ = conn.execute("ALTER TABLE shop_settings ADD COLUMN mydata_subscription_key TEXT NOT NULL DEFAULT ''", []);
+    let _ = conn.execute("ALTER TABLE shop_settings ADD COLUMN mydata_sandbox INTEGER NOT NULL DEFAULT 1", []);
+    Ok(())
 }
 
 /// Loads the persistent store configuration from SQLite, falling back to defaults if not yet created.
 pub fn load_shop_config(conn: &rusqlite::Connection) -> ShopReceiptConfig {
     let _ = init_shop_settings_schema(conn);
     let mut stmt = match conn.prepare(
-        "SELECT shop_name, address, phone, footer_message, paper_width, logo_icon FROM shop_settings WHERE id = 1"
+        "SELECT shop_name, address, phone, footer_message, paper_width, logo_icon,
+                legal_name, afm, doy, activity_description, branch_code,
+                mydata_user_id, mydata_subscription_key, mydata_sandbox
+         FROM shop_settings WHERE id = 1"
     ) {
         Ok(s) => s,
         Err(_) => return ShopReceiptConfig::default(),
@@ -77,6 +113,7 @@ pub fn load_shop_config(conn: &rusqlite::Connection) -> ShopReceiptConfig {
         } else {
             PaperWidth::Width80mm
         };
+        let sandbox_int: i32 = row.get(13).unwrap_or(1);
         Ok(ShopReceiptConfig {
             shop_name: row.get(0)?,
             address: row.get(1)?,
@@ -84,6 +121,14 @@ pub fn load_shop_config(conn: &rusqlite::Connection) -> ShopReceiptConfig {
             footer_message: row.get(3)?,
             paper_width,
             logo_icon: row.get(5).unwrap_or_else(|_| "default".to_string()),
+            legal_name: row.get(6).unwrap_or_default(),
+            afm: row.get(7).unwrap_or_default(),
+            doy: row.get(8).unwrap_or_default(),
+            activity_description: row.get(9).unwrap_or_default(),
+            branch_code: row.get(10).unwrap_or(0),
+            mydata_user_id: row.get(11).unwrap_or_default(),
+            mydata_subscription_key: row.get(12).unwrap_or_default(),
+            mydata_sandbox: sandbox_int != 0,
         })
     });
 
@@ -99,15 +144,26 @@ pub fn save_shop_config(conn: &rusqlite::Connection, config: &ShopReceiptConfig)
     };
     let now = chrono::Utc::now().to_rfc3339();
     conn.execute(
-        "INSERT INTO shop_settings (id, shop_name, address, phone, footer_message, paper_width, logo_icon, updated_at)
-         VALUES (1, ?1, ?2, ?3, ?4, ?5, ?6, ?7)
-         ON CONFLICT(id) DO UPDATE SET
+        "INSERT INTO shop_settings (
+            id, shop_name, address, phone, footer_message, paper_width, logo_icon,
+            legal_name, afm, doy, activity_description, branch_code,
+            mydata_user_id, mydata_subscription_key, mydata_sandbox, updated_at
+        ) VALUES (1, ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)
+        ON CONFLICT(id) DO UPDATE SET
             shop_name = excluded.shop_name,
             address = excluded.address,
             phone = excluded.phone,
             footer_message = excluded.footer_message,
             paper_width = excluded.paper_width,
             logo_icon = excluded.logo_icon,
+            legal_name = excluded.legal_name,
+            afm = excluded.afm,
+            doy = excluded.doy,
+            activity_description = excluded.activity_description,
+            branch_code = excluded.branch_code,
+            mydata_user_id = excluded.mydata_user_id,
+            mydata_subscription_key = excluded.mydata_subscription_key,
+            mydata_sandbox = excluded.mydata_sandbox,
             updated_at = excluded.updated_at;",
         rusqlite::params![
             config.shop_name,
@@ -116,6 +172,14 @@ pub fn save_shop_config(conn: &rusqlite::Connection, config: &ShopReceiptConfig)
             config.footer_message,
             width_str,
             config.logo_icon,
+            config.legal_name,
+            config.afm,
+            config.doy,
+            config.activity_description,
+            config.branch_code,
+            config.mydata_user_id,
+            config.mydata_subscription_key,
+            if config.mydata_sandbox { 1 } else { 0 },
             now,
         ],
     )?;
@@ -159,6 +223,14 @@ pub fn generate_intake_receipt(ticket: &ServiceTicket, config: &ShopReceiptConfi
     out.extend_from_slice(b"\x1D\x21\x00"); // Normal size
     out.extend_from_slice(b"\x1B\x45\x00"); // Bold off
 
+    if !config.afm.is_empty() {
+        let tax_hdr = if config.doy.is_empty() {
+            format!("ΑΦΜ: {}\n", config.afm)
+        } else {
+            format!("ΑΦΜ: {} - ΔΟΥ: {}\n", config.afm, config.doy)
+        };
+        out.extend_from_slice(tax_hdr.as_bytes());
+    }
     if !config.address.is_empty() {
         out.extend_from_slice(config.address.as_bytes());
         out.extend_from_slice(b"\n");
@@ -230,108 +302,7 @@ pub fn generate_intake_receipt(ticket: &ServiceTicket, config: &ShopReceiptConfi
     out
 }
 
-/// Sends raw bytes to a Windows printer via the Windows Print Spooler (winspool.drv RAW).
-/// If not on Windows, performs a safe simulation.
-pub fn print_raw_bytes(printer_name: &str, doc_title: &str, raw_bytes: &[u8]) -> Result<(), String> {
-    #[cfg(target_os = "windows")]
-    {
-        use std::ffi::OsStr;
-        use std::os::windows::ffi::OsStrExt;
-        use std::ptr::null_mut;
-
-        type WinHandle = *mut std::ffi::c_void;
-        type WinBool = i32;
-        type WinDword = u32;
-        type WinLpwstr = *mut u16;
-
-        #[repr(C)]
-        #[allow(non_snake_case)]
-        struct DOC_INFO_1W {
-            pDocName: WinLpwstr,
-            pOutputFile: WinLpwstr,
-            pDatatype: WinLpwstr,
-        }
-
-        #[link(name = "winspool")]
-        #[allow(non_snake_case)]
-        extern "system" {
-            fn OpenPrinterW(pPrinterName: *const u16, phPrinter: *mut WinHandle, pDefault: *mut std::ffi::c_void) -> WinBool;
-            fn StartDocPrinterW(hPrinter: WinHandle, Level: WinDword, pDocInfo: *mut u8) -> WinDword;
-            fn StartPagePrinter(hPrinter: WinHandle) -> WinBool;
-            fn WritePrinter(hPrinter: WinHandle, pBuf: *mut std::ffi::c_void, cbBuf: WinDword, pcWritten: *mut WinDword) -> WinBool;
-            fn EndPagePrinter(hPrinter: WinHandle) -> WinBool;
-            fn EndDocPrinter(hPrinter: WinHandle) -> WinBool;
-            fn ClosePrinter(hPrinter: WinHandle) -> WinBool;
-        }
-
-        let mut printer_name_wide: Vec<u16> = OsStr::new(printer_name).encode_wide().chain(std::iter::once(0)).collect();
-        let mut doc_title_wide: Vec<u16> = OsStr::new(doc_title).encode_wide().chain(std::iter::once(0)).collect();
-        let mut raw_datatype_wide: Vec<u16> = OsStr::new("RAW").encode_wide().chain(std::iter::once(0)).collect();
-
-        unsafe {
-            let mut handle: WinHandle = null_mut();
-            if OpenPrinterW(printer_name_wide.as_mut_ptr(), &mut handle, null_mut()) == 0 {
-                return Err(format!("Αποτυχία ανοίγματος εκτυπωτή '{}': Win32 error", printer_name));
-            }
-
-            let mut doc_info = DOC_INFO_1W {
-                pDocName: doc_title_wide.as_mut_ptr(),
-                pOutputFile: null_mut(),
-                pDatatype: raw_datatype_wide.as_mut_ptr(),
-            };
-
-            let job_id = StartDocPrinterW(handle, 1, &mut doc_info as *mut _ as *mut u8);
-            if job_id == 0 {
-                ClosePrinter(handle);
-                return Err("Αποτυχία έναρξης εργασίας εκτύπωσης (StartDocPrinter)".to_string());
-            }
-
-            StartPagePrinter(handle);
-
-            let mut written: WinDword = 0;
-            let success = WritePrinter(
-                handle,
-                raw_bytes.as_ptr() as *mut std::ffi::c_void,
-                raw_bytes.len() as WinDword,
-                &mut written,
-            );
-
-            EndPagePrinter(handle);
-            EndDocPrinter(handle);
-            ClosePrinter(handle);
-
-            if success == 0 || written != raw_bytes.len() as WinDword {
-                return Err("Σφάλμα κατά την εγγραφή δεδομένων στον εκτυπωτή (WritePrinter)".to_string());
-            }
-
-            Ok(())
-        }
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-        // On non-Windows systems (development/testing), log receipt output safely
-        println!("[MOCK PRINTER: {}] Doc: '{}', Bytes: {}", printer_name, doc_title, raw_bytes.len());
-        Ok(())
-    }
-}
-
-/// Triggers a test print job via ESC/POS to verify printer connection and spooler status.
-pub fn test_printer_connection(printer_name: &str) -> Result<(), String> {
-    if printer_name.trim().is_empty() {
-        return Err("Δεν έχει οριστεί όνομα εκτυπωτή".to_string());
-    }
-    let mut test_bytes = Vec::with_capacity(128);
-    test_bytes.extend_from_slice(b"\x1B\x40"); // ESC @: Init
-    test_bytes.extend_from_slice(b"\x1B\x61\x01"); // Center
-    test_bytes.extend_from_slice(b"\x1B\x45\x01"); // Bold
-    test_bytes.extend_from_slice(b"--- PROTEUS PCDS TEST ---\n");
-    test_bytes.extend_from_slice(b"\x1B\x45\x00"); // Normal
-    test_bytes.extend_from_slice(b"Hardware Spooler: OK\n");
-    test_bytes.extend_from_slice(b"Bespoke ESC/POS Native Driver\n");
-    test_bytes.extend_from_slice(b"\n\n\n\x1D\x56\x41\x00"); // Cut
-    print_raw_bytes(printer_name, "Proteus PCDS Hardware Test", &test_bytes)
-}
+pub use crate::printer_spooler::{print_raw_bytes, test_printer_connection};
 
 /// Triggers a pulse on the cash drawer RJ-11/RJ-12 port connected to the receipt printer.
 /// ESC p m t1 t2 command: 0x1B 0x70 0x00 0x19 0xFA (pulse to pin 2)
@@ -340,7 +311,7 @@ pub fn kick_cash_drawer(printer_name: &str) -> Result<(), String> {
         return Err("Δεν έχει οριστεί όνομα εκτυπωτή για το συρτάρι".to_string());
     }
     let pulse_bytes = b"\x1B\x70\x00\x19\xFA";
-    print_raw_bytes(printer_name, "Proteus Cash Drawer Kick", pulse_bytes)
+    crate::printer_spooler::print_raw_bytes(printer_name, "Proteus Cash Drawer Kick", pulse_bytes)
 }
 
 #[cfg(test)]
@@ -388,11 +359,19 @@ mod tests {
 
         config.shop_name = "AUTO MOTO HELLAS".to_string();
         config.logo_icon = "wrench".to_string();
+        config.afm = "094014201".to_string();
+        config.doy = "A' ATHINON".to_string();
+        config.legal_name = "AUTO MOTO HELLAS AE".to_string();
+        config.mydata_user_id = "user123".to_string();
         save_shop_config(&conn, &config).unwrap();
 
         let loaded = load_shop_config(&conn);
         assert_eq!(loaded.shop_name, "AUTO MOTO HELLAS");
         assert_eq!(loaded.logo_icon, "wrench");
+        assert_eq!(loaded.afm, "094014201");
+        assert_eq!(loaded.doy, "A' ATHINON");
+        assert_eq!(loaded.legal_name, "AUTO MOTO HELLAS AE");
+        assert_eq!(loaded.mydata_user_id, "user123");
     }
 
     #[cfg(not(target_os = "windows"))]

@@ -24,6 +24,7 @@ enum ActionKind {
     ToggleTheme,
     ExportBundle,
     GeneratePrPackage,
+    OpenSharePointWorkspace,
     RefreshDb,
 }
 
@@ -262,7 +263,10 @@ fn run_action(app: &mut ProteusApp, action: ActionKind) {
             app.toast("✓ Εξαγωγή bundle επιτυχής");
         }
         ActionKind::GeneratePrPackage => {
-            let _ = app.export_pr_package();
+            app.run_linter_preflight();
+        }
+        ActionKind::OpenSharePointWorkspace => {
+            app.show_sharepoint_modal = true;
         }
         ActionKind::RefreshDb => {
             app.reload_table_cache("contacts");
@@ -400,6 +404,13 @@ fn get_all_actions() -> Vec<PaletteAction> {
             category: "Actions",
             shortcut: Some("Ctrl+E"),
             action: ActionKind::GeneratePrPackage,
+        },
+        PaletteAction {
+            icon: "🤝",
+            title: "Share Point & Client Sandbox (P18/P20)",
+            category: "Actions",
+            shortcut: None,
+            action: ActionKind::OpenSharePointWorkspace,
         },
         PaletteAction {
             icon: "↻",

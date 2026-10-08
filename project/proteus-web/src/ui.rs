@@ -16,6 +16,7 @@ fn build_index_html() -> String {
     out.push_str(HTML_HEAD_START);
     out.push_str(crate::ui_css::CSS_STYLES);
     out.push_str(HTML_NAV_AND_OVERVIEW);
+    out.push_str(crate::ui_onboarding::ONBOARDING_HTML);
     out.push_str(crate::ui_marketplace::MARKETPLACE_HTML);
     out.push_str(crate::ui_domains_hosting::DOMAINS_HOSTING_HTML);
     out.push_str(crate::ui_freelance::FREELANCE_HTML);
@@ -23,6 +24,7 @@ fn build_index_html() -> String {
     out.push_str(crate::ui_contracts::CONTRACTS_HTML);
     out.push_str(crate::ui_telemetry::TELEMETRY_HTML);
     out.push_str(HTML_PRICING_AND_SCRIPTS_START);
+    out.push_str(crate::ui_onboarding::ONBOARDING_JS);
     out.push_str(crate::ui_marketplace::MARKETPLACE_JS);
     out.push_str(crate::ui_domains_hosting::DOMAINS_HOSTING_JS);
     out.push_str(crate::ui_freelance::FREELANCE_JS);
@@ -61,6 +63,7 @@ const HTML_NAV_AND_OVERVIEW: &str = r#"
             </a>
             <nav class="nav-tabs">
                 <button class="tab-btn active" onclick="switchTab('overview', this)">Επισκόπηση</button>
+                <button class="tab-btn" onclick="switchTab('onboarding', this)">Οδηγός Onboarding</button>
                 <button class="tab-btn" onclick="switchTab('marketplace', this)">Έργα & Briefs</button>
                 <button class="tab-btn" onclick="switchTab('domains-hosting', this)">Domains & Hosting</button>
                 <button class="tab-btn" onclick="switchTab('account', this)">Λογαριασμός & Ρόλοι</button>

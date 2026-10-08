@@ -21,6 +21,8 @@ pub struct TicketDetailState {
     pub rma_replacement_sn: String,
     pub intake_supplier: String,
     pub intake_warranty_months: u32,
+    pub show_bench_panel: bool,
+    pub bench_state: crate::views::ticket_bench::TicketBenchState,
 }
 
 pub fn draw_ticket_detail_modal(
@@ -49,6 +51,8 @@ pub fn draw_ticket_detail_modal(
                     state.rma_fault_input.clear();
                 }
                 state.show_genealogy = false;
+                state.show_bench_panel = false;
+                state.bench_state = crate::views::ticket_bench::TicketBenchState::default();
                 state.rma_replacement_sn.clear();
                 state.intake_supplier = "Επίσημη Αντιπροσωπεία".to_string();
                 state.intake_warranty_months = 24;
@@ -181,6 +185,27 @@ fn draw_modal_content(
                     operator_role,
                 );
             }
+        }
+        ui.add_space(8.0);
+
+        let bench_btn_txt = if state.show_bench_panel {
+            "▲ Απόκρυψη Πάγκου Τεχνικού"
+        } else {
+            "🛠️ Πάγκος Τεχνικού (Υλικά, Εργασία & myDATA)"
+        };
+        if ui.button(RichText::new(bench_btn_txt).strong().color(crate::theme::ACCENT_PRIMARY)).clicked() {
+            state.show_bench_panel = !state.show_bench_panel;
+        }
+
+        if state.show_bench_panel {
+            ui.add_space(8.0);
+            crate::views::ticket_bench::draw_ticket_bench_panel(
+                ui,
+                conn,
+                &mut state.bench_state,
+                &ticket,
+                operator_name,
+            );
         }
 
         ui.add_space(8.0);

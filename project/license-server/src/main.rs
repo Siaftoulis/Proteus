@@ -20,6 +20,42 @@ struct AppState {
     conn: std::sync::Arc<std::sync::Mutex<Connection>>,
 }
 
+fn admin_secret() -> String {
+    match std::env::var("ADMIN_SECRET") {
+        Ok(s) if !s.trim().is_empty() => s,
+        _ => {
+            #[cfg(debug_assertions)]
+            {
+                "license-admin-secret".to_string()
+            }
+            #[cfg(not(debug_assertions))]
+            {
+                static RUNTIME_ADMIN_KEY: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+                RUNTIME_ADMIN_KEY
+                    .get_or_init(|| format!("adm-{}", uuid::Uuid::new_v4()))
+                    .clone()
+            }
+        }
+    }
+}
+
+fn check_admin_auth(headers: &axum::http::HeaderMap) -> bool {
+    let expected = admin_secret();
+    if let Some(auth_val) = headers.get(axum::http::header::AUTHORIZATION).and_then(|h| h.to_str().ok()) {
+        if let Some(token) = auth_val.strip_prefix("Bearer ").or_else(|| auth_val.strip_prefix("bearer ")) {
+            if token.trim() == expected {
+                return true;
+            }
+        }
+    }
+    if let Some(key_val) = headers.get("X-Admin-Key").and_then(|h| h.to_str().ok()) {
+        if key_val.trim() == expected {
+            return true;
+        }
+    }
+    false
+}
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
@@ -31,11 +67,30 @@ async fn main() {
         conn: std::sync::Arc::new(std::sync::Mutex::new(conn)),
     };
 
+    let cors = {
+        let allowed = std::env::var("ALLOWED_ORIGINS").unwrap_or_default();
+        if allowed.is_empty() {
+            CorsLayer::new()
+                .allow_origin(tower_http::cors::Any)
+                .allow_methods([axum::http::Method::GET, axum::http::Method::POST])
+                .allow_headers([axum::http::header::AUTHORIZATION, axum::http::header::CONTENT_TYPE])
+        } else {
+            let origins: Vec<_> = allowed
+                .split(',')
+                .filter_map(|s| s.trim().parse().ok())
+                .collect();
+            CorsLayer::new()
+                .allow_origin(tower_http::cors::AllowOrigin::list(origins))
+                .allow_methods([axum::http::Method::GET, axum::http::Method::POST])
+                .allow_headers([axum::http::header::AUTHORIZATION, axum::http::header::CONTENT_TYPE])
+        }
+    };
+
     let app = Router::new()
-        .route("/verify", get(verify_license))
+        .route("/verify", get(verify_license).post(verify_license_post))
         .route("/issue", post(issue_license))
         .route("/health", get(|| async { "ok" }))
-        .layer(CorsLayer::permissive())
+        .layer(cors)
         .with_state(state);
 
     let addr = "0.0.0.0:3000";
@@ -46,13 +101,8 @@ async fn main() {
     axum::serve(listener, app).await.expect("Server error");
 }
 
-async fn verify_license(
-    State(state): State<AppState>,
-    axum::extract::Query(params): axum::extract::Query<VerifyRequest>,
-) -> impl IntoResponse {
-    let conn = state.conn.lock().unwrap();
-
-    match db::get_license(&conn, &params.license_key) {
+fn verify_license_core(conn: &Connection, params: &VerifyRequest) -> (StatusCode, Json<VerifyResponse>) {
+    match db::get_license(conn, &params.license_key) {
         Ok(Some(license)) => {
             let now = Utc::now().naive_utc();
             let expires = match chrono::NaiveDateTime::parse_from_str(
@@ -100,7 +150,7 @@ async fn verify_license(
                         }),
                     );
                 }
-                let _ = db::increment_activations(&conn, &params.license_key);
+                let _ = db::increment_activations(conn, &params.license_key);
             }
 
             let features: Vec<String> =
@@ -140,10 +190,37 @@ async fn verify_license(
     }
 }
 
+async fn verify_license(
+    State(state): State<AppState>,
+    axum::extract::Query(params): axum::extract::Query<VerifyRequest>,
+) -> impl IntoResponse {
+    let conn = state.conn.lock().unwrap();
+    verify_license_core(&conn, &params)
+}
+
+async fn verify_license_post(
+    State(state): State<AppState>,
+    Json(params): Json<VerifyRequest>,
+) -> impl IntoResponse {
+    let conn = state.conn.lock().unwrap();
+    verify_license_core(&conn, &params)
+}
+
 async fn issue_license(
     State(state): State<AppState>,
+    headers: axum::http::HeaderMap,
     Json(req): Json<IssueRequest>,
 ) -> impl IntoResponse {
+    if !check_admin_auth(&headers) {
+        return (
+            StatusCode::UNAUTHORIZED,
+            Json(IssueResponse {
+                license_key: String::new(),
+                message: "Unauthorized: valid admin API key (Authorization: Bearer <key> or X-Admin-Key) required".to_string(),
+            }),
+        );
+    }
+
     let conn = state.conn.lock().unwrap();
 
     let license_key = generate_license_key();

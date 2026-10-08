@@ -148,4 +148,48 @@ fn test_expired_refresh_token_is_cleaned_up() {
     assert_eq!(result, None, "expired token should be deleted after validation");
 }
 
+#[test]
+fn test_gdpr_delete_user_and_export_data() {
+    let db = AppDb::new(":memory:").unwrap();
+    let user = db
+        .create_user(&CreateUserRequest {
+            email: "gdpr_user@test.com".to_string(),
+            password: Some("hash123".to_string()),
+            name: "GDPR User".to_string(),
+            provider: "email".to_string(),
+            provider_id: "gdpr_user@test.com".to_string(),
+            avatar_url: None,
+            role: None,
+        })
+        .unwrap();
+
+    db.store_refresh_token(&user.id, "ref-token-xyz").unwrap();
+    db.set_license_key(&user.id, "LIC-12345").unwrap();
+
+    // Test export per GDPR Art. 20
+    let export = db.export_user_data(&user.id).unwrap();
+    assert!(export.is_some());
+    let export_val = export.unwrap();
+    assert_eq!(export_val["user"]["email"], "gdpr_user@test.com");
+    assert_eq!(export_val["license_key"], "LIC-12345");
+
+    // Test audit log recording
+    db.log_auth_event("TEST_AUDIT", Some(&user.id), "127.0.0.1", "action=test_export").unwrap();
+
+    // Test permanent erasure per GDPR Art. 17 / Law 4624/2019
+    let deleted = db.delete_user(&user.id).unwrap();
+    assert!(deleted);
+
+    // Confirm user is gone
+    let after_delete = db.get_user_by_id(&user.id).unwrap();
+    assert!(after_delete.is_none());
+
+    // Confirm tokens and licenses are cleaned up
+    let token_check = db.validate_refresh_token("ref-token-xyz").unwrap();
+    assert!(token_check.is_none());
+    let license_check = db.get_license_key(&user.id).unwrap();
+    assert!(license_check.is_none());
+}
+
+
 

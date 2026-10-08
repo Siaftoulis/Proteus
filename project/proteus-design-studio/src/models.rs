@@ -30,7 +30,11 @@ pub enum LayoutMode {
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum DesignerTool {
     Select,
+    Frame,
     Rectangle,
+    Ellipse,
+    Line,
+    Pen,
     Text,
     Button,
     Table,

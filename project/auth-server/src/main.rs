@@ -74,6 +74,11 @@ fn extract_ip(headers: &axum::http::HeaderMap) -> String {
         .to_string()
 }
 
+fn extract_bearer_token(headers: &axum::http::HeaderMap) -> Option<String> {
+    let auth_header = headers.get(axum::http::header::AUTHORIZATION)?.to_str().ok()?;
+    auth_header.strip_prefix("Bearer ").or_else(|| auth_header.strip_prefix("bearer ")).map(|s| s.trim().to_string())
+}
+
 async fn check_license(db: &AppDb, user_id: &str) -> LicenseStatus {
     let license_key = match db.get_license_key(user_id) {
         Ok(Some(k)) => k,
@@ -121,7 +126,9 @@ async fn register(
     headers: axum::http::HeaderMap,
     Json(req): Json<RegisterRequest>,
 ) -> Result<Json<AuthResponse>, (StatusCode, Json<serde_json::Value>)> {
-    if !state.rate_limiter.check(&extract_ip(&headers)).await {
+    let ip = extract_ip(&headers);
+    if !state.rate_limiter.check(&ip).await {
+        let _ = state.db.log_auth_event("RATE_LIMIT_EXCEEDED", None, &ip, "endpoint=register");
         return Err(err(StatusCode::TOO_MANY_REQUESTS, "Too many requests. Try again later."));
     }
     if req.email.is_empty() || req.password.is_empty() || req.name.is_empty() {
@@ -130,6 +137,7 @@ async fn register(
 
     let existing = state.db.get_user_by_email(&req.email).map_err(internal)?;
     if existing.is_some() {
+        let _ = state.db.log_auth_event("REGISTER_FAILED", None, &ip, &format!("email={} reason=conflict", req.email));
         return Err(err(StatusCode::CONFLICT, "Email already registered"));
     }
 
@@ -144,6 +152,7 @@ async fn register(
         role: None,
     }).map_err(internal)?;
 
+    let _ = state.db.log_auth_event("REGISTER_SUCCESS", Some(&user.id), &ip, &format!("email={}", user.email));
     make_auth_response(&state.db, &user).await
 }
 
@@ -152,21 +161,33 @@ async fn login(
     headers: axum::http::HeaderMap,
     Json(req): Json<LoginRequest>,
 ) -> Result<Json<AuthResponse>, (StatusCode, Json<serde_json::Value>)> {
-    if !state.rate_limiter.check(&extract_ip(&headers)).await {
+    let ip = extract_ip(&headers);
+    if !state.rate_limiter.check(&ip).await {
+        let _ = state.db.log_auth_event("RATE_LIMIT_EXCEEDED", None, &ip, "endpoint=login");
         return Err(err(StatusCode::TOO_MANY_REQUESTS, "Too many requests. Try again later."));
     }
-    let (user, password_hash) = state.db.get_user_by_email(&req.email).map_err(internal)?
-        .ok_or_else(|| err(StatusCode::UNAUTHORIZED, "Invalid email or password"))?;
+    let user_match = state.db.get_user_by_email(&req.email).map_err(internal)?;
+    if user_match.is_none() {
+        let _ = state.db.log_auth_event("LOGIN_FAILED", None, &ip, &format!("email={} reason=not_found", req.email));
+        return Err(err(StatusCode::UNAUTHORIZED, "Invalid email or password"));
+    }
+    let (user, password_hash) = user_match.unwrap();
 
-    let hash = password_hash.ok_or_else(|| {
-        err(StatusCode::UNAUTHORIZED, "This account uses Google login. Please sign in with Google.")
-    })?;
+    let hash = match password_hash {
+        Some(h) => h,
+        None => {
+            let _ = state.db.log_auth_event("LOGIN_FAILED", Some(&user.id), &ip, &format!("email={} reason=google_account", req.email));
+            return Err(err(StatusCode::UNAUTHORIZED, "This account uses Google login. Please sign in with Google."));
+        }
+    };
 
     let valid = auth::verify_password(&req.password, &hash).map_err(internal)?;
     if !valid {
+        let _ = state.db.log_auth_event("LOGIN_FAILED", Some(&user.id), &ip, &format!("email={} reason=bad_password", req.email));
         return Err(err(StatusCode::UNAUTHORIZED, "Invalid email or password"));
     }
 
+    let _ = state.db.log_auth_event("LOGIN_SUCCESS", Some(&user.id), &ip, &format!("email={}", user.email));
     make_auth_response(&state.db, &user).await
 }
 
@@ -251,6 +272,65 @@ async fn health() -> Json<serde_json::Value> {
     Json(json!({"status": "ok", "service": "auth-server", "version": "0.1.0"}))
 }
 
+async fn delete_user_handler(
+    State(state): State<Arc<AppState>>,
+    headers: axum::http::HeaderMap,
+    Path(user_id): Path<String>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    let ip = extract_ip(&headers);
+    let token = extract_bearer_token(&headers)
+        .ok_or_else(|| err(StatusCode::UNAUTHORIZED, "Missing authorization token"))?;
+    let claims = auth::verify_access_token(&token)
+        .map_err(|e| err(StatusCode::UNAUTHORIZED, &e))?;
+
+    let caller = state.db.get_user_by_id(&claims.sub).map_err(internal)?
+        .ok_or_else(|| err(StatusCode::UNAUTHORIZED, "User not found"))?;
+
+    let is_authorized = claims.sub == user_id || caller.role == "ceo" || caller.role == "admin";
+    if !is_authorized {
+        let _ = state.db.log_auth_event("UNAUTHORIZED_DELETION_ATTEMPT", Some(&claims.sub), &ip, &format!("target_user={}", user_id));
+        return Err(err(StatusCode::FORBIDDEN, "Not authorized to delete this user profile"));
+    }
+
+    let deleted = state.db.delete_user(&user_id).map_err(internal)?;
+    if !deleted {
+        return Err(err(StatusCode::NOT_FOUND, "User not found"));
+    }
+
+    let _ = state.db.log_auth_event("USER_DELETED_GDPR", Some(&claims.sub), &ip, &format!("deleted_user={}", user_id));
+    Ok(Json(json!({
+        "success": true,
+        "message": "User personal data permanently erased per GDPR Art. 17 / Law 4624/2019"
+    })))
+}
+
+async fn export_user_handler(
+    State(state): State<Arc<AppState>>,
+    headers: axum::http::HeaderMap,
+    Path(user_id): Path<String>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    let ip = extract_ip(&headers);
+    let token = extract_bearer_token(&headers)
+        .ok_or_else(|| err(StatusCode::UNAUTHORIZED, "Missing authorization token"))?;
+    let claims = auth::verify_access_token(&token)
+        .map_err(|e| err(StatusCode::UNAUTHORIZED, &e))?;
+
+    let caller = state.db.get_user_by_id(&claims.sub).map_err(internal)?
+        .ok_or_else(|| err(StatusCode::UNAUTHORIZED, "User not found"))?;
+
+    let is_authorized = claims.sub == user_id || caller.role == "ceo" || caller.role == "admin";
+    if !is_authorized {
+        let _ = state.db.log_auth_event("UNAUTHORIZED_EXPORT_ATTEMPT", Some(&claims.sub), &ip, &format!("target_user={}", user_id));
+        return Err(err(StatusCode::FORBIDDEN, "Not authorized to export this user data"));
+    }
+
+    let export = state.db.export_user_data(&user_id).map_err(internal)?
+        .ok_or_else(|| err(StatusCode::NOT_FOUND, "User not found"))?;
+
+    let _ = state.db.log_auth_event("USER_EXPORT_GDPR", Some(&claims.sub), &ip, &format!("exported_user={}", user_id));
+    Ok(Json(export))
+}
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt()
@@ -288,6 +368,8 @@ async fn main() {
         .route("/api/auth/refresh", post(refresh))
         .route("/api/auth/google", post(google_login))
         .route("/api/auth/verify", post(verify))
+        .route("/api/auth/users/{id}", axum::routing::delete(delete_user_handler))
+        .route("/api/auth/users/{id}/export", get(export_user_handler))
         .route("/api/distro/latest-version", get(latest_version))
         .route("/api/distro/download/{version}", get(download_version))
         .layer(cors)

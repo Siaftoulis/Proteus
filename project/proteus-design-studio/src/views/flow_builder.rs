@@ -37,9 +37,7 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
             } else {
                 app.flow_canvas_center
             };
-            app.project_doc.flow_graph.nodes.insert(id.clone(), crate::flow::FlowNode {
-                id: id.clone(), kind, position: pos,
-            });
+            app.project_doc.flow_graph.nodes.insert(id.clone(), crate::flow::FlowNode::new(id.clone(), kind, pos));
             app.selected_flow_node = Some(id);
             app.toast("Flow node added");
         }
@@ -122,15 +120,22 @@ pub fn show_central(app: &mut ProteusApp, ctx: &egui::Context, ui: &mut egui::Ui
             let world_pos = (world.x, world.y);
 
             // Check output port hit first (wiring)
-            let mut port_hit: Option<String> = None;
-            for node in app.project_doc.flow_graph.nodes.values() {
-                if flow_renderer::is_over_output_port(node.position, world_pos) {
-                    port_hit = Some(node.id.clone());
-                    break;
+            let mut port_hit: Option<(String, String)> = None;
+            if let Some((node_id, port_id, crate::flow::PortDirection::Output)) =
+                flow_renderer::find_port_at_world_pos(&app.project_doc.flow_graph, world_pos, 12.0)
+            {
+                port_hit = Some((node_id.to_string(), port_id.to_string()));
+            } else {
+                for node in app.project_doc.flow_graph.nodes.values() {
+                    if flow_renderer::is_over_output_port(node.position, world_pos) {
+                        let p_id = node.output_ports.first().map(|p| p.id.as_str()).unwrap_or("exec_out");
+                        port_hit = Some((node.id.clone(), p_id.to_string()));
+                        break;
+                    }
                 }
             }
-            if let Some(src_id) = port_hit {
-                app.flow_wiring_source = Some(src_id);
+            if let Some((src_id, port_id)) = port_hit {
+                app.flow_wiring_source = Some(format!("{}#{}", src_id, port_id));
                 app.flow_wiring_pos = Some(world_pos);
             } else {
                 // Node body hit → select and drag
@@ -138,8 +143,9 @@ pub fn show_central(app: &mut ProteusApp, ctx: &egui::Context, ui: &mut egui::Ui
                 for node in app.project_doc.flow_graph.nodes.values() {
                     let nx = node.position.0;
                     let ny = node.position.1;
+                    let nh = flow_renderer::node_height(node);
                     if world.x >= nx && world.x <= nx + flow_renderer::NODE_W
-                        && world.y >= ny && world.y <= ny + flow_renderer::NODE_H
+                        && world.y >= ny && world.y <= ny + nh
                     {
                         hit = Some(node.id.clone());
                         break;
@@ -150,25 +156,30 @@ pub fn show_central(app: &mut ProteusApp, ctx: &egui::Context, ui: &mut egui::Ui
                     app.flow_drag_active = true;
                 } else {
                     app.selected_flow_node = None;
-                    // Check edge hit → click-to-delete
+                    // Check Bezier edge hit → click-to-delete
                     let mut edge_to_remove: Option<usize> = None;
                     for (idx, edge) in app.project_doc.flow_graph.edges.iter().enumerate() {
-                        let from_pos = match app.project_doc.flow_graph.nodes.get(&edge.from_node) {
-                            Some(n) => flow_renderer::node_output_port(n.position),
+                        let from_node = match app.project_doc.flow_graph.nodes.get(&edge.from_node) {
+                            Some(n) => n,
                             None => continue,
                         };
-                        let to_pos = match app.project_doc.flow_graph.nodes.get(&edge.to_node) {
-                            Some(n) => flow_renderer::node_input_port(n.position),
+                        let to_node = match app.project_doc.flow_graph.nodes.get(&edge.to_node) {
+                            Some(n) => n,
                             None => continue,
                         };
-                        if flow_renderer::is_near_line_segment(world_pos, from_pos, to_pos, 8.0) {
+                        let (fx, fy) = flow_renderer::port_world_position(from_node, &edge.from_port)
+                            .unwrap_or_else(|| flow_renderer::node_output_port(from_node.position));
+                        let (tx, ty) = flow_renderer::port_world_position(to_node, &edge.to_port)
+                            .unwrap_or_else(|| flow_renderer::node_input_port(to_node.position));
+                        let curve = crate::flow::CubicBezierCurve::from_endpoints((fx, fy), (tx, ty));
+                        if curve.distance_to_point(world_pos, 24) <= 8.0 {
                             edge_to_remove = Some(idx);
                             break;
                         }
                     }
                     if let Some(idx) = edge_to_remove {
                         app.project_doc.flow_graph.edges.remove(idx);
-                        app.toast("Edge removed");
+                        app.toast("Wire removed");
                     }
                 }
             }
@@ -188,30 +199,60 @@ pub fn show_central(app: &mut ProteusApp, ctx: &egui::Context, ui: &mut egui::Ui
     }
 
     if mreleased {
-        if app.flow_wiring_source.is_some() {
-            let mut target: Option<String> = None;
+        if let Some(src_str) = app.flow_wiring_source.clone() {
+            let (src_id, src_port) = match src_str.split_once('#') {
+                Some((n, p)) => (n.to_string(), p.to_string()),
+                None => (src_str.clone(), "exec_out".to_string()),
+            };
+            let mut target_hit: Option<(String, String)> = None;
             if let Some(cursor) = mpos {
                 let world = app.flow_viewport.screen_to_world(cursor, canvas_origin);
-                for node in app.project_doc.flow_graph.nodes.values() {
-                    let nx = node.position.0;
-                    let ny = node.position.1;
-                    if world.x >= nx && world.x <= nx + flow_renderer::NODE_W
-                        && world.y >= ny && world.y <= ny + flow_renderer::NODE_H
-                    {
-                        target = Some(node.id.clone());
-                        break;
+                let world_pos = (world.x, world.y);
+
+                // 1. Precise port snap
+                if let Some((tgt_node, tgt_port, crate::flow::PortDirection::Input)) =
+                    flow_renderer::find_port_at_world_pos(&app.project_doc.flow_graph, world_pos, 14.0)
+                {
+                    if tgt_node != src_id {
+                        target_hit = Some((tgt_node.to_string(), tgt_port.to_string()));
+                    }
+                }
+
+                // 2. Fallback to node body
+                if target_hit.is_none() {
+                    for node in app.project_doc.flow_graph.nodes.values() {
+                        if node.id == src_id {
+                            continue;
+                        }
+                        let nx = node.position.0;
+                        let ny = node.position.1;
+                        let nh = flow_renderer::node_height(node);
+                        if world.x >= nx && world.x <= nx + flow_renderer::NODE_W
+                            && world.y >= ny && world.y <= ny + nh
+                        {
+                            let def_in = node.input_ports.first().map(|p| p.id.clone()).unwrap_or_else(|| "exec_in".to_string());
+                            target_hit = Some((node.id.clone(), def_in));
+                            break;
+                        }
                     }
                 }
             }
-            if let Some(src) = app.flow_wiring_source.clone() {
-                if let Some(tgt) = target {
-                    if src != tgt {
-                        let already = app.project_doc.flow_graph.edges.iter()
-                            .any(|e| e.from_node == src && e.to_node == tgt);
-                        if !already {
-                            app.project_doc.flow_graph.edges.push(crate::flow::FlowEdge::new(src, tgt));
-                        }
-                    }
+
+            if let Some((tgt_id, tgt_port)) = target_hit {
+                if let Ok(()) = app.project_doc.flow_graph.can_connect(&src_id, &src_port, &tgt_id, &tgt_port) {
+                    let branch = if src_port == "branch_true" {
+                        Some("true".to_string())
+                    } else if src_port == "branch_false" {
+                        Some("false".to_string())
+                    } else {
+                        None
+                    };
+                    let mut edge = crate::flow::FlowEdge::with_ports(&src_id, &src_port, &tgt_id, &tgt_port);
+                    edge.branch = branch;
+                    app.project_doc.flow_graph.edges.push(edge);
+                    app.toast("Wire connected");
+                } else {
+                    app.toast("Incompatible or duplicate wire");
                 }
             }
             app.flow_wiring_source = None;

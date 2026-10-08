@@ -7,9 +7,9 @@ aliases:
 ---
 # Project Status
 
-> **Phase:** Sprint 13 — **Cold Chain HACCP Telemetry & IoT Sensor Bridge (Complete)**  
+> **Phase:** Sprint 14 — **Multi-Branch LAN Mesh Synchronization (Complete)**  
 > **Master Blueprint:** [[../Developer/14 - Proteus BOS Blueprint|14 - Proteus BOS Blueprint]]  
-> **Current Objective:** Progress into Sprint 14 (Multi-Branch LAN Mesh Synchronization) before military enlistment on Nov 1, 2026.
+> **Current Objective:** Zero-cost maintenance & pilot preparation before military enlistment on Nov 1, 2026.
 
 ```dataviewjs
 dv.table(["Milestone", "Status"],
@@ -31,10 +31,11 @@ dv.table(["Milestone", "Status"],
     ["Sprint 11: Digital Shipping Note & Dispatch Companion (myDATA / e-CMR)", "[x] Done (Sept 30)"],
     ["Sprint 12: Van Sales, Mobile Sign-on-Glass & Consignment Tracking", "[x] Done (Sept 30)"],
     ["Sprint 13: Cold Chain HACCP Telemetry & IoT Sensor Bridge", "[x] Done (Sept 30)"],
-    ["Sprint 14: Multi-Branch LAN Mesh Synchronization", "[ ] In Progress"],
+    ["Sprint 14: Multi-Branch LAN Mesh Synchronization", "[x] Done (Oct 6)"],
+    ["Phase 3: Commercial Launch Engine (MoR, Checkout, LAN Pairing, S3 Backup, Cloud Relay)", "[x] Done (Oct 6)"],
+    ["Phase 4: Single-Member IKE Legal Engine & Cloud Hosting Management Console", "[x] Done (Oct 6)"],
+    ["Phase 5: Standalone Extraction, iOS Sideloading, Auto-Updater, Marketplace, Collab & i18n", "[x] Done (Oct 6)"],
     ["Phase 2: 6-Month Military Service (Zero-cost maintenance & feedback)", "[ ] Nov 2026 - May 2027"],
-    ["Phase 3: Commercial Launch via Lemon Squeezy / Paddle (MoR)", "[ ] May 2027"],
-    ["Phase 4: Single-Member IKE Formation (gov.gr post-revenue >2,000€)", "[ ] Post-Launch"],
   ]
 )
 ```
@@ -48,17 +49,20 @@ dv.table(["Milestone", "Status"],
 | Core Records Engine | ✅ Complete | Multi-tenant schema, SMLM Data Profiler, SQLite WAL, Flow DAG walker with branching |
 | Native Desktop UI | ✅ Advanced | Pure Rust `eframe`/`egui`, undo/redo, shortcuts, touch viewport profiles, ESC/POS canvas |
 | Backend (Rust) | ✅ Excellent | 7 modular workspace crates (`proteus-core`, `proteus-design-studio`, `proteus-client`, `proteus-web`, `proteus-mobile`, `auth-server`, `license-server`) |
-| Tests | ✅ 100% Pass | **319 total passing tests**, 0 warnings, 0 failures (100% green across all 7 crates) |
+| Tests | ✅ 100% Pass | **429 total passing tests**, 0 warnings, 0 failures (100% green across all 7 crates) |
 | Verification Pipeline | ✅ Active | Unbreakable 6-stage automated gate (`verify_pipeline.ps1` / `.bat`) |
 
-## Component Progress (Sprint 13 — Complete)
+## Component Progress (Phase 5 — Complete)
 
 | Component | Status | Target Date | Notes |
 |-----------|--------|-------------|-------|
-| Cold Chain Schema & Rules | ✅ Done | Sprint 13.1 | SQLite schema for `cold_chain_sensors`, `cold_chain_logs`, `haccp_breach_events` |
-| Regulatory Storage Types | ✅ Done | Sprint 13.1 | `DeepFreeze`, `Chilled`, `ControlledAmbient`, `PharmaCold` with automatic excursion alerts |
-| Merkle Audit Hash Chain | ✅ Done | Sprint 13.2 | Cryptographic SHA-256 seal per reading packet and official HACCP Compliance Certificate generator |
-| Cold Chain & HACCP Dashboard | ✅ Done | Sprint 13.3 | Real-time monitoring view in `proteus-client` (`cold_chain.rs`) with breach management |
-| Verification Pipeline (319 Tests) | ✅ Done | Sprint 13.4 | All 6 verification gates passed cleanly across entire workspace |
+| CRM Standalone App Extraction | ✅ Done | Phase 5.1 | `StandaloneAppManifest`, 6 cross-platform targets, SHA-256 sealed bundle packaging (`proteus-core::standalone`) |
+| iOS Sideloading Architecture | ✅ Done | Phase 5.2 | EU DMA AltStore PAL / SideStore `apps.json` & Apple OTA `manifest.plist` (`proteus-core::standalone::ios`) |
+| Mobile Cross-Platform Telemetry | ✅ Done | Phase 5.3 | Safe area insets (Dynamic Island), haptic feedback, biometric auth & thermal throttling (`proteus-mobile::device`) |
+| Automatic Updates Engine | ✅ Done | Phase 5.4 | Monotonic SemVer check, release verification, atomic replacement with `.bak` rollback (`proteus-core::updater`, `launcher.ps1`) |
+| Template Marketplace Engine | ✅ Done | Phase 5.5 | Multi-criteria search catalog, 1-click conversion to `.pr` packages, SQLite cache (`proteus-core::package::marketplace`) |
+| Multi-User Collab & Lock Lease | ✅ Done | Phase 5.6 | Distributed record lease TTL, conflict detection, LWW CRDT register (`proteus-core::collab`) |
+| Sovereign i18n & Localization | ✅ Done | Phase 5.7 | Bilingual Greek/English terminology dictionary, currency formatting, SQLite translation overrides (`proteus-core::i18n`) |
+| Verification Pipeline (429 Tests) | ✅ Done | Phase 5.8 | All verification tests passed cleanly with 0 compiler warnings across entire workspace |
 
 Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P28)]]

@@ -21,12 +21,15 @@ pub enum NodeUpdate {
     DataBinding { entity: Option<String>, field: Option<String> },
     NodeStyle(NodeStyle),
     Move { x: f32, y: f32 },
+    Rotate(f32),
     Dimensions { width: f32, height: f32 },
     NodeTypeChange(NodeType),
     ToggleLock,
     ToggleVisibility,
     FontSize(f32),
     FontWeight(u16),
+    Opacity(f32),
+    FontFamily(String),
     DynamicFormConfig { bound_entity: Option<String>, title: Option<String>, submit_label: Option<String> },
     TableColumns(Vec<String>),
 }
@@ -185,8 +188,8 @@ impl Default for FontSpec {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum ShapeKind { Rectangle, Ellipse, Line, Triangle }
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum ShapeKind { Rectangle, Ellipse, Line, Triangle, Arrow }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ImageFit { Cover, Contain, Fill, None }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -229,6 +232,9 @@ pub struct Node {
     pub layout: Layout,
     /// Position relative to parent's content area (x, y)
     pub position: (f32, f32),
+    /// Rotation in degrees around node center (-180..=180 or 0..=360)
+    #[serde(default)]
+    pub rotation: f32,
     pub visible: bool,
     pub locked: bool,
     pub z: i32,
@@ -245,6 +251,7 @@ impl Node {
             style: NodeStyle::default(),
             layout: Layout::default(),
             position: (0., 0.),
+            rotation: 0.0,
             visible: true,
             locked: false,
             z: 0,

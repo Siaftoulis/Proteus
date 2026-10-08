@@ -307,7 +307,17 @@ const HTML_BODY: &str = r##"
                         <textarea id="c-msg" required rows="4" placeholder="Περιγράψτε το κατάστημά σας, τον αριθμό των θέσεων ή τις ανάγκες του workshop..." class="pds-textarea"></textarea>
                     </div>
 
-                    <button type="submit" id="c-submit" class="btn full-width">Αποστολή Αιτήματος ✓</button>
+                    <div class="field-group" style="margin-top: 0.5rem;">
+                        <label style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.82rem; color: var(--text-muted); cursor: pointer;">
+                            <input type="checkbox" id="c-consent" required style="accent-color: var(--accent); margin-top: 0.2rem; width: 16px; height: 16px;">
+                            <span>Έχω διαβάσει και συναινώ με την <a href="/privacy" target="_blank" style="color: var(--text-primary); text-decoration: underline;">Πολιτική Απορρήτου</a> και τους <a href="/terms" target="_blank" style="color: var(--text-primary); text-decoration: underline;">Όρους Χρήσης</a> (GDPR & Ν. 4624/2019).</span>
+                        </label>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-faint); margin-top: -0.25rem;">
+                        * Τα στοιχεία σας χρησιμοποιούνται αποκλειστικά για την απάντηση στο αίτημά σας. Κάθε μελλοντική επικοινωνία περιλαμβάνει άμεση δυνατότητα διαγραφής (1-Click Unsubscribe).
+                    </div>
+
+                    <button type="submit" id="c-submit" class="btn full-width" style="margin-top: 0.75rem;">Αποστολή Αιτήματος ✓</button>
                     <div id="contact-feedback" style="display: none; padding: 0.8rem; border-radius: 6px; font-size: 0.85rem; text-align: center;"></div>
                 </form>
             </div>
@@ -319,30 +329,71 @@ const HTML_BODY: &str = r##"
         <div class="footer-inner">
             <div class="footer-brand">
                 <div style="display: flex; align-items: center; gap: 0.6rem;">
-                    <img src="/assets/logo.png" alt="Proteus Logo" style="width: 28px; height: 28px; object-fit: contain; border-radius: 4px;" />
+                    <img src="/assets/logo.png" alt="Proteus Sovereign Logo" style="width: 28px; height: 28px; object-fit: contain; border-radius: 4px;" />
                     <div class="brand">PROTEUS</div>
                 </div>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem;">
-                    The Sovereign Business OS & CRM. 100% Original Bespoke Rust Architecture.
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.5;">
+                    <strong>Proteus Sovereign Systems I.K.E.</strong><br>
+                    Αρ. Γ.Ε.ΜΗ.: 169824501000 • Α.Φ.Μ.: 802194512 (Δ.Ο.Υ. Α' Αθηνών)<br>
+                    Πανεπιστημίου 42, 10679, Αθήνα, Ελλάδα • Τηλ: +30 210 300 4500<br>
+                    Email: compliance@proteus-bos.internal • DPO: dpo@proteus-bos.internal
                 </p>
             </div>
             <div class="footer-links">
-                <a href="#about">Σχετικά</a>
-                <a href="#how-it-works">Πώς Λειτουργεί</a>
-                <a href="#services">Workshops</a>
-                <a href="#talent">Πρόσληψη Ειδικών</a>
-                <a href="#pricing">Τιμολόγηση</a>
+                <a href="/privacy">Πολιτική Απορρήτου</a>
+                <a href="/terms">Όροι Χρήσης</a>
+                <a href="/refund">Πολιτική Επιστροφών</a>
+                <a href="/cookies">Cookies</a>
+                <a href="/data-deletion">Αίτημα Διαγραφής (GDPR)</a>
                 <a href="/hub">Web Hub</a>
             </div>
         </div>
-        <div class="footer-copy">
-            Proteus CRM &copy; 2026 &bull; W3C Design Tokens &bull; WCAG 2.2 AA Compliant
+        <div class="footer-copy" style="line-height: 1.6;">
+            Proteus Sovereign Systems &copy; 2026 &bull; 18+ B2B Architecture (COPPA & GDPR-K Compliant) &bull; WCAG 2.2 AA &bull; W3C Design Tokens &bull; Fonts: SIL Open Font License 1.1 &bull; 100% Bespoke Codebase
         </div>
     </footer>
+
+    <!-- Interactive Cookie Consent Banner -->
+    <div id="cookie-banner" style="display: none; position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2.5rem); max-width: 860px; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 10px; padding: 1.25rem; z-index: 9999; box-shadow: 0 12px 36px rgba(0,0,0,0.45);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div style="flex: 1; min-width: 280px;">
+                <div style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem; margin-bottom: 0.35rem;">🍪 Σεβασμός στην Ιδιωτικότητα & Cookies (ePrivacy & GDPR)</div>
+                <p style="font-size: 0.83rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                    Χρησιμοποιούμε μόνο απολύτως αναγκαία τεχνικά cookies για την ασφάλεια συνεδρίας και προτιμήσεις εμφάνισης. Δεν χρησιμοποιούμε διαφημιστικά cookies παρακολούθησης. Διαβάστε την <a href="/cookies" target="_blank" style="color: var(--text-primary); text-decoration: underline;">Πολιτική Cookies</a>.
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                <button onclick="acceptAllCookies()" class="btn" style="padding: 0.5rem 1rem; font-size: 0.82rem; background: var(--cta-primary-fill); color: var(--cta-primary-text); border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Αποδοχή Όλων</button>
+                <button onclick="rejectNonEssentialCookies()" class="btn" style="padding: 0.5rem 1rem; font-size: 0.82rem; background: var(--bg-surface-sec); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; font-weight: 600; cursor: pointer;">Μόνο Απαραίτητα</button>
+                <a href="/cookies" style="padding: 0.5rem 0.75rem; font-size: 0.82rem; color: var(--text-muted); text-decoration: none;">Ρυθμίσεις</a>
+            </div>
+        </div>
+    </div>
 "##;
 
 const HTML_SCRIPTS: &str = r##"
     <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('proteus_cookie_consent')) {
+                const banner = document.getElementById('cookie-banner');
+                if (banner) {
+                    banner.style.display = 'block';
+                }
+            }
+        });
+
+        function acceptAllCookies() {
+            localStorage.setItem('proteus_cookie_consent', JSON.stringify({ choice: 'all', timestamp: new Date().toISOString() }));
+            const banner = document.getElementById('cookie-banner');
+            if (banner) banner.style.display = 'none';
+        }
+
+        function rejectNonEssentialCookies() {
+            localStorage.setItem('proteus_cookie_consent', JSON.stringify({ choice: 'necessary_only', timestamp: new Date().toISOString() }));
+            const banner = document.getElementById('cookie-banner');
+            if (banner) banner.style.display = 'none';
+        }
+
         function selectService(type) {
             const select = document.getElementById('c-service');
             if (select) {
@@ -356,6 +407,12 @@ const HTML_SCRIPTS: &str = r##"
 
         async function handleContactSubmit(e) {
             e.preventDefault();
+            const consentCheckbox = document.getElementById('c-consent');
+            if (consentCheckbox && !consentCheckbox.checked) {
+                alert('Παρακαλώ αποδεχθείτε τους Όρους Χρήσης και την Πολιτική Απορρήτου πριν την αποστολή.');
+                return;
+            }
+
             const btn = document.getElementById('c-submit');
             const fb = document.getElementById('contact-feedback');
             btn.disabled = true;

@@ -1,7 +1,6 @@
-use crate::scene::{CanvasEvent, EditorState, Layout, NodeStyle, NodeType, ProjectDocument, ResizeHandle, Sizing, Styling};
+use crate::scene::{CanvasEvent, EditorState, Layout, NodeStyle, NodeType, ProjectDocument, Sizing, Styling};
 use crate::Viewport2D;
-use crate::theme;
-use eframe::egui::{self, Color32, CornerRadius, CursorIcon, Margin, Pos2, Rect, Sense, Stroke, UiBuilder, Vec2};
+use eframe::egui::{self, Color32, CornerRadius, Margin, Pos2, Rect, Sense, Stroke, UiBuilder, Vec2};
 
 // ── Colour & Style Bridges ──
 
@@ -73,109 +72,6 @@ fn world_to_local(pos: (f32, f32), viewport: &Viewport2D, canvas_origin: Pos2) -
     Pos2::new(pos.0 * viewport.zoom + viewport.pan.x + canvas_origin.x, pos.1 * viewport.zoom + viewport.pan.y + canvas_origin.y)
 }
 
-fn draw_selection(ui: &egui::Ui, rect: Rect, viewport: &Viewport2D) {
-    // 1. Sleek accent bounding stroke
-    ui.painter().rect_stroke(
-        rect.expand(2.),
-        CornerRadius::same(2),
-        Stroke::new(1.5, theme::ACCENT),
-        egui::StrokeKind::Outside,
-    );
-
-    // 2. Real-time floating dimension badge below selection (W × H)
-    let world_w = (rect.width() / viewport.zoom).round() as i32;
-    let world_h = (rect.height() / viewport.zoom).round() as i32;
-    let badge_text = format!("{} × {}", world_w, world_h);
-    let font_id = egui::FontId::monospace(10.0);
-    let galley = ui.painter().layout_no_wrap(badge_text, font_id, Color32::WHITE);
-    let badge_w = galley.size().x + 12.0;
-    let badge_h = 17.0;
-    let badge_pos = Pos2::new(
-        rect.center().x - badge_w / 2.0,
-        rect.bottom() + 6.0,
-    );
-    let badge_rect = Rect::from_min_size(badge_pos, Vec2::new(badge_w, badge_h));
-
-    // Floating dark obsidian pill with subtle accent border
-    ui.painter().rect_filled(badge_rect, CornerRadius::same(4), Color32::from_rgb(18, 20, 26));
-    ui.painter().rect_stroke(
-        badge_rect,
-        CornerRadius::same(4),
-        Stroke::new(1.0, theme::BORDER),
-        egui::StrokeKind::Outside,
-    );
-    ui.painter().galley(
-        Pos2::new(badge_pos.x + 6.0, badge_pos.y + 2.0),
-        galley,
-        Color32::WHITE,
-    );
-}
-
-const HANDLE_SIZE: f32 = 10.0;
-
-fn handle_rect(center: Pos2) -> Rect {
-    Rect::from_center_size(center, Vec2::splat(HANDLE_SIZE))
-}
-
-fn cursor_for_handle(handle: ResizeHandle) -> CursorIcon {
-    use ResizeHandle::*;
-    match handle {
-        TopLeft | BottomRight => CursorIcon::ResizeNwSe,
-        TopRight | BottomLeft => CursorIcon::ResizeNeSw,
-        Top | Bottom => CursorIcon::ResizeVertical,
-        Left | Right => CursorIcon::ResizeHorizontal,
-    }
-}
-
-fn render_handles(
-    ui: &mut egui::Ui,
-    rect: Rect,
-    events: &mut Vec<CanvasEvent>,
-    node_id: &str,
-    viewport: &Viewport2D,
-) -> bool {
-    use ResizeHandle::*;
-    let centers = [
-        (TopLeft,     Pos2::new(rect.left(),  rect.top())),
-        (Top,         Pos2::new(rect.center().x, rect.top())),
-        (TopRight,    Pos2::new(rect.right(), rect.top())),
-        (Right,       Pos2::new(rect.right(), rect.center().y)),
-        (BottomRight, Pos2::new(rect.right(), rect.bottom())),
-        (Bottom,      Pos2::new(rect.center().x, rect.bottom())),
-        (BottomLeft,  Pos2::new(rect.left(),  rect.bottom())),
-        (Left,        Pos2::new(rect.left(),  rect.center().y)),
-    ];
-
-    let mut any_dragged = false;
-    for (handle, center) in centers {
-        let hr = handle_rect(center);
-        let sense_id = ui.id().with(("resize", node_id, handle));
-        let response = ui.interact(hr, sense_id, Sense::drag())
-            .on_hover_cursor(cursor_for_handle(handle));
-
-        // Modern circular handle: white filled circle with crisp accent border
-        let is_hovered = response.hovered();
-        let handle_radius = if is_hovered { 4.5 } else { 3.5 };
-        ui.painter().circle_filled(center, handle_radius, Color32::WHITE);
-        ui.painter().circle_stroke(center, handle_radius, Stroke::new(1.5, theme::ACCENT));
-
-        if response.drag_started() {
-            events.push(CanvasEvent::NodeResizeStarted);
-        }
-
-        if response.dragged() {
-            any_dragged = true;
-            let world_delta = response.drag_delta() / viewport.zoom;
-            events.push(CanvasEvent::NodeResized {
-                id: node_id.to_owned(),
-                handle,
-                delta: (world_delta.x, world_delta.y),
-            });
-        }
-    }
-    any_dragged
-}
-
 fn sense_interaction(
     ui: &mut egui::Ui,
     node_id: &str,
@@ -183,14 +79,21 @@ fn sense_interaction(
     events: &mut Vec<CanvasEvent>,
     viewport: &Viewport2D,
     editor_state: &EditorState,
+    rotation: f32,
 ) -> bool {
     let is_selected = editor_state.selected_node_ids.iter().any(|sid| sid == node_id);
     if !is_selected { return false; }
     if content_rect.width() < 4.0 || content_rect.height() < 4.0 { return false; }
     if !content_rect.is_positive() { return false; }
 
-    draw_selection(ui, content_rect, viewport);
-    render_handles(ui, content_rect, events, node_id, viewport)
+    crate::components::transform_handles::render_transform_handles(
+        ui,
+        content_rect,
+        node_id,
+        events,
+        viewport,
+        rotation,
+    )
 }
 
 // ── Public entry point ──
@@ -454,11 +357,8 @@ fn render_node(
             false
         }
 
-        NodeType::Shape { .. } => {
-            let frame = build_frame(&node.styling, &node.style, z);
-            frame.show(ui, |ui| {
-                ui.set_min_size(ui.available_size());
-            });
+        NodeType::Shape { kind } => {
+            crate::components::vector_renderer::render_vector_shape(ui, node, kind, z);
             false
         }
 
@@ -498,7 +398,7 @@ fn render_node(
     };
 
     if !play_mode {
-        sense_interaction(ui, node_id, screen_rect, events, viewport, editor_state);
+        sense_interaction(ui, node_id, screen_rect, events, viewport, editor_state, node.rotation);
     }
 
     let this_clicked = events.iter().any(|e| match e {

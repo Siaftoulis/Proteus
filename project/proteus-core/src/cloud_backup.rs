@@ -1,6 +1,9 @@
 // Proteus Core — Zero-Knowledge Encrypted Cloud Backup & Cold Storage Engine
 // Designed from first principles. Zero copied third-party boilerplate.
 
+pub mod s3_client;
+pub use s3_client::*;
+
 use crate::encryption;
 use chrono::{Duration, Utc};
 use serde::{Deserialize, Serialize};

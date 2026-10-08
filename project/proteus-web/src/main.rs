@@ -16,7 +16,10 @@ mod ui_domains_hosting;
 mod ui_freelance;
 mod ui_landing;
 mod ui_marketplace;
+mod ui_onboarding;
 mod ui_telemetry;
+mod legal;
+mod staging;
 
 use axum::{
     extract::{Extension, Json, Path, Query},
@@ -36,25 +39,54 @@ use slot_board::{AcceptSlotRequest, FloorCalculatorRequest, SlotBoardManager, Su
 use tower_http::cors::CorsLayer;
 use tracing::info;
 
+fn log_web(msg: &str) {
+    let p = std::env::current_exe().ok().and_then(|p| p.parent().map(|d| d.join("proteus_web_log.txt")));
+    if let Some(path) = p {
+        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(path) {
+            use std::io::Write;
+            let _ = writeln!(f, "[{}] {}", chrono::Utc::now().to_rfc3339(), msg);
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt::init();
+    log_web("main() starting");
+    let _ = tracing_subscriber::fmt::try_init();
 
-    // Ensure database tables for domains and hosting are initialized
-    let db_path = proteus_core::paths::get_database_path();
-    if let Ok(conn) = rusqlite::Connection::open(&db_path) {
+    std::panic::set_hook(Box::new(|info| {
+        use std::io::Write;
+        let p = std::env::current_exe().ok().and_then(|p| p.parent().map(|d| d.join("proteus_web_panic.txt")));
+        if let Some(path) = p {
+            if let Ok(mut f) = std::fs::File::create(path) {
+                let _ = writeln!(f, "PANIC: {:#?}", info);
+            }
+        }
+        log_web(&format!("PANIC: {:#?}", info));
+    }));
+
+    log_web("initializing db");
+    if let Ok(conn) = proteus_core::paths::open_store_connection() {
         let _ = init_domains_hosting_tables(&conn);
     }
+    log_web("db initialized");
 
     let slot_manager = SlotBoardManager::new();
 
     let app = Router::new()
         .route("/", get(ui_landing::landing_page_handler))
         .route("/hub", get(ui::index_page_handler))
+        .route("/privacy", get(legal::privacy_page_handler))
+        .route("/terms", get(legal::terms_page_handler))
+        .route("/refund", get(legal::refund_page_handler))
+        .route("/cookies", get(legal::cookies_page_handler))
+        .route("/data-deletion", get(legal::data_deletion_page_handler))
+        .route("/api/v1/privacy/delete-request", post(legal::data_deletion_submit_handler))
         .route("/assets/logo.png", get(logo_png_handler))
         .route("/assets/logo.svg", get(logo_svg_handler))
         .route("/favicon.ico", get(favicon_handler))
         .route("/health", get(health_handler))
+        .route("/staging/status", get(staging::staging_status_handler))
         .route("/api/v1/tickets", get(tickets_handler))
         .route("/api/v1/contact", post(contact_submit_handler))
         .route("/api/v1/marketplace/compile", post(compile_handler))
@@ -85,12 +117,21 @@ async fn main() {
         .layer(CorsLayer::permissive());
 
     let addr = "0.0.0.0:8080";
-    info!("Proteus Web Hub & Marketplace listening on {}", addr);
-
-    let listener = tokio::net::TcpListener::bind(addr)
-        .await
-        .expect("Failed to bind port 8080");
-    axum::serve(listener, app).await.expect("Server error");
+    log_web(&format!("binding to {}", addr));
+    let listener = match tokio::net::TcpListener::bind(addr).await {
+        Ok(l) => {
+            log_web("bound successfully to port 8080");
+            l
+        }
+        Err(e) => {
+            log_web(&format!("FATAL: Failed to bind port 8080: {}", e));
+            return;
+        }
+    };
+    log_web("starting axum::serve");
+    if let Err(e) = axum::serve(listener, app).await {
+        log_web(&format!("axum::serve error: {}", e));
+    }
 }
 
 async fn health_handler() -> impl IntoResponse {

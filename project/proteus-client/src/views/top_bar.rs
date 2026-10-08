@@ -163,6 +163,13 @@ pub fn render_top_bar(ctx: &egui::Context, state: &mut TopBarState<'_>) {
                             });
                     }
 
+                    if let Ok(Some(rec)) = proteus_core::security::TimeIntegrityGuard::get_record(state.conn) {
+                        if rec.tamper_locked {
+                            ui.label(RichText::new("⚠️ TIME LOCK").size(11.0).color(Color32::from_rgb(244, 63, 94)).strong())
+                                .on_hover_text("Ανιχνεύθηκε rollback ρολογιού! Το σύστημα είναι σε Read-Only mode.");
+                        }
+                    }
+
                     if state.lan_beacon_active {
                         ui.label(RichText::new("LAN Ready").size(11.0).color(crate::theme::TEXT_SECONDARY));
                     }
@@ -357,21 +364,8 @@ fn render_workspace_pills_ui(
                         next_ws = Some(*ws);
                     }
 
-                    let text_color = if is_active {
-                        text_active
-                    } else if resp.hovered() {
-                        text_hover
-                    } else {
-                        text_muted
-                    };
-
-                    ui.painter().text(
-                        rect.center(),
-                        Align2::CENTER_CENTER,
-                        label,
-                        font_id.clone(),
-                        text_color,
-                    );
+                    let text_color = if is_active { text_active } else if resp.hovered() { text_hover } else { text_muted };
+                    ui.painter().text(rect.center(), Align2::CENTER_CENTER, label, font_id.clone(), text_color);
                 }
 
                 if let Some(target) = target_rect {
@@ -379,20 +373,8 @@ fn render_workspace_pills_ui(
                     let anim_max_x = ui.ctx().animate_value_with_time(bar_id.with("max_x"), target.max.x, 0.18);
                     let anim_min_y = ui.ctx().animate_value_with_time(bar_id.with("min_y"), target.min.y, 0.18);
                     let anim_max_y = ui.ctx().animate_value_with_time(bar_id.with("max_y"), target.max.y, 0.18);
-
-                    let anim_rect = Rect::from_min_max(
-                        Pos2::new(anim_min_x, anim_min_y),
-                        Pos2::new(anim_max_x, anim_max_y),
-                    );
-
-                    ui.painter().set(
-                        bg_shape_idx,
-                        Shape::rect_filled(
-                            anim_rect,
-                            CornerRadius::same(5),
-                            pill_fill,
-                        ),
-                    );
+                    let anim_rect = Rect::from_min_max(Pos2::new(anim_min_x, anim_min_y), Pos2::new(anim_max_x, anim_max_y));
+                    ui.painter().set(bg_shape_idx, Shape::rect_filled(anim_rect, CornerRadius::same(5), pill_fill));
                 }
             });
         });

@@ -1,6 +1,9 @@
 // Proteus Core — Autonomous Local LAN Auto-Discovery & UDP Beacon Protocol
 // Designed from first principles. Zero third-party network libraries.
 
+pub mod pairing;
+pub mod relay;
+
 use crate::package::{MountSummary, PrPackage};
 use serde::{Deserialize, Serialize};
 use std::net::{SocketAddr, UdpSocket};

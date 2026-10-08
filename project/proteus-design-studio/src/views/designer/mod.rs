@@ -67,6 +67,7 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
                 parent_id: None,
                 children_ids: vec![],
                 position: (40., 60.),
+                rotation: 0.0,
                 visible: true,
                 locked: false,
                 z: 0,
@@ -281,6 +282,10 @@ pub fn show_central(
             let is_draw_tool = matches!(
                 app.active_tool,
                 crate::models::DesignerTool::Rectangle
+                    | crate::models::DesignerTool::Frame
+                    | crate::models::DesignerTool::Ellipse
+                    | crate::models::DesignerTool::Line
+                    | crate::models::DesignerTool::Pen
                     | crate::models::DesignerTool::Text
                     | crate::models::DesignerTool::Button
                     | crate::models::DesignerTool::Table

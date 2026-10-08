@@ -193,6 +193,13 @@ impl ProjectDocument {
         Ok(())
     }
 
+    /// Rotate a node around its center to the given angle in degrees.
+    pub fn rotate_node(&mut self, node_id: &str, angle: f32) -> Result<(), String> {
+        let node = self.nodes.get_mut(node_id).ok_or_else(|| format!("Node '{}' not found", node_id))?;
+        node.rotation = angle;
+        Ok(())
+    }
+
     /// Apply a property change to a node (text content, styling, etc.)
     pub fn update_node(&mut self, node_id: &str, update: NodeUpdate) -> Result<(), String> {
         let node = self.nodes.get_mut(node_id).ok_or_else(|| format!("Node '{}' not found", node_id))?;
@@ -266,6 +273,9 @@ impl ProjectDocument {
             NodeUpdate::Move { x, y } => {
                 node.position = (x, y);
             }
+            NodeUpdate::Rotate(angle) => {
+                node.rotation = angle;
+            }
             NodeUpdate::Dimensions { width, height } => {
                 node.layout.width = Sizing::Fixed(width);
                 node.layout.height = Sizing::Fixed(height);
@@ -287,6 +297,14 @@ impl ProjectDocument {
             NodeUpdate::FontWeight(w) => {
                 if let NodeType::Text { ref mut font, .. } = &mut node.node_type {
                     font.weight = w;
+                }
+            }
+            NodeUpdate::Opacity(op) => {
+                node.styling.opacity = op.clamp(0.0, 1.0);
+            }
+            NodeUpdate::FontFamily(fam) => {
+                if let NodeType::Text { ref mut font, .. } = &mut node.node_type {
+                    font.family = fam;
                 }
             }
         }
@@ -404,11 +422,11 @@ impl ProjectDocument {
 
         if has_save || has_nav {
             let trigger_id = format!("f-trig-{}", button_id);
-            self.flow_graph.nodes.insert(trigger_id.clone(), crate::flow::FlowNode {
-                id: trigger_id.clone(),
-                kind: crate::flow::FlowNodeKind::TriggerClick { target_node_id: button_id.to_string() },
-                position: (400., 200.),
-            });
+            self.flow_graph.nodes.insert(trigger_id.clone(), crate::flow::FlowNode::new(
+                trigger_id.clone(),
+                crate::flow::FlowNodeKind::TriggerClick { target_node_id: button_id.to_string() },
+                (400., 200.),
+            ));
 
             let mut prev_id = trigger_id;
 
@@ -416,11 +434,11 @@ impl ProjectDocument {
                 let entity_trimmed = entity.trim().to_string();
                 if !entity_trimmed.is_empty() {
                     let save_id = format!("f-save-{}", button_id);
-                    self.flow_graph.nodes.insert(save_id.clone(), crate::flow::FlowNode {
-                        id: save_id.clone(),
-                        kind: crate::flow::FlowNodeKind::SaveToDatabase { entity: entity_trimmed },
-                        position: (600., 200.),
-                    });
+                    self.flow_graph.nodes.insert(save_id.clone(), crate::flow::FlowNode::new(
+                        save_id.clone(),
+                        crate::flow::FlowNodeKind::SaveToDatabase { entity: entity_trimmed },
+                        (600., 200.),
+                    ));
                     self.flow_graph.edges.push(crate::flow::FlowEdge::new(prev_id, save_id.clone()));
                     prev_id = save_id;
                 }
@@ -430,11 +448,11 @@ impl ProjectDocument {
                 let page_trimmed = page_id.trim().to_string();
                 if !page_trimmed.is_empty() {
                     let nav_id = format!("f-nav-{}", button_id);
-                    self.flow_graph.nodes.insert(nav_id.clone(), crate::flow::FlowNode {
-                        id: nav_id.clone(),
-                        kind: crate::flow::FlowNodeKind::NavigateTo { page_id: page_trimmed },
-                        position: (800., 200.),
-                    });
+                    self.flow_graph.nodes.insert(nav_id.clone(), crate::flow::FlowNode::new(
+                        nav_id.clone(),
+                        crate::flow::FlowNodeKind::NavigateTo { page_id: page_trimmed },
+                        (800., 200.),
+                    ));
                     self.flow_graph.edges.push(crate::flow::FlowEdge::new(prev_id, nav_id));
                 }
             }

@@ -12,3 +12,5 @@ pub mod troubleshoot;
 pub mod connected_data;
 pub mod settings;
 pub mod welcome_hub;
+pub mod layers_panel;
+pub mod tool_ribbon;

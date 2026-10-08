@@ -18,6 +18,7 @@ impl Default for MobileSimulatorApp {
 
 impl eframe::App for MobileSimulatorApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        ctx.request_repaint_after(std::time::Duration::from_secs(1));
         egui::CentralPanel::default()
             .frame(egui::Frame::new().fill(proteus_mobile::BG_BASE))
             .show(ctx, |ui| {

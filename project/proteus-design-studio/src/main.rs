@@ -3,6 +3,7 @@
 //! Proteus UI & Designer Studio main entry point.
 //! Initializes eframe native window and coordinates the UI layout.
 
+pub mod ai_bridge;
 pub mod app_state;
 pub mod components;
 pub mod csv_utils;
@@ -46,6 +47,11 @@ impl eframe::App for ProteusApp {
             self._style_set = true;
         }
 
+        let ai_events = self.ai_bridge.poll_and_dispatch(&mut self.project_doc, self.designer_selected_node.as_deref());
+        if !ai_events.is_empty() {
+            self.toast("🤖 AI Co-Pilot updated canvas ✓");
+        }
+
         if self.in_welcome_hub {
             views::welcome_hub::show(self, ctx);
             return;
@@ -62,7 +68,7 @@ impl eframe::App for ProteusApp {
         }
 
         if ctx.input(|i| i.modifiers.command && i.key_pressed(egui::Key::E)) {
-            let _ = self.export_pr_package();
+            self.run_linter_preflight();
         }
 
         if ctx.input(|i| i.modifiers.command && i.key_pressed(egui::Key::S)) {
@@ -200,8 +206,10 @@ impl eframe::App for ProteusApp {
                 }
             });
 
-        // ── DEVICE TOOLBAR (Designer only, toggleable) ──
-        if self.show_device_toolbar {
+        // ── LUNACY TOP TOOL RIBBON (Designer Mode) ──
+        if self.mode == Mode::Designer {
+            views::tool_ribbon::show(self, ctx);
+        } else if self.show_device_toolbar {
             components::device_bar::show(self, ctx);
         }
 
@@ -287,6 +295,8 @@ impl eframe::App for ProteusApp {
         views::data_viewer::show_edit_modal(self, ctx);
         components::brief_modal::show(self, ctx);
         components::schema_import_modal::show(self, ctx);
+        components::linter_modal::show(self, ctx);
+        components::sharepoint_modal::show(self, ctx);
 
         if self.show_login {
             egui::Window::new("Sign In")
@@ -334,15 +344,19 @@ impl eframe::App for ProteusApp {
     }
 }
 
-fn main() {
+fn main() -> eframe::Result<()> {
+    tracing_subscriber::fmt::init();
     std::panic::set_hook(Box::new(|info| {
         use std::io::Write;
-        if let Ok(mut f) = std::fs::File::create("proteus_panic.txt") {
-            let _ = writeln!(f, "PANIC: {:#?}", info);
+        let p = std::env::current_exe().ok().and_then(|p| p.parent().map(|d| d.join("proteus_panic.txt")));
+        if let Some(path) = p {
+            if let Ok(mut f) = std::fs::File::create(path) {
+                let _ = writeln!(f, "PANIC: {:#?}", info);
+            }
         }
     }));
 
-    let _ = eframe::run_native(
+    eframe::run_native(
         "Proteus - The Visual OS for Business",
         eframe::NativeOptions {
             viewport: egui::ViewportBuilder::default()
@@ -360,5 +374,5 @@ fn main() {
         Box::new(|_cc| {
             Ok(Box::new(ProteusApp::default()))
         }),
-    );
+    )
 }

@@ -136,6 +136,10 @@ pub fn handle_drawing_tool(
         ui.output_mut(|o| o.cursor_icon = egui::CursorIcon::Crosshair);
         let tool_icon = match app.active_tool {
             crate::models::DesignerTool::Rectangle => "▢",
+            crate::models::DesignerTool::Frame => "◻",
+            crate::models::DesignerTool::Ellipse => "◯",
+            crate::models::DesignerTool::Line => "╱",
+            crate::models::DesignerTool::Pen => "✒",
             crate::models::DesignerTool::Text => "T",
             crate::models::DesignerTool::Button => "🔘",
             crate::models::DesignerTool::Table => "⊞",
@@ -183,6 +187,9 @@ pub fn handle_drawing_tool(
                     crate::models::DesignerTool::Button => ((ws.x, ws.y), (120., 36.)),
                     crate::models::DesignerTool::Text => ((ws.x, ws.y), (120., 30.)),
                     crate::models::DesignerTool::Table => ((ws.x, ws.y), (360., 160.)),
+                    crate::models::DesignerTool::Line => ((ws.x, ws.y), (160., 2.)),
+                    crate::models::DesignerTool::Ellipse => ((ws.x, ws.y), (100., 100.)),
+                    crate::models::DesignerTool::Frame => ((ws.x, ws.y), (320., 240.)),
                     _ => ((ws.x, ws.y), (200., 140.)),
                 }
             } else {
@@ -201,6 +208,15 @@ pub fn handle_drawing_tool(
                 crate::models::DesignerTool::Table => scene::NodeType::Table {
                     bound_entity: Some("contacts".into()),
                     columns: vec!["ID".into(), "Name".into(), "Email".into(), "Status".into()],
+                },
+                crate::models::DesignerTool::Ellipse => scene::NodeType::Shape {
+                    kind: scene::ShapeKind::Ellipse,
+                },
+                crate::models::DesignerTool::Line => scene::NodeType::Shape {
+                    kind: scene::ShapeKind::Line,
+                },
+                crate::models::DesignerTool::Pen => scene::NodeType::Shape {
+                    kind: scene::ShapeKind::Line,
                 },
                 _ => scene::NodeType::Frame,
             };

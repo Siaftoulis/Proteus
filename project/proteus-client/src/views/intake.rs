@@ -7,7 +7,7 @@ use proteus_core::tickets::{create_ticket, ServiceTicket};
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
 use rusqlite::Connection;
 
-#[derive(Default)]
+#[derive(Clone)]
 pub struct IntakeFormState {
     pub customer_name: String,
     pub customer_phone: String,
@@ -15,7 +15,23 @@ pub struct IntakeFormState {
     pub serial_number: String,
     pub reported_fault: String,
     pub estimated_cost_str: String,
+    pub gdpr_consent: bool,
     pub status_message: Option<(String, bool)>, // (message, is_success)
+}
+
+impl Default for IntakeFormState {
+    fn default() -> Self {
+        Self {
+            customer_name: String::new(),
+            customer_phone: String::new(),
+            device_model: String::new(),
+            serial_number: String::new(),
+            reported_fault: String::new(),
+            estimated_cost_str: String::new(),
+            gdpr_consent: true,
+            status_message: None,
+        }
+    }
 }
 
 impl IntakeFormState {
@@ -26,6 +42,7 @@ impl IntakeFormState {
         self.serial_number.clear();
         self.reported_fault.clear();
         self.estimated_cost_str.clear();
+        self.gdpr_consent = true;
         self.status_message = None;
     }
 }
@@ -140,7 +157,15 @@ pub fn draw_intake_view(
                 });
             });
 
-        ui.add_space(16.0);
+        ui.add_space(8.0);
+        let consent_col = if state.gdpr_consent { Color32::from_rgb(148, 163, 184) } else { Color32::from_rgb(244, 63, 94) };
+        ui.checkbox(
+            &mut state.gdpr_consent,
+            RichText::new("✓ Συγκατάθεση GDPR (Ν. 4624/2019): Ο πελάτης συναινεί στην καταγραφή στοιχείων για την επισκευή.")
+                .size(11.0)
+                .color(consent_col),
+        );
+        ui.add_space(8.0);
 
         // Actions Row
         ui.horizontal(|ui| {
@@ -170,7 +195,10 @@ pub fn draw_intake_view(
             }
 
             if trigger_save {
-                if state.customer_name.trim().is_empty()
+                if !state.gdpr_consent {
+                    play_error_tone();
+                    state.status_message = Some(("Απαιτείται επιβεβαίωση συγκατάθεσης GDPR του πελάτη.".to_string(), false));
+                } else if state.customer_name.trim().is_empty()
                     || state.customer_phone.trim().is_empty()
                     || state.device_model.trim().is_empty()
                     || state.reported_fault.trim().is_empty()
@@ -256,10 +284,13 @@ mod tests {
             serial_number: "SN123".to_string(),
             reported_fault: "Broken screen".to_string(),
             estimated_cost_str: "50.00".to_string(),
+            gdpr_consent: false,
             status_message: Some(("Success".to_string(), true)),
         };
 
         state.reset();
+
+        assert!(state.gdpr_consent);
 
         assert!(state.customer_name.is_empty());
         assert!(state.customer_phone.is_empty());

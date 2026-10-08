@@ -65,6 +65,20 @@ pub fn update_font_weight(node_id: String, weight: u16) -> CanvasEvent {
     }
 }
 
+pub fn update_opacity(node_id: String, opacity: f32) -> CanvasEvent {
+    CanvasEvent::NodeModified {
+        id: node_id,
+        update: NodeUpdate::Opacity(opacity),
+    }
+}
+
+pub fn update_font_family(node_id: String, family: String) -> CanvasEvent {
+    CanvasEvent::NodeModified {
+        id: node_id,
+        update: NodeUpdate::FontFamily(family),
+    }
+}
+
 pub fn set_button_action(
     button_id: String,
     target_page: Option<String>,
@@ -76,3 +90,4 @@ pub fn set_button_action(
         submit_entity,
     }
 }
+

@@ -7,3 +7,7 @@ pub mod data_widgets;
 pub mod pds;
 pub mod brief_modal;
 pub mod schema_import_modal;
+pub mod vector_renderer;
+pub mod transform_handles;
+pub mod linter_modal;
+pub mod sharepoint_modal;

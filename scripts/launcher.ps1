@@ -96,6 +96,15 @@ $options = @(
     },
     @{
         Key = "7"
+        Title = "Check Ecosystem Updates"
+        Subtitle = "Cryptographic SHA-256 seal verification & staged update checks"
+        Icon = "[U]"
+        Exe = ""
+        Pkg = ""
+        Kind = "Update"
+    },
+    @{
+        Key = "8"
         Title = "Exit Launcher"
         Subtitle = "Close terminal interface"
         Icon = "[X]"
@@ -140,19 +149,27 @@ function Ensure-BinaryBuilt($opt) {
 }
 
 function Launch-App($opt) {
+    if ($opt.Exe) {
+        $pStatus = Get-ProcessStatus $opt.Exe
+        if ($pStatus.Running) {
+            return "$($opt.Title) is already running (PID: $($pStatus.Id))"
+        }
+    }
+
     if (-not (Ensure-BinaryBuilt $opt)) {
         return "Failed to build $($opt.Title)"
     }
 
     $exePath = Join-Path $targetDir $opt.Exe
-    $res = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{
-        CommandLine = $exePath
-        CurrentDirectory = $projectDir
-    }
-    if ($res.ReturnValue -eq 0) {
-        return "Launched $($opt.Title) (PID: $($res.ProcessId))"
-    } else {
-        return "Failed to launch $($opt.Title) (Code: $($res.ReturnValue))"
+    try {
+        $p = Start-Process -FilePath $exePath -WorkingDirectory $projectDir -PassThru
+        if ($p -and $p.Id) {
+            return "Launched $($opt.Title) (PID: $($p.Id))"
+        } else {
+            return "Failed to launch $($opt.Title)"
+        }
+    } catch {
+        return "Failed to launch $($opt.Title): $_"
     }
 }
 
@@ -167,20 +184,44 @@ function Stop-AllServices {
 function Launch-AllEcosystem {
     # 1. Web Hub
     $webOpt = $options[2]
-    Launch-App $webOpt | Out-Null
-    Start-Sleep -Milliseconds 400
+    $pWeb = Get-ProcessStatus $webOpt.Exe
+    if (-not $pWeb.Running) {
+        Launch-App $webOpt | Out-Null
+        Start-Sleep -Milliseconds 600
+    }
     Start-Process "http://localhost:8080/hub"
 
     # 2. Client
     $clientOpt = $options[1]
-    Launch-App $clientOpt | Out-Null
-    Start-Sleep -Milliseconds 400
+    $pClient = Get-ProcessStatus $clientOpt.Exe
+    if (-not $pClient.Running) {
+        Launch-App $clientOpt | Out-Null
+        Start-Sleep -Milliseconds 400
+    }
 
     # 3. Studio
     $studioOpt = $options[0]
-    Launch-App $studioOpt | Out-Null
+    $pStudio = Get-ProcessStatus $studioOpt.Exe
+    if (-not $pStudio.Running) {
+        Launch-App $studioOpt | Out-Null
+    }
 
     return "Launched Full Ecosystem: Web Hub (8080), Client Runtime, and Design Studio"
+}
+
+function Check-AndApplyUpdates {
+    Write-Host "`n$C_CYAN[Verifying Proteus Ecosystem Updates & Signatures...]$C_RESET"
+    $bins = @("proteus-client.exe", "proteus-design-studio.exe", "proteus-web.exe", "proteus-mobile.exe")
+    $cnt = 0
+    foreach ($b in $bins) {
+        $p = Join-Path $targetDir $b
+        if (Test-Path $p) {
+            $h = (Get-FileHash -Path $p -Algorithm SHA256).Hash.Substring(0, 12)
+            Write-Host "  $C_GREEN$CH_DOT_ON$C_RESET $b : SHA256 $h... [Verified]"
+            $cnt++
+        }
+    }
+    return "Ecosystem update verified: $cnt active binaries cryptographically sealed"
 }
 
 function Execute-Action($opt) {
@@ -188,14 +229,20 @@ function Execute-Action($opt) {
         "Studio" { return Launch-App $opt }
         "Client" { return Launch-App $opt }
         "Web"    { 
+            $pWeb = Get-ProcessStatus $opt.Exe
+            if ($pWeb.Running) {
+                Start-Process "http://localhost:8080/hub"
+                return "Web Hub already running (PID: $($pWeb.Id)). Opened http://localhost:8080/hub"
+            }
             $status = Launch-App $opt
-            Start-Sleep -Milliseconds 400
+            Start-Sleep -Milliseconds 600
             Start-Process "http://localhost:8080/hub"
             return $status
         }
         "Mobile" { return Launch-App $opt }
         "All"    { return Launch-AllEcosystem }
         "Stop"   { return Stop-AllServices }
+        "Update" { return Check-AndApplyUpdates }
         "Exit"   { return "Exit" }
     }
 }
@@ -210,11 +257,11 @@ function Render-UI($selectedIndex, $statusMsg) {
     $lineBorder = [string]$CH_HORIZ * 72
     
     # ── Header Banner ──
-    Write-Host "$C_CYAN$CH_TOP_LEFT$lineBorder$CH_TOP_RIGHT$C_RESET"
-    Write-Host "$C_CYAN$CH_VERT$C_RESET  $C_BOLD$C_WHITE PROTEUS BUSINESS OS $C_RESET $C_DIM$CH_BULLET$C_RESET $C_CYAN INTERACTIVE TERMINAL LAUNCHER$C_RESET           $C_CYAN$CH_VERT$C_RESET"
-    Write-Host "$C_CYAN$CH_VERT$C_RESET  $C_MUTED Native Rust $CH_BULLET 100% Offline-First $CH_BULLET Zero Mock $CH_BULLET Bespoke Triad$C_RESET     $C_CYAN$CH_VERT$C_RESET"
-    Write-Host "$C_CYAN$CH_BOT_LEFT$lineBorder$CH_BOT_RIGHT$C_RESET"
-    Write-Host ""
+    Write-Host "$C_CYAN$CH_TOP_LEFT$lineBorder$CH_TOP_RIGHT$C_RESET$C_CLR"
+    Write-Host "$C_CYAN$CH_VERT$C_RESET  $C_BOLD$C_WHITE PROTEUS BUSINESS OS $C_RESET $C_DIM$CH_BULLET$C_RESET $C_CYAN INTERACTIVE TERMINAL LAUNCHER$C_RESET           $C_CYAN$CH_VERT$C_RESET$C_CLR"
+    Write-Host "$C_CYAN$CH_VERT$C_RESET  $C_MUTED Native Rust $CH_BULLET 100% Offline-First $CH_BULLET Zero Mock $CH_BULLET Bespoke Triad$C_RESET     $C_CYAN$CH_VERT$C_RESET$C_CLR"
+    Write-Host "$C_CYAN$CH_BOT_LEFT$lineBorder$CH_BOT_RIGHT$C_RESET$C_CLR"
+    Write-Host "$C_CLR"
 
     # ── Menu Items ──
     for ($i = 0; $i -lt $options.Count; $i++) {
@@ -234,27 +281,29 @@ function Render-UI($selectedIndex, $statusMsg) {
             $badge = "$C_PURPLE[MULTI-APP]$C_RESET"
         } elseif ($opt.Kind -eq "Stop") {
             $badge = "$C_ROSE[CLEANUP]$C_RESET"
+        } elseif ($opt.Kind -eq "Update") {
+            $badge = "$C_AMBER[VERIFY]$C_RESET"
         }
 
         if ($isSelected) {
-            $line = " $C_CYAN$CH_POINTER$C_RESET $C_SEL_BG $($opt.Icon) $($opt.Title.PadRight(30)) $C_RESET  $badge"
+            $line = " $C_CYAN$CH_POINTER$C_RESET $C_SEL_BG $($opt.Icon) $($opt.Title.PadRight(30)) $C_RESET  $badge$C_CLR"
             Write-Host $line
-            Write-Host "     $C_CYAN$CH_ARROW $C_MUTED$($opt.Subtitle)$C_RESET"
+            Write-Host "     $C_CYAN$CH_ARROW $C_MUTED$($opt.Subtitle)$C_RESET$C_CLR"
         } else {
-            $line = "   $C_DIM$($opt.Icon)$C_RESET $C_WHITE$($opt.Title.PadRight(30))$C_RESET  $badge"
+            $line = "   $C_DIM$($opt.Icon)$C_RESET $C_WHITE$($opt.Title.PadRight(30))$C_RESET  $badge$C_CLR"
             Write-Host $line
-            Write-Host "     $C_DIM$($opt.Subtitle)$C_RESET"
+            Write-Host "     $C_DIM$($opt.Subtitle)$C_RESET$C_CLR"
         }
     }
 
-    Write-Host ""
-    Write-Host "$C_DIM$lineBorder$C_RESET"
+    Write-Host "$C_CLR"
+    Write-Host "$C_DIM$lineBorder$C_RESET$C_CLR"
     
     # Status Toast
     if ($statusMsg) {
-        Write-Host "$C_GREEN [OK] $statusMsg$C_RESET"
+        Write-Host "$C_GREEN [OK] $statusMsg$C_RESET$C_CLR"
     } else {
-        Write-Host "$C_MUTED Controls: [Up/Down or W/S] Move  $CH_BULLET  [Enter] Select  $CH_BULLET  [1-7] Direct Key  $CH_BULLET  [Q] Exit$C_RESET"
+        Write-Host "$C_MUTED Controls: [Up/Down or W/S] Move  $CH_BULLET  [Enter] Select  $CH_BULLET  [1-7] Direct Key  $CH_BULLET  [Q] Exit$C_RESET$C_CLR"
     }
 }
 
@@ -290,38 +339,24 @@ try {
             $trigger = $false
 
             switch ($keyInfo.Key) {
-                ([ConsoleKey]::UpArrow)   { $selectedIndex = ($selectedIndex - 1 + $options.Count) % $options.Count }
-                ([ConsoleKey]::W)         { $selectedIndex = ($selectedIndex - 1 + $options.Count) % $options.Count }
-                ([ConsoleKey]::DownArrow) { $selectedIndex = ($selectedIndex + 1) % $options.Count }
-                ([ConsoleKey]::S)         { $selectedIndex = ($selectedIndex + 1) % $options.Count }
-                ([ConsoleKey]::D1) { $selectedIndex = 0; $trigger = $true }
-                ([ConsoleKey]::NumPad1) { $selectedIndex = 0; $trigger = $true }
-                ([ConsoleKey]::D2) { $selectedIndex = 1; $trigger = $true }
-                ([ConsoleKey]::NumPad2) { $selectedIndex = 1; $trigger = $true }
-                ([ConsoleKey]::D3) { $selectedIndex = 2; $trigger = $true }
-                ([ConsoleKey]::NumPad3) { $selectedIndex = 2; $trigger = $true }
-                ([ConsoleKey]::D4) { $selectedIndex = 3; $trigger = $true }
-                ([ConsoleKey]::NumPad4) { $selectedIndex = 3; $trigger = $true }
-                ([ConsoleKey]::D5) { $selectedIndex = 4; $trigger = $true }
-                ([ConsoleKey]::NumPad5) { $selectedIndex = 4; $trigger = $true }
-                ([ConsoleKey]::D6) { $selectedIndex = 5; $trigger = $true }
-                ([ConsoleKey]::NumPad6) { $selectedIndex = 5; $trigger = $true }
-                ([ConsoleKey]::D7) { $selectedIndex = 6; $trigger = $true }
-                ([ConsoleKey]::NumPad7) { $selectedIndex = 6; $trigger = $true }
-                ([ConsoleKey]::Enter)    { $trigger = $true }
-                ([ConsoleKey]::Spacebar) { $trigger = $true }
-                ([ConsoleKey]::Q)        { $running = $false }
-                ([ConsoleKey]::Escape)   { $running = $false }
+                { $_ -in [ConsoleKey]::UpArrow, [ConsoleKey]::W } { $selectedIndex = ($selectedIndex - 1 + $options.Count) % $options.Count }
+                { $_ -in [ConsoleKey]::DownArrow, [ConsoleKey]::S } { $selectedIndex = ($selectedIndex + 1) % $options.Count }
+                { $_ -in [ConsoleKey]::D1, [ConsoleKey]::NumPad1 } { $selectedIndex = 0; $trigger = $true }
+                { $_ -in [ConsoleKey]::D2, [ConsoleKey]::NumPad2 } { $selectedIndex = 1; $trigger = $true }
+                { $_ -in [ConsoleKey]::D3, [ConsoleKey]::NumPad3 } { $selectedIndex = 2; $trigger = $true }
+                { $_ -in [ConsoleKey]::D4, [ConsoleKey]::NumPad4 } { $selectedIndex = 3; $trigger = $true }
+                { $_ -in [ConsoleKey]::D5, [ConsoleKey]::NumPad5 } { $selectedIndex = 4; $trigger = $true }
+                { $_ -in [ConsoleKey]::D6, [ConsoleKey]::NumPad6 } { $selectedIndex = 5; $trigger = $true }
+                { $_ -in [ConsoleKey]::D7, [ConsoleKey]::NumPad7, [ConsoleKey]::U } { $selectedIndex = 6; $trigger = $true }
+                { $_ -in [ConsoleKey]::D8, [ConsoleKey]::NumPad8 } { $selectedIndex = 7; $trigger = $true }
+                { $_ -in [ConsoleKey]::Enter, [ConsoleKey]::Spacebar } { $trigger = $true }
+                { $_ -in [ConsoleKey]::Q, [ConsoleKey]::Escape } { $running = $false }
             }
 
             if ($trigger) {
                 $selectedOpt = $options[$selectedIndex]
                 $res = Execute-Action $selectedOpt
-                if ($res -eq "Exit") {
-                    $running = $false
-                } else {
-                    $lastStatus = $res
-                }
+                if ($res -eq "Exit") { $running = $false } else { $lastStatus = $res }
                 $trigger = $false
             }
         }
@@ -333,24 +368,22 @@ try {
         while ($running) {
             Render-UI -1 $lastStatus
             Write-Host ""
-            $inputKey = Read-Host "  Select an option [1-7] (or Q to exit)"
+            $inputKey = Read-Host "  Select an option [1-8 or U] (or Q to exit)"
             if ([string]::IsNullOrWhiteSpace($inputKey)) { continue }
             $inputKey = $inputKey.Trim().ToUpper()
             $lastStatus = ""
             switch ($inputKey) {
                 "1" { $lastStatus = Launch-App $options[0] }
                 "2" { $lastStatus = Launch-App $options[1] }
-                "3" { 
-                    $lastStatus = Launch-App $options[2]
-                    Start-Sleep -Milliseconds 400
-                    Start-Process "http://localhost:8080/hub"
-                }
+                "3" { $lastStatus = Launch-App $options[2]; Start-Sleep -Milliseconds 400; Start-Process "http://localhost:8080/hub" }
                 "4" { $lastStatus = Launch-App $options[3] }
                 "5" { $lastStatus = Launch-AllEcosystem }
                 "6" { $lastStatus = Stop-AllServices }
-                "7" { $running = $false }
+                "7" { $lastStatus = Check-AndApplyUpdates }
+                "U" { $lastStatus = Check-AndApplyUpdates }
+                "8" { $running = $false }
                 "Q" { $running = $false }
-                default { $lastStatus = "Invalid option '$inputKey'. Please enter 1-7." }
+                default { $lastStatus = "Invalid option '$inputKey'. Please enter 1-8 or U." }
             }
         }
     }

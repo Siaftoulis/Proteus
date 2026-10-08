@@ -12,10 +12,9 @@ use crate::views::store_director::{draw_store_director_view, StoreDirectorState}
 use crate::views::support::{draw_support_view, SupportViewState};
 use crate::views::ticket_detail::{draw_ticket_detail_modal, TicketDetailState};
 use crate::views::top_bar::{render_sub_bar, render_top_bar, TopBarState};
-use proteus_core::audit::init_audit_schema;
 use proteus_core::enterprise::{init_enterprise_schema, seed_default_enterprise_if_empty};
-use proteus_core::paths::{ensure_database_dir_exists, get_database_path};
-use proteus_core::printer::{init_shop_settings_schema, load_shop_config, ShopReceiptConfig};
+use proteus_core::paths::get_database_path;
+use proteus_core::printer::{load_shop_config, ShopReceiptConfig};
 use proteus_core::roles::UserRole;
 use egui::{Frame, Margin};
 use rusqlite::Connection;
@@ -46,6 +45,15 @@ pub struct ProteusClientApp {
     genealogy_rma_state: crate::views::genealogy_rma::GenealogyRmaState,
     shipping_notes_state: crate::views::shipping_notes::ShippingNotesViewState,
     cold_chain_state: crate::views::cold_chain::ColdChainViewState,
+    pos_state: crate::views::pos::RetailPosState,
+    spatial_wms_state: crate::views::spatial_wms::SpatialWmsViewState,
+    work_card_state: crate::views::work_card::WorkCardViewState,
+    esl_state: crate::views::esl::EslViewState,
+    accounting_state: crate::views::accounting::AccountingViewState,
+    cardex_state: crate::views::cardex::CardexViewState,
+    notifications_state: crate::views::notifications::NotificationsViewState,
+    branch_mesh_state: crate::views::branch_mesh::BranchMeshViewState,
+    cloud_hosting_state: crate::views::cloud_hosting::CloudHostingViewState,
     lan_receiver: Option<crate::lan_receiver::LanPackageReceiver>,
     lan_beacon: Option<proteus_core::lan::LanDiscoveryDaemon>,
     replication_daemon: Option<crate::replication_daemon::ReplicationDaemon>,
@@ -58,23 +66,17 @@ pub struct ProteusClientApp {
 impl ProteusClientApp {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         let db_path = get_database_path();
-        let _ = ensure_database_dir_exists(&db_path);
-
-        let conn = Connection::open(&db_path).unwrap_or_else(|_| {
-            Connection::open_in_memory().expect("Critical: Failed to open SQLite")
+        let conn = proteus_core::paths::open_store_connection().unwrap_or_else(|_| {
+            let mem = Connection::open_in_memory().expect("Critical: Failed to open SQLite");
+            let _ = proteus_core::apply_storage_tuning(&mem);
+            mem
         });
 
-        let _ = proteus_core::apply_storage_tuning(&conn);
-        let _ = proteus_core::tickets::init_tickets_schema(&conn);
-        let _ = init_audit_schema(&conn);
+        let _ = proteus_core::bootstrap::bootstrap_store_database(&conn);
         let _ = proteus_core::merkle::init_merkle_schema(&conn);
         let _ = init_enterprise_schema(&conn);
         let _ = seed_default_enterprise_if_empty(&conn);
         let _ = proteus_core::replication::init_outbox_schema(&conn);
-        let _ = init_shop_settings_schema(&conn);
-        let _ = proteus_core::genealogy::init_genealogy_schema(&conn);
-        let _ = proteus_core::shipping_note::init_shipping_schema(&conn);
-        let _ = proteus_core::cold_chain::init_cold_chain_schema(&conn);
         crate::views::audit_log::seed_initial_audit_events_if_empty(&conn);
 
         let receipt_config = load_shop_config(&conn);
@@ -105,6 +107,15 @@ impl ProteusClientApp {
             genealogy_rma_state: crate::views::genealogy_rma::GenealogyRmaState::default(),
             shipping_notes_state: crate::views::shipping_notes::ShippingNotesViewState::default(),
             cold_chain_state: crate::views::cold_chain::ColdChainViewState::default(),
+            pos_state: crate::views::pos::RetailPosState::default(),
+            spatial_wms_state: crate::views::spatial_wms::SpatialWmsViewState::default(),
+            work_card_state: crate::views::work_card::WorkCardViewState::default(),
+            esl_state: crate::views::esl::EslViewState::default(),
+            accounting_state: crate::views::accounting::AccountingViewState::default(),
+            cardex_state: crate::views::cardex::CardexViewState::default(),
+            notifications_state: crate::views::notifications::NotificationsViewState::default(),
+            branch_mesh_state: crate::views::branch_mesh::BranchMeshViewState::default(),
+            cloud_hosting_state: crate::views::cloud_hosting::CloudHostingViewState::default(),
             lan_receiver: crate::lan_receiver::LanPackageReceiver::start(7443).ok(),
             lan_beacon: {
                 let init_label = format!("Proteus Terminal ({})", UserRole::Ceo.display_name());
@@ -314,6 +325,15 @@ impl eframe::App for ProteusClientApp {
                     &mut self.cold_chain_state,
                     &self.operator_name,
                 ),
+                NavTab::RetailPos => crate::views::pos::draw_pos_view(ui, &self.conn, &mut self.pos_state),
+                NavTab::SpatialWms => crate::views::spatial_wms::draw_spatial_wms_view(ui, &self.conn, &mut self.spatial_wms_state),
+                NavTab::WorkCard => crate::views::work_card::draw_work_card_view(ui, &self.conn, &mut self.work_card_state),
+                NavTab::EslGateway => crate::views::esl::draw_esl_view(ui, &self.conn, &mut self.esl_state),
+                NavTab::AccountingCpa => crate::views::accounting::draw_accounting_view(ui, &self.conn, &mut self.accounting_state),
+                NavTab::CardexLedger => crate::views::cardex::draw_cardex_view(ui, &self.conn, &mut self.cardex_state),
+                NavTab::NotificationsGateway => crate::views::notifications::draw_notifications_view(ui, &self.conn, &mut self.notifications_state),
+                NavTab::BranchMesh => crate::views::branch_mesh::draw_branch_mesh_view(ui, &self.conn, &mut self.branch_mesh_state),
+                NavTab::CloudHosting => crate::views::cloud_hosting::draw_cloud_hosting_view(ui, &self.conn, &mut self.cloud_hosting_state),
             });
 
         // Ticket Detail Modal (if a card is clicked)
@@ -334,6 +354,15 @@ impl eframe::App for ProteusClientApp {
             &mut self.conn,
             &mut self.pending_migration,
             &mut self.settings_state.package_mount_msg,
+        );
+
+        // Mobile Companion QR Pairing Modal
+        crate::views::pairing_modal::draw_pairing_modal(
+            ctx,
+            &self.conn,
+            &mut self.settings_state.pairing_modal,
+            &self.receipt_config.shop_name,
+            &self.device_label_ref.lock().unwrap(),
         );
     }
 }

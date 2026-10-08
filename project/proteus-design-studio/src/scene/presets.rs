@@ -23,6 +23,7 @@ pub fn create_dummy_document() -> ProjectDocument {
         style: NodeStyle::default(),
         layout: Layout { width: Sizing::Fixed(320.), height: Sizing::Fixed(260.), ..Default::default() },
         position: (100., 100.),
+        rotation: 0.0,
         visible: true,
         locked: false,
         z: 0,
@@ -41,6 +42,7 @@ pub fn create_dummy_document() -> ProjectDocument {
         style: NodeStyle::default(),
         layout: Layout::default(),
         position: (0., 0.),
+        rotation: 0.0,
         visible: true,
         locked: false,
         z: 1,
@@ -61,6 +63,7 @@ pub fn create_dummy_document() -> ProjectDocument {
         style: NodeStyle::default(),
         layout: Layout { width: Sizing::Fixed(288.), height: Sizing::Fixed(36.), ..Default::default() },
         position: (0., 32.),
+        rotation: 0.0,
         visible: true,
         locked: false,
         z: 2,
@@ -76,6 +79,7 @@ pub fn create_dummy_document() -> ProjectDocument {
         style: NodeStyle::default(),
         layout: Layout { width: Sizing::Fixed(288.), height: Sizing::Fixed(40.), ..Default::default() },
         position: (0., 80.),
+        rotation: 0.0,
         visible: true,
         locked: false,
         z: 3,
@@ -105,6 +109,7 @@ pub fn create_dummy_document() -> ProjectDocument {
         style: NodeStyle::default(),
         layout: Layout { width: Sizing::Fixed(400.), height: Sizing::Fixed(200.), ..Default::default() },
         position: (500., 100.),
+        rotation: 0.0,
         visible: true,
         locked: false,
         z: 0,
@@ -122,6 +127,7 @@ pub fn create_dummy_document() -> ProjectDocument {
         style: NodeStyle::default(),
         layout: Layout::default(),
         position: (0., 0.),
+        rotation: 0.0,
         visible: true,
         locked: false,
         z: 1,
@@ -130,16 +136,16 @@ pub fn create_dummy_document() -> ProjectDocument {
     let _ = doc.add_node(welcome, Some("page-2".into()));
 
     // Dummy flow graph: Trigger → NavigateTo page-2
-    doc.flow_graph.nodes.insert("f1".into(), crate::flow::FlowNode {
-        id: "f1".into(),
-        kind: crate::flow::FlowNodeKind::TriggerClick { target_node_id: "btn-1".into() },
-        position: (200., 100.),
-    });
-    doc.flow_graph.nodes.insert("f2".into(), crate::flow::FlowNode {
-        id: "f2".into(),
-        kind: crate::flow::FlowNodeKind::NavigateTo { page_id: "page-2".into() },
-        position: (500., 100.),
-    });
+    doc.flow_graph.nodes.insert("f1".into(), crate::flow::FlowNode::new(
+        "f1",
+        crate::flow::FlowNodeKind::TriggerClick { target_node_id: "btn-1".into() },
+        (200., 100.),
+    ));
+    doc.flow_graph.nodes.insert("f2".into(), crate::flow::FlowNode::new(
+        "f2",
+        crate::flow::FlowNodeKind::NavigateTo { page_id: "page-2".into() },
+        (500., 100.),
+    ));
     doc.flow_graph.edges.push(crate::flow::FlowEdge::new("f1", "f2"));
 
     doc
@@ -165,7 +171,7 @@ pub fn create_crm_preset() -> ProjectDocument {
             },
             style: NodeStyle::default(),
             layout: Layout { width: Sizing::Fixed(w), height: Sizing::Fixed(h), ..Default::default() },
-            position: (x, y), visible: true, locked: false, z: 0,
+            position: (x, y), rotation: 0.0, visible: true, locked: false, z: 0,
         }
     }
     #[allow(clippy::too_many_arguments)]
@@ -176,7 +182,7 @@ pub fn create_crm_preset() -> ProjectDocument {
             parent_id: None, children_ids: vec![],
             styling: Styling::default(), style: NodeStyle::default(),
             layout: Layout { width: Sizing::Hug, height: Sizing::Hug, ..Default::default() },
-            position: (x, y), visible: true, locked: false, z: 1,
+            position: (x, y), rotation: 0.0, visible: true, locked: false, z: 1,
         }
     }
     fn mk_input(id: &str, placeholder: &str, x: f32, y: f32, w: f32, h: f32, ft: FieldType) -> Node {
@@ -193,7 +199,7 @@ pub fn create_crm_preset() -> ProjectDocument {
             },
             style: NodeStyle::default(),
             layout: Layout { width: Sizing::Fixed(w), height: Sizing::Fixed(h), ..Default::default() },
-            position: (x, y), visible: true, locked: false, z: 1,
+            position: (x, y), rotation: 0.0, visible: true, locked: false, z: 1,
         }
     }
     #[allow(clippy::too_many_arguments)]
@@ -216,7 +222,7 @@ pub fn create_crm_preset() -> ProjectDocument {
             },
             style: NodeStyle::default(),
             layout: Layout { width: Sizing::Fixed(w), height: Sizing::Fixed(h), ..Default::default() },
-            position: (x, y), visible: true, locked: false, z: 1,
+            position: (x, y), rotation: 0.0, visible: true, locked: false, z: 1,
         }
     }
     fn mk_btn(id: &str, label: &str, x: f32, y: f32, w: f32, h: f32, style: ButtonStyle) -> Node {
@@ -234,7 +240,7 @@ pub fn create_crm_preset() -> ProjectDocument {
             },
             style: NodeStyle::default(),
             layout: Layout { width: Sizing::Fixed(w), height: Sizing::Fixed(h), ..Default::default() },
-            position: (x, y), visible: true, locked: false, z: 1,
+            position: (x, y), rotation: 0.0, visible: true, locked: false, z: 1,
         }
     }
     fn mk_card(id: &str, x: f32, y: f32, w: f32, h: f32, bg: Rgba) -> Node {
@@ -250,7 +256,7 @@ pub fn create_crm_preset() -> ProjectDocument {
             },
             style: NodeStyle::default(),
             layout: Layout { width: Sizing::Fixed(w), height: Sizing::Fixed(h), ..Default::default() },
-            position: (x, y), visible: true, locked: false, z: 1,
+            position: (x, y), rotation: 0.0, visible: true, locked: false, z: 1,
         }
     }
     fn mk_dropdown(id: &str, label: &str, opts: &[&str], x: f32, y: f32, w: f32, h: f32) -> Node {
@@ -267,7 +273,7 @@ pub fn create_crm_preset() -> ProjectDocument {
             },
             style: NodeStyle::default(),
             layout: Layout { width: Sizing::Fixed(w), height: Sizing::Fixed(h), ..Default::default() },
-            position: (x, y), visible: true, locked: false, z: 1,
+            position: (x, y), rotation: 0.0, visible: true, locked: false, z: 1,
         }
     }
     fn mk_checkbox(id: &str, label: &str, x: f32, y: f32) -> Node {
@@ -277,7 +283,7 @@ pub fn create_crm_preset() -> ProjectDocument {
             parent_id: None, children_ids: vec![],
             styling: Styling::default(), style: NodeStyle::default(),
             layout: Layout { width: Sizing::Hug, height: Sizing::Hug, ..Default::default() },
-            position: (x, y), visible: true, locked: false, z: 1,
+            position: (x, y), rotation: 0.0, visible: true, locked: false, z: 1,
         }
     }
 
@@ -405,7 +411,7 @@ pub fn create_crm_preset() -> ProjectDocument {
         },
         style: NodeStyle { border_radius: 8.0, ..NodeStyle::default() },
         layout: Layout { width: Sizing::Fixed(668.), height: Sizing::Fixed(200.), ..Layout::default() },
-        position: (16., 495.), visible: true, locked: false, z: 1,
+        position: (16., 495.), rotation: 0.0, visible: true, locked: false, z: 1,
     }, Some("crm-contacts".into()));
 
     // ── PAGE 4: CONTACT DETAIL ──

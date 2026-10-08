@@ -140,6 +140,22 @@ pub struct ProteusApp {
     // Universal UI Layout Import Modal
     pub show_import_schema_modal: bool,
     pub import_schema_input: String,
+
+    // Sovereign Model Context Protocol (MCP) AI Bridge
+    pub ai_bridge: crate::ai_bridge::StudioAiBridge,
+
+    // Quality Linter Pre-Flight Modal & Certification Gate
+    pub show_linter_modal: bool,
+    pub active_lint_report: Option<proteus_core::package::LintReport>,
+    pub candidate_package: Option<proteus_core::package::PrPackage>,
+
+    // In-App Share Point & Sandbox Workspace (Master Problem Audit P18/P20)
+    pub show_sharepoint_modal: bool,
+    pub sharepoint_tab: usize,
+    pub loaded_requirement: Option<proteus_core::package::RequirementsPackage>,
+    pub generated_preview: Option<proteus_core::package::PreviewBundle>,
+    pub active_review_session: Option<proteus_core::package::ClientReviewSession>,
+    pub escrow_contract: Option<proteus_core::package::EscrowContract>,
 }
 
 pub fn app_dir() -> String {
@@ -439,6 +455,16 @@ impl Default for ProteusApp {
             last_cursor_broadcast_epoch: 0,
             show_import_schema_modal: false,
             import_schema_input: String::new(),
+            ai_bridge: crate::ai_bridge::StudioAiBridge::new(),
+            show_linter_modal: false,
+            active_lint_report: None,
+            candidate_package: None,
+            show_sharepoint_modal: false,
+            sharepoint_tab: 0,
+            loaded_requirement: None,
+            generated_preview: None,
+            active_review_session: None,
+            escrow_contract: None,
         };
         app.seed_database_if_empty();
         app.reload_table_cache("contacts");
@@ -981,7 +1007,7 @@ impl ProteusApp {
         }
     }
 
-    pub fn export_pr_package(&mut self) -> Result<std::path::PathBuf, String> {
+    pub fn build_candidate_package(&self) -> Result<proteus_core::package::PrPackage, String> {
         let pkg_id = format!("PKG-{}", if self.pid.is_empty() { "DEFAULT".to_string() } else { self.pid.clone() });
         let pkg_name = if self.pname.trim().is_empty() {
             "Custom Store Template".to_string()
@@ -999,7 +1025,7 @@ impl ProteusApp {
         let layout_json = serde_json::to_string(&self.project_doc)
             .map_err(|e| format!("Serialization error: {}", e))?;
         pkg.views.push(proteus_core::package::PrViewLayout {
-            view_id: self.pid.clone(),
+            view_id: if self.pid.is_empty() { "main_view".to_string() } else { self.pid.clone() },
             name: pkg_name.clone(),
             view_type: "designer_canvas".to_string(),
             layout_json,
@@ -1036,7 +1062,7 @@ impl ProteusApp {
             });
         }
 
-        // 3. Collect Additive DDL Statements for any cached or active tables
+        // 3. Collect Additive DDL Statements and Schemas for cached tables
         for entity_name in self.table_cache.keys() {
             let ddl = format!(
                 "CREATE TABLE IF NOT EXISTS {} (id TEXT PRIMARY KEY, data TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);",
@@ -1045,16 +1071,58 @@ impl ProteusApp {
             if !pkg.schema.ddl_statements.contains(&ddl) {
                 pkg.schema.ddl_statements.push(ddl);
             }
+
+            let mut entity = proteus_core::schema::EntitySchema::new(entity_name, entity_name);
+            entity.fields.push(proteus_core::schema::FieldDefinition {
+                name: "id".to_string(),
+                label: "ID".to_string(),
+                field_type: proteus_core::schema::FieldType::Text,
+                required: true,
+                default_value: None,
+            });
+            entity.fields.push(proteus_core::schema::FieldDefinition {
+                name: "data".to_string(),
+                label: "Data".to_string(),
+                field_type: proteus_core::schema::FieldType::Text,
+                required: true,
+                default_value: None,
+            });
+            pkg.schema.entity_schemas.push(entity);
         }
 
-        // 4. Seal package with SHA-256 and PRPK container
-        let bytes = pkg.to_bytes().map_err(|e| format!("Packaging error: {}", e))?;
+        Ok(pkg)
+    }
 
-        // 5. Write to platform standard packages directory
+    pub fn run_linter_preflight(&mut self) {
+        match self.build_candidate_package() {
+            Ok(pkg) => {
+                let report = proteus_core::package::PackageLinter::lint_package(&pkg);
+                self.candidate_package = Some(pkg);
+                self.active_lint_report = Some(report);
+                self.show_linter_modal = true;
+            }
+            Err(e) => {
+                self.toast(format!("Σφάλμα δημιουργίας πακέτου: {}", e));
+            }
+        }
+    }
+
+    pub fn confirm_linter_export(&mut self) -> Result<std::path::PathBuf, String> {
+        let pkg = match &self.candidate_package {
+            Some(p) => p.clone(),
+            None => self.build_candidate_package()?,
+        };
+
+        let report = proteus_core::package::PackageLinter::lint_package(&pkg);
+        if !report.is_valid {
+            return Err(format!("Export blocked: {} fatal lint errors detected", report.errors.len()));
+        }
+
+        let bytes = pkg.to_bytes().map_err(|e| format!("Packaging error: {}", e))?;
         let packages_dir = proteus_core::paths::get_packages_dir();
         let _ = std::fs::create_dir_all(&packages_dir);
 
-        let clean_filename = pkg_name
+        let clean_filename = pkg.manifest.name
             .chars()
             .map(|c| if c.is_alphanumeric() || c == '-' || c == '_' { c } else { '_' })
             .collect::<String>();
@@ -1063,9 +1131,160 @@ impl ProteusApp {
         std::fs::write(&target_path, &bytes)
             .map_err(|e| format!("I/O Error writing package file: {}", e))?;
 
-        self.toast(format!("✓ Εξήχθη επαληθευμένο πακέτο .pr ({:.1} KB)", bytes.len() as f64 / 1024.0));
+        self.show_linter_modal = false;
+        self.toast(format!("✓ Εξήχθη πιστοποιημένο πακέτο .pr ({:.1} KB - {:.0}% Score)", bytes.len() as f64 / 1024.0, report.quality_score));
         Ok(target_path)
     }
+
+    pub fn export_pr_package(&mut self) -> Result<std::path::PathBuf, String> {
+        self.run_linter_preflight();
+        self.confirm_linter_export()
+    }
+
+    pub fn load_sample_requirement(&mut self) {
+        let fields = vec![
+            proteus_core::package::FieldRequirement {
+                name: "customer_name".to_string(),
+                data_type: "Text".to_string(),
+                is_required: true,
+                description: "Full customer legal name".to_string(),
+            },
+            proteus_core::package::FieldRequirement {
+                name: "tax_afm".to_string(),
+                data_type: "Text".to_string(),
+                is_required: true,
+                description: "Greek AFM tax registration number".to_string(),
+            },
+            proteus_core::package::FieldRequirement {
+                name: "vehicle_plate".to_string(),
+                data_type: "Text".to_string(),
+                is_required: true,
+                description: "Vehicle registration plate".to_string(),
+            },
+            proteus_core::package::FieldRequirement {
+                name: "fault_notes".to_string(),
+                data_type: "Text".to_string(),
+                is_required: false,
+                description: "Reported mechanical or electrical fault".to_string(),
+            },
+        ];
+        let workflows = vec![
+            proteus_core::package::WorkflowIntent {
+                title: "Intake Ticket Print".to_string(),
+                trigger_event: "on_ticket_intake".to_string(),
+                expected_action: "escpos_print_80mm".to_string(),
+            },
+        ];
+        let req = proteus_core::package::RequirementsPackage::new(
+            "Auto Workshop Intake System",
+            "Automotive Services",
+            "client_c8a49f_auto",
+            fields,
+            workflows,
+            "Must feature quick plate search and Greek AFM validation.",
+        );
+        self.loaded_requirement = Some(req);
+        self.toast("Loaded customer requirements (.prreq) ✓");
+    }
+
+    pub fn scaffold_canvas_from_requirements(&mut self) -> Result<usize, String> {
+        let req = self.loaded_requirement.as_ref().ok_or("No requirements loaded")?.clone();
+        self.push_undo();
+        self.spawn_counter += 1;
+        let frame_id = format!("frame-req-{}", self.spawn_counter);
+        let mut frame = scene::Node::new(frame_id.clone(), format!("{} Screen", req.title), scene::NodeType::Frame);
+        frame.position = (60.0, 60.0);
+        frame.layout.width = scene::Sizing::Fixed(440.0);
+        frame.layout.height = scene::Sizing::Fixed(580.0);
+        frame.style.bg_color = [0.08, 0.09, 0.12, 1.0];
+        frame.style.border_color = [0.18, 0.20, 0.26, 1.0];
+        frame.style.border_radius = 8.0;
+        frame.style.border_width = 1.0;
+        let _ = self.project_doc.add_node(frame, None);
+
+        let mut count = 1;
+        let mut y = 80.0;
+        for field in &req.fields {
+            self.spawn_counter += 1;
+            let inp_id = format!("inp-{}-{}", field.name, self.spawn_counter);
+            let mut inp = scene::Node::new(inp_id, format!("Input {}", field.name), scene::NodeType::TextInput {
+                placeholder: format!("{} *", field.description),
+                field_type: scene::FieldType::Text,
+                bound_entity: Some("tickets".into()),
+                bound_field: Some(field.name.clone()),
+            });
+            inp.position = (80.0, y);
+            inp.layout.width = scene::Sizing::Fixed(380.0);
+            inp.layout.height = scene::Sizing::Fixed(36.0);
+            let _ = self.project_doc.add_node(inp, Some(frame_id.clone()));
+            y += 50.0;
+            count += 1;
+        }
+        self.toast(format!("Scaffolded {} nodes from customer requirements ✓", count));
+        Ok(count)
+    }
+
+    pub fn export_sandbox_preview(&mut self) -> Result<Vec<u8>, String> {
+        let req_id = self.loaded_requirement.as_ref().map(|r| r.req_id.clone());
+        let bundle_id = self.pname.replace(' ', "_").to_lowercase();
+        let preview = proteus_core::package::PreviewBundle::new(
+            req_id,
+            &format!("pkg_{bundle_id}"),
+            &format!("{} (Preview)", self.pname),
+            "pcd_certified_author",
+            r#"{"views":[{"view_id":"main","name":"Customer Intake"}]}"#,
+            r#"{"schemas":[]}"#,
+        );
+        let bytes = preview.to_bytes().map_err(|e| e.to_string())?;
+        self.generated_preview = Some(preview);
+        self.toast("Generated watermarked sandbox preview (.prpreview) ✓");
+        Ok(bytes)
+    }
+
+    pub fn simulate_client_review_approval(&mut self) {
+        let Some(preview) = self.generated_preview.as_ref() else {
+            self.toast("No preview available to review");
+            return;
+        };
+        let items = vec![
+            proteus_core::package::ReviewFeedbackItem::new("intake_artboard", "Layout looks great, typography is clear"),
+            proteus_core::package::ReviewFeedbackItem::new("tax_afm", "AFM validation verified with Greek tax rules"),
+        ];
+        let session = proteus_core::package::ClientReviewSession::new(
+            &preview.preview_id,
+            "client_c8a49f_auto",
+            proteus_core::package::ReviewVerdict::Approved,
+            items,
+        );
+        let mut contract = proteus_core::package::EscrowEngine::create_contract(
+            "lic_client_c8a49f_auto",
+            "pcd_certified_author",
+            15000,
+        );
+        let _ = proteus_core::package::EscrowEngine::fund_contract(&mut contract);
+        let _ = proteus_core::package::EscrowEngine::start_review(&mut contract);
+        if let Some(token) = &session.approval_token {
+            let _ = proteus_core::package::EscrowEngine::submit_approval(&mut contract, token);
+        }
+        self.escrow_contract = Some(contract);
+        self.active_review_session = Some(session);
+        self.toast("Client review received: APPROVED (Escrow Release Ready) ✓");
+    }
+
+    pub fn submit_to_escrow_delivery(&mut self) -> Result<proteus_core::package::DeliveryRelease, String> {
+        let pkg = self.build_candidate_package()?;
+        let contract = self.escrow_contract.as_mut().ok_or("No active escrow contract")?;
+        let (bound, release) = proteus_core::package::EscrowEngine::bind_and_deliver(contract, &pkg)
+            .map_err(|e| e.to_string())?;
+        self.candidate_package = Some(bound);
+        self.toast(format!(
+            "Released! Payout: {} € (90%), Platform: {} € (10%) ✓",
+            release.designer_payout_cents / 100,
+            release.platform_fee_cents / 100
+        ));
+        Ok(release)
+    }
+
 
     pub fn load_project(&mut self) {
         if let Some(d) = &self.db {
@@ -1131,8 +1350,7 @@ impl ProteusApp {
 
     /// Load available bespoke project briefs from SQLite.
     pub fn load_available_briefs(&mut self) {
-        let db_path = proteus_core::paths::get_database_path();
-        if let Ok(conn) = rusqlite::Connection::open(&db_path) {
+        if let Ok(conn) = proteus_core::paths::open_store_connection() {
             let _ = proteus_core::brief::seed_default_briefs_if_empty(&conn);
             if let Ok(briefs) = proteus_core::brief::list_all_briefs(&conn) {
                 self.cached_briefs = briefs;
@@ -1179,6 +1397,7 @@ impl ProteusApp {
                     ..Default::default()
                 },
                 position: (screen.pos_x, screen.pos_y),
+                rotation: 0.0,
                 visible: true,
                 locked: false,
                 z: 0,
@@ -1269,6 +1488,7 @@ impl ProteusApp {
                         ..Default::default()
                     },
                     position: (elem.x, elem.y),
+                    rotation: 0.0,
                     visible: true,
                     locked: false,
                     z: (elem_idx + 1) as i32,
@@ -1419,4 +1639,71 @@ mod tests {
 
         let _ = std::fs::remove_file(exported_path);
     }
+
+    #[test]
+    fn test_studio_linter_preflight_and_export_gate() {
+        let mut app = ProteusApp::default();
+        app.pid = "linter-gate-test".to_string();
+        app.pname = "Linter Verified Shop".to_string();
+        app.table_cache.insert("tickets".to_string(), vec![]);
+
+        // 1. Run Pre-flight
+        app.run_linter_preflight();
+        assert!(app.show_linter_modal, "Preflight must open linter modal");
+        assert!(app.active_lint_report.is_some(), "Must generate active lint report");
+
+        let report = app.active_lint_report.as_ref().unwrap();
+        assert!(report.is_valid, "Clean package must be valid");
+        assert_eq!(report.errors.len(), 0, "No fatal lint errors expected");
+
+        // 2. Confirm Export
+        let exported_path = app.confirm_linter_export().expect("Export must succeed");
+        assert!(exported_path.exists());
+        assert!(!app.show_linter_modal, "Modal must close upon successful export");
+
+        let _ = std::fs::remove_file(exported_path);
+    }
+
+    #[test]
+    fn test_studio_sharepoint_and_escrow_flow() {
+        let mut app = ProteusApp::default();
+        app.pid = "sharepoint-test".to_string();
+        app.pname = "Auto Workshop Pro".to_string();
+        app.table_cache.insert("tickets".to_string(), vec![]);
+
+        // 1. Ingest .prreq requirements
+        app.load_sample_requirement();
+        assert!(app.loaded_requirement.is_some());
+        let req = app.loaded_requirement.as_ref().unwrap();
+        assert_eq!(req.fields.len(), 4);
+        assert!(req.verify_integrity());
+
+        // 2. Scaffold Canvas
+        let nodes_count = app.scaffold_canvas_from_requirements().expect("Scaffold canvas");
+        assert_eq!(nodes_count, 5);
+
+        // 3. Export watermarked .prpreview
+        let preview_bytes = app.export_sandbox_preview().expect("Export preview");
+        assert!(app.generated_preview.is_some());
+        let preview = app.generated_preview.as_ref().unwrap();
+        assert_eq!(preview.watermark_text, proteus_core::package::DEFAULT_PREVIEW_WATERMARK);
+        assert!(!preview_bytes.is_empty());
+
+        // 4. Simulate Client Review & Approval Handshake
+        app.simulate_client_review_approval();
+        assert!(app.active_review_session.is_some());
+        let session = app.active_review_session.as_ref().unwrap();
+        assert_eq!(session.verdict, proteus_core::package::ReviewVerdict::Approved);
+        assert!(session.approval_token.is_some());
+
+        // 5. Submit to Escrow & Execute Host Key Binding
+        let release = app.submit_to_escrow_delivery().expect("Escrow delivery");
+        assert_eq!(release.designer_payout_cents, 13500); // 135.00 EUR (90%)
+        assert_eq!(release.platform_fee_cents, 1500); // 15.00 EUR (10%)
+        assert!(release.settlement_signature.starts_with("sig_"));
+        assert!(app.candidate_package.is_some());
+        let candidate = app.candidate_package.as_ref().unwrap();
+        assert_eq!(candidate.manifest.target_client_license, Some("lic_client_c8a49f_auto".to_string()));
+    }
 }
+

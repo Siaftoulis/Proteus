@@ -266,6 +266,53 @@ pub fn update_ticket_details(
     Ok(())
 }
 
+/// Anonymizes customer PII on a ticket per GDPR Art. 17 & Greek Law 4624/2019 (Right to Erasure).
+/// Retains hardware diagnostic & inventory data while permanently erasing customer name and phone.
+pub fn anonymize_ticket_customer(
+    conn: &Connection,
+    ticket_id: &str,
+    operator: &str,
+) -> Result<()> {
+    let now = chrono::Utc::now().timestamp_millis();
+    conn.execute(
+        r#"
+        UPDATE service_tickets
+        SET customer_name = '[GDPR ΑΝΩΝΥΜΟΠΟΙΗΜΕΝΟ]', customer_phone = '[ERASED]', updated_at = ?1
+        WHERE ticket_id = ?2
+        "#,
+        params![now, ticket_id],
+    )?;
+
+    let event_id = uuid::Uuid::now_v7().to_string();
+    let _ = conn.execute(
+        "INSERT INTO system_events (event_id, entity_id, event_type, payload, created_at) VALUES (?1, ?2, 'GDPR_CUSTOMER_ANONYMIZED', ?3, ?4)",
+        params![event_id, ticket_id, format!(r#"{{"operator":"{}","action":"GDPR_ERASURE"}}"#, operator), now],
+    );
+
+    Ok(())
+}
+
+/// Permanently deletes a ticket per GDPR erasure / data minimization requirements.
+pub fn delete_ticket(conn: &Connection, ticket_id: &str, operator: &str) -> Result<bool> {
+    let now = chrono::Utc::now().timestamp_millis();
+    let deleted = conn.execute(
+        "DELETE FROM service_tickets WHERE ticket_id = ?1",
+        params![ticket_id],
+    )?;
+
+    if deleted > 0 {
+        let event_id = uuid::Uuid::now_v7().to_string();
+        let _ = conn.execute(
+            "INSERT INTO system_events (event_id, entity_id, event_type, payload, created_at) VALUES (?1, ?2, 'GDPR_TICKET_PURGED', ?3, ?4)",
+            params![event_id, ticket_id, format!(r#"{{"operator":"{}","deleted_rows":{}}}"#, operator, deleted), now],
+        );
+        Ok(true)
+    } else {
+        Ok(false)
+    }
+}
+
+
 /// Fetches a single ticket by its UUID.
 pub fn get_ticket(conn: &Connection, ticket_id: &str) -> Result<Option<ServiceTicket>> {
     let mut stmt = conn.prepare(
@@ -421,4 +468,26 @@ mod tests {
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].customer_name, "Μαρία Δημητρίου");
     }
+
+    #[test]
+    fn test_gdpr_ticket_anonymize_and_purge() {
+        let conn = Connection::open_in_memory().unwrap();
+        init_tickets_schema(&conn).unwrap();
+
+        let mut t = ServiceTicket::new("Κώστας Γεωργίου", "6900000000", "MacBook Pro", "Μπαταρία");
+        create_ticket(&conn, &mut t).unwrap();
+
+        // Anonymize customer data per GDPR Art. 17
+        anonymize_ticket_customer(&conn, &t.ticket_id, "Admin").unwrap();
+        let anon = get_ticket(&conn, &t.ticket_id).unwrap().unwrap();
+        assert_eq!(anon.customer_name, "[GDPR ΑΝΩΝΥΜΟΠΟΙΗΜΕΝΟ]");
+        assert_eq!(anon.customer_phone, "[ERASED]");
+        assert_eq!(anon.device_model, "MacBook Pro"); // hardware records preserved
+
+        // Permanently delete ticket
+        let deleted = delete_ticket(&conn, &t.ticket_id, "Admin").unwrap();
+        assert!(deleted);
+        assert!(get_ticket(&conn, &t.ticket_id).unwrap().is_none());
+    }
 }
+

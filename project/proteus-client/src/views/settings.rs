@@ -16,16 +16,14 @@ pub struct SettingsViewState {
     pub license_info: Option<proteus_core::license::LicenseInfo>,
     pub license_msg: Option<(String, bool)>,
     pub save_shop_msg: Option<(String, bool)>,
+    pub fiscal_hardware: crate::views::fiscal_hardware_view::FiscalHardwareViewState,
+    pub pairing_modal: crate::views::pairing_modal::PairingModalState,
+    pub security_guardian: crate::views::security_guardian::SecurityGuardianState,
 }
 
 impl Default for SettingsViewState {
     fn default() -> Self {
-        let machine_id = format!("MACHINE-{:x}", {
-            use std::hash::{Hash, Hasher};
-            let mut hasher = std::collections::hash_map::DefaultHasher::new();
-            std::env::var("COMPUTERNAME").unwrap_or_else(|_| "DEFAULT-HOST".into()).hash(&mut hasher);
-            hasher.finish()
-        });
+        let machine_id = proteus_core::security::HardwareIdentity::detect().machine_id;
         let cached = proteus_core::license::get_license_info(None, &machine_id);
         Self {
             printer_name: "POS-80".to_string(),
@@ -36,6 +34,9 @@ impl Default for SettingsViewState {
             license_info: if cached.valid { Some(cached) } else { None },
             license_msg: None,
             save_shop_msg: None,
+            fiscal_hardware: crate::views::fiscal_hardware_view::FiscalHardwareViewState::default(),
+            pairing_modal: crate::views::pairing_modal::PairingModalState::default(),
+            security_guardian: crate::views::security_guardian::SecurityGuardianState::default(),
         }
     }
 }
@@ -79,20 +80,41 @@ pub fn draw_settings_view(
             .corner_radius(CornerRadius::same(8))
             .inner_margin(Margin::same(16))
             .show(ui, |ui| {
-                ui.label(RichText::new("ΣΤΟΙΧΕΙΑ ΕΠΙΧΕΙΡΗΣΗΣ & CUSTOM LOGO (ΤΑΥΤΟΤΗΤΑ ΚΑΤΑΣΤΗΜΑΤΟΣ)").strong().color(crate::theme::TEXT_MUTED));
+                ui.label(RichText::new("ΦΟΡΟΛΟΓΙΚΗ ΤΑΥΤΟΤΗΤΑ, ΣΤΟΙΧΕΙΑ ΕΠΙΧΕΙΡΗΣΗΣ & myDATA").strong().color(crate::theme::TEXT_MUTED));
                 ui.add_space(8.0);
 
                 ui.columns(2, |cols| {
                     cols[0].vertical(|ui| {
-                        ui.label("Επωνυμία Καταστήματος (Εμφάνιση στο Top Bar & Αποδείξεις):");
+                        ui.label("Εμπορικός Τίτλος (Top Bar & Επισκευές):");
                         ui.add(egui::TextEdit::singleline(&mut config.shop_name).desired_width(f32::INFINITY));
-                        ui.add_space(8.0);
+                        ui.add_space(6.0);
 
-                        ui.label("Διεύθυνση / Πόλη:");
+                        ui.label("Επίσημη Επωνυμία Εταιρείας (myDATA & Τιμολόγια):");
+                        ui.add(egui::TextEdit::singleline(&mut config.legal_name).desired_width(f32::INFINITY));
+                        ui.add_space(6.0);
+
+                        ui.horizontal(|ui| {
+                            ui.vertical(|ui| {
+                                ui.label("Α.Φ.Μ. (9 ψηφία):");
+                                ui.add(egui::TextEdit::singleline(&mut config.afm).desired_width(140.0));
+                            });
+                            ui.add_space(8.0);
+                            ui.vertical(|ui| {
+                                ui.label("Δ.Ο.Υ.:");
+                                ui.add(egui::TextEdit::singleline(&mut config.doy).desired_width(140.0));
+                            });
+                        });
+                        ui.add_space(6.0);
+
+                        ui.label("Διεύθυνση Έδρας / Πόλη:");
                         ui.add(egui::TextEdit::singleline(&mut config.address).desired_width(f32::INFINITY));
-                        ui.add_space(8.0);
+                        ui.add_space(6.0);
 
-                        ui.label("Λογότυπο / Εικονίδιο Κλάδου Επιχείρησης:");
+                        ui.label("Τηλέφωνο Επικοινωνίας:");
+                        ui.add(egui::TextEdit::singleline(&mut config.phone).desired_width(f32::INFINITY));
+                        ui.add_space(6.0);
+
+                        ui.label("Λογότυπο / Εικονίδιο Κλάδου:");
                         egui::ComboBox::from_id_salt("shop_logo_combo")
                             .selected_text(match config.logo_icon.as_str() {
                                 "wrench" => "Service & Workshop / Επισκευές",
@@ -109,41 +131,41 @@ pub fn draw_settings_view(
                                     ui.selectable_value(&mut config.logo_icon, val.to_string(), *label);
                                 }
                             });
-                        ui.label(RichText::new("Ή πληκτρολογήστε 2 γράμματα για αυτόματο Monogram αρχικών:").size(11.0).color(crate::theme::TEXT_MUTED));
-                        ui.add(egui::TextEdit::singleline(&mut config.logo_icon).hint_text("π.χ. AL ή wrench").desired_width(120.0));
                     });
 
                     cols[1].vertical(|ui| {
-                        ui.label("Τηλέφωνο Επικοινωνίας:");
-                        ui.add(egui::TextEdit::singleline(&mut config.phone).desired_width(f32::INFINITY));
-                        ui.add_space(8.0);
+                        ui.label("Δραστηριότητα / ΚΑΔ:");
+                        ui.add(egui::TextEdit::singleline(&mut config.activity_description).desired_width(f32::INFINITY));
+                        ui.add_space(6.0);
+
+                        ui.label("Αριθμός Εγκατάστασης (Υποκατάστημα):");
+                        let mut branch_str = config.branch_code.to_string();
+                        if ui.add(egui::TextEdit::singleline(&mut branch_str).desired_width(80.0)).changed() {
+                            if let Ok(val) = branch_str.parse::<i32>() {
+                                config.branch_code = val;
+                            }
+                        }
+                        ui.add_space(6.0);
+
+                        ui.label("AADE myDATA User ID:");
+                        ui.add(egui::TextEdit::singleline(&mut config.mydata_user_id).hint_text("π.χ. username_aade").desired_width(f32::INFINITY));
+                        ui.add_space(6.0);
+
+                        ui.label("AADE myDATA Subscription Key:");
+                        ui.add(egui::TextEdit::singleline(&mut config.mydata_subscription_key).password(true).desired_width(f32::INFINITY));
+                        ui.add_space(6.0);
+
+                        ui.checkbox(&mut config.mydata_sandbox, "myDATA Sandbox (Δοκιμαστικό Περιβάλλον AADE)");
+                        ui.add_space(6.0);
 
                         ui.label("Μήνυμα Υποσέλιδου (Footer Αποδείξεων):");
                         ui.add(egui::TextEdit::singleline(&mut config.footer_message).desired_width(f32::INFINITY));
-                        ui.add_space(10.0);
+                        ui.add_space(8.0);
 
-                        ui.label(RichText::new("ΠΡΟΕΠΙΣΚΟΠΗΣΗ ΤΑΥΤΟΤΗΤΑΣ:").size(11.0).color(crate::theme::TEXT_MUTED).strong());
-                        Frame::new()
-                            .fill(crate::theme::BG_PANEL)
-                            .stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
-                            .corner_radius(CornerRadius::same(6))
-                            .inner_margin(Margin::same(10))
-                            .show(ui, |ui| {
-                                ui.horizontal(|ui| {
-                                    crate::views::logo::render_store_logo_widget(ui, egui::vec2(28.0, 28.0), &config.logo_icon, &config.shop_name, true);
-                                    ui.add_space(8.0);
-                                    ui.vertical(|ui| {
-                                        ui.label(RichText::new(&config.shop_name).strong().size(14.0).color(crate::theme::TEXT_PRIMARY));
-                                        ui.label(RichText::new(&config.phone).size(11.0).color(crate::theme::TEXT_MUTED));
-                                    });
-                                });
-                            });
-
-                        ui.add_space(10.0);
-                        if ui.button(RichText::new("💾 Αποθήκευση Στοιχείων Καταστήματος").strong()).clicked() {
+                        if ui.button(RichText::new("💾 Αποθήκευση Φορολογικών Στοιχείων Επιχείρησης").strong()).clicked() {
                             match proteus_core::printer::save_shop_config(conn, config) {
                                 Ok(_) => {
-                                    state.save_shop_msg = Some(("✓ Τα στοιχεία και το λογότυπο του καταστήματος αποθηκεύτηκαν επιτυχώς στη SQLite!".to_string(), true));
+                                    state.save_shop_msg = Some(("✓ Τα φορολογικά στοιχεία και το προφίλ της επιχείρησης αποθηκεύτηκαν επιτυχώς στη SQLite!".to_string(), true));
                                 }
                                 Err(e) => {
                                     state.save_shop_msg = Some((format!("Σφάλμα αποθήκευσης: {}", e), false));
@@ -203,6 +225,32 @@ pub fn draw_settings_view(
 
         ui.add_space(14.0);
 
+        // Section 2b: Fiscal Hardware (ΦΗΜ) & EFT-POS Settings (A.1155/2023)
+        crate::views::fiscal_hardware_view::draw_fiscal_hardware_panel(ui, conn, &mut state.fiscal_hardware);
+
+        ui.add_space(14.0);
+
+        // Section 2c: Mobile Companion QR Pairing
+        Frame::new()
+            .fill(crate::theme::BG_CARD)
+            .stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
+            .corner_radius(CornerRadius::same(8))
+            .inner_margin(Margin::same(16))
+            .show(ui, |ui| {
+                ui.horizontal(|ui| {
+                    ui.label(RichText::new("📱 ΣΥΖΕΥΞΗ ΦΟΡΗΤΩΝ ΣΥΣΚΕΥΩΝ (MOBILE COMPANION QR)").strong().color(crate::theme::TEXT_MUTED));
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        if ui.button(RichText::new("📷 Έκδοση QR Σύζευξης").strong().color(crate::theme::ACCENT_CYAN)).clicked() {
+                            state.pairing_modal.open_and_refresh(conn, &config.shop_name, &config.shop_name);
+                        }
+                    });
+                });
+                ui.add_space(4.0);
+                ui.label(RichText::new("Δημιουργήστε κρυπτογραφικό QR token για άμεση σύνδεση του smartphone συνεργάτη (Outbox Sync, Van Sales, Παραλαβές).").size(11.5).color(crate::theme::TEXT_SECONDARY));
+            });
+
+        ui.add_space(14.0);
+
         // Section 3: Storage Info
         Frame::new()
             .fill(crate::theme::BG_CARD)
@@ -221,224 +269,22 @@ pub fn draw_settings_view(
         ui.add_space(14.0);
 
         // Section 4: Declarative .pr Package Mount & Templates
-        Frame::new()
-            .fill(crate::theme::BG_CARD)
-            .stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
-            .corner_radius(CornerRadius::same(8))
-            .inner_margin(Margin::same(16))
-            .show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    ui.label(RichText::new("📦 ΕΓΚΑΤΑΣΤΑΣΗ ΠΡΟΤΥΠΩΝ ΚΑΤΑΣΤΗΜΑΤΟΣ (.PR PACKAGES)").strong().color(crate::theme::ACCENT_CYAN));
-                    ui.label(RichText::new("(4-Step Ingestion & Tamper-Proof)").size(11.0).color(crate::theme::TEXT_MUTED));
-                });
-                ui.add_space(6.0);
-                ui.label(RichText::new("Εγκατάσταση επαληθευμένων επιχειρησιακών templates σχεδιασμένων από πιστοποιημένους Designers (PCD).").size(12.0).color(crate::theme::TEXT_MUTED));
-                ui.add_space(8.0);
-
-                if let Some((msg, is_ok)) = &state.package_mount_msg {
-                    let col = if *is_ok { Color32::from_rgb(52, 211, 153) } else { Color32::from_rgb(244, 63, 94) };
-                    ui.label(RichText::new(msg).color(col).strong().size(12.0));
-                    ui.add_space(6.0);
-                }
-
-                ui.horizontal(|ui| {
-                    ui.label(RichText::new("Επαληθευμένα Επιχειρησιακά Πρότυπα (.pr) έτοιμα για άμεση προσάρτηση:").size(12.0).color(crate::theme::TEXT_MUTED));
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        if ui.button("🌐 Web Marketplace Hub (Port 8080)").clicked() {
-                            ui.ctx().open_url(egui::OpenUrl::new_tab("http://localhost:8080"));
-                        }
-                    });
-                });
-                ui.add_space(6.0);
-
-                let templates = [
-                    (
-                        "PKG-MOTO-PRO",
-                        "Επισκευές Μοτοσυκλετών & Συνεργείο",
-                        "PCD Specialist",
-                        "Automotive",
-                        "CREATE TABLE IF NOT EXISTS moto_service_inspections (id TEXT PRIMARY KEY, vin_number TEXT NOT NULL, engine_cc INTEGER, tire_condition TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);",
-                    ),
-                    (
-                        "PKG-SERVICE-AUTO",
-                        "Συνεργείο Αυτοκινήτων & Ανταλλακτικά",
-                        "PCD Senior Partner",
-                        "Automotive",
-                        "CREATE TABLE IF NOT EXISTS auto_service_jobs (id TEXT PRIMARY KEY, license_plate TEXT NOT NULL, mileage INTEGER, mechanic_notes TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);",
-                    ),
-                    (
-                        "PKG-RETAIL-POS",
-                        "Λιανική & Ταμειακή Διαχείριση POS",
-                        "PCDA Analyst Group",
-                        "Retail",
-                        "CREATE TABLE IF NOT EXISTS retail_inventory_sync (id TEXT PRIMARY KEY, sku TEXT NOT NULL, barcode TEXT NOT NULL, stock_qty INTEGER, reorder_level INTEGER, last_scanned DATETIME);",
-                    ),
-                    (
-                        "PKG-CLINIC-HEALTH",
-                        "Ιατρεία & Οδοντιατρική Διαχείριση",
-                        "PCSS Systems Architect",
-                        "Healthcare",
-                        "CREATE TABLE IF NOT EXISTS clinic_patient_records (id TEXT PRIMARY KEY, amka TEXT NOT NULL, full_name TEXT NOT NULL, diagnosis_notes TEXT, consent_gdpr INTEGER DEFAULT 1, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);",
-                    ),
-                ];
-
-                for (bundle_id, title, author, category, ddl) in templates {
-                    Frame::new()
-                        .fill(crate::theme::BG_PANEL)
-                        .stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
-                        .corner_radius(CornerRadius::same(6))
-                        .inner_margin(Margin::same(10))
-                        .show(ui, |ui| {
-                            ui.horizontal(|ui| {
-                                ui.label(RichText::new(title).strong().size(12.0).color(Color32::WHITE));
-                                ui.label(RichText::new(format!("({})", category)).size(10.0).color(crate::theme::ACCENT_CYAN));
-                                ui.label(RichText::new(format!("by {}", author)).size(10.0).color(crate::theme::TEXT_MUTED));
-                                
-                                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                                    if ui.button(format!("📥 Προσάρτηση {}", bundle_id)).clicked() {
-                                        let mut pkg = proteus_core::package::PrPackage::new(bundle_id, title, author);
-                                        pkg.schema.ddl_statements.push(ddl.to_string());
-                                        let db_path = get_database_path();
-                                        match pkg.mount(conn, Some(&db_path), "Admin") {
-                                            Ok(summary) => {
-                                                state.package_mount_msg = Some((
-                                                    format!("✓ Επιτυχής εγκατάσταση '{}'! DDL εντολές: {}.", summary.package_name, summary.applied_ddl_count),
-                                                    true,
-                                                ));
-                                            }
-                                            Err(e) => {
-                                                state.package_mount_msg = Some((format!("Σφάλμα εγκατάστασης πακέτου: {}", e), false));
-                                            }
-                                        }
-                                    }
-                                });
-                            });
-                        });
-                    ui.add_space(4.0);
-                }
-            });
+        crate::views::package_mount_view::draw_package_mount_section(ui, conn, &mut state.package_mount_msg);
 
         ui.add_space(14.0);
 
         // Section 5: License Management & Activation
-        Frame::new()
-            .fill(crate::theme::BG_CARD)
-            .stroke(Stroke::new(1.0, crate::theme::BORDER_SUBTLE))
-            .corner_radius(CornerRadius::same(8))
-            .inner_margin(Margin::same(16))
-            .show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    ui.label(RichText::new("🔑 ΑΔΕΙΑ ΧΡΗΣΗΣ & ΕΝΕΡΓΟΠΟΙΗΣΗ").strong().color(crate::theme::ACCENT_CYAN));
-                    ui.label(RichText::new("(Hardware Lock & Offline Fallback)").size(11.0).color(crate::theme::TEXT_MUTED));
-                });
-                ui.add_space(6.0);
-                ui.label(RichText::new("Διαχείριση επιχειρησιακής άδειας χρήσης και επαλήθευση ενεργοποίησης έναντι του License Server.").size(12.0).color(crate::theme::TEXT_MUTED));
-                ui.add_space(8.0);
+        crate::views::license_view::draw_license_section(ui, config, state);
 
-                if let Some((msg, is_ok)) = &state.license_msg {
-                    let col = if *is_ok { Color32::from_rgb(52, 211, 153) } else { Color32::from_rgb(244, 63, 94) };
-                    ui.label(RichText::new(msg).color(col).strong().size(12.0));
-                    ui.add_space(6.0);
-                }
+        ui.add_space(14.0);
 
-                ui.columns(2, |cols| {
-                    cols[0].vertical(|ui| {
-                        ui.label("Κλειδί Άδειας (License Key):");
-                        ui.add(egui::TextEdit::singleline(&mut state.license_key).hint_text("π.χ. PRO-XXXX-XXXX-XXXX").desired_width(f32::INFINITY));
-                        ui.add_space(6.0);
-
-                        ui.label("Αναγνωριστικό Μηχανήματος (Machine ID):");
-                        ui.add(egui::TextEdit::singleline(&mut state.machine_id).desired_width(f32::INFINITY));
-                    });
-
-                    cols[1].vertical(|ui| {
-                        ui.label("Τρέχουσα Κατάσταση Άδειας:");
-                        if let Some(ref info) = state.license_info {
-                            if info.valid {
-                                ui.horizontal(|ui| {
-                                    ui.label(RichText::new("● ΕΝΕΡΓΗ ΑΔΕΙΑ").color(Color32::from_rgb(52, 211, 153)).strong());
-                                    ui.label(format!("(Έως {} χρήστες)", info.max_users));
-                                });
-                                if !info.expires_at.is_empty() {
-                                    ui.label(RichText::new(format!("Ημερομηνία Λήξης: {}", info.expires_at)).size(11.0).color(crate::theme::TEXT_SECONDARY));
-                                }
-                            } else {
-                                ui.label(RichText::new("○ ΔΩΡΕΑΝ ΕΚΔΟΣΗ (Community — Έως 3 χρήστες)").color(crate::theme::TEXT_MUTED).strong());
-                            }
-                        } else {
-                            ui.label(RichText::new("○ ΔΩΡΕΑΝ ΕΚΔΟΣΗ (Community — Έως 3 χρήστες)").color(crate::theme::TEXT_MUTED).strong());
-                        }
-
-                        ui.add_space(10.0);
-                        ui.horizontal(|ui| {
-                            let activate_btn = egui::Button::new(RichText::new("🔑 Ενεργοποίηση").strong().color(Color32::WHITE))
-                                .fill(crate::theme::ACCENT_PRIMARY);
-                            if ui.add(activate_btn).clicked() {
-                                let key = state.license_key.trim();
-                                if key.is_empty() {
-                                    state.license_msg = Some(("❌ Εισάγετε έγκυρο κλειδί άδειας ή offline token.".into(), false));
-                                } else if key.starts_with("PROT-LIC-") {
-                                    match proteus_core::license::install_offline_token(key, &state.machine_id) {
-                                        Ok(info) => {
-                                            proteus_core::audio::play_barcode_chime();
-                                            state.license_info = Some(info.clone());
-                                            state.license_msg = Some((format!("✓ Επιτυχής εγκατάσταση offline άδειας ({} χρήστες)! Λήξη: {}", info.max_users, info.expires_at), true));
-                                        }
-                                        Err(e) => {
-                                            proteus_core::audio::play_error_tone();
-                                            state.license_msg = Some((format!("❌ Σφάλμα offline άδειας: {}", e), false));
-                                        }
-                                    }
-                                } else {
-                                    match proteus_core::license::verify_online(key, &state.machine_id) {
-                                        Ok(info) => {
-                                            let is_val = info.valid;
-                                            state.license_info = Some(info.clone());
-                                            if is_val {
-                                                proteus_core::audio::play_barcode_chime();
-                                                state.license_msg = Some((format!("✓ Επιτυχής ενεργοποίηση άδειας! Μέγιστοι χρήστες: {}", info.max_users), true));
-                                            } else {
-                                                proteus_core::audio::play_error_tone();
-                                                state.license_msg = Some(("❌ Το κλειδί δεν είναι έγκυρο ή έχει εξαντληθεί το όριο ενεργοποιήσεων.".into(), false));
-                                            }
-                                        }
-                                        Err(e) => {
-                                            proteus_core::audio::play_error_tone();
-                                            state.license_msg = Some((format!("❌ Αποτυχία σύνδεσης με τον License Server: {}", e), false));
-                                        }
-                                    }
-                                }
-                            }
-
-                            if ui.button("⚡ Έκδοση Pilot Token (30 Ημέρες)").clicked() {
-                                let shop = if config.shop_name.is_empty() { "Pilot Workshop" } else { &config.shop_name };
-                                match proteus_core::license::issue_pilot_token(shop, "000000000", Some(&state.machine_id), 30) {
-                                    Ok(token) => {
-                                        proteus_core::audio::play_affirm_tone();
-                                        state.license_key = token;
-                                        state.license_msg = Some(("✓ Παρήχθη νέο υπογεγραμμένο Pilot Token 30 ημερών. Πατήστε 'Ενεργοποίηση'.".into(), true));
-                                    }
-                                    Err(e) => {
-                                        proteus_core::audio::play_error_tone();
-                                        state.license_msg = Some((format!("❌ Σφάλμα παραγωγής: {}", e), false));
-                                    }
-                                }
-                            }
-
-                            if ui.button("🔄 Έλεγχος Cache").clicked() {
-                                let info = proteus_core::license::get_license_info(None, &state.machine_id);
-                                let is_val = info.valid;
-                                state.license_info = Some(info.clone());
-                                if is_val {
-                                    state.license_msg = Some((format!("✓ Φορτώθηκε έγκυρη άδεια από την τοπική μνήμη ({} χρήστες).", info.max_users), true));
-                                } else {
-                                    state.license_msg = Some(("Δεν βρέθηκε αποθηκευμένη έγκυρη άδεια στην τοπική μνήμη.".into(), false));
-                                }
-                            }
-                        });
-                    });
-                });
-            });
+        // Section 5b: Security Guardian & Hardware-Sealed Vault
+        crate::views::security_guardian::draw_security_guardian_section(
+            ui,
+            conn,
+            &mut state.security_guardian,
+            &state.machine_id,
+        );
 
         ui.add_space(14.0);
 

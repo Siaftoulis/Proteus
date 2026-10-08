@@ -217,6 +217,21 @@ fn node_move_update_unknown_id() {
 }
 
 #[test]
+fn node_rotate_update_and_event() {
+    let mut doc = ProjectDocument::new();
+    doc.add_node(make_node("rot_node"), None).unwrap();
+    assert_eq!(doc.get_node("rot_node").unwrap().rotation, 0.0);
+
+    let res = doc.update_node("rot_node", NodeUpdate::Rotate(45.0));
+    assert!(res.is_ok());
+    assert_eq!(doc.get_node("rot_node").unwrap().rotation, 45.0);
+
+    let res2 = doc.rotate_node("rot_node", -90.0);
+    assert!(res2.is_ok());
+    assert_eq!(doc.get_node("rot_node").unwrap().rotation, -90.0);
+}
+
+#[test]
 fn node_resize_from_event() {
     let mut doc = ProjectDocument::new();
     doc.add_node(make_node("a"), None).unwrap();
@@ -516,6 +531,22 @@ fn table_node_columns_update() {
         assert_eq!(columns, &vec!["ID".to_string(), "Title".to_string(), "Value".to_string(), "Stage".to_string()]);
     } else {
         panic!("Expected updated Table node");
+    }
+}
+
+#[test]
+fn test_shape_ellipse_node_creation() {
+    let mut doc = ProjectDocument::new();
+    let ellipse = Node::new("el1".into(), "Circle Primitive".into(), NodeType::Shape {
+        kind: ShapeKind::Ellipse,
+    });
+    doc.add_node(ellipse, None).unwrap();
+
+    let node = doc.get_node("el1").expect("Ellipse node exists");
+    if let NodeType::Shape { kind } = &node.node_type {
+        assert!(matches!(kind, ShapeKind::Ellipse));
+    } else {
+        panic!("Expected Shape node");
     }
 }
 

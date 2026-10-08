@@ -4,7 +4,6 @@
 
 use proteus_core::replication::worker::{OutboxWorker, RemoteTransport};
 use proteus_core::replication::OutboxRecord;
-use rusqlite::Connection;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
@@ -74,7 +73,7 @@ impl ReplicationDaemon {
         thread::Builder::new()
             .name("proteus-replication-daemon".into())
             .spawn(move || {
-                let conn = match Connection::open(&db_path) {
+                let conn = match proteus_core::paths::open_tuned_connection(&db_path) {
                     Ok(c) => c,
                     Err(_) => return,
                 };
@@ -125,7 +124,7 @@ mod tests {
         let db_path = temp_dir.join("test_rep.db");
 
         {
-            let conn = Connection::open(&db_path).unwrap();
+            let conn = proteus_core::paths::open_tuned_connection(&db_path).unwrap();
             proteus_core::replication::init_outbox_schema(&conn).unwrap();
             proteus_core::replication::enqueue_outbox(&conn, "test_ent", "REC-1", proteus_core::replication::ChangeOp::Insert, "{}").unwrap();
         }

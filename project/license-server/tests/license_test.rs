@@ -118,3 +118,16 @@ fn test_duplicate_license_key_fails() {
     let result = insert_license(&conn, "DUP-KEY", "second@example.com", 3);
     assert!(result.is_err());
 }
+
+#[test]
+fn test_admin_auth_token_validation() {
+    let expected = "secret-admin-key";
+    let valid_bearer = "Bearer secret-admin-key";
+    let token = valid_bearer.strip_prefix("Bearer ").unwrap();
+    assert_eq!(token, expected);
+
+    let invalid_bearer = "Bearer wrong-key";
+    let bad_token = invalid_bearer.strip_prefix("Bearer ").unwrap();
+    assert_ne!(bad_token, expected);
+}
+

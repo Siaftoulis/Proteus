@@ -6,12 +6,15 @@ pub mod design_tab;
 pub mod hardware_tab;
 pub mod mutations;
 pub mod prototype_tab;
+pub mod precision;
 
 pub use controls::*;
 pub use design_tab::*;
 pub use hardware_tab::*;
 pub use mutations::*;
 pub use prototype_tab::*;
+pub use precision::*;
+
 
 use crate::models::InspectorTab;
 use crate::scene::{CanvasEvent, EditorState, ProjectDocument};
@@ -89,6 +92,8 @@ pub fn draw_inspector(
     ScrollArea::vertical().id_salt("penpot_inspector_scroll").show(ui, |ui| {
         if *inspector_tab == InspectorTab::Hardware {
             hardware_action = draw_hardware_tab(ui, selected_node, doc, printer_name, is_58mm);
+        } else if editor_state.selected_node_ids.len() > 1 {
+            precision::draw_multi_selection_inspector(ui, doc, &editor_state.selected_node_ids, &mut events);
         } else if let (Some(node_id), Some(node)) = (selected_id.as_ref(), selected_node) {
             // Element Name Header
             ui.add_space(2.);
@@ -104,7 +109,7 @@ pub fn draw_inspector(
 
             match inspector_tab {
                 InspectorTab::Design => {
-                    draw_design_tab(ui, node, doc, copied_dimensions, &mut events);
+                    precision::draw_precision_design_tab(ui, node, doc, copied_dimensions, &mut events);
                 }
                 InspectorTab::Prototype => {
                     draw_prototype_tab(ui, node, doc, &mut events);

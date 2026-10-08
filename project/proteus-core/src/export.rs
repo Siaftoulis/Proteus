@@ -18,13 +18,13 @@ impl Database {
             projects,
         };
         let json = serde_json::to_vec(&data).map_err(|e| e.to_string())?;
-        let key = encryption::derive_key(password, salt)?;
-        encryption::encrypt(&json, &key)
+        let key = encryption::derive_key(password, salt).map_err(|e| e.to_string())?;
+        encryption::encrypt(&json, &key).map_err(|e| e.to_string())
     }
 
     pub fn import_all(&self, encrypted_data: &[u8], password: &str, salt: &str) -> Result<usize, String> {
-        let key = encryption::derive_key(password, salt)?;
-        let json = encryption::decrypt(encrypted_data, &key)?;
+        let key = encryption::derive_key(password, salt).map_err(|e| e.to_string())?;
+        let json = encryption::decrypt(encrypted_data, &key).map_err(|e| e.to_string())?;
         let data: ExportData = serde_json::from_slice(&json).map_err(|e| e.to_string())?;
         if data.version != 1 {
             return Err(format!("Unsupported export version: {}", data.version));

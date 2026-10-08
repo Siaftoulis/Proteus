@@ -213,29 +213,99 @@ tags:
 - [x] Real-time fleet & cold storage telemetry dashboard in `proteus-client` (`cold_chain.rs`)
 - [x] 319/319 passing automated tests across all 7 workspace crates
 
-## Sprint 14 (Multi-Branch LAN Mesh Synchronization) — ACTIVE
-- [ ] Peer-to-Peer Branch Mesh Discovery Protocol (`proteus-core`)
-- [ ] Differential SQLite Transaction Vector Clock (`proteus-core`)
-- [ ] Multi-Branch Sync Monitor View (`proteus-client`)
+## Sprint 14 (Multi-Branch LAN Mesh Synchronization) — Complete
+- [x] Peer-to-Peer Branch Mesh Discovery Protocol (`proteus-core`)
+- [x] Differential SQLite Transaction Vector Clock (`proteus-core`)
+- [x] Multi-Branch Sync Monitor View (`proteus-client`)
 
-## Future (Phase 2 - Post-Military Commercial Launch)
-- [ ] Merchant of Record setup (Lemon Squeezy / Paddle)
-- [ ] Cloud Relay Tunnel (WebRTC / STUN-TURN) for remote mobile access
-- [ ] Mobile Companion App (Native Shell for iOS / Android with `sync_outbox`)
-- [ ] Local LAN mDNS auto-discovery & QR pairing
-- [ ] Zero-knowledge automated encrypted cloud backups (Cloudflare R2 / S3)
-- [ ] Multi-seat licensing & Self-service device management portal
-- [ ] Single-Member IKE (Μονοπρόσωπη ΙΚΕ) formation post-revenue (>2,000€)
+## Phase 3 (Commercial Launch Engine) — Complete
+- [x] Merchant of Record setup (Lemon Squeezy / Paddle) (`proteus-core::license::mor`)
+- [x] Core business license (7.99€/mo) & seat tier checkout (`proteus-core::license::checkout`)
+- [x] Local LAN mDNS auto-discovery & QR pairing (`proteus-core::lan::pairing`, `proteus-client`)
+- [x] Mobile Companion App with `sync_outbox` & auto-sync daemon (`proteus-mobile`)
+- [x] Zero-knowledge automated encrypted cloud backups (Cloudflare R2 / S3) (`proteus-core::cloud_backup::s3_client`)
+- [x] Cloud Relay Tunnel Engine: Authenticated session handshake, envelope tamper detection & SQLite config persistence (`proteus-core::lan::relay` P3.6.1)
+- [x] Cloud Relay Companion sync fallback & remote bridge (`proteus-mobile::sync_daemon` P3.6.2)
+- [x] Single-Member IKE (Μονοπρόσωπη ΙΚΕ) formation post-revenue (>2,000€) (`proteus-core::legal::ike` P4.1.1)
 
 
-- [ ] Cloud hosting management console
-- [ ] CRM extraction (standalone app build)
-- [ ] iOS sideloading research
-- [ ] Mobile app support (iOS + Android)
-- [ ] Automatic updates via launcher
-- [ ] Template marketplace
-- [ ] Multi-user collaboration/real-time sync
-- [ ] i18n / localization
+- [x] Cloud hosting management console (`proteus-client::views::cloud_hosting` P4.2.1)
+- [x] CRM extraction (standalone app build) (`proteus-core::standalone` P5.1.1)
+- [x] iOS sideloading research (`docs/IOS_SIDELOADING_ARCHITECTURE.md`, `proteus-core::standalone::ios` P5.2.1)
+- [x] Mobile app support (iOS + Android) (`proteus-mobile::device` P5.3.1)
+- [x] Automatic updates via launcher (`proteus-core::updater`, `scripts/launcher.ps1` P5.4.1)
+- [x] Template marketplace (`proteus-core::package::marketplace` P5.5.1)
+- [x] Multi-user collaboration/real-time sync (`proteus-core::collab` P5.6.1)
+- [x] i18n / localization (`proteus-core::i18n` P5.7.1)
+
+## Phase 11 (Dynamic Business Discovery & Visual Flow Engine)
+- [x] Business Questionnaire & Requirements Engine (`proteus-core::questionnaire` Micro-task 11.1.1)
+- [x] Starter Package Generator from Questionnaire (`proteus-core::questionnaire::scaffold` Micro-task 11.1.2)
+- [x] Web Interactive Hierarchical Tree UI & Enterprise Solutions Desk (`proteus-web::ui_onboarding` Micro-task 11.1.3)
+- [x] Scratch-style Visual Flow Node Ports & Bezier Connectors (Micro-task 11.2.1)
+- [x] Bezier Wire Renderer & Block Layout in `flow_renderer` (Micro-task 11.2.2)
+- [x] Interactive Port Drag-and-Snap & Multi-Branch Routing in `flow_builder` (Micro-task 11.2.3)
+
+## Phase 15 (Isolated Multi-Tenant Cloud Hosting & Staging Suite)
+- [x] Staging vs Production Environment Segregation & Subdomain Routing (Micro-task 15.1.1)
+- [x] Multi-Tenant Data Isolation Engine (Segregated DB containers & quota limits e.g. 50GB) (Micro-task 15.1.2)
+- [x] Automated VPS Billing Markup Calculator (Cost + 50% margin) (Micro-task 15.1.3)
+- [x] 1-Click Zero-Friction Migration between Cloud Hosted & Local Self-Hosted (Micro-task 15.1.4)
+- [x] Safe Schema Migrator & Canary Health Reporter Agent (Zero customer data risk) (Micro-task 15.1.5)
+
+## Phase 16 (Universal Database Scripting DSL & Visual Scratch Data Blocks)
+- [x] Proteus Declarative Database DSL AST & Syntax Parser (Micro-task 16.1.1)
+- [x] Multi-Dialect SQL/NoSQL Transpiler (SQLite, PostgreSQL, MySQL, MongoDB) (Micro-task 16.1.2)
+- [x] Visual Scratch Data Blocks in Flow Studio (Drag-and-drop IDs, filters, record bindings) (Micro-task 16.1.3)
+
+## Phase 17 (Lunacy-Grade Design Studio Canvas & Precision Toolbox)
+- [x] Lunacy-Grade Left Sidebar & Layers Tree (Hierarchy, Symbols, Assets) (Micro-task 17.1.1)
+- [x] Top Tool Ribbon (Select, Frame, Primitives, Text, Vector, Device Presets) (Micro-task 17.1.2)
+- [x] Right Precision Inspector (Geometry X/Y/W/H/Rot, Alignments, Fills, Typography) (Micro-task 17.1.3)
+
+## Phase 18 (Vector Canvas Precision Renderers & Visual Shape Engine)
+- [x] Vector Ellipse & Circle GPU Renderer with Anti-Aliased Corner Radius (Micro-task 18.1.1)
+- [x] Vector Line & Arrow Segment Canvas Renderer with Stroke Styling (Micro-task 18.1.2)
+- [x] Visual Bounding Box Rotation & Transform Handles on Canvas (Micro-task 18.1.3)
+
+## Phase 19 (Sovereign Model Context Protocol AI Architecture Engine)
+- [x] JSON-RPC 2.0 Protocol & MCP Server Engine in Core (Micro-task 19.1.1)
+- [x] Canvas Layout & Schema Generation MCP Tools (Micro-task 19.1.2)
+- [x] Studio MCP Bridge & Live WebSocket/Pipe Dispatcher (Micro-task 19.1.3)
+
+## Phase 20 (SMLM Real-Time Federation Bridge & Global Logistics)
+- [x] Multi-Store Cross-Database Federation Engine (Micro-task 20.1.1)
+- [x] Live Logistics Sync & Automated Stock Level Arbitrage (Micro-task 20.1.2)
+
+## Phase 21 (Quality Linter Gate & Additive Delta Package Updates)
+- [x] Multi-Vector Automated Template Linter Engine (Micro-task 21.1.1)
+- [x] Additive Delta Package Format & Transactional Patch Runner (Micro-task 21.1.2)
+- [x] Studio Linter Pre-Flight Modal & 1-Click Export Gate (Micro-task 21.1.3)
+
+## Phase 22 (In-App Share Point, Sandbox Preview & Cryptographic Escrow Delivery)
+- [x] Requirements Package Specification & Share Point Protocol (Micro-task 22.1.1)
+- [x] In-Platform Escrow & Cryptographic Delivery Gate (Micro-task 22.1.2)
+- [x] Studio Interactive Sandbox Preview & Client Review Workspace (Micro-task 22.1.3)
+
+## Phase 23 (Hardware-Sealed Vault & Monotonic Time Lock)
+- [x] Monotonic High-Water Mark & Anti-Rollback Watchdog (Micro-task 23.1.1)
+- [x] Hybrid Hardware Key & Operational DPAPI/TPM Sealing Engine (Micro-task 23.1.2)
+- [x] Studio & Client Zero-Friction Unlock & Security Guardian UI (Micro-task 23.1.3)
+
+## Phase 24 (Offline Card SaF & SoftPOS)
+- [x] EMV Store-and-Forward (SaF) Offline Capture & Cryptographic Voucher Engine (Micro-task 24.1.1)
+- [x] Dynamic IRIS Offline QR Generator & Merchant Risk Quota Guard (Micro-task 24.1.2)
+- [x] Zero-Touch Cellular LAN Bridge & POS Hotspot Failover (Micro-task 24.1.3)
+
+## Phase 25 (Universal Custom Hardware & Peripheral Bus)
+- [ ] Multi-Protocol Peripheral Bus for Serial, USB-HID, BLE & MQTT (Micro-task 25.1.1)
+- [ ] Declarative Hardware Profile Manifest in .pr Packages (Micro-task 25.1.2)
+- [ ] Visual Hardware Scratch Nodes in Flow Studio for Relays & Sensors (Micro-task 25.1.3)
+
+## Phase 26 (Proteus Sovereign Appliance & Bootable ISO/IMG Builder)
+- [ ] Bare-Metal Appliance Profile & Immutable Read-Only RootFS Spec (Micro-task 26.1.1)
+- [ ] Turnkey Bootable ISO / IMG Builder Pipeline for x86_64 & ARM64 (Micro-task 26.1.2)
+- [ ] Studio 1-Click USB Flasher & Microcontroller Firmware Provisioner (Micro-task 26.1.3)
 
 ## Done (Alpha)
 

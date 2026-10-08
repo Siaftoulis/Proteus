@@ -99,8 +99,7 @@ fn handle_connection(mut stream: TcpStream, tx: &Sender<PrPackage>) {
 
     // ── Remote Companion / Direct Desktop Status Endpoint ──
     if first_line.starts_with("GET /api/remote/status") {
-        let db_path = proteus_core::paths::get_database_path();
-        let ticket_count = if let Ok(conn) = rusqlite::Connection::open(&db_path) {
+        let ticket_count = if let Ok(conn) = proteus_core::paths::open_store_connection() {
             conn.query_row("SELECT count(*) FROM service_tickets", [], |r| r.get::<_, i64>(0)).unwrap_or(0)
         } else {
             0
@@ -149,8 +148,7 @@ fn handle_connection(mut stream: TcpStream, tx: &Sender<PrPackage>) {
     if first_line.contains("/api/sync/outbox") || headers_str.to_lowercase().contains("application/json") {
         if let Ok(records) = serde_json::from_slice::<Vec<proteus_core::replication::OutboxRecord>>(&body) {
             let mut applied = 0;
-            let db_path = proteus_core::paths::get_database_path();
-            if let Ok(conn) = rusqlite::Connection::open(&db_path) {
+            if let Ok(conn) = proteus_core::paths::open_store_connection() {
                 let _ = proteus_core::tickets::init_tickets_schema(&conn);
                 for rec in &records {
                     if rec.entity == "service_tickets" {

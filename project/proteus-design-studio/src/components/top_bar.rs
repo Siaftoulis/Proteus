@@ -44,6 +44,12 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                     app.command_palette_query.clear();
                     app.command_palette_sel_idx = 0;
                 }
+                ui.add_space(6.0);
+                ui.label(
+                    egui::RichText::new("🤖 MCP Active")
+                        .size(10.5)
+                        .color(p.accent)
+                ).on_hover_text("Sovereign Model Context Protocol (MCP) AI Bridge Active (7 tools ready)");
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if let Some(u) = &app.auth {
                         ui.label(egui::RichText::new(u.to_string()).size(12.).color(p.text_dim));

@@ -275,16 +275,13 @@ static EMBLEM_RGBA_128: &[u8] = include_bytes!("../../../assets/proteus_emblem_1
 /// Obtains or caches the King Proteus emblem texture handle for Proteus Client.
 pub fn get_or_load_pc_emblem_texture(ctx: &egui::Context) -> egui::TextureHandle {
     let id = egui::Id::new("pc_king_proteus_emblem_tex");
-    ctx.data_mut(|d| {
-        if let Some(tex) = d.get_temp::<egui::TextureHandle>(id) {
-            tex
-        } else {
-            let img = egui::ColorImage::from_rgba_unmultiplied([128, 128], EMBLEM_RGBA_128);
-            let tex = ctx.load_texture("pc_king_proteus_emblem", img, egui::TextureOptions::LINEAR);
-            d.insert_temp(id, tex.clone());
-            tex
-        }
-    })
+    if let Some(tex) = ctx.data(|d| d.get_temp::<egui::TextureHandle>(id)) {
+        return tex;
+    }
+    let img = egui::ColorImage::from_rgba_unmultiplied([128, 128], EMBLEM_RGBA_128);
+    let tex = ctx.load_texture("pc_king_proteus_emblem", img, egui::TextureOptions::LINEAR);
+    ctx.data_mut(|d| d.insert_temp(id, tex.clone()));
+    tex
 }
 
 /// Master widget to render either the official King Proteus emblem or custom store brand icon.

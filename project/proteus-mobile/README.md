@@ -26,3 +26,13 @@ When ready to extract the real Android APK:
    cargo apk build --package proteus-mobile --release
    ```
    The resulting `.apk` is generated in `target/release/apk/proteus_mobile.apk`.
+
+## iOS Sideloading & Enterprise OTA Instructions
+In compliance with the EU Digital Markets Act (DMA) and zero-cost distribution rules:
+1. **AltStore PAL / SideStore Feed**:
+   The companion app publishes an authentic `apps.json` catalog generated via `proteus-core::standalone::ios::AltStoreSource`.
+2. **On-Device Autonomous Re-signing**:
+   SideStore utilizes a local WireGuard loopback VPN (`127.0.0.1:22` pairing profile) to re-sign `proteus-mobile.ipa` on the device every 7 days without connecting to a computer.
+3. **Wireless Apple Enterprise OTA Installation**:
+   Enterprises with MDM or in-house provisioning install the app wirelessly via Safari using `itms-services://?action=download-manifest&url=.../manifest.plist`.
+   Full blueprint available in `docs/IOS_SIDELOADING_ARCHITECTURE.md`.

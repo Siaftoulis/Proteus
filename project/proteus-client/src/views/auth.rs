@@ -47,8 +47,8 @@ impl Default for ClientAuthState {
     fn default() -> Self {
         Self {
             stage: AuthStage::Stage1MarketplaceLogin,
-            email_input: "demo@company.com".to_string(),
-            password_input: "password123".to_string(),
+            email_input: String::new(),
+            password_input: String::new(),
             owner_pin_input: String::new(),
             available_packages: vec![
                 LicensedPackageInfo {
@@ -71,8 +71,12 @@ impl ClientAuthState {
     pub fn submit_marketplace_login(&mut self) -> bool {
         let email = self.email_input.trim();
         let pass = self.password_input.trim();
-        if email.is_empty() || !email.contains('@') || pass.is_empty() {
-            self.error_msg = Some("Παρακαλώ εισάγετε έγκυρη διεύθυνση email και κωδικό πρόσβασης.".to_string());
+        if email.is_empty() || !email.contains('@') || !email.contains('.') {
+            self.error_msg = Some("Παρακαλώ εισάγετε έγκυρη διεύθυνση email.".to_string());
+            return false;
+        }
+        if pass.len() < 6 {
+            self.error_msg = Some("Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον 6 χαρακτήρες.".to_string());
             return false;
         }
 
@@ -84,8 +88,12 @@ impl ClientAuthState {
 
     /// Fast-track Google OAuth login for marketplace account.
     pub fn submit_google_login(&mut self) -> bool {
-        self.email_input = "owner.google@enterprise-cloud.com".to_string();
-        self.verified_account = Some(self.email_input.clone());
+        let email = if self.email_input.contains('@') {
+            self.email_input.trim().to_string()
+        } else {
+            "authorized.workspace@proteus-bos.internal".to_string()
+        };
+        self.verified_account = Some(email);
         self.error_msg = None;
         self.stage = AuthStage::Stage2StoreOwnerPin;
         true
@@ -94,12 +102,17 @@ impl ClientAuthState {
     /// Verify Stage 2 Owner Master PIN / Staff PIN and mount selected PR package.
     pub fn submit_store_access(&mut self) -> Option<SessionContext> {
         let pin = self.owner_pin_input.trim();
+        if pin.is_empty() || pin.len() < 4 || !pin.chars().all(|c| c.is_ascii_digit()) {
+            self.error_msg = Some("Απαιτείται έγκυρος 4ψήφιος κωδικός PIN προσωπικού (μόνο ψηφία).".to_string());
+            return None;
+        }
+
         let (role, operator_name) = match pin {
-            "0000" | "" => (self.selected_role, format!("{} (Full Control)", self.selected_role.display_name())),
+            "0000" => (self.selected_role, format!("{} (Full Control)", self.selected_role.display_name())),
             "1234" => (UserRole::CustomerService, "Terminal Cashier (Operator)".to_string()),
             "9999" => (UserRole::Technician, "Service Technician".to_string()),
             _ => {
-                self.error_msg = Some("Μη έγκυρος κωδικός PIN (Δοκιμάστε 0000 για Owner ή 1234 για Cashier)".to_string());
+                self.error_msg = Some("Μη καταχωρημένος κωδικός PIN προσωπικού.".to_string());
                 return None;
             }
         };
@@ -203,30 +216,18 @@ pub fn render_auth_modal(state: &mut ClientAuthState, ctx: &egui::Context) -> Op
                                 ui.add_space(16.);
 
                                 ui.label(RichText::new("Email Λογαριασμού:").size(11.).color(Color32::from_rgb(203, 213, 225)));
-                                ui.add(
-                                    egui::TextEdit::singleline(&mut state.email_input)
-                                        .desired_width(f32::INFINITY)
-                                        .hint_text("user@company.com"),
-                                );
+                                ui.add(egui::TextEdit::singleline(&mut state.email_input).desired_width(f32::INFINITY).hint_text("user@company.com"));
                                 ui.add_space(8.);
 
                                 ui.label(RichText::new("Κωδικός Πρόσβασης:").size(11.).color(Color32::from_rgb(203, 213, 225)));
-                                ui.add(
-                                    egui::TextEdit::singleline(&mut state.password_input)
-                                        .password(true)
-                                        .desired_width(f32::INFINITY),
-                                );
+                                ui.add(egui::TextEdit::singleline(&mut state.password_input).password(true).desired_width(f32::INFINITY));
                                 ui.add_space(14.);
 
-                                if ui
-                                    .add(
-                                        egui::Button::new(RichText::new("Είσοδος στο Workspace").size(12.).strong().color(Color32::WHITE))
-                                            .fill(Color32::from_rgb(37, 99, 235))
-                                            .corner_radius(CornerRadius::same(8))
-                                            .min_size(Vec2::new(ui.available_width(), 34.)),
-                                    )
-                                    .clicked()
-                                {
+                                let login_btn = egui::Button::new(RichText::new("Είσοδος στο Workspace").size(12.).strong().color(Color32::WHITE))
+                                    .fill(Color32::from_rgb(37, 99, 235))
+                                    .corner_radius(CornerRadius::same(8))
+                                    .min_size(Vec2::new(ui.available_width(), 34.));
+                                if ui.add(login_btn).clicked() {
                                     state.submit_marketplace_login();
                                 }
 
@@ -234,16 +235,12 @@ pub fn render_auth_modal(state: &mut ClientAuthState, ctx: &egui::Context) -> Op
                                 ui.label(RichText::new("— ή εναλλακτικά —").size(10.5).color(Color32::from_rgb(100, 116, 139)));
                                 ui.add_space(8.);
 
-                                if ui
-                                    .add(
-                                        egui::Button::new(RichText::new("🔑 Σύνδεση με Google Workspace").size(11.5).color(Color32::WHITE))
-                                            .fill(Color32::from_rgb(30, 36, 49))
-                                            .stroke(Stroke::new(1., Color32::from_rgb(51, 65, 85)))
-                                            .corner_radius(CornerRadius::same(8))
-                                            .min_size(Vec2::new(ui.available_width(), 32.)),
-                                    )
-                                    .clicked()
-                                {
+                                let google_btn = egui::Button::new(RichText::new("🔑 Σύνδεση με Google Workspace").size(11.5).color(Color32::WHITE))
+                                    .fill(Color32::from_rgb(30, 36, 49))
+                                    .stroke(Stroke::new(1., Color32::from_rgb(51, 65, 85)))
+                                    .corner_radius(CornerRadius::same(8))
+                                    .min_size(Vec2::new(ui.available_width(), 32.));
+                                if ui.add(google_btn).clicked() {
                                     state.submit_google_login();
                                 }
 
@@ -318,23 +315,14 @@ pub fn render_auth_modal(state: &mut ClientAuthState, ctx: &egui::Context) -> Op
                                 ui.add_space(8.);
 
                                 ui.label(RichText::new("Terminal PIN (0000 = Owner, 1234 = Cashier, 9999 = Tech):").size(10.5).color(Color32::from_rgb(148, 163, 184)));
-                                ui.add(
-                                    egui::TextEdit::singleline(&mut state.owner_pin_input)
-                                        .password(true)
-                                        .desired_width(f32::INFINITY)
-                                        .hint_text("0000"),
-                                );
+                                ui.add(egui::TextEdit::singleline(&mut state.owner_pin_input).password(true).desired_width(f32::INFINITY).hint_text("0000"));
                                 ui.add_space(12.);
 
-                                if ui
-                                    .add(
-                                        egui::Button::new(RichText::new("🚀 Εκκίνηση CRM Project").size(12.).strong().color(Color32::WHITE))
-                                            .fill(Color32::from_rgb(16, 185, 129))
-                                            .corner_radius(CornerRadius::same(8))
-                                            .min_size(Vec2::new(ui.available_width(), 34.)),
-                                    )
-                                    .clicked()
-                                {
+                                let launch_btn = egui::Button::new(RichText::new("🚀 Εκκίνηση CRM Project").size(12.).strong().color(Color32::WHITE))
+                                    .fill(Color32::from_rgb(16, 185, 129))
+                                    .corner_radius(CornerRadius::same(8))
+                                    .min_size(Vec2::new(ui.available_width(), 34.));
+                                if ui.add(launch_btn).clicked() {
                                     result_session = state.submit_store_access();
                                 }
 
@@ -378,8 +366,9 @@ mod tests {
         assert!(!state.submit_marketplace_login());
         assert!(state.error_msg.is_some());
 
-        // Stage 1: Valid email passes to Stage 2
+        // Stage 1: Valid email and password passes to Stage 2
         state.email_input = "owner@business.com".to_string();
+        state.password_input = "secure_pass_123".to_string();
         assert!(state.submit_marketplace_login());
         assert_eq!(state.stage, AuthStage::Stage2StoreOwnerPin);
 
@@ -400,10 +389,8 @@ mod tests {
 
         // Cashier PIN 1234 gives CustomerService role
         state.owner_pin_input = "1234".to_string();
-        let cashier_session = state.submit_store_access().expect("Cashier session");
-        assert_eq!(cashier_session.role, UserRole::CustomerService);
-
-        // Switch project returns to Stage 2
+        let cashier = state.submit_store_access().expect("Cashier session");
+        assert_eq!(cashier.role, UserRole::CustomerService);
         state.switch_project();
         assert_eq!(state.stage, AuthStage::Stage2StoreOwnerPin);
     }
