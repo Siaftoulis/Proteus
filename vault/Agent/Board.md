@@ -327,6 +327,10 @@ tags:
 - [x] Intermittent Outbox & Network Partition Resilience Simulator (Micro-task 30.1.2)
 - [x] Counter Pilot Health Telemetry & Diagnostic Self-Healing Panel (Micro-task 30.1.3)
 
+## Phase 31 (Sovereign Customer Loyalty, Gift Cards & Promotional Engine)
+- [x] Customer Loyalty Points & Tier Progression Engine (Micro-task 31.1.1)
+- [ ] Cryptographic Gift Card & Prepaid Store Credit Vault (Micro-task 31.1.2)
+- [ ] POS Loyalty & Gift Card Tender Integration Modal (Micro-task 31.1.3)
 
 ## Done (Alpha)
 
