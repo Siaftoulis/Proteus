@@ -2,7 +2,6 @@
 
 use eframe::egui::{self, Color32, Pos2, Rect, Stroke, Vec2};
 use crate::models::{LayoutMode, GRID};
-use crate::theme;
 use crate::ProteusApp;
 
 pub fn handle_pan_and_zoom(
@@ -296,16 +295,6 @@ pub fn render_canvas_hud(
             }
         });
     });
-
-    if app.project_doc.nodes.is_empty() {
-        pnt.text(
-            r.center(),
-            egui::Align2::CENTER_CENTER,
-            "Click widgets from the left panel to start designing",
-            egui::FontId::proportional(14.),
-            theme::TEXT_DIM,
-        );
-    }
 }
 
 /// Renders live collaborative multiplayer peer cursors and peer selection boxes over the canvas.

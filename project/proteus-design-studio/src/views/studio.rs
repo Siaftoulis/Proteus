@@ -320,13 +320,6 @@ pub fn show_central(app: &mut ProteusApp, ctx: &egui::Context, pnt: &egui::Paint
             if ui.button("Close").clicked() { app.studio_show_color_popup = false; }
         });
     }
-
-    // Empty canvas hint
-    if app.studio_layers.is_empty() {
-        pnt.text(r.center(), egui::Align2::CENTER_CENTER,
-            "Use the tool palette to create layers. Choose a tool and click/drag on canvas.",
-            egui::FontId::proportional(14.), theme::TEXT_DIM);
-    }
 }
 
 pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
