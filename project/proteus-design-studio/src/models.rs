@@ -20,6 +20,7 @@ pub enum Mode {
     Tasks,
     Settings,
     ApplianceFlasher,
+    I18nManager,
 }
 
 #[derive(Clone, PartialEq, Debug)]

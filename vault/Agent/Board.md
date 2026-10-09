@@ -315,7 +315,7 @@ tags:
 ## Phase 28 (Global Internationalization & Localized Formatting Engine)
 - [x] Declarative i18n Dictionary & Translation Resolver (Micro-task 28.1.1)
 - [x] Localized Date, Number & E.164 Phone Formatting Pipeline (Micro-task 28.1.2)
-- [ ] Studio Visual Locale Switcher & i18n Translation Manager (Micro-task 28.1.3)
+- [x] Studio Visual Locale Switcher & i18n Translation Manager (Micro-task 28.1.3)
 
 ## Done (Alpha)
 

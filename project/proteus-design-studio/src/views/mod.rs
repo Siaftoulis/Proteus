@@ -16,3 +16,4 @@ pub mod layers_panel;
 pub mod tool_ribbon;
 pub mod appliance_flasher;
 pub mod flasher_devices;
+pub mod i18n_manager;

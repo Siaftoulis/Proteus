@@ -339,10 +339,10 @@ tags:
   - [x] Micro-task 27.1.3: Universal Outbound Accounting Webhook & REST Dispatcher (`proteus-core::fiscal_adapter::webhook`)
 
 ## Phase 28: Global Internationalization (i18n), Localized Formatting & E.164 Engine
-- [ ] Task 28.1: Declarative i18n Dictionary & Global Localization Engine
+- [x] Task 28.1: Declarative i18n Dictionary & Global Localization Engine
   - [x] Micro-task 28.1.1: Declarative i18n Dictionary & Translation Resolver (`proteus-core::i18n::dictionary`)
   - [x] Micro-task 28.1.2: Localized Date, Number & E.164 Phone Formatting Pipeline (`proteus-core::i18n::format`)
-  - [ ] Micro-task 28.1.3: Studio Visual Locale Switcher & i18n Translation Manager (`proteus-design-studio::views::i18n_manager`)
+  - [x] Micro-task 28.1.3: Studio Visual Locale Switcher & i18n Translation Manager (`proteus-design-studio::views::i18n_manager`)
 
 Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P28)]]
 

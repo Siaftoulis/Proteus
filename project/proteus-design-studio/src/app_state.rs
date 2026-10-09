@@ -105,6 +105,7 @@ pub struct ProteusApp {
     pub connected_data_state: views::connected_data::ConnectedDataState,
     pub settings_state: views::settings::SettingsState,
     pub flasher_state: views::appliance_flasher::ApplianceFlasherState,
+    pub i18n_state: views::i18n_manager::I18nManagerState,
 
     // Command Palette (Ctrl+K)
     pub show_command_palette: bool,
@@ -431,6 +432,7 @@ impl Default for ProteusApp {
             connected_data_state: views::connected_data::ConnectedDataState::default(),
             settings_state: views::settings::SettingsState::default(),
             flasher_state: views::appliance_flasher::ApplianceFlasherState::default(),
+            i18n_state: views::i18n_manager::I18nManagerState::default(),
             show_command_palette: false,
             command_palette_query: String::new(),
             command_palette_sel_idx: 0,

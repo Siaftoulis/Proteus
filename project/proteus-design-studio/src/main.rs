@@ -149,6 +149,7 @@ impl eframe::App for ProteusApp {
                     Mode::DataViewer => views::data_viewer::show_left(self, ui),
                     Mode::Settings => views::settings::show_left(&mut self.settings_state, ui),
                     Mode::ApplianceFlasher => views::appliance_flasher::show_left(self, ui),
+                    Mode::I18nManager => views::i18n_manager::show_left(self, ui),
                 }
             });
 
@@ -168,6 +169,7 @@ impl eframe::App for ProteusApp {
             Mode::Tasks => "TASK DETAIL",
             Mode::Settings => "STUDIO SETTINGS",
             Mode::ApplianceFlasher => "APPLIANCE SPECS",
+            Mode::I18nManager => "LOCALIZATION PREVIEW",
         };
         let (right_w, right_min) = if self.mode == Mode::Designer {
             (260., 240.)
@@ -206,6 +208,7 @@ impl eframe::App for ProteusApp {
                     Mode::DataViewer => views::data_viewer::show_right(self, ui),
                     Mode::Settings => views::settings::show_right(self, ui),
                     Mode::ApplianceFlasher => views::appliance_flasher::show_right(self, ui),
+                    Mode::I18nManager => views::i18n_manager::show_right(self, ui),
                 }
             });
 
@@ -284,6 +287,7 @@ impl eframe::App for ProteusApp {
                     Mode::FlowBuilder => views::flow_builder::show_central(self, ctx, ui, &pnt, r, mpos, mdown),
                     Mode::Settings => views::settings::show_central(self, ui),
                     Mode::ApplianceFlasher => views::appliance_flasher::show_central(self, ui),
+                    Mode::I18nManager => views::i18n_manager::show_central(self, ui),
                 }
 
                 // Toast overlay
