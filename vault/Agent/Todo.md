@@ -333,9 +333,9 @@ tags:
   - [x] Micro-task 26.1.3: Studio 1-Click USB Flasher & Microcontroller Firmware Provisioner (`proteus-design-studio::views::appliance_flasher`)
 
 ## Phase 27: Global Multi-Jurisdiction Fiscal Adapter & Universal ERP Bridge
-- [ ] Task 27.1: Jurisdiction-Agnostic Fiscal Gateway & International ERP Sync Engine
+- [x] Task 27.1: Jurisdiction-Agnostic Fiscal Gateway & International ERP Sync Engine
   - [x] Micro-task 27.1.1: Multi-Jurisdiction Fiscal Adapter Specification (`proteus-core::fiscal_adapter::jurisdiction`)
   - [x] Micro-task 27.1.2: Multi-Currency & Universal Decimal Math Ledger (`proteus-core::fiscal_adapter::currency`)
-  - [ ] Micro-task 27.1.3: Universal Outbound Accounting Webhook & REST Dispatcher (`proteus-core::fiscal_adapter::webhook`)
+  - [x] Micro-task 27.1.3: Universal Outbound Accounting Webhook & REST Dispatcher (`proteus-core::fiscal_adapter::webhook`)
 
 Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P28)]]
