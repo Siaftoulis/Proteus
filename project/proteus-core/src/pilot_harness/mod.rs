@@ -2,6 +2,8 @@
 //! Simulates high-throughput production workloads across Service Repair Labs,
 //! Retail POS Counters, and Logistics Van Sales for real-world pilot deployments.
 
+pub mod network;
+
 use chrono::Utc;
 use rusqlite::{params, Connection, Result};
 use serde::{Deserialize, Serialize};
@@ -375,8 +377,6 @@ mod tests {
         };
 
         let report = run_pilot_counter_stress(&conn, &config).unwrap();
-        // 10 * 7440 (repair) + 10 * 3100 (pos) + 10 * 18600 (van)
-        // = 74400 + 31000 + 186000 = 291400 cents
         assert_eq!(report.total_volume_eur_cents, 291400);
     }
 }

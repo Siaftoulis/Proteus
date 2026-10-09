@@ -324,7 +324,7 @@ tags:
 
 ## Phase 30 (Production Pilot Stress Harness & Counter Autonomous Simulation)
 - [x] Multi-Shop Counter Intake & Transactional Stress Engine (Micro-task 30.1.1)
-- [ ] Intermittent Outbox & Network Partition Resilience Simulator (Micro-task 30.1.2)
+- [x] Intermittent Outbox & Network Partition Resilience Simulator (Micro-task 30.1.2)
 - [ ] Counter Pilot Health Telemetry & Diagnostic Self-Healing Panel (Micro-task 30.1.3)
 
 
