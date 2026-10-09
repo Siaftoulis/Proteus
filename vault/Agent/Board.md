@@ -312,6 +312,11 @@ tags:
 - [x] Multi-Currency & Universal Decimal Math Ledger (Micro-task 27.1.2)
 - [x] Universal Outbound Accounting Webhook & REST Dispatcher (Micro-task 27.1.3)
 
+## Phase 28 (Global Internationalization & Localized Formatting Engine)
+- [x] Declarative i18n Dictionary & Translation Resolver (Micro-task 28.1.1)
+- [ ] Localized Date, Number & E.164 Phone Formatting Pipeline (Micro-task 28.1.2)
+- [ ] Studio Visual Locale Switcher & i18n Translation Manager (Micro-task 28.1.3)
+
 ## Done (Alpha)
 
 - [x] Designer Mode (react-rnd, grid, z-index, palette)
