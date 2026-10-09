@@ -347,7 +347,7 @@ tags:
 ## Phase 29: Mobile UX Ergonomics & Soft Keyboard Shield (P28)
 - [ ] Task 29.1: Focus-Driven Scroll Cushion & Virtual Keyboard Viewport Engine
   - [x] Micro-task 29.1.1: Virtual Soft Keyboard Viewport Adjuster & Dynamic Scroll Cushion (`proteus-mobile::keyboard_cushion`)
-  - [ ] Micro-task 29.1.2: Ergonomic 44pt Touch Control Primitives & Input Field Shield (`proteus-mobile::touch_controls`)
+  - [x] Micro-task 29.1.2: Ergonomic 44pt Touch Control Primitives & Input Field Shield (`proteus-mobile::touch_controls`)
   - [ ] Micro-task 29.1.3: Mobile Intake Form Soft-Keyboard Integration & Layout Verification (`proteus-mobile::intake_tab`)
 
 Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P28)]]

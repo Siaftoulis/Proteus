@@ -58,6 +58,7 @@ pub mod scanner;
 pub mod sign_on_glass;
 pub mod sync_daemon;
 pub mod tickets_tab;
+pub mod touch_controls;
 pub mod van_sales;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

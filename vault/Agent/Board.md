@@ -319,7 +319,7 @@ tags:
 
 ## Phase 29 (Mobile UX Ergonomics & Soft Keyboard Shield - P28)
 - [x] Virtual Soft Keyboard Viewport Adjuster & Dynamic Scroll Cushion (Micro-task 29.1.1)
-- [ ] Ergonomic 44pt Touch Control Primitives & Input Field Shield (Micro-task 29.1.2)
+- [x] Ergonomic 44pt Touch Control Primitives & Input Field Shield (Micro-task 29.1.2)
 - [ ] Mobile Intake Form Soft-Keyboard Integration & Layout Verification (Micro-task 29.1.3)
 
 ## Done (Alpha)
