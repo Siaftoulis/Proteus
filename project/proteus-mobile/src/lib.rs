@@ -52,6 +52,7 @@ pub fn render_mobile_logo_widget(ui: &mut Ui, size: Vec2) -> egui::Response {
 pub mod device;
 pub mod hotspot_bridge;
 pub mod intake_tab;
+pub mod keyboard_cushion;
 pub mod profile;
 pub mod scanner;
 pub mod sign_on_glass;

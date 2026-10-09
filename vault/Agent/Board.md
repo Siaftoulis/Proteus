@@ -317,6 +317,11 @@ tags:
 - [x] Localized Date, Number & E.164 Phone Formatting Pipeline (Micro-task 28.1.2)
 - [x] Studio Visual Locale Switcher & i18n Translation Manager (Micro-task 28.1.3)
 
+## Phase 29 (Mobile UX Ergonomics & Soft Keyboard Shield - P28)
+- [x] Virtual Soft Keyboard Viewport Adjuster & Dynamic Scroll Cushion (Micro-task 29.1.1)
+- [ ] Ergonomic 44pt Touch Control Primitives & Input Field Shield (Micro-task 29.1.2)
+- [ ] Mobile Intake Form Soft-Keyboard Integration & Layout Verification (Micro-task 29.1.3)
+
 ## Done (Alpha)
 
 - [x] Designer Mode (react-rnd, grid, z-index, palette)
