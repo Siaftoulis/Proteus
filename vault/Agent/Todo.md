@@ -351,10 +351,10 @@ tags:
   - [x] Micro-task 29.1.3: Mobile Intake Form Soft-Keyboard Integration & Layout Verification (`proteus-mobile::intake_tab`)
 
 ## Phase 30: Production Pilot Stress Harness & Counter Autonomous Simulation (Pilot Readiness)
-- [ ] Task 30.1: Multi-Topology Counter Simulation & Pilot Health Telemetry
+- [x] Task 30.1: Multi-Topology Counter Simulation & Pilot Health Telemetry
   - [x] Micro-task 30.1.1: Multi-Shop Counter Intake & Transactional Stress Engine (`proteus-core::pilot_harness`)
   - [x] Micro-task 30.1.2: Intermittent Outbox & Network Partition Resilience Simulator (`proteus-core::pilot_harness::network`)
-  - [ ] Micro-task 30.1.3: Counter Pilot Health Telemetry & Diagnostic Self-Healing Panel (`proteus-client::views::pilot_telemetry`)
+  - [x] Micro-task 30.1.3: Counter Pilot Health Telemetry & Diagnostic Self-Healing Panel (`proteus-client::views::pilot_telemetry`)
 
 Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P28)]]
 

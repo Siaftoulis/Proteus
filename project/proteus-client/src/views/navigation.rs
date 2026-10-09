@@ -32,6 +32,7 @@ pub enum NavTab {
     NotificationsGateway,
     BranchMesh,
     CloudHosting,
+    PilotTelemetry,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -129,6 +130,7 @@ impl RoleWorkspace {
                 {
                     tabs.push((NavTab::Support, "Spooler & LAN Diagnostics"));
                     tabs.push((NavTab::GenealogyRma, "Ιστορικό S/N & RMA"));
+                    tabs.push((NavTab::PilotTelemetry, "🩺 Pilot Τηλεμετρία"));
                 }
             }
             Self::EnterpriseHQ => {
@@ -264,9 +266,10 @@ mod tests {
         assert_eq!(tabs[5].0, NavTab::NotificationsGateway);
 
         let hw_tabs = RoleWorkspace::HardwareSupport.sub_tabs(&p, UserRole::Technician);
-        assert_eq!(hw_tabs.len(), 2);
+        assert_eq!(hw_tabs.len(), 3);
         assert_eq!(hw_tabs[0].0, NavTab::Support);
         assert_eq!(hw_tabs[1].0, NavTab::GenealogyRma);
+        assert_eq!(hw_tabs[2].0, NavTab::PilotTelemetry);
 
         let log_tabs = RoleWorkspace::Logistics.sub_tabs(&p, UserRole::Technician);
         assert_eq!(log_tabs.len(), 5);

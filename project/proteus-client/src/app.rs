@@ -54,6 +54,7 @@ pub struct ProteusClientApp {
     notifications_state: crate::views::notifications::NotificationsViewState,
     branch_mesh_state: crate::views::branch_mesh::BranchMeshViewState,
     cloud_hosting_state: crate::views::cloud_hosting::CloudHostingViewState,
+    pilot_telemetry_state: crate::views::pilot_telemetry::PilotTelemetryState,
     lan_receiver: Option<crate::lan_receiver::LanPackageReceiver>,
     lan_beacon: Option<proteus_core::lan::LanDiscoveryDaemon>,
     replication_daemon: Option<crate::replication_daemon::ReplicationDaemon>,
@@ -116,6 +117,7 @@ impl ProteusClientApp {
             notifications_state: crate::views::notifications::NotificationsViewState::default(),
             branch_mesh_state: crate::views::branch_mesh::BranchMeshViewState::default(),
             cloud_hosting_state: crate::views::cloud_hosting::CloudHostingViewState::default(),
+            pilot_telemetry_state: crate::views::pilot_telemetry::PilotTelemetryState::default(),
             lan_receiver: crate::lan_receiver::LanPackageReceiver::start(7443).ok(),
             lan_beacon: {
                 let init_label = format!("Proteus Terminal ({})", UserRole::Ceo.display_name());
@@ -334,6 +336,7 @@ impl eframe::App for ProteusClientApp {
                 NavTab::NotificationsGateway => crate::views::notifications::draw_notifications_view(ui, &self.conn, &mut self.notifications_state),
                 NavTab::BranchMesh => crate::views::branch_mesh::draw_branch_mesh_view(ui, &self.conn, &mut self.branch_mesh_state),
                 NavTab::CloudHosting => crate::views::cloud_hosting::draw_cloud_hosting_view(ui, &self.conn, &mut self.cloud_hosting_state),
+                NavTab::PilotTelemetry => crate::views::pilot_telemetry::draw_pilot_telemetry_view(ui, &self.conn, &mut self.pilot_telemetry_state),
             });
 
         // Ticket Detail Modal (if a card is clicked)
