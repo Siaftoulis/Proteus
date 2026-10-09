@@ -45,4 +45,4 @@ pub mod pairing_modal;
 pub mod cloud_hosting;
 pub mod security_guardian;
 pub mod pilot_telemetry;
-
+pub mod loyalty_modal;

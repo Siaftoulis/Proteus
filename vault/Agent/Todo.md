@@ -357,10 +357,10 @@ tags:
   - [x] Micro-task 30.1.3: Counter Pilot Health Telemetry & Diagnostic Self-Healing Panel (`proteus-client::views::pilot_telemetry`)
 
 ## Phase 31: Sovereign Customer Loyalty, Gift Cards & Promotional Engine
-- [ ] Task 31.1: Loyalty Points Ledger, Gift Card Vault & Campaign Evaluator
+- [x] Task 31.1: Loyalty Points Ledger, Gift Card Vault & Campaign Evaluator
   - [x] Micro-task 31.1.1: Customer Loyalty Points & Tier Progression Engine (`proteus-core::loyalty::points`)
   - [x] Micro-task 31.1.2: Cryptographic Gift Card & Prepaid Store Credit Vault (`proteus-core::loyalty::gift_cards`)
-  - [ ] Micro-task 31.1.3: POS Loyalty & Gift Card Tender Integration Modal (`proteus-client::views::loyalty_modal`)
+  - [x] Micro-task 31.1.3: POS Loyalty & Gift Card Tender Integration Modal (`proteus-client::views::loyalty_modal`)
 
 Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P28)]]
 

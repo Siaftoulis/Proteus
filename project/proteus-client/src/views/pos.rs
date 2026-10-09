@@ -1,11 +1,4 @@
-//! Frontline Touch Retail POS & Accounting Bridge View for Proteus Client.
-//! Provides:
-//! - High-speed Touchscreen Cashier with Quick-Pills and Barcode Reader.
-//! - A.1155/2023 compliant EFT/POS payment lock & Cash Change Calculator.
-//! - Direct ESC/POS Thermal Receipt printing with compliant myDATA QR code.
-//! - 1-Click Daily Z Report and CPA Accounting Export (0€ SaaS tax).
-//! Strict Rule 1 (100% Original Codebase) and Rule 5 (Zero Mock Data).
-
+//! Frontline Touch Retail POS & Accounting Bridge View for Proteus Client (Rule 1 & 5).
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui, Vec2};
 use rusqlite::Connection;
 use uuid::Uuid;
@@ -36,6 +29,7 @@ pub struct RetailPosState {
     pub schema_initialized: bool,
     pub show_z_report_modal: bool,
     pub exported_file_path: Option<String>,
+    pub loyalty_modal: crate::views::loyalty_modal::LoyaltyModalState,
 }
 
 impl Default for RetailPosState {
@@ -53,6 +47,7 @@ impl Default for RetailPosState {
             schema_initialized: false,
             show_z_report_modal: false,
             exported_file_path: None,
+            loyalty_modal: crate::views::loyalty_modal::LoyaltyModalState::default(),
         }
     }
 }
@@ -68,10 +63,13 @@ pub fn draw_pos_view(ui: &mut Ui, conn: &Connection, state: &mut RetailPosState)
         ui.horizontal(|ui| {
             ui.heading(RichText::new("🛒 Ταμείο Λιανικής & myDATA (Touch POS)").strong().size(20.0));
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                if ui.button(RichText::new("📊 Ημερήσιο Ζ & Λογιστήριο").strong().color(crate::theme::ACCENT_GOLD)).clicked() {
+                if ui.button(RichText::new("📊 Ημερήσιο Ζ").strong().color(crate::theme::ACCENT_GOLD)).clicked() {
                     state.show_z_report_modal = true;
                 }
-                ui.label(RichText::new("Διασύνδεση Α.1155/2023: Ενεργή").size(11.0).color(crate::theme::STATUS_READY));
+                if ui.button(RichText::new("🎁 Loyalty & Gift Cards").strong().color(crate::theme::ACCENT_PRIMARY)).clicked() {
+                    state.loyalty_modal.is_open = true;
+                }
+                ui.label(RichText::new("Α.1155/2023").size(11.0).color(crate::theme::STATUS_READY));
             });
         });
 
@@ -300,8 +298,10 @@ pub fn draw_pos_view(ui: &mut Ui, conn: &Connection, state: &mut RetailPosState)
         });
     });
 
-    // Z-Report & Accounting Export Modal Window
+    // Z-Report & Loyalty Modal Windows
     crate::views::pos_z_modal::draw_z_report_modal(ui.ctx(), conn, state);
+    let (_net, _vat, gross) = calculate_totals(&state.cart_lines);
+    crate::views::loyalty_modal::draw_loyalty_modal(ui.ctx(), conn, &mut state.loyalty_modal, gross);
 }
 
 #[cfg(test)]
@@ -318,6 +318,7 @@ mod tests {
         assert_eq!(state.receipt_series, "ΛΠ");
         assert_eq!(state.next_receipt_number, 1);
         assert!(!state.show_z_report_modal);
+        assert!(!state.loyalty_modal.is_open);
     }
 
     #[test]
