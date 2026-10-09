@@ -77,7 +77,7 @@ impl WebhookDispatcher {
         // Outer hash: H(o_key_pad || inner_hash)
         let mut outer_hasher = Sha256::new();
         outer_hasher.update(&o_key_pad);
-        outer_hasher.update(&inner_hash);
+        outer_hasher.update(inner_hash);
         let outer_hash = outer_hasher.finalize();
 
         format!("{:x}", outer_hash)

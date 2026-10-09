@@ -124,12 +124,12 @@ impl HardwareProtocol {
         // Line 1: US $ 01 01 (Move cursor to row 1, col 1)
         out.extend_from_slice(&[0x1F, 0x24, 0x01, 0x01]);
         let l1_padded = format!("{:20}", line1);
-        out.extend_from_slice(l1_padded[..20.min(l1_padded.len())].as_bytes());
+        out.extend_from_slice(&l1_padded.as_bytes()[..20.min(l1_padded.len())]);
 
         // Line 2: US $ 01 02 (Move cursor to row 2, col 1)
         out.extend_from_slice(&[0x1F, 0x24, 0x01, 0x02]);
         let l2_padded = format!("{:20}", line2);
-        out.extend_from_slice(l2_padded[..20.min(l2_padded.len())].as_bytes());
+        out.extend_from_slice(&l2_padded.as_bytes()[..20.min(l2_padded.len())]);
 
         out
     }

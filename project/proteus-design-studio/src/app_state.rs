@@ -1636,9 +1636,11 @@ mod tests {
 
     #[test]
     fn test_export_pr_package_roundtrip() {
-        let mut app = ProteusApp::default();
-        app.pid = "test-export-proj".to_string();
-        app.pname = "Test Export Store".to_string();
+        let mut app = ProteusApp {
+            pid: "test-export-proj".to_string(),
+            pname: "Test Export Store".to_string(),
+            ..Default::default()
+        };
         app.table_cache.insert("inventory_items".to_string(), vec![]);
 
         let exported_path = app.export_pr_package().expect("Export must succeed");
@@ -1658,9 +1660,11 @@ mod tests {
 
     #[test]
     fn test_studio_linter_preflight_and_export_gate() {
-        let mut app = ProteusApp::default();
-        app.pid = "linter-gate-test".to_string();
-        app.pname = "Linter Verified Shop".to_string();
+        let mut app = ProteusApp {
+            pid: "linter-gate-test".to_string(),
+            pname: "Linter Verified Shop".to_string(),
+            ..Default::default()
+        };
         app.table_cache.insert("tickets".to_string(), vec![]);
 
         // 1. Run Pre-flight
@@ -1682,9 +1686,11 @@ mod tests {
 
     #[test]
     fn test_studio_sharepoint_and_escrow_flow() {
-        let mut app = ProteusApp::default();
-        app.pid = "sharepoint-test".to_string();
-        app.pname = "Auto Workshop Pro".to_string();
+        let mut app = ProteusApp {
+            pid: "sharepoint-test".to_string(),
+            pname: "Auto Workshop Pro".to_string(),
+            ..Default::default()
+        };
         app.table_cache.insert("tickets".to_string(), vec![]);
 
         // 1. Ingest .prreq requirements

@@ -242,10 +242,10 @@ pub fn draw_security_guardian_section(
                             if ui.button("🔑 Master Login").clicked() {
                                 state.unlock_master(conn);
                             }
-                            if state.master_session.is_some() {
-                                if ui.button("🔄 Επανασφράγιση στο τρέχον Hardware").clicked() {
-                                    state.rekey_operational(conn, machine_id);
-                                }
+                            if state.master_session.is_some()
+                                && ui.button("🔄 Επανασφράγιση στο τρέχον Hardware").clicked()
+                            {
+                                state.rekey_operational(conn, machine_id);
                             }
                         }
                     });

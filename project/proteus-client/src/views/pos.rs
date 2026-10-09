@@ -323,9 +323,10 @@ mod tests {
 
     #[test]
     fn test_pos_cart_math_and_change() {
-        let mut lines = Vec::new();
-        lines.push(InvoiceLine::new(1, "Επισκευή Οθόνης", 1.0, 50.0, VatCategory::Vat24));
-        lines.push(InvoiceLine::new(2, "Βιβλίο Τεχνικού Οδηγού", 2.0, 18.0, VatCategory::Vat6));
+        let lines = vec![
+            InvoiceLine::new(1, "Επισκευή Οθόνης", 1.0, 50.0, VatCategory::Vat24),
+            InvoiceLine::new(2, "Βιβλίο Τεχνικού Οδηγού", 2.0, 18.0, VatCategory::Vat6),
+        ];
 
         let (net, vat, gross) = calculate_totals(&lines);
         assert_eq!(net, 86.0);

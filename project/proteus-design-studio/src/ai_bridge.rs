@@ -8,12 +8,14 @@ use serde_json::json;
 
 use crate::scene::{self, CanvasEvent, Layout, Node, NodeStyle, NodeType, ProjectDocument, Sizing, Styling};
 
+pub type PendingNodeItem = (Node, Option<String>);
+
 /// Studio AI Bridge coordinating external MCP agent commands and internal scene mutations.
 pub struct StudioAiBridge {
     server: McpServer,
     incoming: Arc<Mutex<VecDeque<String>>>,
     outgoing: Arc<Mutex<VecDeque<String>>>,
-    pending_nodes: Arc<Mutex<Vec<(Node, Option<String>)>>>,
+    pending_nodes: Arc<Mutex<Vec<PendingNodeItem>>>,
     pending_clear: Arc<Mutex<bool>>,
     doc_summary: Arc<Mutex<serde_json::Value>>,
 }
@@ -242,11 +244,11 @@ pub fn parse_node_json(val: &serde_json::Value) -> Option<Node> {
     let type_str = val.get("type").and_then(|v| v.as_str()).unwrap_or("Frame");
 
     let pos_arr = val.get("position").and_then(|v| v.as_array());
-    let x = pos_arr.and_then(|a| a.get(0)?.as_f64()).unwrap_or(0.0) as f32;
+    let x = pos_arr.and_then(|a| a.first()?.as_f64()).unwrap_or(0.0) as f32;
     let y = pos_arr.and_then(|a| a.get(1)?.as_f64()).unwrap_or(0.0) as f32;
 
     let size_arr = val.get("size").and_then(|v| v.as_array());
-    let w = size_arr.and_then(|a| a.get(0)?.as_f64()).unwrap_or(200.0) as f32;
+    let w = size_arr.and_then(|a| a.first()?.as_f64()).unwrap_or(200.0) as f32;
     let h = size_arr.and_then(|a| a.get(1)?.as_f64()).unwrap_or(100.0) as f32;
 
     let props = val.get("props");

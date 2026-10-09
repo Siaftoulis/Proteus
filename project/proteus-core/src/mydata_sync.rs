@@ -199,18 +199,30 @@ pub fn sync_mydata_outbox(
 
         match dispatch_send_invoices(creds, &xml_payload, 5) {
             Ok(result) => {
-                if result.is_success && result.mark.is_some() {
-                    let mark = result.mark.as_ref().unwrap();
-                    let uid = result.uid.as_deref().unwrap_or(&invoice.invoice_id);
-                    let qr_url = format_mydata_qr_url(
-                        mark,
-                        &invoice.issuer_afm,
-                        &invoice.issue_date,
-                        invoice.total_gross_eur,
-                    );
+                if result.is_success {
+                    if let Some(ref mark) = result.mark {
+                        let uid = result.uid.as_deref().unwrap_or(&invoice.invoice_id);
+                        let qr_url = format_mydata_qr_url(
+                            mark,
+                            &invoice.issuer_afm,
+                            &invoice.issue_date,
+                            invoice.total_gross_eur,
+                        );
 
-                    record_mydata_mark(conn, &invoice.invoice_id, mark, uid, &qr_url)?;
-                    report.succeeded_count += 1;
+                        record_mydata_mark(conn, &invoice.invoice_id, mark, uid, &qr_url)?;
+                        report.succeeded_count += 1;
+                    } else {
+                        let err_msg = "AADE accepted invoice but returned missing mark".to_string();
+                        conn.execute(
+                            r#"
+                            UPDATE mydata_outbox
+                            SET status = 'FAILED', retry_count = retry_count + 1, last_error = ?1
+                            WHERE outbox_id = ?2
+                            "#,
+                            params![err_msg, row.outbox_id],
+                        )?;
+                        report.failed_count += 1;
+                    }
                 } else {
                     let err_msg = result
                         .error_message

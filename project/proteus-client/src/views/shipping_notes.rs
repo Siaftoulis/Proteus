@@ -5,6 +5,7 @@
 //! - Link serialized components and devices (Genealogy) directly to dispatches
 //! - Issue 1-click ESC/POS thermal delivery waybill slips
 //! - Record receiver sign-offs and delivery completions.
+//!
 //! Strict Rule 5 compliance: Reads and writes 100% real SQLite data.
 
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
@@ -274,22 +275,23 @@ fn draw_shipping_note_card(
                         state.feedback_msg = Some((format!("Εκτυπώθηκε το {} ({} bytes ESC/POS)", note.note_number, bytes.len()), false));
                     }
 
-                    if note.status != DispatchStatus::Delivered && note.status != DispatchStatus::Cancelled {
-                        if ui.button(RichText::new("✍ Παράδοση").color(Color32::from_rgb(134, 239, 172)).size(11.0)).clicked() {
-                            state.active_delivery_note_id = Some(note.id.clone());
-                            state.delivery_sign_input.clear();
-                        }
+                    if note.status != DispatchStatus::Delivered
+                        && note.status != DispatchStatus::Cancelled
+                        && ui.button(RichText::new("✍ Παράδοση").color(Color32::from_rgb(134, 239, 172)).size(11.0)).clicked()
+                    {
+                        state.active_delivery_note_id = Some(note.id.clone());
+                        state.delivery_sign_input.clear();
                     }
 
-                    if note.status == DispatchStatus::Draft {
-                        if ui.button(RichText::new("🚚 Αποστολή").color(Color32::from_rgb(147, 197, 253)).size(11.0)).clicked() {
-                            let _ = update_shipping_note_status(conn, &note.id, DispatchStatus::Dispatched);
-                            state.feedback_msg = Some((format!("Το {} απεστάλη.", note.note_number), false));
-                        }
-                    } else if note.status == DispatchStatus::Dispatched {
-                        if ui.button(RichText::new("🛣 Σε Μεταφορά").color(Color32::from_rgb(253, 224, 71)).size(11.0)).clicked() {
-                            let _ = update_shipping_note_status(conn, &note.id, DispatchStatus::InTransit);
-                        }
+                    if note.status == DispatchStatus::Draft
+                        && ui.button(RichText::new("🚚 Αποστολή").color(Color32::from_rgb(147, 197, 253)).size(11.0)).clicked()
+                    {
+                        let _ = update_shipping_note_status(conn, &note.id, DispatchStatus::Dispatched);
+                        state.feedback_msg = Some((format!("Το {} απεστάλη.", note.note_number), false));
+                    } else if note.status == DispatchStatus::Dispatched
+                        && ui.button(RichText::new("🛣 Σε Μεταφορά").color(Color32::from_rgb(253, 224, 71)).size(11.0)).clicked()
+                    {
+                        let _ = update_shipping_note_status(conn, &note.id, DispatchStatus::InTransit);
                     }
 
                     if ui.button(RichText::new("📋 Είδη & S/N").color(Color32::from_rgb(203, 213, 225)).size(11.0)).clicked() {

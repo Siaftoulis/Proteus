@@ -64,8 +64,8 @@ impl JurisdictionEngine {
                 }
                 let digits: Vec<u32> = clean.chars().map(|c| c.to_digit(10).unwrap()).collect();
                 let mut sum = 0;
-                for i in 0..8 {
-                    sum += digits[i] * (1 << (8 - i));
+                for (i, &digit) in digits.iter().enumerate().take(8) {
+                    sum += digit * (1 << (8 - i));
                 }
                 let remainder = sum % 11;
                 let check_digit = remainder % 10;
@@ -74,8 +74,7 @@ impl JurisdictionEngine {
             FiscalJurisdiction::GermanyKassenSichV => {
                 // German USt-IdNr: "DE" prefix + 9 digits or Steuernummer: 10-11 digits
                 let s = clean.to_uppercase();
-                if s.starts_with("DE") {
-                    let num_part = &s[2..];
+                if let Some(num_part) = s.strip_prefix("DE") {
                     Ok(num_part.len() == 9 && num_part.chars().all(|c| c.is_ascii_digit()))
                 } else {
                     Ok((s.len() == 10 || s.len() == 11) && s.chars().all(|c| c.is_ascii_digit()))

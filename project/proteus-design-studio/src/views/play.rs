@@ -248,7 +248,7 @@ pub fn show_central(app: &mut ProteusApp, ui: &mut egui::Ui, pnt: &egui::Painter
                                                             op_name,
                                                             op_role,
                                                             format!("Εγγραφή οντότητας {} μέσω ροής (Flow)", entity),
-                                                            &json_data.to_string(),
+                                                            json_data.to_string(),
                                                         ),
                                                     );
                                                     app.form_state.clear();
@@ -443,7 +443,7 @@ pub fn show_central(app: &mut ProteusApp, ui: &mut egui::Ui, pnt: &egui::Painter
                                 op_name,
                                 op_role,
                                 format!("Καταχώρηση νέας εγγραφής {} μέσω DynamicForm", entity),
-                                &json_data.to_string(),
+                                json_data.to_string(),
                             ),
                         );
                     }

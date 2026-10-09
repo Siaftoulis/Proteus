@@ -89,7 +89,7 @@ fn hex_encode(data: &[u8]) -> String {
 }
 
 fn hex_decode(s: &str) -> Result<Vec<u8>, VaultError> {
-    if s.len() % 2 != 0 {
+    if !s.len().is_multiple_of(2) {
         return Err(VaultError::DecryptionFailed("Invalid hex length".into()));
     }
     (0..s.len()).step_by(2).map(|i| {
@@ -142,7 +142,7 @@ impl VaultManager {
         rand::rngs::OsRng.fill_bytes(&mut op_salt);
         let hw_key = Self::derive_hardware_key(machine_id, &op_salt);
         let op_cipher = encrypt(&op_raw, &hw_key)?;
-        let op_hash = format!("{:x}", Sha256::digest(&op_raw));
+        let op_hash = format!("{:x}", Sha256::digest(op_raw));
 
         // 2. Generate & seal Master Key with Argon2id password
         let mut mst_raw = [0u8; 32];
@@ -152,7 +152,7 @@ impl VaultManager {
         let mst_salt_hex = hex_encode(&mst_salt);
         let kdf_key = derive_key(master_password, &mst_salt_hex)?;
         let mst_cipher = encrypt(&mst_raw, &kdf_key)?;
-        let mst_hash = format!("{:x}", Sha256::digest(&mst_raw));
+        let mst_hash = format!("{:x}", Sha256::digest(mst_raw));
 
         conn.execute(
             "INSERT INTO system_vault_envelopes (
@@ -239,7 +239,7 @@ impl VaultManager {
         let hw_key = Self::derive_hardware_key(new_machine_id, &op_salt);
 
         let op_cipher = encrypt(&op_raw, &hw_key)?;
-        let op_hash = format!("{:x}", Sha256::digest(&op_raw));
+        let op_hash = format!("{:x}", Sha256::digest(op_raw));
         let now = Utc::now().to_rfc3339();
 
         conn.execute(

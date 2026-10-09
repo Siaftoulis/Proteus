@@ -117,19 +117,19 @@ pub fn draw_contractor_ledger_view(
                     ui.label("Ειδικότητα:");
                     ui.add(egui::TextEdit::singleline(&mut state.new_contractor_trade).desired_width(120.0));
 
-                    if ui.button("Αποθήκευση").clicked() {
-                        if !state.new_contractor_name.trim().is_empty() {
-                            match create_contractor(conn, &state.new_contractor_name, &state.new_contractor_phone, &state.new_contractor_trade) {
-                                Ok(c) => {
-                                    state.selected_contractor_id = Some(c.id);
-                                    state.new_contractor_name.clear();
-                                    state.new_contractor_phone.clear();
-                                    state.show_new_contractor_modal = false;
-                                    state.feedback_msg = Some(("✓ Ο μάστορας καταχωρήθηκε επιτυχώς στη SQLite!".into(), true));
-                                }
-                                Err(e) => {
-                                    state.feedback_msg = Some((format!("Σφάλμα SQLite: {}", e), false));
-                                }
+                    if ui.button("Αποθήκευση").clicked()
+                        && !state.new_contractor_name.trim().is_empty()
+                    {
+                        match create_contractor(conn, &state.new_contractor_name, &state.new_contractor_phone, &state.new_contractor_trade) {
+                            Ok(c) => {
+                                state.selected_contractor_id = Some(c.id);
+                                state.new_contractor_name.clear();
+                                state.new_contractor_phone.clear();
+                                state.show_new_contractor_modal = false;
+                                state.feedback_msg = Some(("✓ Ο μάστορας καταχωρήθηκε επιτυχώς στη SQLite!".into(), true));
+                            }
+                            Err(e) => {
+                                state.feedback_msg = Some((format!("Σφάλμα SQLite: {}", e), false));
                             }
                         }
                     }

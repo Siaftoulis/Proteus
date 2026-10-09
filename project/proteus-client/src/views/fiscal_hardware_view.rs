@@ -11,6 +11,7 @@ use proteus_core::fiscal_pos::{
 };
 use rusqlite::Connection;
 
+#[derive(Default)]
 pub struct FiscalHardwareViewState {
     pub config: FiscalHardwareConfig,
     pub loaded: bool,
@@ -19,20 +20,6 @@ pub struct FiscalHardwareViewState {
     pub last_response: Option<PosTerminalResponse>,
     pub last_batch: Option<TerminalBatchSummary>,
     pub ping_status: Option<bool>,
-}
-
-impl Default for FiscalHardwareViewState {
-    fn default() -> Self {
-        Self {
-            config: FiscalHardwareConfig::default(),
-            loaded: false,
-            test_feedback: None,
-            save_feedback: None,
-            last_response: None,
-            last_batch: None,
-            ping_status: None,
-        }
-    }
 }
 
 pub fn draw_fiscal_hardware_panel(

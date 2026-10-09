@@ -170,8 +170,8 @@ impl ApplianceImageBuilder {
         let mut hasher = Sha256::new();
         let manifest_fp = manifest.compute_fingerprint();
         hasher.update(manifest_fp.as_bytes());
-        hasher.update(&format!("{:?}", format).as_bytes());
-        hasher.update(&plan.total_bytes.to_le_bytes());
+        hasher.update(format!("{:?}", format).as_bytes());
+        hasher.update(plan.total_bytes.to_le_bytes());
         hasher.update(&header_bytes);
         let checksum = format!("{:x}", hasher.finalize());
 

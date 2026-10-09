@@ -25,6 +25,7 @@ pub struct TicketDetailState {
     pub bench_state: crate::views::ticket_bench::TicketBenchState,
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn draw_ticket_detail_modal(
     ctx: &egui::Context,
     conn: &Connection,

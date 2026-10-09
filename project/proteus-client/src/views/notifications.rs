@@ -177,7 +177,7 @@ fn render_compose_and_tracker_column(ui: &mut Ui, conn: &Connection, state: &mut
 
             // Char counter
             let char_count = state.content_input.chars().count();
-            let seg_count = if char_count <= 160 { 1 } else { (char_count + 152) / 153 };
+            let seg_count = if char_count <= 160 { 1 } else { char_count.div_ceil(153) };
             ui.colored_label(
                 TEXT_MUTED,
                 format!("Χαρακτήρες: {} ({} Τμήματα SMS)", char_count, seg_count),
@@ -322,10 +322,10 @@ fn render_outbox_monitor_column(ui: &mut Ui, conn: &Connection, state: &mut Noti
                                         ui.colored_label(STATUS_CANCELLED, format!("Σφάλμα: {}", err));
                                     }
 
-                                    if notif.status == NotificationStatus::Failed {
-                                        if ui.small_button("Επανάληψη").clicked() {
-                                            retry_id = Some(notif.id.clone());
-                                        }
+                                    if notif.status == NotificationStatus::Failed
+                                        && ui.small_button("Επανάληψη").clicked()
+                                    {
+                                        retry_id = Some(notif.id.clone());
                                     }
                                 });
                             ui.add_space(4.0);

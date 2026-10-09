@@ -97,7 +97,7 @@ pub fn evaluate_cart(
     let mut applied_non_stackable = false;
 
     let mut sorted_rules = rules.to_vec();
-    sorted_rules.sort_by(|a, b| b.priority.cmp(&a.priority));
+    sorted_rules.sort_by_key(|b| std::cmp::Reverse(b.priority));
 
     for rule in sorted_rules {
         if !rule.is_active {
@@ -146,12 +146,10 @@ pub fn evaluate_cart(
                         DiscountType::FixedAmountCents(amt) => amt.min(it.total_cents()),
                         DiscountType::BuyXGetYFree { buy_qty, free_qty } => {
                             let cycle = buy_qty + free_qty;
-                            if cycle > 0 {
-                                let free_count = (it.quantity / cycle) * free_qty;
-                                (free_count as i64) * it.unit_price_cents
-                            } else {
-                                0
-                            }
+                            it.quantity
+                                .checked_div(cycle)
+                                .map(|free_batches| (free_batches * free_qty) as i64 * it.unit_price_cents)
+                                .unwrap_or(0)
                         }
                     }
                 } else {

@@ -5,6 +5,7 @@
 //! - Statutory Telecom Outage (Ανωτέρα Βία) toggle with automated offline queue.
 //! - Cryptographic Merkle chaining and real-time overtime (>8h) calculations.
 //! - 1-Click CPA/Payroll JSON timesheet export.
+//!
 //! Strict Rule 1 (100% Original Codebase), Rule 2 (Minimalist UX), Rule 3 (<400 lines), Rule 5 (Zero Mock Data).
 
 use chrono::Local;
@@ -23,6 +24,7 @@ use crate::theme::{
     STATUS_READY, TEXT_MUTED, TEXT_PRIMARY,
 };
 
+#[derive(Default)]
 pub struct WorkCardViewState {
     pub staff_identifier_input: String,
     pub pin_input: String,
@@ -31,20 +33,6 @@ pub struct WorkCardViewState {
     pub initialized: bool,
     pub exported_timesheet_path: Option<String>,
     pub pending_outage_count: usize,
-}
-
-impl Default for WorkCardViewState {
-    fn default() -> Self {
-        Self {
-            staff_identifier_input: String::new(),
-            pin_input: String::new(),
-            is_telecom_outage_active: false,
-            feedback_message: None,
-            initialized: false,
-            exported_timesheet_path: None,
-            pending_outage_count: 0,
-        }
-    }
 }
 
 pub fn draw_work_card_view(ui: &mut Ui, conn: &Connection, state: &mut WorkCardViewState) {

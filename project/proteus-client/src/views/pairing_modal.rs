@@ -8,24 +8,13 @@ use proteus_core::lan::pairing::{
 };
 use rusqlite::Connection;
 
+#[derive(Default)]
 pub struct PairingModalState {
     pub is_open: bool,
     pub current_payload: Option<PairingPayload>,
     pub qr_string: Option<String>,
     pub paired_devices: Vec<PairedDevice>,
     pub status_msg: Option<(String, bool)>,
-}
-
-impl Default for PairingModalState {
-    fn default() -> Self {
-        Self {
-            is_open: false,
-            current_payload: None,
-            qr_string: None,
-            paired_devices: Vec::new(),
-            status_msg: None,
-        }
-    }
 }
 
 impl PairingModalState {

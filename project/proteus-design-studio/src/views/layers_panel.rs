@@ -8,17 +8,12 @@ use crate::scene::{CanvasEvent, Node, NodeType, NodeUpdate, ProjectDocument};
 use crate::theme;
 
 /// Left sidebar navigation tab mode.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum LeftSidebarTab {
+    #[default]
     Layers,
     Symbols,
     Assets,
-}
-
-impl Default for LeftSidebarTab {
-    fn default() -> Self {
-        Self::Layers
-    }
 }
 
 /// Reusable design symbol definition.

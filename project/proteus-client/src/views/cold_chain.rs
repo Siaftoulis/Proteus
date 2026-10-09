@@ -302,12 +302,13 @@ fn draw_resolve_breach_modal(ctx: &egui::Context, conn: &Connection, state: &mut
         ui.text_edit_multiline(&mut state.resolve_note);
         ui.add_space(6.0);
         ui.horizontal(|ui| {
-            if ui.button("Ολοκλήρωση").clicked() && !state.resolve_note.is_empty() {
-                if resolve_breach_event(conn, &state.resolve_breach_id, operator, &state.resolve_note).is_ok() {
-                    state.feedback_message = Some(("Το συμβάν επιλύθηκε.".to_string(), false));
-                    state.show_resolve_modal = false;
-                    state.resolve_note.clear();
-                }
+            if ui.button("Ολοκλήρωση").clicked()
+                && !state.resolve_note.is_empty()
+                && resolve_breach_event(conn, &state.resolve_breach_id, operator, &state.resolve_note).is_ok()
+            {
+                state.feedback_message = Some(("Το συμβάν επιλύθηκε.".to_string(), false));
+                state.show_resolve_modal = false;
+                state.resolve_note.clear();
             }
             if ui.button("Ακύρωση").clicked() { state.show_resolve_modal = false; }
         });

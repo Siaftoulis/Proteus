@@ -4,6 +4,7 @@
 //! - 5-Tier statutory balance aging analysis (0-30d, 31-60d, 61-90d, 91-120d, 120+ days)
 //! - Rapid payment collection receipts with automated debt offset
 //! - Credit limit enforcement and visual debt capacity gauges
+//!
 //! Strict Rule 1 (100% Original Codebase) and Rule 5 (Zero Mock Data).
 
 use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};

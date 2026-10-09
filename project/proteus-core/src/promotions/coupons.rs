@@ -79,6 +79,7 @@ fn map_coupon_row(row: &Row) -> rusqlite::Result<Coupon> {
     })
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn create_coupon(
     conn: &Connection,
     raw_code: &str,

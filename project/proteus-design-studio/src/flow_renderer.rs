@@ -57,11 +57,11 @@ pub fn node_input_port(node_pos: (f32, f32)) -> (f32, f32) {
 }
 
 /// Detects if mouse cursor is within hit radius of any port on any node in the graph.
-pub fn find_port_at_world_pos<'a>(
-    graph: &'a FlowGraph,
+pub fn find_port_at_world_pos(
+    graph: &FlowGraph,
     world_pos: (f32, f32),
     radius: f32,
-) -> Option<(&'a str, &'a str, PortDirection)> {
+) -> Option<(&str, &str, PortDirection)> {
     let r_sq = radius * radius;
     for node in graph.nodes.values() {
         for p in &node.input_ports {

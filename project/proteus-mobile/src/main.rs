@@ -4,16 +4,9 @@
 use eframe::egui;
 use proteus_mobile::{render_mobile_view, MobileAppState};
 
+#[derive(Default)]
 struct MobileSimulatorApp {
     state: MobileAppState,
-}
-
-impl Default for MobileSimulatorApp {
-    fn default() -> Self {
-        Self {
-            state: MobileAppState::default(),
-        }
-    }
 }
 
 impl eframe::App for MobileSimulatorApp {

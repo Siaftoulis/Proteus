@@ -4,6 +4,7 @@
 //! - Captures customer touch sign-on-glass on delivery
 //! - Automatically persists sign-offs to local SQLite and queues the sync outbox
 //! - Generates direct Bluetooth ESC/POS raw delivery slips for mobile belt printers.
+//!
 //! Strict Rule 1 (100% Original Codebase) and Rule 5 (Zero Mock Data).
 
 use chrono::Utc;
@@ -197,11 +198,12 @@ pub fn render_van_sales_tab(ui: &mut egui::Ui, state: &mut crate::MobileAppState
                 ui.label(egui::RichText::new(format!("{} (ΑΦΜ: {})", d.recipient_name, d.recipient_afm)).size(12.0).color(crate::TEXT_BODY));
                 ui.label(egui::RichText::new(format!("Διεύθυνση: {}", d.destination_address)).size(11.0).color(crate::BORDER_LINE));
 
-                if !is_selected && d.status != DispatchStatus::Delivered {
-                    if ui.add_sized(egui::Vec2::new(ui.available_width(), 32.0), egui::Button::new("✍ Επιλογή για Παράδοση")).clicked() {
-                        state.van_sales_state.selected_note_id = Some(d.note_id.clone());
-                        state.van_sales_state.signature_pad.clear();
-                    }
+                if !is_selected
+                    && d.status != DispatchStatus::Delivered
+                    && ui.add_sized(egui::Vec2::new(ui.available_width(), 32.0), egui::Button::new("✍ Επιλογή για Παράδοση")).clicked()
+                {
+                    state.van_sales_state.selected_note_id = Some(d.note_id.clone());
+                    state.van_sales_state.signature_pad.clear();
                 }
             });
         ui.add_space(6.0);

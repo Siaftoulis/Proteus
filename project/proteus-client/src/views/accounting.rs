@@ -4,6 +4,7 @@
 //! - 1-Click CPA JSON export conforming to Greek Accounting Standards.
 //! - European CSV general ledger export with comma decimals and semicolon delimiters.
 //! - Multi-rate VAT allocation buckets (24%, 13%, 6%, 0% exemptions) and discrepancy audits.
+//!
 //! Strict Rule 1 (100% Original Codebase) and Rule 5 (Zero Mock Data).
 
 use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};

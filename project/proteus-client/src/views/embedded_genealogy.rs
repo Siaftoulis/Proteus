@@ -10,6 +10,7 @@ use proteus_core::genealogy::{
 };
 use proteus_core::tickets::ServiceTicket;
 
+#[allow(clippy::too_many_arguments)]
 pub fn draw_embedded_genealogy(
     ui: &mut Ui,
     conn: &Connection,

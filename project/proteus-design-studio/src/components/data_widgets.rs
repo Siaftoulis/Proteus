@@ -200,10 +200,8 @@ pub fn render_data_bound_table(
                                                 Some(s.to_string())
                                             } else if let Some(n) = v.as_f64() {
                                                 Some(format!("{:.0}", n))
-                                            } else if let Some(b) = v.as_bool() {
-                                                Some(if b { "Yes".into() } else { "No".into() })
                                             } else {
-                                                None
+                                                v.as_bool().map(|b| if b { "Yes".into() } else { "No".into() })
                                             }
                                         })
                                         .unwrap_or_else(|| "—".to_string())
