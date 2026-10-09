@@ -91,15 +91,16 @@ pub struct MobileAppState {
     pub sync_controller: crate::sync_daemon::MobileSyncController,
     pub van_sales_state: crate::van_sales::VanSalesState,
     pub device_ctx: crate::device::DeviceContext,
+    pub keyboard_cushion: crate::keyboard_cushion::KeyboardCushion,
+    pub intake_is_urgent: bool,
+    pub intake_category: String,
 }
 
 impl Default for MobileAppState {
     fn default() -> Self {
         let db_path = get_database_path();
         let _ = ensure_database_dir_exists(&db_path);
-        let conn = Connection::open(&db_path).unwrap_or_else(|_| {
-            Connection::open_in_memory().expect("SQLite DB failed")
-        });
+        let conn = Connection::open(&db_path).unwrap_or_else(|_| Connection::open_in_memory().expect("SQLite DB failed"));
         let _ = proteus_core::tickets::init_tickets_schema(&conn);
         let _ = proteus_core::printer::init_shop_settings_schema(&conn);
         let _ = init_outbox_schema(&conn);
@@ -127,6 +128,9 @@ impl Default for MobileAppState {
             sync_controller: crate::sync_daemon::MobileSyncController::default(),
             van_sales_state: crate::van_sales::VanSalesState::default(),
             device_ctx: crate::device::DeviceContext::default(),
+            keyboard_cushion: crate::keyboard_cushion::KeyboardCushion::default(),
+            intake_is_urgent: false,
+            intake_category: "Smartphone".into(),
         }
     }
 }
