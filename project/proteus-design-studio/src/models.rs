@@ -19,6 +19,7 @@ pub enum Mode {
     Studio,
     Tasks,
     Settings,
+    ApplianceFlasher,
 }
 
 #[derive(Clone, PartialEq, Debug)]

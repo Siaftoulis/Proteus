@@ -303,9 +303,9 @@ tags:
 - [x] Visual Hardware Scratch Nodes in Flow Studio for Relays & Sensors (Micro-task 25.1.3)
 
 ## Phase 26 (Proteus Sovereign Appliance & Bootable ISO/IMG Builder)
-- [ ] Bare-Metal Appliance Profile & Immutable Read-Only RootFS Spec (Micro-task 26.1.1)
-- [ ] Turnkey Bootable ISO / IMG Builder Pipeline for x86_64 & ARM64 (Micro-task 26.1.2)
-- [ ] Studio 1-Click USB Flasher & Microcontroller Firmware Provisioner (Micro-task 26.1.3)
+- [x] Bare-Metal Appliance Profile & Immutable Read-Only RootFS Spec (Micro-task 26.1.1)
+- [x] Turnkey Bootable ISO / IMG Builder Pipeline for x86_64 & ARM64 (Micro-task 26.1.2)
+- [x] Studio 1-Click USB Flasher & Microcontroller Firmware Provisioner (Micro-task 26.1.3)
 
 ## Done (Alpha)
 

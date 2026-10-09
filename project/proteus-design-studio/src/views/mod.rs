@@ -14,3 +14,5 @@ pub mod settings;
 pub mod welcome_hub;
 pub mod layers_panel;
 pub mod tool_ribbon;
+pub mod appliance_flasher;
+pub mod flasher_devices;

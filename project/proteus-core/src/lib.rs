@@ -65,6 +65,7 @@ pub mod federation;
 pub mod logistics;
 pub mod security;
 pub mod hardware;
+pub mod appliance;
 
 use chrono::Utc;
 use rusqlite::{params, Connection};
@@ -104,30 +105,11 @@ impl Database {
     pub fn new(path: &str) -> Result<Self, DbError> {
         let conn = Connection::open(path)?;
         conn.execute_batch(
-            "CREATE TABLE IF NOT EXISTS projects (
-                id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                widgets TEXT NOT NULL DEFAULT '[]',
-                flows TEXT NOT NULL DEFAULT '[]',
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
-            );
-            CREATE TABLE IF NOT EXISTS records (
-                id TEXT PRIMARY KEY,
-                project_id TEXT NOT NULL,
-                entity TEXT NOT NULL,
-                fields TEXT NOT NULL DEFAULT '{}',
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
-            );
+            "CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, name TEXT NOT NULL, widgets TEXT NOT NULL DEFAULT '[]', flows TEXT NOT NULL DEFAULT '[]', created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS records (id TEXT PRIMARY KEY, project_id TEXT NOT NULL, entity TEXT NOT NULL, fields TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
             CREATE INDEX IF NOT EXISTS idx_records_project ON records(project_id);
             CREATE INDEX IF NOT EXISTS idx_records_entity ON records(entity);
-            CREATE TABLE IF NOT EXISTS entity_schemas (
-                project_id TEXT NOT NULL,
-                entity TEXT NOT NULL,
-                schema TEXT NOT NULL,
-                PRIMARY KEY(project_id, entity)
-            );",
+            CREATE TABLE IF NOT EXISTS entity_schemas (project_id TEXT NOT NULL, entity TEXT NOT NULL, schema TEXT NOT NULL, PRIMARY KEY(project_id, entity));",
         )?;
         Ok(Database {
             conn: Mutex::new(conn),

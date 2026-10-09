@@ -327,9 +327,9 @@ tags:
   - [x] Micro-task 25.1.3: Visual Hardware Scratch Nodes in Flow Studio for Relays & Sensors (`proteus-design-studio::flow::hardware_nodes`)
 
 ## Phase 26: Proteus Sovereign Appliance & Bootable ISO/IMG Builder
-- [ ] Task 26.1: Dedicated Appliance Operating System & Kiosk Deployment Engine
-  - [ ] Micro-task 26.1.1: Bare-Metal Appliance Profile & Immutable Read-Only RootFS Spec (`proteus-core::appliance::manifest`)
-  - [ ] Micro-task 26.1.2: Turnkey Bootable ISO / IMG Builder Pipeline for x86_64 & ARM64 (`proteus-core::appliance::builder`)
-  - [ ] Micro-task 26.1.3: Studio 1-Click USB Flasher & Microcontroller Firmware Provisioner (`proteus-design-studio::views::appliance_flasher`)
+- [x] Task 26.1: Dedicated Appliance Operating System & Kiosk Deployment Engine
+  - [x] Micro-task 26.1.1: Bare-Metal Appliance Profile & Immutable Read-Only RootFS Spec (`proteus-core::appliance::manifest`)
+  - [x] Micro-task 26.1.2: Turnkey Bootable ISO / IMG Builder Pipeline for x86_64 & ARM64 (`proteus-core::appliance::builder`)
+  - [x] Micro-task 26.1.3: Studio 1-Click USB Flasher & Microcontroller Firmware Provisioner (`proteus-design-studio::views::appliance_flasher`)
 
 Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P28)]]
