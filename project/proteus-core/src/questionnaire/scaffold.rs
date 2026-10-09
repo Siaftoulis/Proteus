@@ -226,6 +226,7 @@ pub fn generate_starter_package_from_answers(q: &BusinessQuestionnaire) -> PrPac
         },
         views,
         flows,
+        hardware_profile: None,
     }
 }
 

@@ -64,6 +64,7 @@ pub mod mcp;
 pub mod federation;
 pub mod logistics;
 pub mod security;
+pub mod hardware;
 
 use chrono::Utc;
 use rusqlite::{params, Connection};

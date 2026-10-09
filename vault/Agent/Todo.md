@@ -321,10 +321,10 @@ tags:
   - [x] Micro-task 24.1.3: Zero-Touch Cellular LAN Bridge & POS Hotspot Failover (`proteus-mobile::hotspot_bridge`)
 
 ## Phase 25: Universal Custom Hardware & Open-Source Peripheral Bus
-- [ ] Task 25.1: Declarative Peripheral Bus & Visual Hardware Automation Engine
-  - [ ] Micro-task 25.1.1: Multi-Protocol Peripheral Bus for Serial, USB-HID, BLE & MQTT (`proteus-core::hardware::bus`)
-  - [ ] Micro-task 25.1.2: Declarative Hardware Profile Manifest in `.pr` Packages (`proteus-core::hardware::profile`)
-  - [ ] Micro-task 25.1.3: Visual Hardware Scratch Nodes in Flow Studio for Relays & Sensors (`proteus-design-studio::flow::hardware_nodes`)
+- [x] Task 25.1: Declarative Peripheral Bus & Visual Hardware Automation Engine
+  - [x] Micro-task 25.1.1: Multi-Protocol Peripheral Bus for Serial, USB-HID, BLE & MQTT (`proteus-core::hardware::bus`)
+  - [x] Micro-task 25.1.2: Declarative Hardware Profile Manifest in `.pr` Packages (`proteus-core::hardware::profile`)
+  - [x] Micro-task 25.1.3: Visual Hardware Scratch Nodes in Flow Studio for Relays & Sensors (`proteus-design-studio::flow::hardware_nodes`)
 
 ## Phase 26: Proteus Sovereign Appliance & Bootable ISO/IMG Builder
 - [ ] Task 26.1: Dedicated Appliance Operating System & Kiosk Deployment Engine

@@ -25,6 +25,27 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
             target_entity: "inventory".to_string(),
             bidirectional: true,
         }),
+        ("+ Relay Actuator", crate::flow::FlowNodeKind::HardwareRelay {
+            device_id: "RELAY-01".to_string(),
+            channel: 1,
+            action: "pulse".to_string(),
+            pulse_ms: 500,
+        }),
+        ("+ Sensor Watchdog", crate::flow::FlowNodeKind::HardwareSensor {
+            device_id: "SENSOR-01".to_string(),
+            metric: "temperature_c".to_string(),
+            threshold: 30.0,
+            operator: ">".to_string(),
+        }),
+        ("+ Scale Weigh", crate::flow::FlowNodeKind::HardwareScale {
+            device_id: "SCALE-01".to_string(),
+            require_stable: true,
+        }),
+        ("+ VFD Display", crate::flow::FlowNodeKind::HardwareDisplay {
+            device_id: "VFD-01".to_string(),
+            line1: "TOTAL: 0.00 EUR".to_string(),
+            line2: "THANK YOU".to_string(),
+        }),
     ];
     for (label, kind_tpl) in kinds {
         if ui.add(egui::Button::new(egui::RichText::new(*label).size(10.).color(theme::ACCENT_GREEN))
@@ -345,6 +366,9 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
                     ui.add(egui::TextEdit::singleline(target_entity).hint_text("e.g. inventory").desired_width(f32::INFINITY));
                     ui.add_space(6.);
                     ui.checkbox(bidirectional, egui::RichText::new("Bidirectional Sync (LWW)").size(10.).color(theme::TEXT));
+                }
+                other => {
+                    crate::flow::hardware_nodes::render_hardware_inspector(ui, other);
                 }
             }
         }

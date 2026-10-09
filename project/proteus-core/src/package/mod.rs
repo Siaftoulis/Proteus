@@ -16,8 +16,7 @@ pub use escrow::{DeliveryRelease, EscrowContract, EscrowEngine, EscrowError, Esc
 pub use linter::{LintCategory, LintIssue, LintReport, LintSeverity, PackageLinter};
 pub use sharepoint::{
     ClientReviewSession, FieldRequirement, PreviewBundle, RequirementsPackage, ReviewFeedbackItem,
-    ReviewVerdict, SharePointError, SharePointLedger, WorkflowIntent, DEFAULT_PREVIEW_WATERMARK,
-    PRPREV_MAGIC, PRREQ_MAGIC,
+    ReviewVerdict, SharePointError, SharePointLedger, WorkflowIntent, DEFAULT_PREVIEW_WATERMARK, PRPREV_MAGIC, PRREQ_MAGIC,
 };
 
 use chrono::Utc;
@@ -88,6 +87,8 @@ pub struct PrPackage {
     pub schema: PrSchemaBundle,
     pub views: Vec<PrViewLayout>,
     pub flows: Vec<PrFlowTrigger>,
+    #[serde(default)]
+    pub hardware_profile: Option<crate::hardware::HardwareProfileManifest>,
 }
 
 /// Summary report returned upon successful package ingestion and mounting.
@@ -115,6 +116,7 @@ impl PrPackage {
             schema: PrSchemaBundle::default(),
             views: Vec::new(),
             flows: Vec::new(),
+            hardware_profile: None,
         }
     }
 
@@ -234,27 +236,26 @@ impl PrPackage {
             snapshot_path = res.snapshot_path;
         }
 
+        // Step 1.5: Persist hardware profile requirements if declared
+        if let Some(profile) = &self.hardware_profile {
+            let _ = crate::hardware::HardwareProfileEngine::save_profile(conn, &self.manifest.bundle_id, profile);
+            if profile.auto_bind_matching {
+                let _ = crate::hardware::HardwareProfileEngine::auto_bind_available(conn, &self.manifest.bundle_id, profile);
+            }
+        }
+
         // Step 2: Emit system audit event
         let audit_payload = serde_json::json!({
-            "bundle_id": self.manifest.bundle_id,
-            "version": self.manifest.version,
-            "author_pcd_id": self.manifest.author_pcd_id,
-            "ddl_applied": self.schema.ddl_statements.len(),
-            "views_count": self.views.len(),
-            "flows_count": self.flows.len(),
-            "snapshot": snapshot_path,
+            "bundle_id": self.manifest.bundle_id, "version": self.manifest.version,
+            "author_pcd_id": self.manifest.author_pcd_id, "ddl_applied": self.schema.ddl_statements.len(),
+            "views_count": self.views.len(), "flows_count": self.flows.len(), "snapshot": snapshot_path,
         });
 
         let event = SystemEvent::new(
-            "PACKAGE",
-            &self.manifest.bundle_id,
-            "MOUNTED",
-            operator,
-            "Designer",
-            format!("╬ò╬│╬║╬▒╧ä╬¼╧â╧ä╬▒╧â╬╖ & ╬╡╬╜╬╡╧ü╬│╬┐╧Ç╬┐╬»╬╖╧â╬╖ ╧Ç╧ü╬┐╧ä╧ì╧Ç╬┐╧à: {}", self.manifest.name),
+            "PACKAGE", &self.manifest.bundle_id, "MOUNTED", operator, "Designer",
+            format!("Εγκατάσταση & ενεργοποίηση προτύπου: {}", self.manifest.name),
             audit_payload.to_string(),
         );
-
         let _ = log_audit_event(conn, &event);
 
         Ok(MountSummary {
@@ -301,16 +302,12 @@ mod tests {
     fn test_package_serialization_and_checksum_integrity() {
         let mut pkg = PrPackage::new("PKG-BIKE-01", "Motorcycle Repair Template", "PCD-901");
         pkg.views.push(PrViewLayout {
-            view_id: "intake_bike".to_string(),
-            name: "╬á╬▒╧ü╬▒╬╗╬▒╬▓╬« ╬£╬┐╧ä╬┐╧â╧à╬║╬╗╬¡╧ä╬▒╧é".to_string(),
-            view_type: "intake_form".to_string(),
-            layout_json: r#"{"engine_cc": true}"#.to_string(),
+            view_id: "intake_bike".to_string(), name: "Moto Intake".to_string(),
+            view_type: "intake_form".to_string(), layout_json: r#"{"engine_cc": true}"#.to_string(),
         });
         pkg.flows.push(PrFlowTrigger {
-            id: "print_on_intake".to_string(),
-            trigger_event: "INTAKE_SUBMITTED".to_string(),
-            action_type: "PRINT_ESC_POS".to_string(),
-            config_json: r#"{"copies": 1}"#.to_string(),
+            id: "print_on_intake".to_string(), trigger_event: "INTAKE_SUBMITTED".to_string(),
+            action_type: "PRINT_ESC_POS".to_string(), config_json: r#"{"copies": 1}"#.to_string(),
         });
 
         let bytes = pkg.to_bytes().expect("Serialization should succeed");
@@ -375,5 +372,27 @@ mod tests {
         assert_eq!(pkg.views.len(), 1);
         assert_eq!(pkg.views[0].view_type, "table_grid");
     }
-}
 
+    #[test]
+    fn test_package_mounting_with_hardware_profile() {
+        let mut conn = Connection::open_in_memory().unwrap();
+        crate::audit::init_audit_schema(&conn).unwrap();
+        let mut pkg = PrPackage::new("PKG-SCALE-APP", "Scale App", "PCD-99");
+        pkg.hardware_profile = Some(crate::hardware::HardwareProfileManifest {
+            profile_id: "HW-SCALE".into(),
+            requirements: vec![crate::hardware::HardwareRequirement {
+                requirement_key: "scale".into(), name: "Scale".into(),
+                role: crate::hardware::PeripheralDeviceRole::WeightScale, is_mandatory: true,
+                supported_protocols: vec![], baud_rate_hint: None,
+                pairing_instructions_el: "Ζυγαριά".into(), pairing_instructions_en: "Scale".into(),
+            }],
+            ..Default::default()
+        });
+
+        let summary = pkg.mount(&mut conn, None, "Admin").unwrap();
+        assert_eq!(summary.bundle_id, "PKG-SCALE-APP");
+        let profile = crate::hardware::HardwareProfileEngine::get_profile(&conn, "PKG-SCALE-APP").unwrap();
+        assert!(profile.is_some());
+        assert_eq!(profile.unwrap().requirements.len(), 1);
+    }
+}

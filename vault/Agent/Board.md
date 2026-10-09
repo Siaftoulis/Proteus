@@ -298,9 +298,9 @@ tags:
 - [x] Zero-Touch Cellular LAN Bridge & POS Hotspot Failover (Micro-task 24.1.3)
 
 ## Phase 25 (Universal Custom Hardware & Peripheral Bus)
-- [ ] Multi-Protocol Peripheral Bus for Serial, USB-HID, BLE & MQTT (Micro-task 25.1.1)
-- [ ] Declarative Hardware Profile Manifest in .pr Packages (Micro-task 25.1.2)
-- [ ] Visual Hardware Scratch Nodes in Flow Studio for Relays & Sensors (Micro-task 25.1.3)
+- [x] Multi-Protocol Peripheral Bus for Serial, USB-HID, BLE & MQTT (Micro-task 25.1.1)
+- [x] Declarative Hardware Profile Manifest in .pr Packages (Micro-task 25.1.2)
+- [x] Visual Hardware Scratch Nodes in Flow Studio for Relays & Sensors (Micro-task 25.1.3)
 
 ## Phase 26 (Proteus Sovereign Appliance & Bootable ISO/IMG Builder)
 - [ ] Bare-Metal Appliance Profile & Immutable Read-Only RootFS Spec (Micro-task 26.1.1)

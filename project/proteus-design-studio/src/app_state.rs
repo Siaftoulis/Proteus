@@ -1052,6 +1052,18 @@ impl ProteusApp {
                 crate::flow::FlowNodeKind::FederationBridge { source_entity, target_entity, .. } => {
                     ("Federation".to_string(), format!("Bridge {} -> {}", source_entity, target_entity))
                 }
+                crate::flow::FlowNodeKind::HardwareRelay { device_id, channel, action, .. } => {
+                    ("HardwareRelay".to_string(), format!("Relay {} ch{} [{}]", device_id, channel, action))
+                }
+                crate::flow::FlowNodeKind::HardwareSensor { device_id, metric, operator, threshold } => {
+                    ("HardwareSensor".to_string(), format!("Sensor {} {} {} {}", device_id, metric, operator, threshold))
+                }
+                crate::flow::FlowNodeKind::HardwareScale { device_id, require_stable } => {
+                    ("HardwareScale".to_string(), format!("Scale {} (require_stable: {})", device_id, require_stable))
+                }
+                crate::flow::FlowNodeKind::HardwareDisplay { device_id, .. } => {
+                    ("HardwareDisplay".to_string(), format!("VFD Pole Display: {}", device_id))
+                }
             };
 
             pkg.flows.push(proteus_core::package::PrFlowTrigger {

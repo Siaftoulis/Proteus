@@ -18,6 +18,27 @@ pub enum FlowNodeKind {
         target_entity: String,
         bidirectional: bool,
     },
+    HardwareRelay {
+        device_id: String,
+        channel: u8,
+        action: String,
+        pulse_ms: u32,
+    },
+    HardwareSensor {
+        device_id: String,
+        metric: String,
+        operator: String,
+        threshold: f32,
+    },
+    HardwareScale {
+        device_id: String,
+        require_stable: bool,
+    },
+    HardwareDisplay {
+        device_id: String,
+        line1: String,
+        line2: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

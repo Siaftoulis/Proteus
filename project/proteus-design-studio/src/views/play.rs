@@ -371,6 +371,28 @@ pub fn show_central(app: &mut ProteusApp, ui: &mut egui::Ui, pnt: &egui::Painter
                                         app.toast("DB not connected for federation".to_string());
                                     }
                                 }
+                                crate::flow::FlowNodeKind::HardwareRelay { ref device_id, channel, ref action, pulse_ms } => {
+                                    if let Some(conn) = &app.db_conn {
+                                        let res = crate::flow::HardwareNodeRunner::execute_relay(conn, device_id, channel, action, pulse_ms);
+                                        app.toast(res.output_data.unwrap_or_else(|| res.error_message.unwrap_or_default()));
+                                    } else {
+                                        app.toast(format!("Hardware Relay trigger: ch{} {}", channel, action));
+                                    }
+                                }
+                                crate::flow::FlowNodeKind::HardwareDisplay { ref device_id, ref line1, ref line2 } => {
+                                    if let Some(conn) = &app.db_conn {
+                                        let res = crate::flow::HardwareNodeRunner::execute_display(conn, device_id, line1, line2);
+                                        app.toast(res.output_data.unwrap_or_else(|| res.error_message.unwrap_or_default()));
+                                    } else {
+                                        app.toast(format!("VFD Pole: {} / {}", line1, line2));
+                                    }
+                                }
+                                crate::flow::FlowNodeKind::HardwareSensor { ref metric, ref operator, threshold, .. } => {
+                                    app.toast(format!("Sensor Check: {} {} {}", metric, operator, threshold));
+                                }
+                                crate::flow::FlowNodeKind::HardwareScale { ref device_id, require_stable } => {
+                                    app.toast(format!("Scale Polled: {} (require_stable: {})", device_id, require_stable));
+                                }
                                 crate::flow::FlowNodeKind::TriggerClick { .. } => {}
                             }
                             curr_ids.push(target_id);

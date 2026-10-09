@@ -1,12 +1,14 @@
 pub mod bezier;
+pub mod data_blocks;
+pub mod hardware_nodes;
 pub mod nodes;
 pub mod ports;
-pub mod data_blocks;
 
 pub use bezier::*;
+pub use data_blocks::*;
+pub use hardware_nodes::*;
 pub use nodes::*;
 pub use ports::*;
-pub use data_blocks::*;
 
 use serde::{Deserialize, Serialize};
 

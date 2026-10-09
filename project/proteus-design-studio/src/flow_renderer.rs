@@ -113,6 +113,10 @@ fn kind_label(kind: &FlowNodeKind) -> &'static str {
         FlowNodeKind::Condition { .. } => "Condition (IF)",
         FlowNodeKind::ShowToast { .. } => "Notification",
         FlowNodeKind::FederationBridge { .. } => "Federation Bridge",
+        FlowNodeKind::HardwareRelay { .. } => "IoT Relay Actuator",
+        FlowNodeKind::HardwareSensor { .. } => "Sensor Watchdog",
+        FlowNodeKind::HardwareScale { .. } => "Scale Weigh",
+        FlowNodeKind::HardwareDisplay { .. } => "VFD Pole Display",
     }
 }
 
@@ -124,6 +128,10 @@ fn kind_color(kind: &FlowNodeKind) -> Color32 {
         FlowNodeKind::Condition { .. } => Color32::from_rgb(230, 80, 80),
         FlowNodeKind::ShowToast { .. } => Color32::from_rgb(160, 90, 220),
         FlowNodeKind::FederationBridge { .. } => Color32::from_rgb(0, 180, 216),
+        FlowNodeKind::HardwareRelay { .. } => Color32::from_rgb(245, 158, 11),
+        FlowNodeKind::HardwareSensor { .. } => Color32::from_rgb(16, 185, 129),
+        FlowNodeKind::HardwareScale { .. } => Color32::from_rgb(139, 92, 246),
+        FlowNodeKind::HardwareDisplay { .. } => Color32::from_rgb(6, 182, 212),
     }
 }
 

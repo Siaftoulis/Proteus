@@ -103,5 +103,36 @@ pub fn default_ports_for_kind(kind: &FlowNodeKind) -> (Vec<NodePort>, Vec<NodePo
                 NodePort::output("error_out", "Failed", PortDataType::ExecutionFlow),
             ],
         ),
+        FlowNodeKind::HardwareRelay { .. } => (
+            vec![NodePort::input("exec_in", "Trigger", PortDataType::ExecutionFlow)],
+            vec![
+                NodePort::output("exec_out", "Done", PortDataType::ExecutionFlow),
+                NodePort::output("error_out", "Failed", PortDataType::ExecutionFlow),
+            ],
+        ),
+        FlowNodeKind::HardwareSensor { .. } => (
+            vec![NodePort::input("exec_in", "Watch", PortDataType::ExecutionFlow)],
+            vec![
+                NodePort::output("branch_breached", "Alert", PortDataType::ExecutionFlow),
+                NodePort::output("branch_normal", "Normal", PortDataType::ExecutionFlow),
+                NodePort::output("sensor_val", "Value", PortDataType::Number),
+            ],
+        ),
+        FlowNodeKind::HardwareScale { .. } => (
+            vec![NodePort::input("exec_in", "Weigh", PortDataType::ExecutionFlow)],
+            vec![
+                NodePort::output("exec_out", "Stable", PortDataType::ExecutionFlow),
+                NodePort::output("weight_g", "Grams", PortDataType::Number),
+                NodePort::output("error_out", "Error", PortDataType::ExecutionFlow),
+            ],
+        ),
+        FlowNodeKind::HardwareDisplay { .. } => (
+            vec![
+                NodePort::input("exec_in", "Update", PortDataType::ExecutionFlow),
+                NodePort::input("line1_in", "Line 1", PortDataType::Text),
+                NodePort::input("line2_in", "Line 2", PortDataType::Text),
+            ],
+            vec![NodePort::output("exec_out", "Done", PortDataType::ExecutionFlow)],
+        ),
     }
 }
