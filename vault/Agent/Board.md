@@ -334,7 +334,7 @@ tags:
 
 ## Phase 32 (Sovereign Promotional Engine, Coupon Vault & Cart Discount Evaluator)
 - [x] Declarative Promotional Rules & Dynamic Cart Discount Engine (Micro-task 32.1.1)
-- [ ] Cryptographic Coupon Code Vault & Redundancy Guard (Micro-task 32.1.2)
+- [x] Cryptographic Coupon Code Vault & Redundancy Guard (Micro-task 32.1.2)
 - [ ] Frontline POS Promotional Application & Coupon Validation Widget (Micro-task 32.1.3)
 
 ## Done (Alpha)

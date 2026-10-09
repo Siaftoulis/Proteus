@@ -81,3 +81,47 @@ pub struct CartEvaluationResult {
     pub final_gross_cents: i64,
     pub applied_promotions: Vec<AppliedPromo>,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Coupon {
+    pub id: String,
+    pub code_hash: String,
+    pub code_display: String,
+    pub discount: DiscountType,
+    pub min_spend_cents: i64,
+    pub usage_limit_total: Option<u32>,
+    pub usage_limit_per_customer: u32,
+    pub usage_count: u32,
+    pub valid_from: String,
+    pub valid_until: Option<String>,
+    pub is_active: bool,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CouponRedemption {
+    pub id: String,
+    pub coupon_id: String,
+    pub customer_identifier: String,
+    pub receipt_id: Option<String>,
+    pub discount_applied_cents: i64,
+    pub redeemed_at: String,
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum CouponError {
+    #[error("Coupon not found")]
+    NotFound,
+    #[error("Coupon is inactive")]
+    Inactive,
+    #[error("Coupon is expired or not yet active")]
+    Expired,
+    #[error("Minimum order spend of {min_spend_cents} cents not met (cart has {actual_cents} cents)")]
+    MinSpendNotMet { min_spend_cents: i64, actual_cents: i64 },
+    #[error("Coupon total usage limit reached ({0} redemptions)")]
+    TotalUsageLimitExceeded(u32),
+    #[error("Customer has already used this coupon {used} times (limit {limit})")]
+    CustomerUsageLimitExceeded { used: u32, limit: u32 },
+    #[error("Database error: {0}")]
+    Database(#[from] rusqlite::Error),
+}
