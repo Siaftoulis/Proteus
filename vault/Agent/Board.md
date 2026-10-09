@@ -329,7 +329,7 @@ tags:
 
 ## Phase 31 (Sovereign Customer Loyalty, Gift Cards & Promotional Engine)
 - [x] Customer Loyalty Points & Tier Progression Engine (Micro-task 31.1.1)
-- [ ] Cryptographic Gift Card & Prepaid Store Credit Vault (Micro-task 31.1.2)
+- [x] Cryptographic Gift Card & Prepaid Store Credit Vault (Micro-task 31.1.2)
 - [ ] POS Loyalty & Gift Card Tender Integration Modal (Micro-task 31.1.3)
 
 ## Done (Alpha)

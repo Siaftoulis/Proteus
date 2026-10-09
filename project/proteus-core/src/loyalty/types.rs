@@ -140,3 +140,108 @@ pub enum LoyaltyError {
     #[error("Database error: {0}")]
     Database(#[from] rusqlite::Error),
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum GiftCardStatus {
+    Active,
+    Redeemed,
+    Suspended,
+    Expired,
+}
+
+impl GiftCardStatus {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            GiftCardStatus::Active => "Active",
+            GiftCardStatus::Redeemed => "Redeemed",
+            GiftCardStatus::Suspended => "Suspended",
+            GiftCardStatus::Expired => "Expired",
+        }
+    }
+
+    pub fn parse_str(s: &str) -> Self {
+        match s {
+            "Redeemed" => GiftCardStatus::Redeemed,
+            "Suspended" => GiftCardStatus::Suspended,
+            "Expired" => GiftCardStatus::Expired,
+            _ => GiftCardStatus::Active,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GiftCard {
+    pub id: String,
+    pub code_hash: String,
+    pub masked_code: String,
+    pub status: GiftCardStatus,
+    pub initial_amount_cents: i64,
+    pub current_balance_cents: i64,
+    pub currency: String,
+    pub purchaser_customer_id: Option<String>,
+    pub recipient_name: Option<String>,
+    pub recipient_contact: Option<String>,
+    pub expires_at: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum GiftCardTxType {
+    Issue,
+    TopUp,
+    Redeem,
+    Refund,
+    Void,
+}
+
+impl GiftCardTxType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            GiftCardTxType::Issue => "Issue",
+            GiftCardTxType::TopUp => "TopUp",
+            GiftCardTxType::Redeem => "Redeem",
+            GiftCardTxType::Refund => "Refund",
+            GiftCardTxType::Void => "Void",
+        }
+    }
+
+    pub fn parse_str(s: &str) -> Self {
+        match s {
+            "TopUp" => GiftCardTxType::TopUp,
+            "Redeem" => GiftCardTxType::Redeem,
+            "Refund" => GiftCardTxType::Refund,
+            "Void" => GiftCardTxType::Void,
+            _ => GiftCardTxType::Issue,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GiftCardTransaction {
+    pub id: String,
+    pub gift_card_id: String,
+    pub tx_type: GiftCardTxType,
+    pub amount_cents: i64,
+    pub balance_after_cents: i64,
+    pub reference_receipt_id: Option<String>,
+    pub pos_terminal_id: Option<String>,
+    pub note: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum GiftCardError {
+    #[error("Gift card not found")]
+    CardNotFound,
+    #[error("Gift card is not active: status is {0}")]
+    CardInactive(String),
+    #[error("Gift card has expired on {0}")]
+    CardExpired(String),
+    #[error("Insufficient gift card balance: requested {requested}, available {available}")]
+    InsufficientBalance { requested: i64, available: i64 },
+    #[error("Invalid amount: {0}")]
+    InvalidAmount(String),
+    #[error("Database error: {0}")]
+    Database(#[from] rusqlite::Error),
+}
