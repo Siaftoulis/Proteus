@@ -192,7 +192,7 @@ Stock-In    Carrier Plans Quick Pay     Repairs           Stock-In      Receipts
    - Only standard crates declared in `Cargo.toml` (`eframe`, `egui`, `rusqlite`, `serde`, `chrono`, `uuid`, `axum`) via public APIs.
 2. **File Size Limit:** Keep source files modular and strictly **under 400 lines** wherever practical.
 3. **100% Passing Test Suite & Zero Warnings:**
-   - All tests across all crates must pass (`cargo test --workspace`). Currently **121 / 121 tests pass (100% green)**.
+   - All tests across all crates must pass (`cargo test --workspace`). Currently **662 / 662 tests pass (100% green)**.
    - Clean compilation with **0 compiler warnings**.
 
 ---
@@ -203,9 +203,9 @@ Stock-In    Carrier Plans Quick Pay     Repairs           Stock-In      Receipts
 - [x] Shared Rust Core (`proteus-core`): SQLite, crypto, audit logs, roles, ESC/POS printer spooler.
 - [x] Standalone Shop Runtime (`proteus-client`): Intake, Kanban, appointments, audit timeline, specialist dashboards.
 - [x] Web Backend Engine (`proteus-web`): Pricing brackets, certification tiers, escrow contracts, compiler gate.
-- [ ] Direct Database Drivers: Direct connection to **PostgreSQL** and **MySQL** in `proteus-core`.
-- [ ] Multi-platform static libraries (`.dll`, `.dylib`, C-bindings/NDK for iOS/Android).
-- [ ] Sandboxed 1-click migration runner with automated `.bak` rollback snapshot.
+- [x] Direct Database Drivers: Direct connection to **PostgreSQL** and **MySQL** in `proteus-core`.
+- [x] Multi-platform static libraries (`.dll`, `.dylib`, C-bindings/NDK for iOS/Android).
+- [x] Sandboxed 1-click migration runner with automated `.bak` rollback snapshot.
 
 ### Phase 2 — Design Partners Pilot
 - Pilot deployments in 2–3 commercial repair/retail businesses with Lifetime Licenses.

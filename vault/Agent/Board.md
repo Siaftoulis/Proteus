@@ -322,6 +322,12 @@ tags:
 - [x] Ergonomic 44pt Touch Control Primitives & Input Field Shield (Micro-task 29.1.2)
 - [x] Mobile Intake Form Soft-Keyboard Integration & Layout Verification (Micro-task 29.1.3)
 
+## Phase 30 (Production Pilot Stress Harness & Counter Autonomous Simulation)
+- [x] Multi-Shop Counter Intake & Transactional Stress Engine (Micro-task 30.1.1)
+- [ ] Intermittent Outbox & Network Partition Resilience Simulator (Micro-task 30.1.2)
+- [ ] Counter Pilot Health Telemetry & Diagnostic Self-Healing Panel (Micro-task 30.1.3)
+
+
 ## Done (Alpha)
 
 - [x] Designer Mode (react-rnd, grid, z-index, palette)
