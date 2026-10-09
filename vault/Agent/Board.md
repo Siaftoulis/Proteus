@@ -332,6 +332,11 @@ tags:
 - [x] Cryptographic Gift Card & Prepaid Store Credit Vault (Micro-task 31.1.2)
 - [x] POS Loyalty & Gift Card Tender Integration Modal (Micro-task 31.1.3)
 
+## Phase 32 (Sovereign Promotional Engine, Coupon Vault & Cart Discount Evaluator)
+- [x] Declarative Promotional Rules & Dynamic Cart Discount Engine (Micro-task 32.1.1)
+- [ ] Cryptographic Coupon Code Vault & Redundancy Guard (Micro-task 32.1.2)
+- [ ] Frontline POS Promotional Application & Coupon Validation Widget (Micro-task 32.1.3)
+
 ## Done (Alpha)
 
 - [x] Designer Mode (react-rnd, grid, z-index, palette)

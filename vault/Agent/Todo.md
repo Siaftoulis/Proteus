@@ -362,6 +362,12 @@ tags:
   - [x] Micro-task 31.1.2: Cryptographic Gift Card & Prepaid Store Credit Vault (`proteus-core::loyalty::gift_cards`)
   - [x] Micro-task 31.1.3: POS Loyalty & Gift Card Tender Integration Modal (`proteus-client::views::loyalty_modal`)
 
+## Phase 32: Sovereign Promotional Engine, Coupon Vault & Cart Discount Evaluator
+- [ ] Task 32.1: Declarative Discount Engine, Single-Use Coupon Vault & POS Campaign Evaluator
+  - [x] Micro-task 32.1.1: Declarative Promotional Rules & Dynamic Cart Discount Engine (`proteus-core::promotions::engine`)
+  - [ ] Micro-task 32.1.2: Cryptographic Coupon Code Vault & Redundancy Guard (`proteus-core::promotions::coupons`)
+  - [ ] Micro-task 32.1.3: Frontline POS Promotional Application & Coupon Validation Widget (`proteus-client::views::promotions_bar`)
+
 Related: [[Board|Kanban Board]] | [[Decisions|Decisions]] | [[../Developer/14 - Proteus BOS Blueprint|Proteus BOS Blueprint]] | [[../Developer/15 - Master Problem Audit & Architectural Solutions|15 - Master Problem Audit (P1-P28)]]
 
 

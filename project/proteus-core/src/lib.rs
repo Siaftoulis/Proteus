@@ -69,6 +69,7 @@ pub mod appliance;
 pub mod fiscal_adapter;
 pub mod pilot_harness;
 pub mod loyalty;
+pub mod promotions;
 
 use chrono::Utc;
 use rusqlite::{params, Connection};
