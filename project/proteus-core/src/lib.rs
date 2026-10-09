@@ -66,6 +66,7 @@ pub mod logistics;
 pub mod security;
 pub mod hardware;
 pub mod appliance;
+pub mod fiscal_adapter;
 
 use chrono::Utc;
 use rusqlite::{params, Connection};

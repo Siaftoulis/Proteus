@@ -307,6 +307,11 @@ tags:
 - [x] Turnkey Bootable ISO / IMG Builder Pipeline for x86_64 & ARM64 (Micro-task 26.1.2)
 - [x] Studio 1-Click USB Flasher & Microcontroller Firmware Provisioner (Micro-task 26.1.3)
 
+## Phase 27 (Global Multi-Jurisdiction Fiscal Adapter & Universal ERP Bridge)
+- [x] Multi-Jurisdiction Fiscal Adapter Specification (Micro-task 27.1.1)
+- [ ] Multi-Currency & Universal Decimal Math Ledger (Micro-task 27.1.2)
+- [ ] Universal Outbound Accounting Webhook & REST Dispatcher (Micro-task 27.1.3)
+
 ## Done (Alpha)
 
 - [x] Designer Mode (react-rnd, grid, z-index, palette)
