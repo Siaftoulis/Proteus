@@ -1,7 +1,12 @@
 pub mod dictionary;
+pub mod format;
 
 pub use dictionary::{
     build_baseline_dictionaries, SupportedLocale, TranslationDictionary, TranslationResolver,
+};
+pub use format::{
+    format_e164_pretty, normalize_e164, DateFormatStyle, FormattingPreferencesStore,
+    NumberFormatter, PhoneFormatError,
 };
 
 use rusqlite::{params, Connection};
