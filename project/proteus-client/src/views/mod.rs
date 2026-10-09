@@ -46,3 +46,4 @@ pub mod cloud_hosting;
 pub mod security_guardian;
 pub mod pilot_telemetry;
 pub mod loyalty_modal;
+pub mod promotions_bar;

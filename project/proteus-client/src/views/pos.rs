@@ -30,6 +30,7 @@ pub struct RetailPosState {
     pub show_z_report_modal: bool,
     pub exported_file_path: Option<String>,
     pub loyalty_modal: crate::views::loyalty_modal::LoyaltyModalState,
+    pub promotions_bar: crate::views::promotions_bar::PromotionsBarState,
 }
 
 impl Default for RetailPosState {
@@ -48,6 +49,7 @@ impl Default for RetailPosState {
             show_z_report_modal: false,
             exported_file_path: None,
             loyalty_modal: crate::views::loyalty_modal::LoyaltyModalState::default(),
+            promotions_bar: crate::views::promotions_bar::PromotionsBarState::default(),
         }
     }
 }
@@ -162,9 +164,15 @@ pub fn draw_pos_view(ui: &mut Ui, conn: &Connection, state: &mut RetailPosState)
                     });
                 });
 
-                ui.add_space(8.0);
+                ui.add_space(4.0);
+                let (promo_disc_cents, _) = crate::views::promotions_bar::draw_promotions_banner(
+                    ui, conn, &mut state.promotions_bar, &state.cart_lines, &state.customer_afm,
+                );
+                let payable_eur = (gross - (promo_disc_cents as f64 / 100.0)).max(0.0);
+                ui.add_space(4.0);
+
                 // Totals Display
-                Frame::new().fill(crate::theme::BG_CARD).corner_radius(CornerRadius::same(6)).inner_margin(Margin::same(10)).show(ui, |ui| {
+                Frame::new().fill(crate::theme::BG_CARD).corner_radius(CornerRadius::same(6)).inner_margin(Margin::same(8)).show(ui, |ui| {
                     ui.horizontal(|ui| {
                         ui.label(RichText::new("Καθαρή Αξία:").size(13.0));
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
@@ -177,38 +185,43 @@ pub fn draw_pos_view(ui: &mut Ui, conn: &Connection, state: &mut RetailPosState)
                             ui.label(RichText::new(format!("{:.2} €", vat)).size(13.0));
                         });
                     });
+                    if promo_disc_cents > 0 {
+                        ui.horizontal(|ui| {
+                            ui.label(RichText::new("Έκπτωση Προσφορών:").size(13.0).color(crate::theme::ACCENT_GOLD));
+                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                ui.label(RichText::new(format!("-{:.2} €", promo_disc_cents as f64 / 100.0)).size(13.0).color(crate::theme::ACCENT_GOLD).strong());
+                            });
+                        });
+                    }
                     ui.separator();
                     ui.horizontal(|ui| {
                         ui.label(RichText::new("ΠΛΗΡΩΤΕΟ ΣΥΝΟΛΟ:").strong().size(18.0).color(crate::theme::ACCENT_PRIMARY));
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                            ui.label(RichText::new(format!("{:.2} €", gross)).strong().size(22.0).color(crate::theme::STATUS_READY));
+                            ui.label(RichText::new(format!("{:.2} €", payable_eur)).strong().size(22.0).color(crate::theme::STATUS_READY));
                         });
                     });
                 });
 
-                ui.add_space(8.0);
-                // Payment Method Selector
+                ui.add_space(4.0);
                 ui.horizontal(|ui| {
                     ui.radio_value(&mut state.payment_method, PosPaymentMethod::Cash, "💵 Μετρητά");
                     ui.radio_value(&mut state.payment_method, PosPaymentMethod::CardPos, "💳 Κάρτα / POS");
                     ui.radio_value(&mut state.payment_method, PosPaymentMethod::CreditLedger, "📋 Πίστωση");
                 });
 
-                // Cash Change Calculator
                 if state.payment_method == PosPaymentMethod::Cash {
                     ui.horizontal(|ui| {
                         ui.label("Ληφθέντα: ");
                         ui.add(egui::TextEdit::singleline(&mut state.cash_tendered).desired_width(70.0));
                         if let Ok(tendered) = state.cash_tendered.parse::<f64>() {
-                            let change = (tendered - gross).max(0.0);
+                            let change = (tendered - payable_eur).max(0.0);
                             ui.label(RichText::new(format!("Ρέστα: {:.2} €", change)).strong().color(crate::theme::ACCENT_GOLD));
                         }
                     });
                 }
 
-                ui.add_space(8.0);
-                // Issue Receipt Button
-                let can_checkout = !state.cart_lines.is_empty() && gross > 0.0;
+                ui.add_space(4.0);
+                let can_checkout = !state.cart_lines.is_empty() && payable_eur > 0.0;
                 let checkout_btn = egui::Button::new(RichText::new("🖨 ΕΚΔΟΣΗ ΑΠΟΔΕΙΞΗΣ (ESC/POS & myDATA)").strong().size(15.0))
                     .min_size(Vec2::new(ui.available_width(), 44.0));
 
@@ -250,29 +263,14 @@ pub fn draw_pos_view(ui: &mut Ui, conn: &Connection, state: &mut RetailPosState)
                     let now_time = chrono::Local::now().format("%H:%M:%S").to_string();
 
                     let shop_cfg = proteus_core::printer::load_shop_config(conn);
-                    let issuer_afm = if shop_cfg.afm.is_empty() {
-                        "802194512".to_string()
-                    } else {
-                        shop_cfg.afm.clone()
-                    };
-
+                    let issuer_afm = if shop_cfg.afm.is_empty() { "802194512".to_string() } else { shop_cfg.afm };
+                    let qr_url = format_mydata_qr_url("PENDING", &issuer_afm, &today, gross);
                     let invoice = FiscalInvoice {
-                        invoice_id: invoice_id.clone(),
-                        series: state.receipt_series.clone(),
-                        invoice_number: state.next_receipt_number,
-                        invoice_type: InvoiceType::RetailReceipt11_1,
-                        issue_date: today.clone(),
-                        issue_time: now_time,
-                        issuer_afm: issuer_afm.clone(),
-                        recipient_afm: state.customer_afm.clone(),
-                        recipient_name: state.customer_name.clone(),
-                        total_net_eur: net,
-                        total_vat_eur: vat,
-                        total_gross_eur: gross,
-                        mydata_mark: None,
-                        mydata_uid: None,
-                        mydata_qr_url: Some(format_mydata_qr_url("PENDING", &issuer_afm, &today, gross)),
-                        is_cancelled: false,
+                        invoice_id, series: state.receipt_series.clone(), invoice_number: state.next_receipt_number,
+                        invoice_type: InvoiceType::RetailReceipt11_1, issue_date: today, issue_time: now_time,
+                        issuer_afm, recipient_afm: state.customer_afm.clone(), recipient_name: state.customer_name.clone(),
+                        total_net_eur: net, total_vat_eur: vat, total_gross_eur: gross, mydata_mark: None,
+                        mydata_uid: None, mydata_qr_url: Some(qr_url), is_cancelled: false,
                         created_at: chrono::Utc::now().timestamp_millis(),
                     };
 
@@ -298,10 +296,11 @@ pub fn draw_pos_view(ui: &mut Ui, conn: &Connection, state: &mut RetailPosState)
         });
     });
 
-    // Z-Report & Loyalty Modal Windows
+    // Modal Windows: Z-Report, Loyalty & Promotions
     crate::views::pos_z_modal::draw_z_report_modal(ui.ctx(), conn, state);
     let (_net, _vat, gross) = calculate_totals(&state.cart_lines);
     crate::views::loyalty_modal::draw_loyalty_modal(ui.ctx(), conn, &mut state.loyalty_modal, gross);
+    crate::views::promotions_bar::draw_promotions_modal(ui.ctx(), conn, &mut state.promotions_bar);
 }
 
 #[cfg(test)]
@@ -319,6 +318,7 @@ mod tests {
         assert_eq!(state.next_receipt_number, 1);
         assert!(!state.show_z_report_modal);
         assert!(!state.loyalty_modal.is_open);
+        assert_eq!(state.promotions_bar.coupon_discount_cents, 0);
     }
 
     #[test]
