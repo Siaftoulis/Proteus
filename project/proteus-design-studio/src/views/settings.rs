@@ -227,7 +227,7 @@ fn render_canvas_tab(app: &mut ProteusApp, ui: &mut Ui) {
 
         ui.label("Ρυθμός Ανανέωσης (Variable Refresh Rate - VRR):");
         ui.horizontal(|ui| {
-            for vrr in [VrrMode::Reactive, VrrMode::Fps30, VrrMode::Fps60, VrrMode::Fps120, VrrMode::Continuous] {
+            for vrr in [VrrMode::NativeVsync, VrrMode::Reactive, VrrMode::Fps30, VrrMode::Fps60, VrrMode::Fps120, VrrMode::Continuous] {
                 let is_sel = app.vrr_mode == vrr;
                 if ui.selectable_label(is_sel, vrr.label()).clicked() {
                     app.vrr_mode = vrr;

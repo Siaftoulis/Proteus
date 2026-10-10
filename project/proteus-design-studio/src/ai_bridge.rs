@@ -117,6 +117,11 @@ impl StudioAiBridge {
         }
     }
 
+    /// Runs the Studio MCP server directly over standard I/O (stdin/stdout).
+    pub fn run_stdio(&self) -> std::io::Result<()> {
+        self.server.run_stdio()
+    }
+
     /// Enqueues an incoming raw JSON-RPC string line (from stdio, socket, or worker).
     pub fn enqueue_request(&self, line: &str) {
         if let Ok(mut q) = self.incoming.lock() {

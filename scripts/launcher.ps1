@@ -105,6 +105,15 @@ $options = @(
     },
     @{
         Key = "8"
+        Title = "Generate Synthetic ERP Data"
+        Subtitle = "Seed vault/synthetic_erp.db & .sql (40 customers, 150 orders, myDATA invoices)"
+        Icon = "[D]"
+        Exe = ""
+        Pkg = ""
+        Kind = "Data"
+    },
+    @{
+        Key = "9"
         Title = "Exit Launcher"
         Subtitle = "Close terminal interface"
         Icon = "[X]"
@@ -117,9 +126,9 @@ $options = @(
 function Get-ProcessStatus($exeName) {
     if ([string]::IsNullOrEmpty($exeName)) { return $null }
     $procName = [System.IO.Path]::GetFileNameWithoutExtension($exeName)
-    $proc = Get-Process -Name $procName -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($proc) {
-        return @{ Running = $true; Id = $proc.Id }
+    $procs = [System.Diagnostics.Process]::GetProcessesByName($procName)
+    if ($procs.Length -gt 0) {
+        return @{ Running = $true; Id = $procs[0].Id }
     }
     return @{ Running = $false; Id = $null }
 }
@@ -130,17 +139,16 @@ function Ensure-BinaryBuilt($opt) {
         return $true
     }
 
-    Write-Host "`n$C_AMBER[!] Binary not found for $($opt.Title). Building with Cargo...$C_RESET"
+    Write-Host "`n$C_AMBER[!] Compiling $($opt.Title)...$C_RESET"
     Push-Location $projectDir
     try {
         & cargo build -p $opt.Pkg
         if ($LASTEXITCODE -eq 0) {
             Write-Host "$C_GREEN[OK] Build completed successfully.$C_RESET"
-            Start-Sleep -Milliseconds 800
             return $true
         } else {
             Write-Host "$C_ROSE[ERROR] Build failed. Please inspect cargo output.$C_RESET"
-            Start-Sleep -Milliseconds 2000
+            Start-Sleep -Milliseconds 1500
             return $false
         }
     } finally {
@@ -152,7 +160,9 @@ function Launch-App($opt) {
     if ($opt.Exe) {
         $pStatus = Get-ProcessStatus $opt.Exe
         if ($pStatus.Running) {
-            return "$($opt.Title) is already running (PID: $($pStatus.Id))"
+            try {
+                Stop-Process -Id $pStatus.Id -Force -ErrorAction SilentlyContinue
+            } catch {}
         }
     }
 
@@ -224,6 +234,20 @@ function Check-AndApplyUpdates {
     return "Ecosystem update verified: $cnt active binaries cryptographically sealed"
 }
 
+function Generate-SyntheticData {
+    Write-Host "`n$C_CYAN[DATA]$C_RESET Executing standalone synthetic ERP dataset generator..."
+    $pyScript = Join-Path $rootDir "scripts\generate_synthetic_db.py"
+    if (-not (Test-Path $pyScript)) {
+        return "Error: generate_synthetic_db.py not found at $pyScript"
+    }
+    python $pyScript
+    if ($LASTEXITCODE -eq 0) {
+        return "Synthetic ERP dataset generated: vault/synthetic_erp.db & vault/synthetic_erp.sql"
+    } else {
+        return "Python generator failed with exit code $LASTEXITCODE"
+    }
+}
+
 function Execute-Action($opt) {
     switch ($opt.Kind) {
         "Studio" { return Launch-App $opt }
@@ -243,25 +267,36 @@ function Execute-Action($opt) {
         "All"    { return Launch-AllEcosystem }
         "Stop"   { return Stop-AllServices }
         "Update" { return Check-AndApplyUpdates }
+        "Data"   { return Generate-SyntheticData }
         "Exit"   { return "Exit" }
     }
 }
 
-function Render-UI($selectedIndex, $statusMsg) {
+function Get-RunningProcessMap {
+    $map = @{}
     try {
-        [Console]::SetCursorPosition(0, 0)
-    } catch {
-        # Fallback if console position cannot be set
-    }
+        $targets = @("proteus-design-studio", "proteus-client", "proteus-web", "proteus-mobile")
+        foreach ($name in $targets) {
+            $pList = [System.Diagnostics.Process]::GetProcessesByName($name)
+            if ($pList.Length -gt 0) {
+                $map[$name] = $pList[0].Id
+            }
+        }
+    } catch {}
+    return $map
+}
 
+function Render-UI($selectedIndex, $statusMsg) {
+    $procMap = Get-RunningProcessMap
     $lineBorder = [string]$CH_HORIZ * 72
-    
+    $lines = [System.Collections.Generic.List[string]]::new()
+
     # ── Header Banner ──
-    Write-Host "$C_CYAN$CH_TOP_LEFT$lineBorder$CH_TOP_RIGHT$C_RESET$C_CLR"
-    Write-Host "$C_CYAN$CH_VERT$C_RESET  $C_BOLD$C_WHITE PROTEUS BUSINESS OS $C_RESET $C_DIM$CH_BULLET$C_RESET $C_CYAN INTERACTIVE TERMINAL LAUNCHER$C_RESET           $C_CYAN$CH_VERT$C_RESET$C_CLR"
-    Write-Host "$C_CYAN$CH_VERT$C_RESET  $C_MUTED Native Rust $CH_BULLET 100% Offline-First $CH_BULLET Zero Mock $CH_BULLET Bespoke Triad$C_RESET     $C_CYAN$CH_VERT$C_RESET$C_CLR"
-    Write-Host "$C_CYAN$CH_BOT_LEFT$lineBorder$CH_BOT_RIGHT$C_RESET$C_CLR"
-    Write-Host "$C_CLR"
+    $lines.Add("$C_CYAN$CH_TOP_LEFT$lineBorder$CH_TOP_RIGHT$C_RESET$C_CLR")
+    $lines.Add("$C_CYAN$CH_VERT$C_RESET  $C_BOLD$C_WHITE PROTEUS BUSINESS OS $C_RESET $C_DIM$CH_BULLET$C_RESET $C_CYAN INTERACTIVE TERMINAL LAUNCHER$C_RESET           $C_CYAN$CH_VERT$C_RESET$C_CLR")
+    $lines.Add("$C_CYAN$CH_VERT$C_RESET  $C_MUTED Native Rust $CH_BULLET 100% Offline-First $CH_BULLET Zero Mock $CH_BULLET Bespoke Triad$C_RESET     $C_CYAN$CH_VERT$C_RESET$C_CLR")
+    $lines.Add("$C_CYAN$CH_BOT_LEFT$lineBorder$CH_BOT_RIGHT$C_RESET$C_CLR")
+    $lines.Add("$C_CLR")
 
     # ── Menu Items ──
     for ($i = 0; $i -lt $options.Count; $i++) {
@@ -271,9 +306,9 @@ function Render-UI($selectedIndex, $statusMsg) {
         # Status badge
         $badge = ""
         if ($opt.Exe) {
-            $pStatus = Get-ProcessStatus $opt.Exe
-            if ($pStatus.Running) {
-                $badge = "$C_GREEN[$CH_DOT_ON RUNNING : PID $($pStatus.Id)]$C_RESET"
+            $procName = [System.IO.Path]::GetFileNameWithoutExtension($opt.Exe).ToLower()
+            if ($procMap.ContainsKey($procName)) {
+                $badge = "$C_GREEN[$CH_DOT_ON RUNNING : PID $($procMap[$procName])]$C_RESET"
             } else {
                 $badge = "$C_DIM[$CH_DOT_OFF IDLE]$C_RESET"
             }
@@ -283,28 +318,32 @@ function Render-UI($selectedIndex, $statusMsg) {
             $badge = "$C_ROSE[CLEANUP]$C_RESET"
         } elseif ($opt.Kind -eq "Update") {
             $badge = "$C_AMBER[VERIFY]$C_RESET"
+        } elseif ($opt.Kind -eq "Data") {
+            $badge = "$C_CYAN[SYNTH-DB]$C_RESET"
         }
 
         if ($isSelected) {
-            $line = " $C_CYAN$CH_POINTER$C_RESET $C_SEL_BG $($opt.Icon) $($opt.Title.PadRight(30)) $C_RESET  $badge$C_CLR"
-            Write-Host $line
-            Write-Host "     $C_CYAN$CH_ARROW $C_MUTED$($opt.Subtitle)$C_RESET$C_CLR"
+            $lines.Add(" $C_CYAN$CH_POINTER$C_RESET $C_SEL_BG $($opt.Icon) $($opt.Title.PadRight(30)) $C_RESET  $badge$C_CLR")
+            $lines.Add("     $C_CYAN$CH_ARROW $C_MUTED$($opt.Subtitle)$C_RESET$C_CLR")
         } else {
-            $line = "   $C_DIM$($opt.Icon)$C_RESET $C_WHITE$($opt.Title.PadRight(30))$C_RESET  $badge$C_CLR"
-            Write-Host $line
-            Write-Host "     $C_DIM$($opt.Subtitle)$C_RESET$C_CLR"
+            $lines.Add("   $C_DIM$($opt.Icon)$C_RESET $C_WHITE$($opt.Title.PadRight(30))$C_RESET  $badge$C_CLR")
+            $lines.Add("     $C_DIM$($opt.Subtitle)$C_RESET$C_CLR")
         }
     }
 
-    Write-Host "$C_CLR"
-    Write-Host "$C_DIM$lineBorder$C_RESET$C_CLR"
+    $lines.Add("$C_CLR")
+    $lines.Add("$C_DIM$lineBorder$C_RESET$C_CLR")
     
-    # Status Toast
+    # Status Toast / Controls
     if ($statusMsg) {
-        Write-Host "$C_GREEN [OK] $statusMsg$C_RESET$C_CLR"
+        $lines.Add("$C_GREEN [OK] $statusMsg$C_RESET$C_CLR")
     } else {
-        Write-Host "$C_MUTED Controls: [Up/Down or W/S] Move  $CH_BULLET  [Enter] Select  $CH_BULLET  [1-7] Direct Key  $CH_BULLET  [Q] Exit$C_RESET$C_CLR"
+        $lines.Add("$C_MUTED Controls: [Up/Down or W/S] Move  $CH_BULLET  [Enter] Select  $CH_BULLET  [1-7] Direct Key  $CH_BULLET  [Q] Exit$C_RESET$C_CLR")
     }
+
+    # Atomic frame output with ANSI Cursor Home and Erase to End of Screen
+    $frame = "$ESC[H" + ($lines -join "`r`n") + "`r`n$ESC[J"
+    [Console]::Out.Write($frame)
 }
 
 # ── Main Event Loop ──
@@ -320,7 +359,7 @@ try {
 
 try {
     if ($canReadKey) {
-        try { Clear-Host } catch {}
+        [Console]::Out.Write("$ESC[?1049h$ESC[?25l$ESC[2J$ESC[H")
         $selectedIndex = 0
         $lastStatus = ""
         $running = $true
@@ -356,7 +395,11 @@ try {
             if ($trigger) {
                 $selectedOpt = $options[$selectedIndex]
                 $res = Execute-Action $selectedOpt
-                if ($res -eq "Exit") { $running = $false } else { $lastStatus = $res }
+                if ($res -eq "Exit") { 
+                    $running = $false 
+                } else { 
+                    $lastStatus = $res
+                }
                 $trigger = $false
             }
         }
@@ -391,5 +434,6 @@ try {
     try {
         [Console]::CursorVisible = $true
     } catch {}
+    [Console]::Out.Write("$ESC[?1049l$ESC[?25h")
     Write-Host "`n$C_CYAN[Proteus BOS Launcher terminated. Goodbye!]$C_RESET`n"
 }

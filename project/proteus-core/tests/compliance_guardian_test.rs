@@ -71,6 +71,7 @@ use proteus_core::fiscal_pos::{
 };
 
 /// 1. GDPR Article 17 & Greek Law 4624/2019: Right to Erasure / Anonymization
+///
 /// Verifies that customer PII (Name, Phone) is permanently redacted while
 /// preserving device diagnostic records and creating an immutable compliance audit event.
 #[test]
@@ -184,6 +185,7 @@ fn test_gdpr_art5_retention_and_purge() {
 }
 
 /// 3. ISO/IEC 27001:2022 Control A.8.2 & SOC 2 CC6.1: Principle of Least Privilege (RBAC)
+///
 /// Verifies that operational roles cannot exceed their defined security boundaries.
 #[test]
 fn test_iso27001_a82_rbac_least_privilege() {
@@ -218,6 +220,7 @@ fn test_iso27001_a82_rbac_least_privilege() {
 }
 
 /// 4. ISO/IEC 27001:2022 Control A.8.24 & HIPAA § 164.312(a)(2)(iv): Cryptography & Integrity
+///
 /// Verifies authenticated encryption at rest using Argon2id key derivation and XChaCha20Poly1305.
 #[test]
 fn test_iso27001_a824_authenticated_encryption_at_rest() {
@@ -247,6 +250,7 @@ fn test_iso27001_a824_authenticated_encryption_at_rest() {
 }
 
 /// 5. ISO/IEC 27001:2022 Control A.8.15, SOC 2 CC7.1 & HIPAA § 164.312(c)(1): Tamper-Proof Audit Chain
+///
 /// Verifies that Merkle hash-chaining immediately detects any unauthorized SQL tampering.
 #[test]
 fn test_iso27001_a815_soc2_cc71_merkle_audit_tamper_detection() {
@@ -277,6 +281,7 @@ fn test_iso27001_a815_soc2_cc71_merkle_audit_tamper_detection() {
 }
 
 /// 6. SOC 2 CC6.1 & Enterprise Governance: Strict Store Seat Quota Enforcement
+///
 /// Verifies multi-tenant boundaries and prevents unauthorized seat provisioning.
 #[test]
 fn test_soc2_cc61_store_seat_quota_enforcement() {
@@ -353,6 +358,7 @@ fn test_soc2_cc61_store_seat_quota_enforcement() {
 }
 
 /// 7. HIPAA § 164.312(b) & ISO/IEC 27001 A.8.15: System Audit Controls
+///
 /// Verifies operational event logging with operator role and timestamp traceability.
 #[test]
 fn test_hipaa_164_312_audit_and_traceability() {
@@ -379,6 +385,7 @@ fn test_hipaa_164_312_audit_and_traceability() {
 }
 
 /// 8. Greek Law 4624/2019 & Fiscal myDATA QR Payload Structure
+///
 /// Verifies digital signature formatting and official transport QR parameters.
 #[test]
 fn test_greek_law_4624_2019_shipping_and_mydata_payload() {
@@ -405,6 +412,7 @@ fn test_greek_law_4624_2019_shipping_and_mydata_payload() {
 }
 
 /// 9. Greek Law 4308/2014 & AADE myDATA v1.0 Invoicing & Tax Calculation Compliance
+///
 /// Verifies exact VAT rounding, background outbox queuing, and AADE XML schema generation.
 #[test]
 fn test_mydata_fiscal_invoicing_and_xml_generation() {
@@ -468,6 +476,7 @@ fn test_mydata_fiscal_invoicing_and_xml_generation() {
 }
 
 /// 10. Greek Law 4308/2014 Statutory Tax Identification: Modulo-11 Checksum & Cache Verification
+///
 /// Enforces that invalid AFMs are rejected before myDATA transmission and verified records are cached.
 #[test]
 fn test_tax_registry_afm_verification_and_cache() {
@@ -507,6 +516,7 @@ fn test_tax_registry_afm_verification_and_cache() {
 }
 
 /// 11. ISO 45001 & EU Directive 90/269/EEC (Ergonomic Manual Handling) & Spatial WMS Integrity
+///
 /// Enforces that heavy goods (>=15kg) are strictly routed to ground levels, fast movers are placed in
 /// ergonomic Golden Zone (80-160cm), and shelf audits record immutable cryptographic proof.
 #[test]
@@ -622,6 +632,7 @@ fn test_iso45001_ergonomics_and_spatial_wms_integrity() {
 }
 
 /// 12. Greek Law 4808/2021 & Circular 47319/2023: Ergani II Digital Work Card Statutory Outage Protection
+///
 /// Enforces that when internet is down, staff clock events are queued locally with statutory telecom
 /// outage flags, monotonic timestamps, and Merkle cryptographic chaining, protecting against €10,500 fines.
 #[test]
@@ -695,6 +706,7 @@ fn test_ergani_ii_statutory_outage_protection_and_merkle_chain() {
 }
 
 /// 13. Directive (EU) 2019/1937 & Consumer Pricing Transparency: ESL Dynamic Expiry Markdown & Radio Packet Integrity
+///
 /// Enforces that items nearing expiration are mathematically discounted according to statutory food waste
 /// reduction rules, and e-ink ESL broadcast frames maintain radio packet integrity with valid checksums.
 #[test]
@@ -756,6 +768,7 @@ fn test_esl_dynamic_expiry_pricing_and_radio_packet_integrity() {
 }
 
 /// 14. Greek Law 4308/2014 (ΕΛΠ) & AADE myDATA: 1-Click CPA Accounting & Discrepancy Audit
+///
 /// Verifies statutory accounting period aggregation, multi-rate VAT buckets, outbox offline resilience,
 /// and automated CPA ledger exports without floating-point drift.
 #[test]
@@ -855,6 +868,7 @@ fn test_greek_law_4308_2014_cpa_accounting_and_mydata_reconciliation() {
 }
 
 /// 15. Commercial Ledger & Cardex CRM: Rolling Balances, Credit Limits & Balance Aging
+///
 /// Verifies mathematical balance consistency, payment receipts, credit limit enforcement,
 /// and 5-tier aging analysis without debt drifting.
 #[test]
@@ -935,6 +949,7 @@ fn test_commercial_cardex_rolling_balances_and_aging() {
 }
 
 /// 16. Multi-Channel Notifications Gateway & Live Tracking Integrity (GDPR Art. 6, Greek Law 4624/2019, ISO 27001 Cryptographic Token)
+///
 /// Enforces:
 /// - Unforgeable live tracking tokens for customer repair status links
 /// - Rejection of marketing messages without verified GDPR consent
@@ -1030,6 +1045,7 @@ fn test_notifications_gateway_tracking_and_gdpr_compliance() {
 }
 
 /// 17. Technical Service Workshop & 1-Click Fiscal Settlement (Law 4308/2014 ΕΛΠ, AADE myDATA, Law 4624/2019)
+///
 /// Enforces:
 /// - Cryptographic anti-tamper intake diagnostic inspection
 /// - Spare parts consumption ledger and technician labor logging
@@ -1161,6 +1177,7 @@ fn test_service_bench_diagnostics_and_1click_fiscal_settlement() {
 }
 
 /// 18. AADE Decision A.1155/2023: Retail Cash Desk & EFT-POS Hardware Interlock
+///
 /// Mandates that all card-settled retail transactions require verified electronic POS authorization,
 /// cryptographic A.1155 interconnection signatures, tamper-proof audit trails, and physical ΦΗΜ/ESC-POS receipts.
 #[test]
@@ -1262,6 +1279,7 @@ fn test_aade_a1155_pos_interconnection_and_fiscal_device_interlock() {
 }
 
 /// 19. Greek Law 4808/2021 & Circular 47319/2023: Ergani II Digital Work Card & Merkle Chain Integrity
+///
 /// Mandates real-time shift recording, statutory telecom outage declarations, SHA-256 Merkle chain
 /// tamper-proofing, automated offline-to-online reconciliation, and compliant overtime calculations.
 #[test]

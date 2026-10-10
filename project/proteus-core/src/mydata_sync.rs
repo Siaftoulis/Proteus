@@ -4,6 +4,7 @@
 //! - Resilient zero-dependency XML parsing for AADE ResponseDoc, MARK, UID, and validation errors.
 //! - Non-blocking asynchronous outbox queue worker with automatic retry backoff.
 //! - Offline-first design: Unsent invoices remain safely enqueued with zero checkout interruption.
+//!
 //! Strict Rule 1 (100% Original Codebase) and Rule 5 (Zero Mock Data).
 
 use crate::invoicing::{

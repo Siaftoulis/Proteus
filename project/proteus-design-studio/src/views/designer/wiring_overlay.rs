@@ -27,7 +27,7 @@ pub fn render_flow_wiring(
 
             let is_selected = app.editor_state.selected_node_ids.contains(node_id);
 
-            // If no action and not in proto/selected, skip
+            // Render wire if node has an action configured, or if Prototype tab is active, or if selected
             if !has_action && !is_proto_active && !is_selected {
                 continue;
             }

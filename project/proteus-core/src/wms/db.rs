@@ -74,7 +74,8 @@ pub fn init_wms_schema(conn: &Connection) -> Result<()> {
         CREATE INDEX IF NOT EXISTS idx_wh_items_shelf ON warehouse_shelf_items(shelf_id);
         CREATE INDEX IF NOT EXISTS idx_wh_items_sku ON warehouse_shelf_items(sku);
         "#,
-    )
+    )?;
+    crate::wms::tote::init_tote_schema(conn)
 }
 
 pub fn save_zone(conn: &Connection, zone: &WarehouseZone) -> Result<()> {

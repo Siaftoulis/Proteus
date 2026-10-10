@@ -6,6 +6,7 @@
 //! - Component serial number linkage (Genealogy)
 //! - Van sales offline store-and-forward outbox
 //! - Direct ESC/POS thermal delivery voucher generation.
+//!
 //! Adheres strictly to Rule 1 (100% Original Codebase) and Rule 5 (Zero Mock Data).
 //! Modularized under Rule 3 (<400 lines per file).
 

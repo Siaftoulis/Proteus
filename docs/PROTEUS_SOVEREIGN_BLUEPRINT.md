@@ -55,6 +55,11 @@ Proteus is designed to evolve from pure software into a full hardware-integrated
   - Digital e-ink displays mounted on store shelves.
   - Automatic price updates broadcasted from Proteus via radio/Bluetooth.
   - Dynamic discounts: If an item approaches expiry (tracked via GS1 barcodes), Proteus automatically lowers the price and updates the shelf display instantly without staff manually replacing paper tags.
+- **Smart Totes & Near-Field Ring Scanners (Frictionless Warehouse & POS Bagging)**:
+  - Loop/perimeter antenna wrapped around tote rim or checkout bagging chute.
+  - Ambient zero-click intake: items dropping through the perimeter are ingested in <50ms with anti-collision debounce.
+  - Cryptographic Merkle seal calculation (SHA-256) upon carton closure, allowing boxes to be stacked on pallets with 100% known contents and sub-millisecond shelf lookup.
+  - Hybrid cost-effective transition: external standard EAN-13 barcodes for legacy operations combined with sub-0.03€ UHF/NFC inlays for automated bulk intake.
 
 ---
 

@@ -337,10 +337,13 @@ mod tests {
 
         assert!(raw_code.starts_with("REPAIR-"));
 
-        let res1 = redeem_coupon(&conn, &raw_code, "CUST-A", None, 5000, "2026-10-09T10:00:00Z");
+        let t1 = (Utc::now() + Duration::minutes(1)).to_rfc3339();
+        let t2 = (Utc::now() + Duration::minutes(2)).to_rfc3339();
+
+        let res1 = redeem_coupon(&conn, &raw_code, "CUST-A", None, 5000, &t1);
         assert!(res1.is_ok());
 
-        let res2 = redeem_coupon(&conn, &raw_code, "CUST-B", None, 5000, "2026-10-09T10:01:00Z");
+        let res2 = redeem_coupon(&conn, &raw_code, "CUST-B", None, 5000, &t2);
         assert!(matches!(res2, Err(CouponError::TotalUsageLimitExceeded(1))));
     }
 }

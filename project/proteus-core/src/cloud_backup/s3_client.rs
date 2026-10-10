@@ -76,13 +76,13 @@ pub fn hmac_sha256(key: &[u8], data: &[u8]) -> [u8; 32] {
     }
 
     let mut inner = Sha256::new();
-    inner.update(&i_key_pad);
+    inner.update(i_key_pad);
     inner.update(data);
     let inner_hash = inner.finalize();
 
     let mut outer = Sha256::new();
-    outer.update(&o_key_pad);
-    outer.update(&inner_hash);
+    outer.update(o_key_pad);
+    outer.update(inner_hash);
     outer.finalize().into()
 }
 
@@ -126,7 +126,7 @@ pub fn compute_sigv4_auth_header(
     let k_service = hmac_sha256(&k_region, b"s3");
     let k_signing = hmac_sha256(&k_service, b"aws4_request");
     let signature = hmac_sha256(&k_signing, string_to_sign.as_bytes());
-    let signature_hex = format!("{:x}", Sha256::digest(&signature));
+    let signature_hex = format!("{:x}", Sha256::digest(signature));
 
     format!(
         "AWS4-HMAC-SHA256 Credential={}/{}, SignedHeaders={}, Signature={}",
@@ -284,7 +284,7 @@ mod tests {
         let key = [0x0bu8; 20];
         let data = b"Hi There";
         let digest = hmac_sha256(&key, data);
-        let hex_out = format!("{:x}", Sha256::digest(&digest));
+        let hex_out = format!("{:x}", Sha256::digest(digest));
         assert_eq!(digest.len(), 32);
         assert!(!hex_out.is_empty());
     }

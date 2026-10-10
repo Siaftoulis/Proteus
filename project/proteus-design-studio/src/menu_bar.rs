@@ -157,6 +157,7 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                     ui.menu_button("⚡ Refresh Rate (VRR)", |ui| {
                         use crate::models::VrrMode;
                         for vrr in [
+                            VrrMode::NativeVsync,
                             VrrMode::Reactive,
                             VrrMode::Fps30,
                             VrrMode::Fps60,

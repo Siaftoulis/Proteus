@@ -5,10 +5,12 @@
 
 pub mod db;
 pub mod packing;
+pub mod tote;
 pub mod types;
 
 pub use db::*;
 pub use packing::*;
+pub use tote::*;
 pub use types::*;
 
 /// Generates an intelligent Directed Putaway recommendation for incoming stock.

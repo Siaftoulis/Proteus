@@ -39,6 +39,16 @@ pub enum FlowNodeKind {
         line1: String,
         line2: String,
     },
+    HardwareRfidChute {
+        device_id: String,
+        target_container_code: String,
+        auto_seal_on_count: Option<u32>,
+    },
+    DataBlock(super::data_blocks::DataBlockKind),
+    TableSchema {
+        table_name: String,
+        columns: Vec<proteus_core::sql_ingest::SqlColumnMeta>,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -100,6 +110,8 @@ pub struct FlowEdge {
     pub to_port: String,
     #[serde(default)]
     pub branch: Option<String>,
+    #[serde(default)]
+    pub color_hue: Option<f32>,
 }
 
 impl FlowEdge {
@@ -110,6 +122,7 @@ impl FlowEdge {
             to_node: to.into(),
             to_port: "exec_in".into(),
             branch: None,
+            color_hue: None,
         }
     }
 
@@ -125,7 +138,13 @@ impl FlowEdge {
             to_node: to_node.into(),
             to_port: to_port.into(),
             branch: None,
+            color_hue: None,
         }
+    }
+
+    pub fn with_color(mut self, hue: f32) -> Self {
+        self.color_hue = Some(hue);
+        self
     }
 
     pub fn with_branch(from: impl Into<String>, to: impl Into<String>, branch: impl Into<String>) -> Self {
@@ -137,6 +156,14 @@ impl FlowEdge {
             to_node: to.into(),
             to_port: "exec_in".into(),
             branch: Some(branch_str),
+            color_hue: None,
         }
+    }
+
+    /// Computes a deterministic hue [0.0..360.0] for a relation pair between two nodes.
+    pub fn compute_relation_hue(from_node: &str, to_node: &str) -> f32 {
+        let hash_src = format!("{}:{}", from_node, to_node);
+        let hash_val: u32 = hash_src.bytes().fold(0u32, |acc, b| acc.wrapping_mul(31).wrapping_add(b as u32));
+        (hash_val % 360) as f32
     }
 }

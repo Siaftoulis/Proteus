@@ -64,6 +64,13 @@ pub fn available_symbols() -> Vec<SymbolDefinition> {
             preview_icon: "⎍",
             description: "Role switcher, status badge, and breadcrumb bar",
         },
+        SymbolDefinition {
+            id: "sym_smart_packing_station",
+            name: "Smart Tote & Packing Station",
+            category: "Logistics",
+            preview_icon: "📦",
+            description: "Near-field ring scanner, tote capacity gauge & Merkle seal trigger",
+        },
     ]
 }
 
@@ -160,6 +167,20 @@ pub fn instantiate_symbol(symbol_id: &str, pos: (f32, f32)) -> Option<Node> {
             node.layout.width = crate::scene::Sizing::Fixed(800.);
             node.layout.height = crate::scene::Sizing::Fixed(48.);
             node.style.bg_color = [0.08, 0.09, 0.12, 1.0];
+            Some(node)
+        }
+        "sym_smart_packing_station" => {
+            let mut node = Node::new(
+                format!("station_{}", uuid::Uuid::new_v4().simple()),
+                "Smart Packing Station".into(),
+                NodeType::Frame,
+            );
+            node.position = pos;
+            node.layout.width = crate::scene::Sizing::Fixed(340.);
+            node.layout.height = crate::scene::Sizing::Fixed(220.);
+            node.style.bg_color = [0.10, 0.12, 0.16, 1.0];
+            node.style.border_radius = 8.0;
+            node.style.border_color = [0.20, 0.50, 0.70, 0.9];
             Some(node)
         }
         _ => None,
@@ -432,7 +453,7 @@ mod tests {
     #[test]
     fn test_symbol_catalog_and_instantiation() {
         let symbols = available_symbols();
-        assert_eq!(symbols.len(), 5);
+        assert_eq!(symbols.len(), 6);
 
         let kpi = instantiate_symbol("sym_kpi_card", (50., 60.)).unwrap();
         assert_eq!(kpi.name, "KPI Metric Card");
@@ -440,6 +461,10 @@ mod tests {
 
         let form = instantiate_symbol("sym_intake_form", (10., 20.)).unwrap();
         assert!(matches!(form.node_type, NodeType::DynamicForm { .. }));
+
+        let station = instantiate_symbol("sym_smart_packing_station", (100., 150.)).unwrap();
+        assert_eq!(station.name, "Smart Packing Station");
+        assert_eq!(station.position, (100., 150.));
     }
 
     #[test]

@@ -115,6 +115,70 @@ impl HardwareNodeRunner {
             },
         }
     }
+
+    /// Executes an ingestion or sealing action from an RFID chute reading into real SQLite container storage.
+    pub fn execute_rfid_chute(
+        conn: &Connection,
+        container_code: &str,
+        epc: &str,
+        sku_override: Option<&str>,
+        weight_grams: f64,
+        auto_seal_limit: Option<u32>,
+    ) -> HardwareExecutionResult {
+        let mut container = match proteus_core::wms::find_container_by_code(conn, container_code) {
+            Ok(Some(c)) => c,
+            Ok(None) => proteus_core::wms::SmartContainer::new(
+                container_code,
+                proteus_core::wms::ContainerType::Tote,
+                chrono::Utc::now().timestamp(),
+            ),
+            Err(e) => {
+                return HardwareExecutionResult {
+                    success: false,
+                    output_data: None,
+                    error_message: Some(e.to_string()),
+                }
+            }
+        };
+
+        let now = chrono::Utc::now().timestamp();
+        let sku = sku_override.unwrap_or(epc);
+        if let Err(e) = container.ingest_item(sku, Some(epc), 1, weight_grams, now) {
+            return HardwareExecutionResult {
+                success: false,
+                output_data: None,
+                error_message: Some(e.to_string()),
+            };
+        }
+
+        let mut sealed_hash = None;
+        if let Some(limit) = auto_seal_limit {
+            if container.total_units() >= limit {
+                if let Ok(hash) = container.seal(now) {
+                    sealed_hash = Some(hash);
+                }
+            }
+        }
+
+        if let Err(e) = proteus_core::wms::save_smart_container(conn, &container) {
+            return HardwareExecutionResult {
+                success: false,
+                output_data: None,
+                error_message: Some(e.to_string()),
+            };
+        }
+
+        let msg = match sealed_hash {
+            Some(seal) => format!("Ingested tag {}, container {} AUTO-SEALED [{}]", epc, container_code, seal),
+            None => format!("Ingested tag {} into container {} (total: {})", epc, container_code, container.total_units()),
+        };
+
+        HardwareExecutionResult {
+            success: true,
+            output_data: Some(msg),
+            error_message: None,
+        }
+    }
 }
 
 /// Renders visual inspector controls for hardware flow nodes.
@@ -174,6 +238,22 @@ pub fn render_hardware_inspector(ui: &mut egui::Ui, kind: &mut crate::flow::Flow
             ui.add_space(2.);
             ui.add(egui::TextEdit::singleline(line2).hint_text("THANK YOU").desired_width(f32::INFINITY));
         }
+        crate::flow::FlowNodeKind::HardwareRfidChute { device_id, target_container_code, auto_seal_on_count } => {
+            ui.label(egui::RichText::new("Peripheral Device ID:").size(10.));
+            ui.add_space(2.);
+            ui.add(egui::TextEdit::singleline(device_id).hint_text("e.g. RFID-RING-01").desired_width(f32::INFINITY));
+            ui.add_space(4.);
+            ui.label(egui::RichText::new("Active Container Code:").size(10.));
+            ui.add_space(2.);
+            ui.add(egui::TextEdit::singleline(target_container_code).hint_text("e.g. TOTE-101").desired_width(f32::INFINITY));
+            ui.add_space(4.);
+            let mut seal_val = auto_seal_on_count.unwrap_or(0);
+            ui.label(egui::RichText::new("Auto-Seal Limit (0 = disabled):").size(10.));
+            ui.add_space(2.);
+            if ui.add(egui::DragValue::new(&mut seal_val).range(0..=1000)).changed() {
+                *auto_seal_on_count = if seal_val > 0 { Some(seal_val) } else { None };
+            }
+        }
         _ => {}
     }
 }
@@ -231,5 +311,27 @@ mod tests {
 
         let events_count: i64 = conn.query_row("SELECT COUNT(*) FROM system_peripheral_events", [], |r| r.get(0)).unwrap();
         assert_eq!(events_count, 1);
+    }
+
+    #[test]
+    fn test_rfid_chute_flow_execution_and_auto_seal() {
+        let conn = Connection::open_in_memory().unwrap();
+        proteus_core::wms::init_tote_schema(&conn).unwrap();
+
+        // Ingest item 1 into TOTE-FLOW-1 (auto-seal limit: 2)
+        let res1 = HardwareNodeRunner::execute_rfid_chute(&conn, "TOTE-FLOW-1", "EPC-01", Some("SKU-A"), 100.0, Some(2));
+        assert!(res1.success);
+        assert!(res1.output_data.unwrap().contains("total: 1"));
+
+        // Ingest item 2 into TOTE-FLOW-1 -> triggers auto-seal!
+        let res2 = HardwareNodeRunner::execute_rfid_chute(&conn, "TOTE-FLOW-1", "EPC-02", Some("SKU-B"), 120.0, Some(2));
+        assert!(res2.success);
+        let out2 = res2.output_data.unwrap();
+        assert!(out2.contains("AUTO-SEALED"));
+
+        let loaded = proteus_core::wms::find_container_by_code(&conn, "TOTE-FLOW-1").unwrap().unwrap();
+        assert_eq!(loaded.status, proteus_core::wms::ContainerStatus::Sealed);
+        assert!(loaded.seal_hash.is_some());
+        assert_eq!(loaded.total_units(), 2);
     }
 }

@@ -33,6 +33,7 @@ pub enum NavTab {
     BranchMesh,
     CloudHosting,
     PilotTelemetry,
+    IndustrialSpooler,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -91,6 +92,7 @@ impl RoleWorkspace {
                 tabs.push((NavTab::ShippingNote, "Δελτία Αποστολής"));
                 tabs.push((NavTab::SpatialWms, "Χωρικό WMS & Ράφια"));
                 tabs.push((NavTab::EslGateway, "🏷 Ετικέτες ESL"));
+                tabs.push((NavTab::IndustrialSpooler, "🏷️ Βιομηχανικός Spooler"));
                 tabs.push((NavTab::ColdChain, "Τηλεμετρία & HACCP"));
                 tabs.push((NavTab::GenealogyRma, "Ιστορικό S/N & RMA"));
                 if active_role == UserRole::Ceo || active_role == UserRole::SalesConsultant {
@@ -272,12 +274,13 @@ mod tests {
         assert_eq!(hw_tabs[2].0, NavTab::PilotTelemetry);
 
         let log_tabs = RoleWorkspace::Logistics.sub_tabs(&p, UserRole::Technician);
-        assert_eq!(log_tabs.len(), 5);
+        assert_eq!(log_tabs.len(), 6);
         assert_eq!(log_tabs[0].0, NavTab::ShippingNote);
         assert_eq!(log_tabs[1].0, NavTab::SpatialWms);
         assert_eq!(log_tabs[2].0, NavTab::EslGateway);
-        assert_eq!(log_tabs[3].0, NavTab::ColdChain);
-        assert_eq!(log_tabs[4].0, NavTab::GenealogyRma);
+        assert_eq!(log_tabs[3].0, NavTab::IndustrialSpooler);
+        assert_eq!(log_tabs[4].0, NavTab::ColdChain);
+        assert_eq!(log_tabs[5].0, NavTab::GenealogyRma);
     }
 
     #[test]

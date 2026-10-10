@@ -3,7 +3,7 @@
 //! Vector Pen, Presets, Orientation, Canvas Zoom & Snapping) under a sleek native header.
 
 use eframe::egui::{self, Color32, Key, Margin, Response, RichText, Stroke, Vec2};
-use crate::models::{DesignerTool, DevicePreset, LayoutMode};
+use crate::models::{DesignerTool, DevicePreset};
 use crate::theme;
 use crate::ProteusApp;
 
@@ -308,88 +308,6 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                     app.device_preset = DevicePreset::Custom(h, w);
                     app.toast(format!("Canvas flipped: {:.0} × {:.0}", h, w));
                 }
-
-                // ── Right-aligned Viewport & Canvas Precision Controls ──
-                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    ui.spacing_mut().item_spacing.x = 4.0;
-
-                    // Redo (Ctrl+Y)
-                    let can_redo = !app.editor_state.redo_stack.is_empty();
-                    let redo_btn = ui.add_enabled(
-                        can_redo,
-                        egui::Button::new(RichText::new("↻").size(13.0).color(if can_redo { theme::ICY_MIST } else { theme::STEEL_SLATE }))
-                            .min_size(Vec2::new(24.0, 22.0))
-                    ).on_hover_text("Redo last modification (Ctrl+Y)");
-                    if redo_btn.clicked() {
-                        app.redo();
-                    }
-
-                    // Undo (Ctrl+Z)
-                    let can_undo = !app.editor_state.undo_stack.is_empty();
-                    let undo_btn = ui.add_enabled(
-                        can_undo,
-                        egui::Button::new(RichText::new("↺").size(13.0).color(if can_undo { theme::ICY_MIST } else { theme::STEEL_SLATE }))
-                            .min_size(Vec2::new(24.0, 22.0))
-                    ).on_hover_text("Undo previous modification (Ctrl+Z)");
-                    if undo_btn.clicked() {
-                        app.undo();
-                    }
-
-                    ui.separator();
-
-                    // Snap to grid toggle
-                    let is_grid = app.layout == LayoutMode::Grid;
-                    let grid_btn = ui.add(
-                        egui::Button::new(RichText::new(if is_grid { "🧲 Snap: ON" } else { "🧲 Snap: OFF" }).size(10.0).color(if is_grid { theme::SKY_CYAN } else { theme::FROST_GRAY }))
-                            .fill(if is_grid { Color32::from_rgba_unmultiplied(56, 189, 248, 25) } else { Color32::TRANSPARENT })
-                            .min_size(Vec2::new(64.0, 22.0))
-                    ).on_hover_text("Toggle magnetic grid snapping");
-                    if grid_btn.clicked() {
-                        app.layout = if is_grid { LayoutMode::Free } else { LayoutMode::Grid };
-                    }
-
-                    ui.separator();
-
-                    // Zoom Fit
-                    let fit_btn = ui.add(
-                        egui::Button::new(RichText::new("⊡ Fit").size(10.0).color(theme::FROST_GRAY))
-                            .min_size(Vec2::new(36.0, 22.0))
-                    ).on_hover_text("Center canvas & fit visible layers");
-                    if fit_btn.clicked() {
-                        app.viewport.pan = Vec2::ZERO;
-                        app.viewport.zoom = 1.0;
-                    }
-
-                    // Zoom In
-                    let zoom_in_btn = ui.add(
-                        egui::Button::new(RichText::new("+").size(13.0).color(theme::FROST_GRAY))
-                            .min_size(Vec2::new(22.0, 22.0))
-                    ).on_hover_text("Zoom in canvas");
-                    if zoom_in_btn.clicked() {
-                        app.viewport.zoom = (app.viewport.zoom * 1.15).min(5.0);
-                    }
-
-                    // Zoom level percentage reset button
-                    let zoom_pct = format!("{:.0}%", app.viewport.zoom * 100.0);
-                    let zoom_reset_btn = ui.add(
-                        egui::Button::new(RichText::new(zoom_pct).size(10.5).color(theme::ICY_MIST))
-                            .fill(Color32::from_rgba_unmultiplied(39, 55, 77, 80))
-                            .min_size(Vec2::new(42.0, 22.0))
-                    ).on_hover_text("Reset zoom to 100% (Ctrl+0)");
-                    if zoom_reset_btn.clicked() {
-                        app.viewport.zoom = 1.0;
-                        app.viewport.pan = Vec2::ZERO;
-                    }
-
-                    // Zoom Out
-                    let zoom_out_btn = ui.add(
-                        egui::Button::new(RichText::new("–").size(13.0).color(theme::FROST_GRAY))
-                            .min_size(Vec2::new(22.0, 22.0))
-                    ).on_hover_text("Zoom out canvas");
-                    if zoom_out_btn.clicked() {
-                        app.viewport.zoom = (app.viewport.zoom / 1.15).max(0.15);
-                    }
-                });
             });
         });
 }

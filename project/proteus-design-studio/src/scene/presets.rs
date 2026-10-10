@@ -243,9 +243,9 @@ pub fn create_crm_preset() -> ProjectDocument {
             position: (x, y), rotation: 0.0, visible: true, locked: false, z: 1,
         }
     }
-    fn mk_card(id: &str, x: f32, y: f32, w: f32, h: f32, bg: Rgba) -> Node {
+    fn mk_card(id: &str, name: &str, x: f32, y: f32, w: f32, h: f32, bg: Rgba) -> Node {
         Node {
-            id: id.into(), name: "Card".into(),
+            id: id.into(), name: name.into(),
             node_type: NodeType::Frame,
             parent_id: None, children_ids: vec![],
             styling: Styling {
@@ -322,20 +322,20 @@ pub fn create_crm_preset() -> ProjectDocument {
     let _ = doc.add_node(mk_text("dash-date", "Today • July 20, 2026", 20., 46., 11., false, 130, 130, 130), Some("crm-dash".into()));
     let _ = doc.add_node(mk_btn("dash-settings", "⚙ Settings", 670., 14., 110., 32., ButtonStyle::Ghost), Some("crm-dash".into()));
     // Stats row
-    let _ = doc.add_node(mk_card("stat-1", 20., 72., 180., 90., card), Some("crm-dash".into()));
+    let _ = doc.add_node(mk_card("stat-1", "Card: Active Deals", 20., 72., 180., 90., card), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("stat-1v", "128", 32., 82., 28., true, 52, 152, 219), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("stat-1l", "Active Deals", 32., 116., 10., false, 130, 130, 130), Some("crm-dash".into()));
-    let _ = doc.add_node(mk_card("stat-2", 215., 72., 180., 90., card), Some("crm-dash".into()));
+    let _ = doc.add_node(mk_card("stat-2", "Card: Revenue Pipeline", 215., 72., 180., 90., card), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("stat-2v", "$84,200", 227., 82., 28., true, 46, 204, 113), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("stat-2l", "Revenue Pipeline", 227., 116., 10., false, 130, 130, 130), Some("crm-dash".into()));
-    let _ = doc.add_node(mk_card("stat-3", 410., 72., 180., 90., card), Some("crm-dash".into()));
+    let _ = doc.add_node(mk_card("stat-3", "Card: Total Contacts", 410., 72., 180., 90., card), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("stat-3v", "342", 422., 82., 28., true, 230, 126, 34), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("stat-3l", "Total Contacts", 422., 116., 10., false, 130, 130, 130), Some("crm-dash".into()));
-    let _ = doc.add_node(mk_card("stat-4", 605., 72., 180., 90., card), Some("crm-dash".into()));
+    let _ = doc.add_node(mk_card("stat-4", "Card: Win Rate", 605., 72., 180., 90., card), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("stat-4v", "89%", 617., 82., 28., true, 231, 76, 60), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("stat-4l", "Win Rate", 617., 116., 10., false, 130, 130, 130), Some("crm-dash".into()));
     // Activity
-    let _ = doc.add_node(mk_card("act-box", 20., 180., 380., 180., card), Some("crm-dash".into()));
+    let _ = doc.add_node(mk_card("act-box", "Card: Recent Activity", 20., 180., 380., 180., card), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("act-h", "📋 Recent Activity", 32., 192., 13., true, 215, 215, 215), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("act-1", "● John Smith — Deal moved to Proposal", 32., 216., 10., false, 200, 200, 200), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("act-2", "● Jane Doe — New contact added", 32., 234., 10., false, 200, 200, 200), Some("crm-dash".into()));
@@ -343,7 +343,7 @@ pub fn create_crm_preset() -> ProjectDocument {
     let _ = doc.add_node(mk_text("act-4", "● Meeting scheduled with Bob Wilson", 32., 270., 10., false, 200, 200, 200), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("act-5", "● Contract uploaded — Enterprise Plan", 32., 288., 10., false, 200, 200, 200), Some("crm-dash".into()));
     // Pipeline summary
-    let _ = doc.add_node(mk_card("pipe-box", 415., 180., 370., 180., card), Some("crm-dash".into()));
+    let _ = doc.add_node(mk_card("pipe-box", "Card: Pipeline Overview", 415., 180., 370., 180., card), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("pipe-h", "▤  Pipeline Overview", 427., 192., 13., true, 215, 215, 215), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("pipe-1", "New:  24 deals  —  $18,200", 427., 216., 10., false, 200, 200, 200), Some("crm-dash".into()));
     let _ = doc.add_node(mk_text("pipe-2", "Qualified:  18 deals  —  $24,500", 427., 234., 10., false, 200, 200, 200), Some("crm-dash".into()));
@@ -364,7 +364,7 @@ pub fn create_crm_preset() -> ProjectDocument {
     let _ = doc.add_node(mk_input("con-search", "🔍  Search contacts...", 16., 66., 480., 36., FieldType::Text), Some("crm-contacts".into()));
     let _ = doc.add_node(mk_dropdown("con-filter", "Filter: All", &["All", "VIP", "Lead", "Partner", "Customer"], 508., 66., 180., 36.), Some("crm-contacts".into()));
     // Table header
-    let _ = doc.add_node(mk_card("con-th", 16., 116., 668., 28., dark), Some("crm-contacts".into()));
+    let _ = doc.add_node(mk_card("con-th", "Table Header Row", 16., 116., 668., 28., dark), Some("crm-contacts".into()));
     let _ = doc.add_node(mk_text("con-th-n", "Name", 28., 121., 10., true, 130, 130, 130), Some("crm-contacts".into()));
     let _ = doc.add_node(mk_text("con-th-e", "Email", 158., 121., 10., true, 130, 130, 130), Some("crm-contacts".into()));
     let _ = doc.add_node(mk_text("con-th-p", "Phone", 318., 121., 10., true, 130, 130, 130), Some("crm-contacts".into()));
@@ -381,7 +381,7 @@ pub fn create_crm_preset() -> ProjectDocument {
     let mut ry = 152.;
     for (i, (n, e, p, c, tag)) in rows.iter().enumerate() {
         let row_bg = if i % 2 == 0 { card } else { Rgba { r: 40, g: 40, b: 40, a: 255 } };
-        let _ = doc.add_node(mk_card(&format!("con-r{}", i), 16., ry, 668., 32., row_bg), Some("crm-contacts".into()));
+        let _ = doc.add_node(mk_card(&format!("con-r{}", i), &format!("Contact Row: {}", n), 16., ry, 668., 32., row_bg), Some("crm-contacts".into()));
         let _ = doc.add_node(mk_text(&format!("con-{}-n", i), n, 22., ry + 8., 11., false, 215, 215, 215), Some("crm-contacts".into()));
         let _ = doc.add_node(mk_text(&format!("con-{}-e", i), e, 150., ry + 8., 10., false, 180, 180, 180), Some("crm-contacts".into()));
         let _ = doc.add_node(mk_text(&format!("con-{}-p", i), p, 310., ry + 8., 10., false, 180, 180, 180), Some("crm-contacts".into()));
@@ -391,7 +391,7 @@ pub fn create_crm_preset() -> ProjectDocument {
     }
 
     // Quick Add Contact Form (Live Form-to-SQLite Insert)
-    let _ = doc.add_node(mk_card("con-add-card", 16., 390., 668., 92., card), Some("crm-contacts".into()));
+    let _ = doc.add_node(mk_card("con-add-card", "Card: Quick Add Contact", 16., 390., 668., 92., card), Some("crm-contacts".into()));
     let _ = doc.add_node(mk_text("con-add-h", "+ Quick Add Contact (Live SQLite Form)", 28., 400., 11., true, 52, 152, 219), Some("crm-contacts".into()));
     let _ = doc.add_node(mk_bound_input("new-con-name", "Full Name", 28., 428., 160., 36., FieldType::Text, "contacts", "name"), Some("crm-contacts".into()));
     let _ = doc.add_node(mk_bound_input("new-con-email", "Email Address", 198., 428., 180., 36., FieldType::Email, "contacts", "email"), Some("crm-contacts".into()));
@@ -421,7 +421,7 @@ pub fn create_crm_preset() -> ProjectDocument {
     let _ = doc.add_node(mk_text("cd-job", "CEO at Acme Inc •  john@acme.com", 16., 42., 11., false, 130, 130, 130), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_btn("cd-back", "← Contacts", 560., 14., 120., 32., ButtonStyle::Ghost), Some("crm-contact-detail".into()));
     // Info card
-    let _ = doc.add_node(mk_card("cd-info", 16., 68., 320., 160., card), Some("crm-contact-detail".into()));
+    let _ = doc.add_node(mk_card("cd-info", "Card: Contact Info", 16., 68., 320., 160., card), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_text("cd-info-h", "Contact Information", 28., 80., 12., true, 215, 215, 215), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_text("cd-p", "📞  (555) 555-0100", 28., 102., 11., false, 200, 200, 200), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_text("cd-e", "📧  john@acme.com", 28., 120., 11., false, 200, 200, 200), Some("crm-contact-detail".into()));
@@ -429,14 +429,14 @@ pub fn create_crm_preset() -> ProjectDocument {
     let _ = doc.add_node(mk_text("cd-loc", "📍  San Francisco, CA", 28., 156., 11., false, 200, 200, 200), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_text("cd-tags", "🏷  VIP · Enterprise · Tech", 28., 174., 11., false, 52, 152, 219), Some("crm-contact-detail".into()));
     // Deals card
-    let _ = doc.add_node(mk_card("cd-deals", 350., 68., 334., 160., card), Some("crm-contact-detail".into()));
+    let _ = doc.add_node(mk_card("cd-deals", "Card: Active Deals", 350., 68., 334., 160., card), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_text("cd-deals-h", "💰  Active Deals", 362., 80., 12., true, 215, 215, 215), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_text("cd-d1", "Enterprise License — $12,000", 362., 106., 11., false, 46, 204, 113), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_text("cd-d1s", "Stage: Proposal  •  Close: Aug 2026", 362., 124., 10., false, 130, 130, 130), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_text("cd-d2", "Support Contract — $4,800", 362., 146., 11., false, 46, 204, 113), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_text("cd-d2s", "Stage: Negotiation  •  Close: Sep 2026", 362., 164., 10., false, 130, 130, 130), Some("crm-contact-detail".into()));
     // Notes
-    let _ = doc.add_node(mk_card("cd-notes", 16., 244., 668., 120., card), Some("crm-contact-detail".into()));
+    let _ = doc.add_node(mk_card("cd-notes", "Card: Notes & Activity", 16., 244., 668., 120., card), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_text("cd-notes-h", "📝  Notes & Activity", 28., 256., 12., true, 215, 215, 215), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_text("cd-n1", "📌  Initial meeting — interested in Enterprise plan. Follow up with pricing.", 28., 282., 11., false, 200, 200, 200), Some("crm-contact-detail".into()));
     let _ = doc.add_node(mk_text("cd-n1d", "Jul 18, 2026  •  by you", 28., 300., 9., false, 130, 130, 130), Some("crm-contact-detail".into()));
@@ -454,7 +454,7 @@ pub fn create_crm_preset() -> ProjectDocument {
     let col_gap = 4.;
     for (ci, (cname, ccolor)) in cols.iter().enumerate() {
         let cx = 12. + ci as f32 * (col_w + col_gap);
-        let _ = doc.add_node(mk_card(&format!("pipe-col{}", ci), cx, 50., col_w, 420., dark), Some("crm-pipeline".into()));
+        let _ = doc.add_node(mk_card(&format!("pipe-col{}", ci), &format!("Column: {}", cname), cx, 50., col_w, 420., dark), Some("crm-pipeline".into()));
         // Column header
         let _ = doc.add_node(mk_text(&format!("pipe-col{}h", ci), cname, cx + 8., 58., 12., true, ccolor.r, ccolor.g, ccolor.b), Some("crm-pipeline".into()));
         // Cards
@@ -467,7 +467,7 @@ pub fn create_crm_preset() -> ProjectDocument {
         };
         for (di, (deal_title, deal_sub)) in deals.iter().enumerate() {
             let dy = 80. + di as f32 * 72.;
-            let _ = doc.add_node(mk_card(&format!("pipe-{}-d{}", ci, di), cx + 6., dy, col_w - 12., 62., card), Some("crm-pipeline".into()));
+            let _ = doc.add_node(mk_card(&format!("pipe-{}-d{}", ci, di), &format!("Deal: {}", deal_title), cx + 6., dy, col_w - 12., 62., card), Some("crm-pipeline".into()));
             let _ = doc.add_node(mk_text(&format!("pipe-{}-t{}", ci, di), deal_title, cx + 14., dy + 8., 10., true, 215, 215, 215), Some("crm-pipeline".into()));
             let _ = doc.add_node(mk_text(&format!("pipe-{}-s{}", ci, di), deal_sub, cx + 14., dy + 26., 9., false, 130, 130, 130), Some("crm-pipeline".into()));
             let _ = doc.add_node(mk_text(&format!("pipe-{}-v{}", ci, di), "★", cx + col_w - 28., dy + 8., 10., false, 243, 156, 18), Some("crm-pipeline".into()));
@@ -482,14 +482,14 @@ pub fn create_crm_preset() -> ProjectDocument {
     let _ = doc.add_node(mk_text("set-head", "⚙  Settings", 20., 16., 20., true, 215, 215, 215), Some("crm-settings".into()));
     let _ = doc.add_node(mk_btn("set-back", "← Dashboard", 360., 14., 120., 32., ButtonStyle::Ghost), Some("crm-settings".into()));
     // Profile section
-    let _ = doc.add_node(mk_card("set-profile", 20., 50., 460., 150., card), Some("crm-settings".into()));
+    let _ = doc.add_node(mk_card("set-profile", "Card: Profile", 20., 50., 460., 150., card), Some("crm-settings".into()));
     let _ = doc.add_node(mk_text("set-ph", "👤  Profile", 32., 62., 14., true, 215, 215, 215), Some("crm-settings".into()));
     let _ = doc.add_node(mk_text("set-pl", "Full Name", 32., 86., 10., false, 130, 130, 130), Some("crm-settings".into()));
     let _ = doc.add_node(mk_input("set-name", "Alex Johnson", 32., 100., 200., 32., FieldType::Text), Some("crm-settings".into()));
     let _ = doc.add_node(mk_text("set-pe", "Email", 248., 86., 10., false, 130, 130, 130), Some("crm-settings".into()));
     let _ = doc.add_node(mk_input("set-email", "alex@proteus.app", 248., 100., 200., 32., FieldType::Email), Some("crm-settings".into()));
     // Preferences
-    let _ = doc.add_node(mk_card("set-prefs", 20., 216., 460., 120., card), Some("crm-settings".into()));
+    let _ = doc.add_node(mk_card("set-prefs", "Card: Preferences", 20., 216., 460., 120., card), Some("crm-settings".into()));
     let _ = doc.add_node(mk_text("set-prefh", "🎨  Preferences", 32., 228., 14., true, 215, 215, 215), Some("crm-settings".into()));
     let _ = doc.add_node(mk_dropdown("set-theme", "Theme: Dark", &["Dark", "Light", "System"], 32., 250., 180., 32.), Some("crm-settings".into()));
     let _ = doc.add_node(mk_dropdown("set-lang", "Language: English", &["English", "Greek", "Spanish", "French"], 224., 250., 180., 32.), Some("crm-settings".into()));

@@ -5,6 +5,7 @@
 //! - 5-Tier Statutory Balance Aging Analysis (0-30d, 31-60d, 61-90d, 91-120d, 120+ days)
 //! - Credit Limit Enforcement preventing unauthorized over-limit debt
 //! - Official Payment Collection Receipts ("Απόδειξη Είσπραξης / Πληρωμής")
+//!
 //! Strict Rule 1 (100% Original Codebase) and Rule 5 (Zero Mock Data).
 
 pub mod types;

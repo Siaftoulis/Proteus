@@ -15,6 +15,7 @@ pub mod inspector;
 pub mod menu_bar;
 pub mod models;
 pub mod palette;
+pub mod preflight;
 pub mod renderer;
 pub mod scene;
 pub mod storage;
@@ -30,6 +31,29 @@ use eframe::egui::{self, Color32, Rect, Sense, Stroke};
 
 impl eframe::App for ProteusApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        self.render_ui(ctx);
+    }
+}
+
+impl ProteusApp {
+    pub fn render_ui(&mut self, ctx: &egui::Context) {
+        if self.preflight.is_active() {
+            let p = self.palette(ctx);
+            let action = self.preflight.update_and_render(ctx, &p, &mut self.db_conn);
+            match action {
+                preflight::PreflightAction::Continue => {
+                    return;
+                }
+                preflight::PreflightAction::TransitionToStudio => {
+                    self.toast("✓ Sovereign workspace and store.db verified");
+                }
+                preflight::PreflightAction::Cancel => {
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                    return;
+                }
+            }
+        }
+
         if !self.loaded {
             self.loaded = true;
             self.load_project();
@@ -129,11 +153,16 @@ impl eframe::App for ProteusApp {
         } else {
             (180., egui::Margin::same(12))
         };
-        egui::SidePanel::left("pal")
+        egui::SidePanel::left("pal_left")
             .resizable(false)
             .exact_width(left_w)
+            .max_width(left_w)
             .frame(egui::Frame { fill: p.panel, inner_margin: left_margin, stroke: egui::Stroke::new(1., p.border), ..Default::default() })
             .show(ctx, |ui| {
+                let inner_w = left_w - left_margin.left as f32 - left_margin.right as f32;
+                ui.set_max_width(inner_w);
+                ui.set_width(inner_w);
+                ui.set_clip_rect(ui.max_rect());
                 match self.mode {
                     Mode::Designer => views::designer::show_left(self, ui),
                     Mode::Analyst => views::analyst::show_left(&mut self.analyst_state, ui),
@@ -212,10 +241,7 @@ impl eframe::App for ProteusApp {
                 }
             });
 
-        // ── LUNACY TOP TOOL RIBBON (Designer Mode) ──
-        if self.mode == Mode::Designer {
-            views::tool_ribbon::show(self, ctx);
-        } else if self.show_device_toolbar {
+        if self.show_device_toolbar {
             components::device_bar::show(self, ctx);
         }
 
@@ -225,6 +251,7 @@ impl eframe::App for ProteusApp {
             .show(ctx, |ui| {
                 let (resp, pnt) = ui.allocate_painter(ui.available_size(), Sense::click_and_drag());
                 let r = resp.rect;
+                self.last_canvas_rect = Some(r);
                 pnt.rect_filled(r, 0, p.bg);
 
                 // Grid background for non-designer modes
@@ -274,9 +301,9 @@ impl eframe::App for ProteusApp {
                     Mode::ConnectedData => {
                         if let Some(msg) = views::connected_data::show_central(
                             &mut self.connected_data_state,
-                            &self.contacts,
-                            &self.deals,
-                            &self.tasks,
+                            self.db_conn.as_ref(),
+                            self.db.as_ref(),
+                            &self.pid,
                             ui,
                         ) {
                             self.toast(msg);
@@ -353,6 +380,15 @@ impl eframe::App for ProteusApp {
 }
 
 fn main() -> eframe::Result<()> {
+    let args: Vec<String> = std::env::args().collect();
+    if args.iter().any(|a| a == "--mcp" || a == "-mcp") {
+        let bridge = crate::ai_bridge::StudioAiBridge::new();
+        if let Err(e) = bridge.run_stdio() {
+            eprintln!("Proteus MCP stdio server error: {}", e);
+        }
+        return Ok(());
+    }
+
     tracing_subscriber::fmt::init();
     std::panic::set_hook(Box::new(|info| {
         use std::io::Write;
@@ -364,23 +400,131 @@ fn main() -> eframe::Result<()> {
         }
     }));
 
+    let skip_setup = args.iter().any(|a| a == "--no-setup" || a == "--skip-preflight");
+
+    let viewport = if skip_setup {
+        egui::ViewportBuilder::default()
+            .with_title("Proteus - The Visual OS for Business")
+            .with_icon(egui::IconData {
+                rgba: include_bytes!("../../assets/proteus_emblem_128.rgba").to_vec(),
+                width: 128,
+                height: 128,
+            })
+            .with_maximized(true)
+            .with_min_inner_size([960., 600.])
+            .with_active(true)
+    } else {
+        egui::ViewportBuilder::default()
+            .with_title("Proteus Setup")
+            .with_icon(egui::IconData {
+                rgba: include_bytes!("../../assets/proteus_emblem_128.rgba").to_vec(),
+                width: 128,
+                height: 128,
+            })
+            .with_inner_size([460., 260.])
+            .with_min_inner_size([460., 260.])
+            .with_resizable(false)
+            .with_active(true)
+    };
+
     eframe::run_native(
-        "Proteus - The Visual OS for Business",
+        if skip_setup { "Proteus - The Visual OS for Business" } else { "Proteus Setup" },
         eframe::NativeOptions {
-            viewport: egui::ViewportBuilder::default()
-                .with_title("Proteus - The Visual OS for Business")
-                .with_icon(egui::IconData {
-                    rgba: include_bytes!("../../assets/proteus_emblem_128.rgba").to_vec(),
-                    width: 128,
-                    height: 128,
-                })
-                .with_maximized(true)
-                .with_min_inner_size([960., 600.])
-                .with_active(true),
+            viewport,
             ..Default::default()
         },
-        Box::new(|_cc| {
-            Ok(Box::new(ProteusApp::default()))
+        Box::new(move |_cc| {
+            let mut app = ProteusApp::default();
+            if !skip_setup {
+                app.enable_preflight();
+            }
+            Ok(Box::new(app))
         }),
     )
 }
+
+#[cfg(test)]
+mod layout_tests {
+    use super::*;
+
+    #[test]
+    fn test_designer_central_panel_adjacent_to_rail() {
+        let mut app = ProteusApp::default();
+        app.in_welcome_hub = false;
+        app.mode = Mode::Designer;
+        app.project_doc = scene::create_crm_preset();
+
+        let ctx = egui::Context::default();
+        let raw_input = egui::RawInput {
+            screen_rect: Some(egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(1920.0, 1080.0))),
+            ..Default::default()
+        };
+
+        // Run multiple frames to allow egui panel layout to settle
+        for _ in 0..3 {
+            let _ = ctx.run(raw_input.clone(), |ctx| {
+                app.render_ui(ctx);
+            });
+        }
+
+        let r = app.last_canvas_rect.expect("Canvas rect must be captured");
+        // Canvas rect must start immediately adjacent to left rail (220 width + 2 margin)
+        assert!(
+            r.left() <= 222.0,
+            "Canvas rect left boundary ({}) must be adjacent to left rail (expected <= 222.0, got {})",
+            r.left(),
+            r.left()
+        );
+    }
+
+    #[test]
+    fn test_mcp_server_protocol_handshake() {
+        let mut bridge = crate::ai_bridge::StudioAiBridge::new();
+        let init_raw = r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}"#;
+        let mut doc = crate::scene::ProjectDocument::default();
+        let resp = bridge.process_single_message(init_raw, &mut doc, None).expect("Initialize response");
+        assert!(resp.contains("proteus-design-studio"));
+        assert!(resp.contains("2024-11-05"));
+
+        let tools_raw = r#"{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}"#;
+        let resp_tools = bridge.process_single_message(tools_raw, &mut doc, None).expect("Tools response");
+        assert!(resp_tools.contains("inject_canvas_nodes"));
+        assert!(resp_tools.contains("generate_schema"));
+        assert!(resp_tools.contains("get_active_canvas_summary"));
+    }
+
+    #[test]
+    fn test_preflight_setup_window_rendering_and_transition() {
+        let mut app = ProteusApp::default();
+        app.enable_preflight();
+        assert!(app.preflight.is_active());
+        assert_eq!(app.preflight.stage, preflight::PreflightStage::ProbeStoreDb);
+
+        let ctx = egui::Context::default();
+        let raw_input = egui::RawInput {
+            screen_rect: Some(egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(460.0, 260.0))),
+            ..Default::default()
+        };
+
+        // Render frames during preflight setup
+        let _ = ctx.run(raw_input.clone(), |ctx| {
+            app.render_ui(ctx);
+        });
+
+        assert!(app.preflight.is_active());
+        assert!(app.preflight.progress > 0.0);
+
+        // Manually complete preflight to test transition
+        app.preflight.stage = preflight::PreflightStage::Completed;
+        app.preflight.completed = true;
+
+        let _ = ctx.run(raw_input, |ctx| {
+            app.render_ui(ctx);
+        });
+
+        // App transitioned past preflight into studio / welcome hub
+        assert!(!app.preflight.is_active());
+        assert!(app.loaded);
+    }
+}
+

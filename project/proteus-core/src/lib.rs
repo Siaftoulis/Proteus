@@ -28,6 +28,7 @@ pub mod roles;
 pub mod rules;
 pub mod schema;
 pub mod schema_diff;
+pub mod sql_ingest;
 pub mod sync;
 pub mod smlm;
 pub mod reconciler;
@@ -70,6 +71,7 @@ pub mod fiscal_adapter;
 pub mod pilot_harness;
 pub mod loyalty;
 pub mod promotions;
+pub mod mydata_expenses;
 
 use chrono::Utc;
 use rusqlite::{params, Connection};
@@ -110,11 +112,36 @@ impl Database {
         let conn = Connection::open(path)?;
         conn.execute_batch(
             "CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, name TEXT NOT NULL, widgets TEXT NOT NULL DEFAULT '[]', flows TEXT NOT NULL DEFAULT '[]', created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
-            CREATE TABLE IF NOT EXISTS records (id TEXT PRIMARY KEY, project_id TEXT NOT NULL, entity TEXT NOT NULL, fields TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
-            CREATE INDEX IF NOT EXISTS idx_records_project ON records(project_id);
-            CREATE INDEX IF NOT EXISTS idx_records_entity ON records(entity);
+            CREATE TABLE IF NOT EXISTS records (
+                id TEXT PRIMARY KEY,
+                project_id TEXT NOT NULL DEFAULT 'p1',
+                entity TEXT NOT NULL DEFAULT '',
+                fields TEXT NOT NULL DEFAULT '{}',
+                created_at TEXT NOT NULL DEFAULT '',
+                updated_at TEXT NOT NULL DEFAULT '',
+                entity_type TEXT NOT NULL DEFAULT '',
+                data TEXT NOT NULL DEFAULT '{}'
+            );
             CREATE TABLE IF NOT EXISTS entity_schemas (project_id TEXT NOT NULL, entity TEXT NOT NULL, schema TEXT NOT NULL, PRIMARY KEY(project_id, entity));",
         )?;
+
+        // Ensure missing columns exist if table was created with legacy or partial schema
+        let _ = conn.execute("ALTER TABLE records ADD COLUMN project_id TEXT NOT NULL DEFAULT 'p1'", []);
+        let _ = conn.execute("ALTER TABLE records ADD COLUMN entity TEXT NOT NULL DEFAULT ''", []);
+        let _ = conn.execute("ALTER TABLE records ADD COLUMN fields TEXT NOT NULL DEFAULT '{}'", []);
+        let _ = conn.execute("ALTER TABLE records ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''", []);
+        let _ = conn.execute("ALTER TABLE records ADD COLUMN entity_type TEXT NOT NULL DEFAULT ''", []);
+        let _ = conn.execute("ALTER TABLE records ADD COLUMN data TEXT NOT NULL DEFAULT '{}'", []);
+
+        // Create indexes safely after ensuring all columns exist
+        let _ = conn.execute("CREATE INDEX IF NOT EXISTS idx_records_project ON records(project_id)", []);
+        let _ = conn.execute("CREATE INDEX IF NOT EXISTS idx_records_entity ON records(entity)", []);
+        let _ = conn.execute("CREATE INDEX IF NOT EXISTS idx_records_entity_type ON records(entity_type)", []);
+
+        // Sync columns if one format was populated without the other
+        let _ = conn.execute("UPDATE records SET fields = data, entity = entity_type WHERE (fields = '{}' OR fields = '' OR fields IS NULL) AND data IS NOT NULL AND data != '{}' AND data != ''", []);
+        let _ = conn.execute("UPDATE records SET data = fields, entity_type = entity WHERE (data = '{}' OR data = '' OR data IS NULL) AND fields IS NOT NULL AND fields != '{}' AND fields != ''", []);
+
         Ok(Database {
             conn: Mutex::new(conn),
         })

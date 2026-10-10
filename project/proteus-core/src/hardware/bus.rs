@@ -186,6 +186,9 @@ impl PeripheralBus {
                 let barcode = HardwareProtocol::parse_scanner_frame(raw_bytes)?;
                 Ok(InboundPeripheralPayload::Barcode(barcode))
             }
+            PeripheralDeviceRole::RfidRingScanner | PeripheralDeviceRole::RfidBulkPortal => {
+                HardwareProtocol::parse_rfid_frame(raw_bytes)
+            }
             PeripheralDeviceRole::EnvironmentalSensor => {
                 HardwareProtocol::parse_sensor_frame(raw_bytes)
             }

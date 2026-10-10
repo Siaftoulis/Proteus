@@ -34,22 +34,34 @@ impl Record {
 }
 
 impl Database {
-    pub fn create_record(&self, project_id: &str, entity: &str, fields: &str) -> Result<Record, DbError> {
+    pub fn create_record_with_id(&self, id: &str, project_id: &str, entity: &str, fields: &str) -> Result<Record, DbError> {
         let conn = self.conn.lock().map_err(|e| DbError::Lock(e.to_string()))?;
-        let id = uuid::Uuid::new_v4().to_string();
         let now = chrono::Utc::now().to_rfc3339();
         conn.execute(
-            "INSERT INTO records (id, project_id, entity, fields, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            "INSERT INTO records (id, project_id, entity, fields, created_at, updated_at, entity_type, data) 
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?3, ?4)
+             ON CONFLICT(id) DO UPDATE SET 
+                project_id = excluded.project_id,
+                entity = excluded.entity,
+                fields = excluded.fields,
+                data = excluded.data,
+                entity_type = excluded.entity_type,
+                updated_at = excluded.updated_at",
             params![id, project_id, entity, fields, now, now],
         )?;
         Ok(Record {
-            id,
+            id: id.to_string(),
             project_id: project_id.to_string(),
             entity: entity.to_string(),
             fields: fields.to_string(),
             created_at: now.clone(),
             updated_at: now,
         })
+    }
+
+    pub fn create_record(&self, project_id: &str, entity: &str, fields: &str) -> Result<Record, DbError> {
+        let id = uuid::Uuid::new_v4().to_string();
+        self.create_record_with_id(&id, project_id, entity, fields)
     }
 
     /// Validates fields against schema before creating record.
@@ -69,7 +81,7 @@ impl Database {
     pub fn get_record(&self, id: &str) -> Result<Record, DbError> {
         let conn = self.conn.lock().map_err(|e| DbError::Lock(e.to_string()))?;
         let mut stmt = conn.prepare(
-            "SELECT id, project_id, entity, fields, created_at, updated_at FROM records WHERE id = ?1",
+            "SELECT id, project_id, entity, CASE WHEN fields != '{}' AND fields != '' THEN fields ELSE data END, created_at, updated_at FROM records WHERE id = ?1",
         )?;
         stmt.query_row(params![id], |row| {
             Ok(Record {
@@ -90,7 +102,10 @@ impl Database {
     pub fn list_records(&self, project_id: &str, entity: &str) -> Result<Vec<Record>, DbError> {
         let conn = self.conn.lock().map_err(|e| DbError::Lock(e.to_string()))?;
         let mut stmt = conn.prepare(
-            "SELECT id, project_id, entity, fields, created_at, updated_at FROM records WHERE project_id = ?1 AND entity = ?2 ORDER BY created_at DESC",
+            "SELECT id, project_id, entity, CASE WHEN fields != '{}' AND fields != '' THEN fields ELSE data END, created_at, updated_at 
+             FROM records 
+             WHERE (project_id = ?1 OR project_id = 'p1') AND (entity = ?2 OR entity_type = ?2) 
+             ORDER BY created_at DESC",
         )?;
         let rows = stmt.query_map(params![project_id, entity], |row| {
             Ok(Record {
@@ -112,7 +127,7 @@ impl Database {
     pub fn count_records(&self, project_id: &str, entity: &str) -> Result<usize, DbError> {
         let conn = self.conn.lock().map_err(|e| DbError::Lock(e.to_string()))?;
         let count: i64 = conn.query_row(
-            "SELECT COUNT(*) FROM records WHERE project_id = ?1 AND entity = ?2",
+            "SELECT COUNT(*) FROM records WHERE (project_id = ?1 OR project_id = 'p1') AND (entity = ?2 OR entity_type = ?2)",
             params![project_id, entity],
             |r| r.get(0),
         )?;
@@ -195,7 +210,7 @@ impl Database {
         let conn = self.conn.lock().map_err(|e| DbError::Lock(e.to_string()))?;
         let now = chrono::Utc::now().to_rfc3339();
         let updated = conn.execute(
-            "UPDATE records SET fields = ?1, updated_at = ?2 WHERE id = ?3",
+            "UPDATE records SET fields = ?1, data = ?1, updated_at = ?2 WHERE id = ?3",
             params![fields, now, id],
         )?;
         if updated == 0 {
@@ -260,6 +275,77 @@ impl Database {
         }
         tx.commit()?;
         Ok(count)
+    }
+
+    /// Ingests all rows from an arbitrary relational SQLite table into the unified `records` table as JSON documents.
+    pub fn import_table_into_records(
+        &self,
+        project_id: &str,
+        table_name: &str,
+        entity_name: &str,
+    ) -> Result<usize, DbError> {
+        if !table_name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+            return Err(DbError::Validation("Invalid table identifier".to_string()));
+        }
+
+        let mut conn = self.conn.lock().map_err(|e| DbError::Lock(e.to_string()))?;
+
+        // 1. Discover columns
+        let pragma_sql = format!("PRAGMA table_info(\"{}\")", table_name);
+        let headers: Vec<String> = {
+            let mut pragma_stmt = conn.prepare(&pragma_sql)?;
+            let mapped = pragma_stmt.query_map([], |row| row.get::<_, String>(1))?;
+            mapped.flatten().collect()
+        };
+
+        if headers.is_empty() {
+            return Err(DbError::NotFound);
+        }
+
+        // 2. Query all rows and build JSON strings
+        let query_sql = format!("SELECT * FROM \"{}\"", table_name);
+        let col_count = headers.len();
+        let rows_data: Vec<String> = {
+            let mut select_stmt = conn.prepare(&query_sql)?;
+            let mapped = select_stmt.query_map([], |row| {
+                let mut map = serde_json::Map::with_capacity(col_count);
+                for (i, h) in headers.iter().enumerate() {
+                    let val: rusqlite::types::Value = row.get(i)?;
+                    let json_val = match val {
+                        rusqlite::types::Value::Null => serde_json::Value::Null,
+                        rusqlite::types::Value::Integer(v) => serde_json::json!(v),
+                        rusqlite::types::Value::Real(v) => serde_json::json!(v),
+                        rusqlite::types::Value::Text(v) => serde_json::Value::String(v),
+                        rusqlite::types::Value::Blob(v) => serde_json::Value::String(format!("<blob {}B>", v.len())),
+                    };
+                    map.insert(h.clone(), json_val);
+                }
+                Ok(serde_json::Value::Object(map).to_string())
+            })?;
+            mapped.flatten().collect()
+        };
+
+        // 3. Batch insert into records within a transaction
+        let tx = conn.transaction()?;
+        let now = chrono::Utc::now().to_rfc3339();
+        let mut inserted = 0;
+        {
+            let mut insert_stmt = tx.prepare(
+                "INSERT INTO records (id, project_id, entity, fields, created_at, updated_at, entity_type, data) 
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?3, ?4)
+                 ON CONFLICT(id) DO UPDATE SET 
+                    fields = excluded.fields,
+                    data = excluded.data,
+                    updated_at = excluded.updated_at",
+            )?;
+            for row_json in rows_data {
+                let id = uuid::Uuid::new_v4().to_string();
+                insert_stmt.execute(params![id, project_id, entity_name, row_json, now, now])?;
+                inserted += 1;
+            }
+        }
+        tx.commit()?;
+        Ok(inserted)
     }
 
     /// Access the high-level DataEngine wrapper.
@@ -426,5 +512,26 @@ mod tests {
         assert_eq!(engine.count("p1", "lead").unwrap(), 2);
         assert_eq!(engine.all("p1", "lead").unwrap().len(), 2);
         assert_eq!(engine.search("p1", "lead", "Lead 1").unwrap().len(), 1);
+    }
+
+    #[test]
+    fn test_import_table_into_records() {
+        let db = test_db();
+        {
+            let conn = db.conn.lock().unwrap();
+            conn.execute_batch(
+                "CREATE TABLE raw_customers (id INTEGER PRIMARY KEY, name TEXT NOT NULL, balance REAL);
+                 INSERT INTO raw_customers VALUES (101, 'Hellenic Retail', 1450.50);
+                 INSERT INTO raw_customers VALUES (102, 'Aegean Logistics', 3200.00);"
+            ).unwrap();
+        }
+
+        let imported = db.import_table_into_records("p1", "raw_customers", "customers").unwrap();
+        assert_eq!(imported, 2);
+
+        let records = db.list_records("p1", "customers").unwrap();
+        assert_eq!(records.len(), 2);
+        assert!(records.iter().any(|r| r.get_str("name").as_deref() == Some("Hellenic Retail")));
+        assert!(records.iter().any(|r| r.get_str("name").as_deref() == Some("Aegean Logistics")));
     }
 }

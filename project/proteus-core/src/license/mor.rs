@@ -25,6 +25,7 @@ impl MorSubscriptionStatus {
         matches!(self, Self::Active | Self::Trialing)
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(status: &str) -> Self {
         match status.to_lowercase().as_str() {
             "active" => Self::Active,
@@ -69,13 +70,13 @@ pub fn hmac_sha256(key: &[u8], data: &[u8]) -> [u8; 32] {
     }
 
     let mut inner = Sha256::new();
-    inner.update(&i_key_pad);
+    inner.update(i_key_pad);
     inner.update(data);
     let inner_hash = inner.finalize();
 
     let mut outer = Sha256::new();
-    outer.update(&o_key_pad);
-    outer.update(&inner_hash);
+    outer.update(o_key_pad);
+    outer.update(inner_hash);
     outer.finalize().into()
 }
 

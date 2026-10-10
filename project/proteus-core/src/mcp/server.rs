@@ -51,7 +51,7 @@ impl McpServer {
     /// Processes a single raw JSON-RPC string line (from stdio or WebSocket).
     /// Returns Some(response_json) if response is expected, or None for notifications.
     pub fn handle_raw_json(&self, raw: &str) -> Option<String> {
-        let trimmed = raw.trim();
+        let trimmed = raw.trim().trim_start_matches('\u{feff}');
         if trimmed.is_empty() {
             return None;
         }
@@ -191,6 +191,23 @@ impl McpServer {
                 }
             }
         }
+    }
+
+    /// Runs the MCP server in standard I/O mode, reading newline-delimited JSON-RPC from stdin
+    /// and writing responses to stdout. Suitable for MCP host processes (e.g. IDEs, Claude, Antigravity).
+    pub fn run_stdio(&self) -> std::io::Result<()> {
+        use std::io::{BufRead, Write};
+        let stdin = std::io::stdin();
+        let mut stdout = std::io::stdout();
+
+        for line in stdin.lock().lines() {
+            let line = line?;
+            if let Some(resp) = self.handle_raw_json(&line) {
+                writeln!(stdout, "{}", resp)?;
+                stdout.flush()?;
+            }
+        }
+        Ok(())
     }
 }
 

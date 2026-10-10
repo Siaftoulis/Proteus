@@ -83,24 +83,14 @@ pub fn render_grid(app: &ProteusApp, ctx: &egui::Context, pnt: &egui::Painter, r
     }
 }
 
-pub fn render_device_frame(app: &ProteusApp, ctx: &egui::Context, pnt: &egui::Painter, r: Rect, canvas_origin: Pos2) {
+pub fn render_device_frame(app: &ProteusApp, ctx: &egui::Context, pnt: &egui::Painter, _r: Rect, canvas_origin: Pos2) {
     let p = app.palette(ctx);
     let (dw, dh) = app.device_preset.size();
     let dev_origin = app.viewport.world_to_screen(egui::pos2(0., 0.), canvas_origin);
     let dev_w = dw * app.viewport.zoom;
     let dev_h = dh * app.viewport.zoom;
     let dev_rect = Rect::from_min_size(dev_origin, egui::vec2(dev_w, dev_h));
-    let outside_rects = [
-        Rect::from_min_max(egui::pos2(r.left(), r.top()), egui::pos2(r.right(), dev_rect.top())),
-        Rect::from_min_max(egui::pos2(r.left(), dev_rect.bottom()), egui::pos2(r.right(), r.bottom())),
-        Rect::from_min_max(egui::pos2(r.left(), dev_rect.top()), egui::pos2(dev_rect.left(), dev_rect.bottom())),
-        Rect::from_min_max(egui::pos2(dev_rect.right(), dev_rect.top()), egui::pos2(r.right(), dev_rect.bottom())),
-    ];
-    let overlay_fill = if p.is_dark { Color32::from_black_alpha(80) } else { Color32::from_black_alpha(25) };
-    for or in &outside_rects {
-        pnt.rect_filled(*or, 0, overlay_fill);
-    }
-    pnt.rect_stroke(dev_rect, 4., Stroke::new(2., p.accent), egui::StrokeKind::Outside);
+    pnt.rect_stroke(dev_rect, 4., Stroke::new(1.5, p.accent.gamma_multiply(0.7)), egui::StrokeKind::Outside);
     let label = format!("{} {} — {}×{}", app.device_preset.icon(), app.device_preset.label(), dw, dh);
     pnt.text(
         egui::pos2(dev_rect.left() + 8., dev_rect.top() - 16.),

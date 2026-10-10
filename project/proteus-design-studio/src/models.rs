@@ -67,9 +67,10 @@ pub enum WelcomeTab {
     #[default]
     Home,
     RecentDocuments,
-    Occupations,
-    Templates,
     Learn,
+    Templates,
+    Favorites,
+    Occupations,
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -355,6 +356,7 @@ impl Viewport2D {
 // ── Variable Refresh Rate (VRR) Engine ──
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Serialize, Deserialize)]
 pub enum VrrMode {
+    NativeVsync,
     Reactive,
     Fps30,
     #[default]
@@ -366,6 +368,7 @@ pub enum VrrMode {
 impl VrrMode {
     pub fn label(&self) -> &'static str {
         match self {
+            Self::NativeVsync => "Native V-Sync (Hardware Sync)",
             Self::Reactive => "Reactive (0% Idle)",
             Self::Fps30 => "30 FPS (Power Saver)",
             Self::Fps60 => "60 FPS (Balanced)",
@@ -376,6 +379,7 @@ impl VrrMode {
 
     pub fn fps_badge(&self) -> &'static str {
         match self {
+            Self::NativeVsync => "VRR: V-Sync",
             Self::Reactive => "VRR: Reactive",
             Self::Fps30 => "VRR: 30Hz",
             Self::Fps60 => "VRR: 60Hz",
@@ -386,6 +390,7 @@ impl VrrMode {
 
     pub fn target_duration(&self) -> Option<std::time::Duration> {
         match self {
+            Self::NativeVsync => None,
             Self::Reactive => None,
             Self::Fps30 => Some(std::time::Duration::from_millis(33)),
             Self::Fps60 => Some(std::time::Duration::from_millis(16)),
@@ -396,6 +401,8 @@ impl VrrMode {
 
     pub fn apply_to_ctx(&self, ctx: &egui::Context, is_active_interaction: bool) {
         match self {
+            Self::NativeVsync if is_active_interaction => ctx.request_repaint(),
+            Self::NativeVsync => {}
             Self::Reactive if is_active_interaction => ctx.request_repaint_after(std::time::Duration::from_millis(16)),
             Self::Reactive => {}
             Self::Fps30 => ctx.request_repaint_after(std::time::Duration::from_millis(33)),
@@ -413,6 +420,8 @@ mod tests {
     #[test]
     fn test_vrr_mode_durations_and_labels() {
         assert_eq!(VrrMode::default(), VrrMode::Fps60);
+        assert_eq!(VrrMode::NativeVsync.target_duration(), None);
+        assert_eq!(VrrMode::NativeVsync.fps_badge(), "VRR: V-Sync");
         assert_eq!(VrrMode::Reactive.target_duration(), None);
         assert_eq!(VrrMode::Fps30.target_duration(), Some(std::time::Duration::from_millis(33)));
         assert_eq!(VrrMode::Fps60.target_duration(), Some(std::time::Duration::from_millis(16)));

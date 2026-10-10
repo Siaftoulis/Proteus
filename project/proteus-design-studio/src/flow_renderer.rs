@@ -105,18 +105,50 @@ pub fn port_color(data_type: PortDataType) -> Color32 {
     }
 }
 
-fn kind_label(kind: &FlowNodeKind) -> &'static str {
+/// Converts a hue angle [0..360] into an aesthetically rich RGB Color32 (85% sat, 60% lum).
+pub fn hue_to_color32(hue: f32) -> Color32 {
+    let h = ((hue % 360.0) + 360.0) % 360.0;
+    let s = 0.85_f32;
+    let l = 0.60_f32;
+    let c = (1.0 - (2.0 * l - 1.0).abs()) * s;
+    let h_prime = h / 60.0;
+    let x = c * (1.0 - ((h_prime % 2.0) - 1.0).abs());
+    let (r1, g1, b1) = if h_prime < 1.0 {
+        (c, x, 0.0)
+    } else if h_prime < 2.0 {
+        (x, c, 0.0)
+    } else if h_prime < 3.0 {
+        (0.0, c, x)
+    } else if h_prime < 4.0 {
+        (0.0, x, c)
+    } else if h_prime < 5.0 {
+        (x, 0.0, c)
+    } else {
+        (c, 0.0, x)
+    };
+    let m = l - c / 2.0;
+    Color32::from_rgb(
+        ((r1 + m) * 255.0).round() as u8,
+        ((g1 + m) * 255.0).round() as u8,
+        ((b1 + m) * 255.0).round() as u8,
+    )
+}
+
+fn kind_label(kind: &FlowNodeKind) -> std::borrow::Cow<'static, str> {
     match kind {
-        FlowNodeKind::TriggerClick { .. } => "Trigger: Click",
-        FlowNodeKind::NavigateTo { .. } => "Navigate To",
-        FlowNodeKind::SaveToDatabase { .. } => "Save To DB",
-        FlowNodeKind::Condition { .. } => "Condition (IF)",
-        FlowNodeKind::ShowToast { .. } => "Notification",
-        FlowNodeKind::FederationBridge { .. } => "Federation Bridge",
-        FlowNodeKind::HardwareRelay { .. } => "IoT Relay Actuator",
-        FlowNodeKind::HardwareSensor { .. } => "Sensor Watchdog",
-        FlowNodeKind::HardwareScale { .. } => "Scale Weigh",
-        FlowNodeKind::HardwareDisplay { .. } => "VFD Pole Display",
+        FlowNodeKind::TriggerClick { .. } => "Trigger: Click".into(),
+        FlowNodeKind::NavigateTo { .. } => "Navigate To".into(),
+        FlowNodeKind::SaveToDatabase { .. } => "Save To DB".into(),
+        FlowNodeKind::Condition { .. } => "Condition (IF)".into(),
+        FlowNodeKind::ShowToast { .. } => "Notification".into(),
+        FlowNodeKind::FederationBridge { .. } => "Federation Bridge".into(),
+        FlowNodeKind::HardwareRelay { .. } => "IoT Relay Actuator".into(),
+        FlowNodeKind::HardwareSensor { .. } => "Sensor Watchdog".into(),
+        FlowNodeKind::HardwareScale { .. } => "Scale Weigh".into(),
+        FlowNodeKind::HardwareDisplay { .. } => "VFD Pole Display".into(),
+        FlowNodeKind::HardwareRfidChute { .. } => "RFID Ring Chute".into(),
+        FlowNodeKind::DataBlock(ref db) => db.display_label().into(),
+        FlowNodeKind::TableSchema { table_name, .. } => format!("🗄 Table: {}", table_name).into(),
     }
 }
 
@@ -132,6 +164,12 @@ fn kind_color(kind: &FlowNodeKind) -> Color32 {
         FlowNodeKind::HardwareSensor { .. } => Color32::from_rgb(16, 185, 129),
         FlowNodeKind::HardwareScale { .. } => Color32::from_rgb(139, 92, 246),
         FlowNodeKind::HardwareDisplay { .. } => Color32::from_rgb(6, 182, 212),
+        FlowNodeKind::HardwareRfidChute { .. } => Color32::from_rgb(14, 165, 233),
+        FlowNodeKind::DataBlock(ref db) => {
+            let (r, g, b) = db.display_color();
+            Color32::from_rgb(r, g, b)
+        }
+        FlowNodeKind::TableSchema { .. } => Color32::from_rgb(0, 168, 204),
     }
 }
 
@@ -170,10 +208,14 @@ pub fn draw_flow_graph(
             .map(|(wx, wy)| viewport.world_to_screen(Pos2::new(wx, wy), canvas_origin))
             .collect();
 
-        let wire_color = match edge.branch.as_deref() {
-            Some("true") => Color32::from_rgb(80, 200, 130),
-            Some("false") => Color32::from_rgb(235, 90, 90),
-            _ => Color32::from_rgb(110, 150, 200),
+        let wire_color = if let Some(hue) = edge.color_hue {
+            hue_to_color32(hue)
+        } else {
+            match edge.branch.as_deref() {
+                Some("true") => Color32::from_rgb(80, 200, 130),
+                Some("false") => Color32::from_rgb(235, 90, 90),
+                _ => Color32::from_rgb(110, 150, 200),
+            }
         };
 
         painter.add(PathShape::line(screen_pts.clone(), Stroke::new(2.5, wire_color)));
@@ -186,6 +228,14 @@ pub fn draw_flow_graph(
             let perp = Vec2::new(-dir.y, dir.x);
             painter.line_segment([ep, ep - dir * 8. + perp * 4.], Stroke::new(2., wire_color));
             painter.line_segment([ep, ep - dir * 8. - perp * 4.], Stroke::new(2., wire_color));
+        }
+
+        // Relationship badge at midpoint of Bezier wire
+        if screen_pts.len() >= 5 {
+            let mid_idx = screen_pts.len() / 2;
+            let mid_pos = screen_pts[mid_idx];
+            painter.circle_filled(mid_pos, 4.0, wire_color);
+            painter.circle_stroke(mid_pos, 4.0, Stroke::new(1.0, Color32::from_rgb(15, 17, 23)));
         }
     }
 
@@ -324,5 +374,19 @@ mod tests {
     fn test_port_color_mapping() {
         assert_ne!(port_color(PortDataType::ExecutionFlow), port_color(PortDataType::Boolean));
         assert_ne!(port_color(PortDataType::Record), port_color(PortDataType::Number));
+    }
+
+    #[test]
+    fn test_hue_to_color32_distinct_colors() {
+        let red = hue_to_color32(0.0);
+        let green = hue_to_color32(120.0);
+        let blue = hue_to_color32(240.0);
+
+        assert_ne!(red, green);
+        assert_ne!(green, blue);
+        assert_ne!(red, blue);
+        assert!(red.r() > red.g() && red.r() > red.b());
+        assert!(green.g() > green.r() && green.g() > green.b());
+        assert!(blue.b() > blue.r() && blue.b() > blue.g());
     }
 }

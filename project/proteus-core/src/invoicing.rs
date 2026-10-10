@@ -4,6 +4,7 @@
 //! - Exact mathematical VAT allocation (24%, 13%, 6%, 0% Art. 22/39 exemptions)
 //! - Asynchronous transmission outbox with retry backoff
 //! - Official IAPR/myDATA QR URL generation and MARK persistence.
+//!
 //! Strict Rule 1 (100% Original Codebase) and Rule 5 (Zero Mock Data).
 
 use rusqlite::{params, Connection, Result};

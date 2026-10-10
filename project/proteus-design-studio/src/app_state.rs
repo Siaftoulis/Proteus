@@ -158,6 +158,19 @@ pub struct ProteusApp {
     pub generated_preview: Option<proteus_core::package::PreviewBundle>,
     pub active_review_session: Option<proteus_core::package::ClientReviewSession>,
     pub escrow_contract: Option<proteus_core::package::EscrowContract>,
+
+    // Runtime layout probe for deterministic canvas bounds
+    pub last_canvas_rect: Option<egui::Rect>,
+
+    // Sovereign Setup / Preflight Verification State
+    pub preflight: crate::preflight::PreflightState,
+
+    // SQL DDL Relational Schema Importer (Micro-Task 1.2.3)
+    pub show_sql_import_modal: bool,
+    pub sql_import_buffer: String,
+    pub sql_import_error: Option<String>,
+    pub flow_col_search_query: String,
+    pub sql_import_execute_in_db: bool,
 }
 
 pub fn app_dir() -> String {
@@ -169,9 +182,9 @@ pub fn app_dir() -> String {
 
 impl Default for ProteusApp {
     fn default() -> Self {
-        let db_path = app_dir();
-        std::fs::create_dir_all(&db_path).ok();
-        let db = Database::new(&format!("{}/crm.db", db_path))
+        let db_path = proteus_core::paths::get_database_path();
+        let _ = proteus_core::paths::ensure_database_dir_exists(&db_path);
+        let db = Database::new(&db_path.to_string_lossy())
             .ok()
             .map(|d| Arc::new(Mutex::new(d)));
 
@@ -276,8 +289,9 @@ impl Default for ProteusApp {
             loaded: false,
             _style_set: false,
             db_conn: {
-                let conn = db::init_db(std::path::Path::new("data.db")).ok();
-                conn
+                let db_path = proteus_core::paths::get_database_path();
+                let _ = proteus_core::paths::ensure_database_dir_exists(&db_path);
+                db::init_db(&db_path).ok()
             },
             form_state: std::collections::HashMap::new(),
             viewer_selected_entity: String::new(),
@@ -285,7 +299,8 @@ impl Default for ProteusApp {
             viewer_records: vec![],
             table_cache: {
                 let mut map = std::collections::HashMap::new();
-                if let Ok(conn) = db::init_db(std::path::Path::new("data.db")) {
+                let db_path = proteus_core::paths::get_database_path();
+                if let Ok(conn) = db::init_db(&db_path) {
                     if let Ok(recs) = db::get_records(&conn, "contacts") {
                         map.insert("contacts".into(), recs);
                     }
@@ -469,15 +484,140 @@ impl Default for ProteusApp {
             generated_preview: None,
             active_review_session: None,
             escrow_contract: None,
+            last_canvas_rect: None,
+            preflight: crate::preflight::PreflightState::new(false),
+            show_sql_import_modal: false,
+            sql_import_buffer: String::new(),
+            sql_import_error: None,
+            flow_col_search_query: String::new(),
+            sql_import_execute_in_db: true,
         };
         app.seed_database_if_empty();
         app.reload_table_cache("contacts");
         app.reload_table_cache("deals");
+        app.ensure_default_projects_seeded();
         app
     }
 }
 
 impl ProteusApp {
+    /// Returns all registered projects from store.db ordered by last modified timestamp.
+    pub fn list_recent_projects(&mut self) -> Vec<proteus_core::Project> {
+        self.ensure_default_projects_seeded();
+        if let Some(db_arc) = &self.db {
+            if let Ok(db) = db_arc.lock() {
+                if let Ok(projects) = db.list_projects() {
+                    return projects;
+                }
+            }
+        }
+        Vec::new()
+    }
+
+    /// Seeds standard starter blueprints into store.db if the projects table is currently empty.
+    pub fn ensure_default_projects_seeded(&mut self) {
+        if let Some(db_arc) = &self.db {
+            if let Ok(db) = db_arc.lock() {
+                let existing = db.list_projects().unwrap_or_default();
+                if existing.is_empty() {
+                    let defaults = [
+                        ("p1", "Proteus Design System Master", crate::scene::create_crm_preset()),
+                        ("p2", "Shop Counter & POS Runtime", crate::scene::create_crm_preset()),
+                        ("p3", "Automotive Technician Service BOS", crate::scene::create_crm_preset()),
+                    ];
+                    for (id, name, doc) in defaults {
+                        let doc_val = serde_json::to_value(&doc).unwrap_or_default();
+                        let combined = serde_json::json!({
+                            "contacts": [],
+                            "deals": [],
+                            "tasks": [],
+                            "project_doc": doc_val,
+                        });
+                        let _ = db.upsert_project(&proteus_core::Project {
+                            id: id.to_string(),
+                            name: name.to_string(),
+                            widgets: serde_json::to_string(&combined).unwrap_or_default(),
+                            flows: serde_json::to_string(&doc.flow_graph).unwrap_or_default(),
+                            created_at: Utc::now().to_rfc3339(),
+                            updated_at: Utc::now().to_rfc3339(),
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    /// Enables and resets the native setup / preflight verification state machine.
+    pub fn enable_preflight(&mut self) {
+        self.preflight = crate::preflight::PreflightState::new(true);
+    }
+
+    /// Ingests a raw SQL DDL script, parses tables and foreign keys,
+    /// and builds visual TableSchema nodes and colored relationship wires on the FlowGraph.
+    pub fn import_sql_ddl_into_flow(&mut self, sql_content: &str) -> Result<usize, String> {
+        let schema_graph = proteus_core::sql_ingest::SqlSchemaGraph::parse_sql_ddl(sql_content)?;
+        let count = schema_graph.tables.len();
+        if count == 0 {
+            return Err("No valid CREATE TABLE statements found in SQL script".to_string());
+        }
+        let origin = if self.flow_canvas_center == (100.0, 100.0) {
+            (250.0, 150.0)
+        } else {
+            self.flow_canvas_center
+        };
+        self.project_doc.flow_graph.import_sql_schema_graph(&schema_graph, origin);
+
+        if self.sql_import_execute_in_db {
+            if let Some(ref conn) = self.db_conn {
+                let _ = crate::db::execute_sql_ddl_script(conn, sql_content);
+            }
+        }
+
+        Ok(count)
+    }
+
+    /// Converts a TableSchema node's columns into a Proteus EntitySchema and saves it to store.db.
+    pub fn register_table_as_entity(
+        &mut self,
+        table_name: &str,
+        columns: &[proteus_core::sql_ingest::SqlColumnMeta],
+    ) -> Result<(), String> {
+        let mut entity_schema = proteus_core::schema::EntitySchema::new(table_name, table_name);
+        for col in columns {
+            let upper = col.data_type.to_uppercase();
+            let field_type = if upper.contains("INT")
+                || upper.contains("REAL")
+                || upper.contains("FLOAT")
+                || upper.contains("NUM")
+                || upper.contains("DEC")
+                || upper.contains("DOUBLE")
+            {
+                proteus_core::schema::FieldType::Number
+            } else if upper.contains("BOOL") {
+                proteus_core::schema::FieldType::Boolean
+            } else if upper.contains("DATE") || upper.contains("TIME") {
+                proteus_core::schema::FieldType::Date
+            } else {
+                proteus_core::schema::FieldType::Text
+            };
+            entity_schema.fields.push(proteus_core::schema::FieldDefinition {
+                name: col.name.clone(),
+                label: col.name.replace('_', " ").to_uppercase(),
+                field_type,
+                required: !col.is_nullable || col.is_primary_key,
+                default_value: None,
+            });
+        }
+        if let Some(db_arc) = &self.db {
+            if let Ok(db) = db_arc.lock() {
+                db.save_schema(&self.pid, &entity_schema)
+                    .map_err(|e| e.to_string())?;
+            }
+        }
+        self.table_cache.entry(table_name.to_string()).or_default();
+        Ok(())
+    }
+
     /// Broadcasts local designer mouse position over LAN to collaborative peers.
     pub fn broadcast_cursor(&mut self, world_pos: (f32, f32)) {
         let now = proteus_core::lan::current_epoch_millis();
@@ -598,7 +738,10 @@ impl ProteusApp {
                             "tags": c.tags,
                             "status": "Customer",
                         });
-                        let _ = db.create_record(&self.pid, "contacts", &json.to_string());
+                        let _ = db.create_record_with_id(&c.id, &self.pid, "contacts", &json.to_string());
+                        if let Some(conn) = &self.db_conn {
+                            let _ = db::upsert_record(conn, "contacts", Some(&c.id), &json);
+                        }
                     }
                 }
 
@@ -611,7 +754,10 @@ impl ProteusApp {
                             "stage": d.stage,
                             "contact_id": d.contact_id,
                         });
-                        let _ = db.create_record(&self.pid, "deals", &json.to_string());
+                        let _ = db.create_record_with_id(&d.id, &self.pid, "deals", &json.to_string());
+                        if let Some(conn) = &self.db_conn {
+                            let _ = db::upsert_record(conn, "deals", Some(&d.id), &json);
+                        }
                     }
                 }
             }
@@ -654,7 +800,7 @@ impl ProteusApp {
         });
         if let Some(db_arc) = &self.db {
             if let Ok(db) = db_arc.lock() {
-                let _ = db.create_record(&self.pid, "contacts", &data.to_string());
+                let _ = db.create_record_with_id(&contact.id, &self.pid, "contacts", &data.to_string());
             }
         }
         if let Some(conn) = &self.db_conn {
@@ -688,7 +834,7 @@ impl ProteusApp {
         });
         if let Some(db_arc) = &self.db {
             if let Ok(db) = db_arc.lock() {
-                let _ = db.create_record(&self.pid, "deals", &data.to_string());
+                let _ = db.create_record_with_id(&deal.id, &self.pid, "deals", &data.to_string());
             }
         }
         if let Some(conn) = &self.db_conn {
@@ -964,13 +1110,15 @@ impl ProteusApp {
 
     pub fn save_project(&mut self) {
         let flows_json = serde_json::to_string(&self.project_doc.flow_graph).unwrap_or_else(|_| "{}".into());
+        let scene_json = serde_json::to_value(&self.project_doc).unwrap_or_default();
         let contacts_json = serde_json::to_string(&self.contacts).unwrap_or_else(|_| "[]".into());
         let deals_json = serde_json::to_string(&self.deals).unwrap_or_else(|_| "[]".into());
         let tasks_json = serde_json::to_string(&self.tasks).unwrap_or_else(|_| "[]".into());
         let combined = serde_json::json!({
             "contacts": serde_json::from_str::<serde_json::Value>(&contacts_json).unwrap_or_default(),
             "deals": serde_json::from_str::<serde_json::Value>(&deals_json).unwrap_or_default(),
-            "tasks": serde_json::from_str::<serde_json::Value>(&tasks_json).unwrap_or_default()
+            "tasks": serde_json::from_str::<serde_json::Value>(&tasks_json).unwrap_or_default(),
+            "project_doc": scene_json,
         });
         let combined_str = serde_json::to_string(&combined).unwrap_or_else(|_| "[]".into());
         let pid = self.pid.clone();
@@ -987,7 +1135,7 @@ impl ProteusApp {
                 }).ok()
             })
         }).is_some();
-        if saved { self.toast("Project saved"); } else { self.toast("Cannot save (no DB)"); }
+        if saved { self.toast("Project saved ✓"); } else { self.toast("Cannot save (no DB)"); }
 
         if self.auto_deploy_on_save {
             if let Some(ref daemon) = self.lan_daemon {
@@ -1067,6 +1215,15 @@ impl ProteusApp {
                 }
                 crate::flow::FlowNodeKind::HardwareDisplay { device_id, .. } => {
                     ("HardwareDisplay".to_string(), format!("VFD Pole Display: {}", device_id))
+                }
+                crate::flow::FlowNodeKind::HardwareRfidChute { device_id, target_container_code, auto_seal_on_count } => {
+                    ("HardwareRfidChute".to_string(), format!("RFID Chute {} -> Tote {} (seal: {:?})", device_id, target_container_code, auto_seal_on_count))
+                }
+                crate::flow::FlowNodeKind::DataBlock(db) => {
+                    ("DataBlock".to_string(), db.display_label().to_string())
+                }
+                crate::flow::FlowNodeKind::TableSchema { table_name, .. } => {
+                    ("TableSchema".to_string(), format!("Table: {}", table_name))
                 }
             };
 
@@ -1307,7 +1464,17 @@ impl ProteusApp {
             if let Ok(db) = d.lock() {
                 if let Ok(proj) = db.load_project(&self.pid) {
                     self.pname = proj.name;
+                    if let Ok(fg) = serde_json::from_str::<crate::flow::FlowGraph>(&proj.flows) {
+                        if !fg.nodes.is_empty() {
+                            self.project_doc.flow_graph = fg;
+                        }
+                    }
                     if let Ok(data) = serde_json::from_str::<serde_json::Value>(&proj.widgets) {
+                        if let Some(doc_val) = data.get("project_doc") {
+                            if let Ok(doc) = serde_json::from_value::<scene::ProjectDocument>(doc_val.clone()) {
+                                self.project_doc = doc;
+                            }
+                        }
                         if let Some(contacts_arr) = data["contacts"].as_array() {
                             self.contacts = contacts_arr.iter().map(|c| Contact {
                                 id: c["id"].as_str().unwrap_or("?").into(),
@@ -1727,5 +1894,117 @@ mod tests {
         let candidate = app.candidate_package.as_ref().unwrap();
         assert_eq!(candidate.manifest.target_client_license, Some("lic_client_c8a49f_auto".to_string()));
     }
+
+    #[test]
+    fn test_studio_project_persistence_and_welcome_hub_registry() {
+        let temp_dir = std::env::temp_dir().join(format!("proteus_proj_test_{}", uuid::Uuid::new_v4()));
+        let _ = std::fs::create_dir_all(&temp_dir);
+        let db_path = temp_dir.join("store.db");
+        let db = Database::new(&db_path.to_string_lossy()).unwrap();
+
+        let mut app = ProteusApp {
+            db: Some(Arc::new(Mutex::new(db))),
+            pid: "proj-alpha-1".to_string(),
+            pname: "Alpha Retail POS".to_string(),
+            project_doc: crate::scene::create_crm_preset(),
+            ..Default::default()
+        };
+
+        // 1. Save project with live canvas scene into store.db
+        app.save_project();
+
+        // 2. Query recent projects registry from store.db
+        let recent = app.list_recent_projects();
+        assert!(recent.iter().any(|p| p.id == "proj-alpha-1" && p.name == "Alpha Retail POS"));
+
+        // 3. Clear canvas state and load project from store.db
+        app.project_doc = crate::scene::ProjectDocument::new();
+        assert!(app.project_doc.nodes.is_empty());
+        app.load_project();
+        assert_eq!(app.pname, "Alpha Retail POS");
+        assert!(!app.project_doc.nodes.is_empty(), "Project nodes must be restored from store.db");
+
+        let _ = std::fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_register_table_as_entity_and_sql_import_flow() {
+        let temp_dir = std::env::temp_dir().join(format!("proteus_schema_test_{}", uuid::Uuid::new_v4()));
+        let _ = std::fs::create_dir_all(&temp_dir);
+        let db_path = temp_dir.join("store.db");
+        let db = Database::new(&db_path.to_string_lossy()).unwrap();
+
+        let mut app = ProteusApp {
+            db: Some(Arc::new(Mutex::new(db))),
+            pid: "proj-sql-1".to_string(),
+            pname: "Retail Schema".to_string(),
+            ..Default::default()
+        };
+
+        let sql = r#"
+            CREATE TABLE customers (
+                id INTEGER PRIMARY KEY,
+                full_name TEXT NOT NULL,
+                balance REAL DEFAULT 0.0
+            );
+
+            CREATE TABLE invoices (
+                invoice_id TEXT PRIMARY KEY,
+                customer_id INTEGER NOT NULL,
+                total REAL NOT NULL,
+                FOREIGN KEY (customer_id) REFERENCES customers(id)
+            );
+        "#;
+
+        // 1. Import SQL DDL into visual FlowGraph
+        let count = app.import_sql_ddl_into_flow(sql).expect("Import SQL DDL");
+        assert_eq!(count, 2);
+        assert_eq!(app.project_doc.flow_graph.nodes.len(), 2);
+        assert_eq!(app.project_doc.flow_graph.edges.len(), 1);
+
+        // Edge connects out_customer_id (FK owner invoices) -> in_id (PK referenced customers) with color_hue
+        let edge = &app.project_doc.flow_graph.edges[0];
+        assert_eq!(edge.from_node, "tbl_invoices");
+        assert_eq!(edge.to_node, "tbl_customers");
+        assert_eq!(edge.from_port, "out_customer_id");
+        assert_eq!(edge.to_port, "in_id");
+        assert!(edge.color_hue.is_some());
+
+        // 2. Test ports generation
+        let (table_name, columns) = {
+            let cust_node = app.project_doc.flow_graph.nodes.get("tbl_customers").unwrap();
+            if let crate::flow::FlowNodeKind::TableSchema { ref table_name, ref columns } = cust_node.kind {
+                (table_name.clone(), columns.clone())
+            } else {
+                panic!("Expected TableSchema node");
+            }
+        };
+
+        assert_eq!(table_name, "customers");
+        assert_eq!(columns.len(), 3);
+        let (in_p, out_p) = crate::flow::ports::table_schema_ports(&columns);
+        assert_eq!(in_p.len(), 3);
+        assert_eq!(out_p.len(), 3);
+
+        // 3. Register table as Proteus EntitySchema into real store.db
+        app.register_table_as_entity(&table_name, &columns).expect("Register entity");
+
+        // 4. Verify entity schema persisted in SQLite DataEngine
+        if let Some(db_arc) = &app.db {
+            let db = db_arc.lock().unwrap();
+            let schema = db.get_schema(&app.pid, "customers").unwrap().expect("Schema found");
+            assert_eq!(schema.entity, "customers");
+            assert_eq!(schema.fields.len(), 3);
+            assert_eq!(schema.fields[0].name, "id");
+            assert_eq!(schema.fields[0].field_type, proteus_core::schema::FieldType::Number);
+            assert_eq!(schema.fields[1].name, "full_name");
+            assert_eq!(schema.fields[1].field_type, proteus_core::schema::FieldType::Text);
+            assert_eq!(schema.fields[2].name, "balance");
+            assert_eq!(schema.fields[2].field_type, proteus_core::schema::FieldType::Number);
+        }
+
+        let _ = std::fs::remove_dir_all(&temp_dir);
+    }
 }
+
 

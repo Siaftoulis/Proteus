@@ -32,11 +32,18 @@ pub struct SpatialWmsViewState {
     pub item_storage_form: StorageForm,
     pub item_turnover: TurnoverVelocity,
     pub item_is_upright: bool,
-    pub active_tab_index: usize, // 0: Putaway/Packing, 1: Sweep Audit
+    pub active_tab_index: usize, // 0: Putaway/Packing, 1: Sweep Audit, 2: Smart Totes
     pub sweep_scan_input: String,
     pub sweep_audit_status: Option<(bool, String)>,
     pub putaway_result: Option<String>,
     pub feedback_message: Option<(String, bool)>,
+    // Smart Tote & Pack Bench state
+    pub tote_input_code: String,
+    pub tote_item_sku: String,
+    pub tote_item_serial: String,
+    pub tote_item_weight_str: String,
+    pub tote_selected_id: Option<String>,
+    pub tote_target_shelf: String,
     pub initialized: bool,
 }
 
@@ -58,6 +65,12 @@ impl Default for SpatialWmsViewState {
             sweep_audit_status: None,
             putaway_result: None,
             feedback_message: None,
+            tote_input_code: "TOTE-01".to_string(),
+            tote_item_sku: "ROUTER-AX3000".to_string(),
+            tote_item_serial: "EPC-96-001".to_string(),
+            tote_item_weight_str: "250.0".to_string(),
+            tote_selected_id: None,
+            tote_target_shelf: "S-102".to_string(),
             initialized: false,
         }
     }
@@ -66,6 +79,7 @@ impl Default for SpatialWmsViewState {
 pub fn draw_spatial_wms_view(ui: &mut Ui, conn: &Connection, state: &mut SpatialWmsViewState) {
     if !state.initialized {
         let _ = init_wms_schema(conn);
+        let _ = proteus_core::wms::tote::init_tote_schema(conn);
         seed_default_warehouse_if_empty(conn);
         state.initialized = true;
     }
@@ -154,8 +168,9 @@ pub fn draw_spatial_wms_view(ui: &mut Ui, conn: &Connection, state: &mut Spatial
             // RIGHT COLUMN: 3D Packing / Directed Putaway & Sweep Audit
             cols[1].vertical(|ui| {
                 ui.horizontal(|ui| {
-                    ui.selectable_value(&mut state.active_tab_index, 0, "🎯 Directed Putaway & 3D Packing");
-                    ui.selectable_value(&mut state.active_tab_index, 1, "🔍 Sweep Scan Audit");
+                    ui.selectable_value(&mut state.active_tab_index, 0, "🎯 3D Putaway");
+                    ui.selectable_value(&mut state.active_tab_index, 1, "🔍 Sweep Audit");
+                    ui.selectable_value(&mut state.active_tab_index, 2, "📦 Smart Totes (Bench)");
                 });
                 ui.separator();
 
@@ -265,7 +280,7 @@ pub fn draw_spatial_wms_view(ui: &mut Ui, conn: &Connection, state: &mut Spatial
                             }
                         }
                     }
-                } else {
+                } else if state.active_tab_index == 1 {
                     // Sweep Scan Audit Mode
                     ui.label(RichText::new("Έλεγχος & Σάρωση Ραφιού (Shelf Sweep Audit):").strong());
                     ui.label(RichText::new("Σκανάρετε barcode προϊόντων στο ράφι για άμεσο εντοπισμό λαθών.").size(12.0).color(TEXT_MUTED));
@@ -308,6 +323,9 @@ pub fn draw_spatial_wms_view(ui: &mut Ui, conn: &Connection, state: &mut Spatial
                             ui.label(RichText::new(msg).color(Color32::WHITE).strong().size(14.0));
                         });
                     }
+                } else {
+                    // Smart Totes & Pack Bench Mode
+                    crate::views::smart_totes::render_smart_totes_tab(ui, conn, state);
                 }
             });
         });
@@ -320,24 +338,14 @@ fn seed_default_warehouse_if_empty(conn: &Connection) {
         return;
     }
 
-    let zone = WarehouseZone {
-        zone_id: "ZONE-MAIN".to_string(),
-        name: "Κεντρική Αποθήκη & Ράφια Καταστήματος".to_string(),
-        code: "MAIN".to_string(),
-        temperature_class: "Ambient".to_string(),
-        description: "Standard retail shelves and pallet ground positions".to_string(),
-    };
-    let _ = save_zone(conn, &zone);
-
-    let rack = WarehouseRack {
-        rack_id: "RACK-01".to_string(),
-        zone_id: "ZONE-MAIN".to_string(),
-        rack_code: "R1".to_string(),
-        aisle_number: 1,
-        x_pos: 10.0,
-        y_pos: 10.0,
-    };
-    let _ = save_rack(conn, &rack);
+    let _ = save_zone(conn, &WarehouseZone {
+        zone_id: "ZONE-MAIN".into(), name: "Κεντρική Αποθήκη & Ράφια".into(),
+        code: "MAIN".into(), temperature_class: "Ambient".into(), description: "Standard shelves".into(),
+    });
+    let _ = save_rack(conn, &WarehouseRack {
+        rack_id: "RACK-01".into(), zone_id: "ZONE-MAIN".into(),
+        rack_code: "R1".into(), aisle_number: 1, x_pos: 10.0, y_pos: 10.0,
+    });
 
     // 4 levels covering all ergonomic categories
     let shelves = vec![

@@ -4,6 +4,7 @@
 //! - Automatic discrepancy detection (unfiled invoices, missing MARKs, outbox failures).
 //! - CPA 1-Click JSON export for Greek chartered accountants.
 //! - Greek European-format CSV export (semicolon delimiter, comma decimals).
+//!
 //! Strict Rule 1 (100% Original Codebase) and Rule 5 (Zero Mock Data).
 
 use crate::invoicing::VatCategory;

@@ -87,6 +87,64 @@ impl HardwareProtocol {
         Ok(InboundPeripheralPayload::Raw(raw.to_vec()))
     }
 
+    /// Parses RFID tag frames from ring-scanners, UHF bulk gates, and desk pads.
+    /// Supports ASCII streams, comma-separated metadata (e.g. "EPC:E28011700000020,RSSI:-58,ANT:1"),
+    /// or raw EPC hex sequences.
+    pub fn parse_rfid_frame(raw: &[u8]) -> Result<InboundPeripheralPayload, HardwareBusError> {
+        let text = String::from_utf8_lossy(raw);
+        let cleaned: String = text
+            .chars()
+            .filter(|c| !c.is_control() && *c != '\u{2}' && *c != '\u{3}')
+            .collect();
+        let trimmed = cleaned.trim();
+        if trimmed.is_empty() {
+            return Err(HardwareBusError::InvalidFraming);
+        }
+
+        let parts: Vec<&str> = trimmed.split(',').collect();
+        let mut epc = String::new();
+        let mut rssi: Option<i8> = None;
+        let mut antenna_id: Option<u8> = None;
+
+        if parts.len() == 1 {
+            let part = parts[0].trim();
+            if let Some(stripped) = part.strip_prefix("EPC:") {
+                epc = stripped.trim().to_string();
+            } else if let Some(stripped) = part.strip_prefix("TAG:") {
+                epc = stripped.trim().to_string();
+            } else {
+                epc = part.to_string();
+            }
+        } else {
+            for (idx, part) in parts.iter().enumerate() {
+                let p = part.trim();
+                if let Some(stripped) = p.strip_prefix("EPC:") {
+                    epc = stripped.trim().to_string();
+                } else if let Some(stripped) = p.strip_prefix("RSSI:") {
+                    rssi = stripped.trim().parse().ok();
+                } else if let Some(stripped) = p.strip_prefix("ANT:") {
+                    antenna_id = stripped.trim().parse().ok();
+                } else if idx == 0 && epc.is_empty() {
+                    epc = p.to_string();
+                } else if idx == 1 && rssi.is_none() {
+                    rssi = p.parse().ok();
+                } else if idx == 2 && antenna_id.is_none() {
+                    antenna_id = p.parse().ok();
+                }
+            }
+        }
+
+        if epc.is_empty() {
+            return Err(HardwareBusError::InvalidFraming);
+        }
+
+        Ok(InboundPeripheralPayload::RfidTag {
+            epc: epc.to_uppercase(),
+            rssi,
+            antenna_id,
+        })
+    }
+
     /// Formats an outbound hardware command into raw protocol bytes.
     pub fn format_command_payload(
         role: PeripheralDeviceRole,

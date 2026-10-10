@@ -393,6 +393,15 @@ pub fn show_central(app: &mut ProteusApp, ui: &mut egui::Ui, pnt: &egui::Painter
                                 crate::flow::FlowNodeKind::HardwareScale { ref device_id, require_stable } => {
                                     app.toast(format!("Scale Polled: {} (require_stable: {})", device_id, require_stable));
                                 }
+                                crate::flow::FlowNodeKind::HardwareRfidChute { ref device_id, ref target_container_code, auto_seal_on_count } => {
+                                    app.toast(format!("RFID Chute: {} -> Container {} (Auto-seal: {:?})", device_id, target_container_code, auto_seal_on_count));
+                                }
+                                crate::flow::FlowNodeKind::DataBlock(ref db) => {
+                                    app.toast(format!("Data: {}", db.display_label()));
+                                }
+                                crate::flow::FlowNodeKind::TableSchema { ref table_name, .. } => {
+                                    app.toast(format!("Table Schema: {}", table_name));
+                                }
                                 crate::flow::FlowNodeKind::TriggerClick { .. } => {}
                             }
                             curr_ids.push(target_id);

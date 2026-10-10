@@ -1,0 +1,17 @@
+{
+  "name": "SmartPackingStation",
+  "type": "composite",
+  "description": "Smart tote packaging station with near-field ring scanner intake, real-time load cell weight gauge, and Merkle cryptographic seal action",
+  "props": {
+    "title": { "type": "string", "default": "Smart Packing & Tote Intake" },
+    "containerType": { "type": "string", "enum": ["Tote", "CartonBox", "Pallet", "RetailBag"], "default": "Tote" },
+    "enableWeightInterlock": { "type": "boolean", "default": true },
+    "debounceSeconds": { "type": "number", "default": 1.5 }
+  },
+  "states": ["open_packing", "sealed", "assigned_to_shelf", "hardware_offline"],
+  "responsive": true,
+  "implementation": {
+    "engine": "proteus-core/src/wms/tote.rs",
+    "desktop": "proteus-design-studio/src/views/layers_panel.rs"
+  }
+}

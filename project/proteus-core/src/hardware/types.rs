@@ -54,6 +54,8 @@ pub enum PeripheralDeviceRole {
     EnvironmentalSensor,
     FiscalSignatureBox,
     CustomMacroPad,
+    RfidRingScanner,
+    RfidBulkPortal,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -100,6 +102,11 @@ pub enum InboundPeripheralPayload {
         channel: u8,
         state: bool,
     },
+    RfidTag {
+        epc: String,
+        rssi: Option<i8>,
+        antenna_id: Option<u8>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -134,6 +141,10 @@ pub enum HardwareBusError {
     Database(String),
     #[error("Serialization error: {0}")]
     Serialization(String),
+    #[error("I/O transport error: {0}")]
+    IoTransport(String),
+    #[error("Connection timeout: {0}")]
+    Timeout(String),
 }
 
 impl From<rusqlite::Error> for HardwareBusError {
@@ -145,5 +156,11 @@ impl From<rusqlite::Error> for HardwareBusError {
 impl From<serde_json::Error> for HardwareBusError {
     fn from(err: serde_json::Error) -> Self {
         HardwareBusError::Serialization(err.to_string())
+    }
+}
+
+impl From<std::io::Error> for HardwareBusError {
+    fn from(err: std::io::Error) -> Self {
+        HardwareBusError::IoTransport(err.to_string())
     }
 }

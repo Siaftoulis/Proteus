@@ -134,5 +134,42 @@ pub fn default_ports_for_kind(kind: &FlowNodeKind) -> (Vec<NodePort>, Vec<NodePo
             ],
             vec![NodePort::output("exec_out", "Done", PortDataType::ExecutionFlow)],
         ),
+        FlowNodeKind::HardwareRfidChute { .. } => (
+            vec![NodePort::input("exec_in", "Listen", PortDataType::ExecutionFlow)],
+            vec![
+                NodePort::output("on_tag_dropped", "Tag Ingested", PortDataType::ExecutionFlow),
+                NodePort::output("epc_out", "EPC Code", PortDataType::Text),
+                NodePort::output("on_box_sealed", "Box Sealed", PortDataType::ExecutionFlow),
+                NodePort::output("merkle_seal", "Seal Hash", PortDataType::Text),
+            ],
+        ),
+        FlowNodeKind::DataBlock(ref db) => db.default_ports(),
+        FlowNodeKind::TableSchema { table_name: _, columns } => table_schema_ports(columns),
     }
+}
+
+/// Generates input and output ports for each column of a relational table schema.
+pub fn table_schema_ports(
+    columns: &[proteus_core::sql_ingest::SqlColumnMeta],
+) -> (Vec<NodePort>, Vec<NodePort>) {
+    let mut inputs = Vec::with_capacity(columns.len());
+    let mut outputs = Vec::with_capacity(columns.len());
+    for c in columns {
+        inputs.push(NodePort::input(
+            format!("in_{}", c.name),
+            c.name.clone(),
+            PortDataType::Any,
+        ));
+        let out_label = if c.is_primary_key {
+            format!("🔑 {}", c.name)
+        } else {
+            format!("{} ({})", c.name, c.data_type)
+        };
+        outputs.push(NodePort::output(
+            format!("out_{}", c.name),
+            out_label,
+            PortDataType::Any,
+        ));
+    }
+    (inputs, outputs)
 }

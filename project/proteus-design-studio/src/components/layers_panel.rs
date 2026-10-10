@@ -9,7 +9,9 @@ pub fn draw_layers_panel(
     height: f32,
     events: &mut Vec<CanvasEvent>,
 ) {
-    ui.allocate_ui(Vec2::new(ui.available_width(), height), |ui| {
+    let max_w = ui.available_width();
+    ui.allocate_ui(Vec2::new(max_w, height), |ui| {
+        ui.set_max_width(max_w);
         ui.horizontal(|ui| {
             ui.label(RichText::new("LAYERS").size(9.).color(theme::TEXT_DIM).strong());
             let resp = ui.add(
@@ -24,61 +26,75 @@ pub fn draw_layers_panel(
         });
         ui.add_space(2.);
 
-        ScrollArea::vertical().id_salt("inspector_layers").show(ui, |ui| {
-            let mut node_ids: Vec<String> = doc.nodes.keys().cloned().collect();
-            node_ids.sort();
+        ScrollArea::vertical()
+            .id_salt("inspector_layers")
+            .max_width(max_w)
+            .auto_shrink([false, false])
+            .show(ui, |ui| {
+                ui.set_max_width(max_w);
+                ui.spacing_mut().item_spacing = Vec2::new(3.0, 2.0);
+                let mut node_ids: Vec<String> = doc.nodes.keys().cloned().collect();
+                node_ids.sort();
 
-            for nid in &node_ids {
-                if let Some(n) = doc.get_node(nid) {
-                    let is_sel = selected_id == Some(nid.as_str());
-                    let icon = match &n.node_type {
-                        NodeType::Frame | NodeType::Page | NodeType::Group => "📦",
-                        NodeType::TextInput { .. } | NodeType::NumberField { .. } | NodeType::Dropdown { .. } | NodeType::Checkbox { .. } => "📝",
-                        NodeType::Text { .. } => "🏷",
-                        NodeType::Button { .. } => "🔘",
-                        NodeType::Table { .. } => "⊞",
-                        NodeType::DynamicForm { .. } => "📋",
-                        NodeType::Image { .. } => "◫",
-                        NodeType::Shape { .. } => "◻",
-                    };
+                for nid in &node_ids {
+                    if let Some(n) = doc.get_node(nid) {
+                        let is_sel = selected_id == Some(nid.as_str());
+                        let icon = match &n.node_type {
+                            NodeType::Frame | NodeType::Page | NodeType::Group => "📦",
+                            NodeType::TextInput { .. } | NodeType::NumberField { .. } | NodeType::Dropdown { .. } | NodeType::Checkbox { .. } => "📝",
+                            NodeType::Text { .. } => "🏷",
+                            NodeType::Button { .. } => "🔘",
+                            NodeType::Table { .. } => "⊞",
+                            NodeType::DynamicForm { .. } => "📋",
+                            NodeType::Image { .. } => "◫",
+                            NodeType::Shape { .. } => "◻",
+                        };
 
-                    ui.horizontal(|ui| {
-                        // Clickable node row
-                        let row_label = format!("{} {}", icon, n.name);
-                        let text_color = if is_sel { theme::ACCENT } else { theme::TEXT };
-                        if ui.selectable_label(is_sel, RichText::new(row_label).size(10.).color(text_color)).clicked() {
-                            events.push(CanvasEvent::NodeClicked {
-                                id: nid.clone(),
-                                shift_held: false,
-                            });
-                        }
+                        let lock_icon = if n.locked { "🔒" } else { "🔓" };
+                        let vis_icon = if n.visible { "👁" } else { "🚫" };
 
-                        // Right action buttons: Lock, Visibility, Delete
-                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                            // Delete
-                            if ui.add(egui::Button::new("✕").min_size(Vec2::new(14., 14.))).clicked() {
-                                events.push(CanvasEvent::DeleteNode { id: nid.clone() });
-                            }
-                            // Lock toggle
-                            let lock_icon = if n.locked { "🔒" } else { "🔓" };
-                            if ui.add(egui::Button::new(lock_icon).min_size(Vec2::new(16., 14.))).clicked() {
-                                events.push(CanvasEvent::NodeModified {
+                        ui.horizontal(|ui| {
+                            ui.set_max_width(max_w);
+                            let display_name = if n.name.chars().count() > 10 {
+                                let prefix: String = n.name.chars().take(9).collect();
+                                format!("{}…", prefix)
+                            } else {
+                                n.name.clone()
+                            };
+                            let row_label = format!("{} {}", icon, display_name);
+                            let text_color = if is_sel { theme::ACCENT } else { theme::TEXT };
+
+                            let btn = egui::SelectableLabel::new(
+                                is_sel,
+                                RichText::new(row_label).size(9.5).color(text_color),
+                            );
+                            let resp = ui.add_sized([92.0, 18.0], btn);
+                            if resp.clicked() {
+                                events.push(CanvasEvent::NodeClicked {
                                     id: nid.clone(),
-                                    update: NodeUpdate::ToggleLock,
+                                    shift_held: false,
                                 });
                             }
-                            // Visibility toggle
-                            let vis_icon = if n.visible { "👁" } else { "🚫" };
-                            if ui.add(egui::Button::new(vis_icon).min_size(Vec2::new(16., 14.))).clicked() {
+                            resp.on_hover_text(&n.name);
+
+                            if ui.add_sized([16.0, 16.0], egui::Button::new(vis_icon)).on_hover_text("Toggle visibility").clicked() {
                                 events.push(CanvasEvent::NodeModified {
                                     id: nid.clone(),
                                     update: NodeUpdate::ToggleVisibility,
                                 });
                             }
+                            if ui.add_sized([16.0, 16.0], egui::Button::new(lock_icon)).on_hover_text("Toggle lock").clicked() {
+                                events.push(CanvasEvent::NodeModified {
+                                    id: nid.clone(),
+                                    update: NodeUpdate::ToggleLock,
+                                });
+                            }
+                            if ui.add_sized([16.0, 16.0], egui::Button::new("✕")).on_hover_text("Delete node").clicked() {
+                                events.push(CanvasEvent::DeleteNode { id: nid.clone() });
+                            }
                         });
-                    });
+                    }
                 }
-            }
-        });
+            });
     });
 }

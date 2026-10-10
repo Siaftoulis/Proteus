@@ -4,6 +4,7 @@
 //! - Real-time stock on hand per consignment depot
 //! - Automated VMI replenishment alerts triggered when stock falls below minimum thresholds
 //! - Complete audit trail of consignment transfers, sales/consumption, and returns.
+//!
 //! Strict Rule 1 (100% Original Codebase) and Rule 5 (Zero Mock Data).
 
 use chrono::Utc;

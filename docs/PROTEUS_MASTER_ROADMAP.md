@@ -53,6 +53,11 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 - [x] Sub-task 3.1.4: Lightweight Visual Map & Photo Verification
   - [x] Micro-task 3.1.4.1: Native 2D/3D visual locator highlighting exact aisle, shelf, and tier in UI.
   - [x] Micro-task 3.1.4.2: Photo proof attachment with Merkle audit block and chain-of-custody tracking.
+- [x] Sub-task 3.1.5: Smart Tote & Containerized Inventory Manifest Engine (`proteus-core::wms::tote`)
+  - [x] Micro-task 3.1.5.1: Container DDL schema in SQLite (`warehouse_containers`, `warehouse_container_items`) with indexing on SKU, EPC, and shelf.
+  - [x] Micro-task 3.1.5.2: Ring-scanner / chute continuous item ingestion with anti-collision debounce (<1.5s rejection for duplicate EPCs).
+  - [x] Micro-task 3.1.5.3: Cryptographic Merkle manifest seal calculation (SHA-256) upon carton closure and stacking.
+  - [x] Micro-task 3.1.5.4: Sub-millisecond cross-container inventory localization (`locate_item_in_containers`) mapping items to specific boxes and shelves.
 
 ---
 
@@ -207,3 +212,63 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 - [x] Sub-task 10.6.1: Native `Locale` resolver (`el-GR` primary, `en-US` fallback) and base domain dictionary.
 - [x] Sub-task 10.6.2: Variable placeholder interpolation (`interpolate`) and European currency formatting (`format_currency`).
 - [x] Sub-task 10.6.3: SQLite custom terminology translation overrides schema (`i18n_translation_overrides`).
+
+---
+
+## Phase 11: Industrial Label Engine & TSPL/ZPL Spooler
+
+### Task 11.1: Industrial Label Generator & TSPL/ZPL Architecture (`proteus-core::hardware::label`)
+- [x] Sub-task 11.1.1: Core Label Geometry, DPI Density & Barcode Element Models
+  - [x] Micro-task 11.1.1.1: Label geometry (`LabelDimensions`), print density (`PrintDensity` 203/300 DPI), rotation, and barcode symbologies (EAN-13, Code128, QR, DataMatrix).
+  - [x] Micro-task 11.1.1.2: Native TSPL command byte generator (`TsplBuilder`: SIZE, GAP, CLS, TEXT, BARCODE, DMATRIX, PRINT).
+  - [x] Micro-task 11.1.1.3: Native ZPL command byte generator (`ZplBuilder`: ^XA, ^LL, ^PW, ^FO, ^FD, ^BC, ^BQ, ^XZ).
+- [x] Sub-task 11.1.2: Standard Industrial Label Templates
+  - [x] Micro-task 11.1.2.1: Shelf edge pricing template (Product Name, Retail Price with VAT, EAN-13 Barcode, SKU).
+  - [x] Micro-task 11.1.2.2: Smart Tote container waybill template (Tote ID, Unit Count, Total Weight, Merkle SHA-256 Seal QR).
+- [x] Sub-task 11.1.3: SQLite Label Print Spooler Queue & Dispatch
+  - [x] Micro-task 11.1.3.1: SQLite schema for `label_print_queue` and spooling manager.
+  - [x] Micro-task 11.1.3.2: Raw TCP socket and USB COM direct print dispatcher.
+
+### Task 11.2: Frontline Industrial Label Spooler UI (`proteus-client::views::label_spooler`)
+- [x] Sub-task 11.2.1: Label Template Customizer & Live Print Spooler
+  - [x] Micro-task 11.2.1.1: Visual label preview and field binding.
+  - [x] Micro-task 11.2.1.2: 1-click test print and batch queue flush.
+
+---
+
+## Phase 12: Inbound myDATA Expenses Scraping & Auto-Reconciler
+
+### Task 12.1: AADE myDATA Inbound Invoices Retrieval Engine (`proteus-core::mydata_expenses`)
+- [x] Sub-task 12.1.1: AADE `RequestTransmittedDocs` Client
+  - [x] Micro-task 12.1.1.1: Inbound expense XML query generator with date ranges and AFM filtering.
+  - [x] Micro-task 12.1.1.2: Response XML parser extracting supplier AFM, invoice type, net, VAT, and MARK.
+- [x] Sub-task 12.1.2: Automated Supplier & Inventory Reconciler
+  - [x] Micro-task 12.1.2.1: Automated matching against purchase orders and warehouse receipts.
+  - [x] Micro-task 12.1.2.2: Discrepancy detector for unrecorded invoices or price divergences.
+- [x] Sub-task 12.1.3: SQLite Expense Ledger & 1-Click Acceptance
+  - [x] Micro-task 12.1.3.1: Schema `mydata_inbound_expenses` and state machine (PendingReview, Matched, Rejected).
+  - [x] Micro-task 12.1.3.2: 1-click accounting acceptance and Cardex credit update.
+
+---
+
+## Phase 13: Hardware Peripheral Gateway: Native RS232/USB Scales
+
+### Task 13.1: Serial Weigh Scale Protocol Engine (`proteus-core::hardware::scales`)
+- [x] Sub-task 13.1.1: Multi-Vendor Scale Protocol Parsers
+  - [x] Micro-task 13.1.1.1: Common scale protocols (CAS, Dibal, Mettler-Toledo, Avery Weigh-Tronix).
+  - [x] Micro-task 13.1.1.2: Real-time weight extraction, stability flag, and tare compensation.
+- [ ] Sub-task 13.1.2: Direct Touch POS & Smart Tote Scale Bridge
+  - [ ] Micro-task 13.1.2.1: Zero-latency scale reading broadcast to Touch POS cart.
+  - [ ] Micro-task 13.1.2.2: Automatic tare deduction and legal certification logging (A.1155 interlock).
+
+---
+
+## Phase 14: Sovereign Multi-Store Encrypted Cloud Replica & Disaster Recovery
+
+### Task 14.1: Encrypted Snapshot & Offsite Replica Daemon (`proteus-core::cloud_replica`)
+- [ ] Sub-task 14.1.1: Zero-Knowledge Encrypted WAL Bundle Generator
+  - [ ] Micro-task 14.1.1.1: AES-256-GCM chunked snapshot archiver with Argon2id key derivation.
+  - [ ] Micro-task 14.1.1.2: SHA-256 cryptographic manifest header with monotonic time-lock sequence.
+- [ ] Sub-task 14.1.2: Sovereign S3/MinIO & Offsite Transfer
+  - [ ] Micro-task 14.1.2.1: Resilient background S3/MinIO multipart upload and retry loop.
+  - [ ] Micro-task 14.1.2.2: Automated disaster recovery restore and integrity verification dry-run.

@@ -1,16 +1,44 @@
-pub fn init_db(db_path: &std::path::Path) -> Result<rusqlite::Connection, String> {
-    let conn = rusqlite::Connection::open(db_path).map_err(|e| e.to_string())?;
+pub fn init_db_conn(conn: &rusqlite::Connection) -> Result<(), String> {
     conn.execute_batch(
         "CREATE TABLE IF NOT EXISTS records (
             id TEXT PRIMARY KEY,
-            entity_type TEXT NOT NULL,
-            data TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE INDEX IF NOT EXISTS idx_entity ON records(entity_type);"
+            entity_type TEXT NOT NULL DEFAULT '',
+            data TEXT NOT NULL DEFAULT '{}',
+            project_id TEXT NOT NULL DEFAULT 'p1',
+            entity TEXT NOT NULL DEFAULT '',
+            fields TEXT NOT NULL DEFAULT '{}',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );"
     ).map_err(|e| e.to_string())?;
-    let _ = proteus_core::audit::init_audit_schema(&conn);
-    let _ = proteus_core::genealogy::init_genealogy_schema(&conn);
+
+    // Ensure missing columns exist if table was created previously with partial schema
+    let _ = conn.execute("ALTER TABLE records ADD COLUMN project_id TEXT NOT NULL DEFAULT 'p1'", []);
+    let _ = conn.execute("ALTER TABLE records ADD COLUMN entity TEXT NOT NULL DEFAULT ''", []);
+    let _ = conn.execute("ALTER TABLE records ADD COLUMN fields TEXT NOT NULL DEFAULT '{}'", []);
+    let _ = conn.execute("ALTER TABLE records ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP", []);
+    let _ = conn.execute("ALTER TABLE records ADD COLUMN entity_type TEXT NOT NULL DEFAULT ''", []);
+    let _ = conn.execute("ALTER TABLE records ADD COLUMN data TEXT NOT NULL DEFAULT '{}'", []);
+
+    // Create indices safely after columns exist
+    let _ = conn.execute("CREATE INDEX IF NOT EXISTS idx_entity ON records(entity_type)", []);
+    let _ = conn.execute("CREATE INDEX IF NOT EXISTS idx_records_project ON records(project_id)", []);
+    let _ = conn.execute("CREATE INDEX IF NOT EXISTS idx_records_entity ON records(entity)", []);
+
+    // Sync dual columns
+    let _ = conn.execute("UPDATE records SET fields = data, entity = entity_type WHERE (fields = '{}' OR fields = '' OR fields IS NULL) AND data IS NOT NULL AND data != '{}' AND data != ''", []);
+    let _ = conn.execute("UPDATE records SET data = fields, entity_type = entity WHERE (data = '{}' OR data = '' OR data IS NULL) AND fields IS NOT NULL AND fields != '{}' AND fields != ''", []);
+
+    let _ = proteus_core::audit::init_audit_schema(conn);
+    let _ = proteus_core::genealogy::init_genealogy_schema(conn);
+    let _ = proteus_core::merkle::init_merkle_schema(conn);
+    let _ = proteus_core::replication::init_outbox_schema(conn);
+    Ok(())
+}
+
+pub fn init_db(db_path: &std::path::Path) -> Result<rusqlite::Connection, String> {
+    let conn = rusqlite::Connection::open(db_path).map_err(|e| e.to_string())?;
+    init_db_conn(&conn)?;
     Ok(conn)
 }
 
@@ -26,8 +54,14 @@ pub fn upsert_record(
         None => uuid::Uuid::new_v4().to_string(),
     };
     conn.execute(
-        "INSERT INTO records (id, entity_type, data) VALUES (?1, ?2, ?3)
-         ON CONFLICT(id) DO UPDATE SET data = excluded.data, entity_type = excluded.entity_type",
+        "INSERT INTO records (id, entity_type, data, project_id, entity, fields, created_at, updated_at) 
+         VALUES (?1, ?2, ?3, 'p1', ?2, ?3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+         ON CONFLICT(id) DO UPDATE SET 
+            data = excluded.data, 
+            entity_type = excluded.entity_type,
+            fields = excluded.data,
+            entity = excluded.entity_type,
+            updated_at = CURRENT_TIMESTAMP",
         rusqlite::params![id, entity_type, data_str],
     ).map_err(|e| e.to_string())?;
     Ok(id)
@@ -44,7 +78,10 @@ pub fn get_records(
     entity_type: &str,
 ) -> Result<Vec<(String, serde_json::Value)>, String> {
     let mut stmt = conn.prepare(
-        "SELECT id, data FROM records WHERE entity_type = ?1 ORDER BY created_at DESC"
+        "SELECT id, CASE WHEN data != '{}' AND data != '' THEN data ELSE fields END 
+         FROM records 
+         WHERE entity_type = ?1 OR entity = ?1 
+         ORDER BY created_at DESC"
     ).map_err(|e| e.to_string())?;
     let rows = stmt.query_map(rusqlite::params![entity_type], |row| {
         let id: String = row.get(0)?;
@@ -54,7 +91,7 @@ pub fn get_records(
     let mut result = Vec::new();
     for row in rows {
         let (id, data_str) = row.map_err(|e| e.to_string())?;
-        let data: serde_json::Value = serde_json::from_str(&data_str).map_err(|e| e.to_string())?;
+        let data: serde_json::Value = serde_json::from_str(&data_str).unwrap_or(serde_json::Value::Object(Default::default()));
         result.push((id, data));
     }
     Ok(result)
@@ -229,21 +266,27 @@ pub fn get_deals(conn: &rusqlite::Connection) -> Result<Vec<crate::models::Deal>
     Ok(deals)
 }
 
+/// Executes a raw SQL DDL script against the SQLite database, creating or altering tables.
+/// Returns the total count of user-defined tables present in the database after execution.
+pub fn execute_sql_ddl_script(conn: &rusqlite::Connection, sql_script: &str) -> Result<usize, String> {
+    let _ = conn.execute_batch("PRAGMA foreign_keys = ON;");
+    conn.execute_batch(sql_script)
+        .map_err(|e| format!("Failed to execute SQL DDL: {}", e))?;
+
+    let mut stmt = conn
+        .prepare("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+        .map_err(|e| e.to_string())?;
+    let count: usize = stmt.query_row([], |row| row.get(0)).map_err(|e| e.to_string())?;
+    Ok(count)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     fn mem_db() -> rusqlite::Connection {
         let conn = rusqlite::Connection::open_in_memory().unwrap();
-        conn.execute_batch(
-            "CREATE TABLE IF NOT EXISTS records (
-                id TEXT PRIMARY KEY,
-                entity_type TEXT NOT NULL,
-                data TEXT NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE INDEX IF NOT EXISTS idx_entity ON records(entity_type);"
-        ).unwrap();
+        init_db_conn(&conn).unwrap();
         conn
     }
 
@@ -378,4 +421,18 @@ mod tests {
         assert_eq!(inv_after.len(), 1);
         assert_eq!(inv_after[0].1["name"], "BOSCH Spark Plug");
     }
+
+    #[test]
+    fn test_execute_sql_ddl_script_creates_tables() {
+        let conn = mem_db();
+        let sql = "CREATE TABLE suppliers (id INTEGER PRIMARY KEY, company TEXT NOT NULL);
+                   CREATE TABLE shipments (id TEXT PRIMARY KEY, supplier_id INTEGER NOT NULL, FOREIGN KEY (supplier_id) REFERENCES suppliers(id));";
+        let count = execute_sql_ddl_script(&conn, sql).unwrap();
+        assert!(count >= 2);
+
+        let (headers, rows) = crate::views::connected_data::query_dynamic_table(&conn, "suppliers", 10).unwrap();
+        assert_eq!(headers, vec!["id", "company"]);
+        assert!(rows.is_empty());
+    }
 }
+

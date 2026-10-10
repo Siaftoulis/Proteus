@@ -7,47 +7,42 @@ pub fn show_left(app: &mut ProteusApp, ui: &mut egui::Ui) {
     ui.add_space(6.);
     ui.label(egui::RichText::new("⚡ FLOW BUILDER").size(9.).color(theme::ACCENT));
     ui.add_space(4.);
+
+    if ui.add(egui::Button::new(egui::RichText::new("📂 Import .SQL Script").size(10.5).color(Color32::from_rgb(0, 210, 240)).strong())
+        .fill(Color32::from_rgb(20, 36, 48))
+        .stroke(egui::Stroke::new(1.0, Color32::from_rgb(0, 168, 204)))
+        .min_size(egui::vec2(ui.available_width(), 26.)))
+        .clicked()
+    {
+        app.show_sql_import_modal = true;
+        app.sql_import_error = None;
+    }
+
+    ui.add_space(4.);
+    if ui.add(egui::Button::new(egui::RichText::new("💾 Export Schema (.SQL)").size(10.5).color(theme::TEXT).strong())
+        .fill(theme::WIDGET_BG)
+        .stroke(egui::Stroke::new(1.0, theme::BORDER))
+        .min_size(egui::vec2(ui.available_width(), 26.)))
+        .clicked()
+    {
+        let ddl = app.project_doc.flow_graph.export_sql_schema_ddl();
+        if ddl.is_empty() {
+            app.toast("No table schema nodes found on canvas");
+        } else {
+            ui.ctx().copy_text(ddl.clone());
+            let vault_path = std::path::Path::new("vault/exported_schema.sql");
+            let _ = std::fs::write(vault_path, &ddl);
+            app.toast("Schema exported & copied to clipboard ✓");
+        }
+    }
+
+    ui.add_space(6.);
+    ui.separator();
+    ui.add_space(4.);
     ui.label(egui::RichText::new("Add Nodes:").size(9.).color(theme::TEXT_DIM));
     ui.add_space(2.);
-    let kinds: &[(&str, crate::flow::FlowNodeKind)] = &[
-        ("+ Trigger Click", crate::flow::FlowNodeKind::TriggerClick { target_node_id: String::new() }),
-        ("+ Navigate To",  crate::flow::FlowNodeKind::NavigateTo { page_id: String::new() }),
-        ("+ Save To DB",   crate::flow::FlowNodeKind::SaveToDatabase { entity: String::new() }),
-        ("+ Condition (IF)", crate::flow::FlowNodeKind::Condition {
-            field: "status".to_string(),
-            operator: "==".to_string(),
-            target_value: "active".to_string(),
-        }),
-        ("+ Notification", crate::flow::FlowNodeKind::ShowToast { message: "Action executed".to_string() }),
-        ("+ Federation Bridge", crate::flow::FlowNodeKind::FederationBridge {
-            endpoint: "http://partner-db:7443".to_string(),
-            source_entity: "products".to_string(),
-            target_entity: "inventory".to_string(),
-            bidirectional: true,
-        }),
-        ("+ Relay Actuator", crate::flow::FlowNodeKind::HardwareRelay {
-            device_id: "RELAY-01".to_string(),
-            channel: 1,
-            action: "pulse".to_string(),
-            pulse_ms: 500,
-        }),
-        ("+ Sensor Watchdog", crate::flow::FlowNodeKind::HardwareSensor {
-            device_id: "SENSOR-01".to_string(),
-            metric: "temperature_c".to_string(),
-            threshold: 30.0,
-            operator: ">".to_string(),
-        }),
-        ("+ Scale Weigh", crate::flow::FlowNodeKind::HardwareScale {
-            device_id: "SCALE-01".to_string(),
-            require_stable: true,
-        }),
-        ("+ VFD Display", crate::flow::FlowNodeKind::HardwareDisplay {
-            device_id: "VFD-01".to_string(),
-            line1: "TOTAL: 0.00 EUR".to_string(),
-            line2: "THANK YOU".to_string(),
-        }),
-    ];
-    for (label, kind_tpl) in kinds {
+    let kinds = crate::flow::data_block_ui::flow_palette_kinds();
+    for (label, kind_tpl) in &kinds {
         if ui.add(egui::Button::new(egui::RichText::new(*label).size(10.).color(theme::ACCENT_GREEN))
             .fill(theme::WIDGET_BG).min_size(egui::vec2(ui.available_width(), 22.))).clicked()
         {
@@ -270,6 +265,11 @@ pub fn show_central(app: &mut ProteusApp, ctx: &egui::Context, ui: &mut egui::Ui
                     };
                     let mut edge = crate::flow::FlowEdge::with_ports(&src_id, &src_port, &tgt_id, &tgt_port);
                     edge.branch = branch;
+                    let is_table_relation = src_id.starts_with("tbl_") || tgt_id.starts_with("tbl_")
+                        || src_port.starts_with("out_") || tgt_port.starts_with("in_");
+                    if is_table_relation {
+                        edge.color_hue = Some(crate::flow::FlowEdge::compute_relation_hue(&src_id, &tgt_id));
+                    }
                     app.project_doc.flow_graph.edges.push(edge);
                     app.toast("Wire connected");
                 } else {
@@ -304,9 +304,103 @@ pub fn show_central(app: &mut ProteusApp, ctx: &egui::Context, ui: &mut egui::Ui
             "No flow nodes yet. Add triggers and actions to build your automation.",
             egui::FontId::proportional(14.), Color32::from_rgb(130, 130, 130));
     }
+
+    // Modal dialog for importing external .SQL relational DDL script
+    if app.show_sql_import_modal {
+        let mut open = app.show_sql_import_modal;
+        egui::Window::new(egui::RichText::new("📂 Import SQL Relational Schema (.SQL)").size(13.).color(theme::ACCENT).strong())
+            .open(&mut open)
+            .collapsible(false)
+            .resizable(true)
+            .default_width(520.0)
+            .default_height(400.0)
+            .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
+            .show(ctx, |ui| {
+                ui.add_space(4.);
+                ui.label(egui::RichText::new("Paste a standard SQL DDL script (CREATE TABLE, FOREIGN KEY ...) or load from file. Visual table nodes and multi-colored relation wires will be automatically constructed on the canvas.").size(10.).color(theme::TEXT_DIM));
+                ui.add_space(8.);
+
+                ui.label(egui::RichText::new("SQL DDL Script:").size(10.5).color(theme::TEXT));
+                ui.add_space(2.);
+                egui::ScrollArea::vertical()
+                    .max_height(220.0)
+                    .show(ui, |ui| {
+                        ui.add(
+                            egui::TextEdit::multiline(&mut app.sql_import_buffer)
+                                .font(egui::TextStyle::Monospace)
+                                .desired_width(f32::INFINITY)
+                                .desired_rows(12)
+                                .hint_text("CREATE TABLE customers (\n    id INTEGER PRIMARY KEY,\n    name TEXT NOT NULL\n);\n\nCREATE TABLE orders (\n    id TEXT PRIMARY KEY,\n    customer_id INTEGER NOT NULL,\n    FOREIGN KEY (customer_id) REFERENCES customers(id)\n);")
+                        );
+                    });
+
+                if let Some(ref err) = app.sql_import_error {
+                    ui.add_space(4.);
+                    ui.label(egui::RichText::new(format!("⚠ {}", err)).size(10.).color(Color32::from_rgb(255, 90, 90)));
+                }
+
+                ui.add_space(6.);
+                ui.checkbox(
+                    &mut app.sql_import_execute_in_db,
+                    egui::RichText::new("Execute & create tables in SQLite database (store.db)").size(10.).color(theme::TEXT),
+                );
+                ui.add_space(8.);
+                ui.separator();
+                ui.add_space(6.);
+
+                ui.horizontal(|ui| {
+                    if ui.add(egui::Button::new(egui::RichText::new("⚡ Parse & Build Nodes").size(11.).color(Color32::BLACK).strong())
+                        .fill(theme::ACCENT_GREEN)
+                        .min_size(egui::vec2(150., 28.)))
+                        .clicked()
+                    {
+                        match app.import_sql_ddl_into_flow(&app.sql_import_buffer.clone()) {
+                            Ok(tables_count) => {
+                                app.toast(format!("Successfully generated {} table nodes and relation wires", tables_count));
+                                app.show_sql_import_modal = false;
+                                app.sql_import_error = None;
+                            }
+                            Err(e) => {
+                                app.sql_import_error = Some(e);
+                            }
+                        }
+                    }
+
+                    if ui.add(egui::Button::new(egui::RichText::new("📄 Load Sample ERP").size(10.5).color(theme::TEXT))
+                        .fill(theme::WIDGET_BG)
+                        .min_size(egui::vec2(130., 28.)))
+                        .clicked()
+                    {
+                        let sample_path = std::path::Path::new("vault/synthetic_erp.sql");
+                        if let Ok(content) = std::fs::read_to_string(sample_path) {
+                            app.sql_import_buffer = content;
+                        } else {
+                            app.sql_import_buffer = String::from(
+                                "CREATE TABLE customers (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    vat_number TEXT UNIQUE NOT NULL,\n    company_name TEXT NOT NULL,\n    credit_limit REAL NOT NULL DEFAULT 5000.0\n);\n\nCREATE TABLE products (\n    sku TEXT PRIMARY KEY,\n    name TEXT NOT NULL,\n    unit_price REAL NOT NULL\n);\n\nCREATE TABLE orders (\n    order_number TEXT PRIMARY KEY,\n    customer_id INTEGER NOT NULL,\n    total_amount REAL NOT NULL,\n    FOREIGN KEY (customer_id) REFERENCES customers(id)\n);\n\nCREATE TABLE order_items (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    order_number TEXT NOT NULL,\n    product_sku TEXT NOT NULL,\n    quantity INTEGER NOT NULL,\n    FOREIGN KEY (order_number) REFERENCES orders(order_number),\n    FOREIGN KEY (product_sku) REFERENCES products(sku)\n);\n\nCREATE TABLE invoices (\n    invoice_number TEXT PRIMARY KEY,\n    order_number TEXT NOT NULL,\n    mydata_mark TEXT UNIQUE NOT NULL,\n    total_payable REAL NOT NULL,\n    FOREIGN KEY (order_number) REFERENCES orders(order_number)\n);"
+                            );
+                        }
+                        app.sql_import_error = None;
+                    }
+
+                    if ui.add(egui::Button::new(egui::RichText::new("Cancel").size(10.5).color(theme::TEXT_DIM))
+                        .fill(theme::WIDGET_BG)
+                        .min_size(egui::vec2(70., 28.)))
+                        .clicked()
+                    {
+                        app.show_sql_import_modal = false;
+                        app.sql_import_error = None;
+                    }
+                });
+            });
+        app.show_sql_import_modal = open;
+    }
 }
 
 pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
+    let mut action_register_entity: Option<(String, Vec<proteus_core::sql_ingest::SqlColumnMeta>)> = None;
+    let mut action_toast: Option<String> = None;
+    let mut action_remove_edge_idx: Option<usize> = None;
+
     if let Some(sel_id) = &app.selected_flow_node.clone() {
         if let Some(node) = app.project_doc.flow_graph.nodes.get_mut(sel_id) {
             ui.label(egui::RichText::new("NODE CONFIGURATION").size(9.).color(theme::TEXT_DIM));
@@ -367,14 +461,226 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
                     ui.add_space(6.);
                     ui.checkbox(bidirectional, egui::RichText::new("Bidirectional Sync (LWW)").size(10.).color(theme::TEXT));
                 }
+                crate::flow::FlowNodeKind::TableSchema {
+                    ref mut table_name,
+                    ref mut columns,
+                } => {
+                    ui.label(egui::RichText::new("RELATIONAL TABLE SCHEMA").size(10.).color(theme::ACCENT).strong());
+                    ui.add_space(4.);
+                    ui.label(egui::RichText::new("Table Name:").size(9.5).color(theme::TEXT));
+                    ui.add_space(2.);
+                    ui.add(
+                        egui::TextEdit::singleline(table_name)
+                            .hint_text("table_name")
+                            .desired_width(f32::INFINITY),
+                    );
+                    ui.add_space(8.);
+
+                    // Search filter & quick case transforms
+                    ui.horizontal(|ui| {
+                        ui.label(egui::RichText::new(format!("COLUMNS ({})", columns.len())).size(9.5).color(theme::TEXT_DIM).strong());
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            if ui.add(egui::Button::new(egui::RichText::new("➕ Add").size(9.5).color(theme::ACCENT_GREEN))).clicked() {
+                                let new_idx = columns.len() + 1;
+                                columns.push(proteus_core::sql_ingest::SqlColumnMeta {
+                                    name: format!("col_{}", new_idx),
+                                    data_type: "TEXT".to_string(),
+                                    is_nullable: true,
+                                    is_primary_key: false,
+                                });
+                            }
+                            if ui.add(egui::Button::new(egui::RichText::new("a-z").size(9.).color(theme::TEXT_DIM))).on_hover_text("Transform column names to lowercase").clicked() {
+                                for c in columns.iter_mut() {
+                                    c.name = c.name.to_lowercase();
+                                }
+                            }
+                            if ui.add(egui::Button::new(egui::RichText::new("A-Z").size(9.).color(theme::TEXT_DIM))).on_hover_text("Transform column names to UPPERCASE").clicked() {
+                                for c in columns.iter_mut() {
+                                    c.name = c.name.to_uppercase();
+                                }
+                            }
+                        });
+                    });
+                    ui.add_space(2.);
+
+                    ui.add(
+                        egui::TextEdit::singleline(&mut app.flow_col_search_query)
+                            .hint_text("🔍 Filter columns...")
+                            .desired_width(f32::INFINITY),
+                    );
+                    ui.add_space(4.);
+
+                    let search_q = app.flow_col_search_query.trim().to_lowercase();
+                    let mut remove_col_idx: Option<usize> = None;
+
+                    egui::ScrollArea::vertical()
+                        .max_height(220.0)
+                        .show(ui, |ui| {
+                            for (idx, col) in columns.iter_mut().enumerate() {
+                                if !search_q.is_empty() && !col.name.to_lowercase().contains(&search_q) {
+                                    continue;
+                                }
+                                ui.group(|ui| {
+                                    ui.horizontal(|ui| {
+                                        let pk_badge = if col.is_primary_key { "🔑" } else { "•" };
+                                        ui.label(egui::RichText::new(pk_badge).size(10.).color(if col.is_primary_key { theme::ACCENT } else { theme::TEXT_DIM }));
+                                        ui.add(egui::TextEdit::singleline(&mut col.name).hint_text("column").desired_width(80.));
+                                        ui.add(egui::TextEdit::singleline(&mut col.data_type).hint_text("TYPE").desired_width(50.));
+                                        if ui.small_button("×").on_hover_text("Delete column").clicked() {
+                                            remove_col_idx = Some(idx);
+                                        }
+                                    });
+                                    let is_pk = col.is_primary_key;
+                                    ui.horizontal(|ui| {
+                                        ui.checkbox(&mut col.is_primary_key, egui::RichText::new("PK").size(9.).color(if is_pk { theme::ACCENT } else { theme::TEXT_DIM }));
+                                        ui.checkbox(&mut col.is_nullable, egui::RichText::new("Nullable").size(9.).color(theme::TEXT_DIM));
+                                    });
+                                });
+                                ui.add_space(2.);
+                            }
+                        });
+
+                    if let Some(del_idx) = remove_col_idx {
+                        if del_idx < columns.len() {
+                            columns.remove(del_idx);
+                        }
+                    }
+
+                    // Synchronize visual node ports with columns
+                    let (new_in, new_out) = crate::flow::ports::table_schema_ports(columns);
+                    node.input_ports = new_in;
+                    node.output_ports = new_out;
+
+                    ui.add_space(8.);
+                    ui.separator();
+                    ui.add_space(4.);
+                    ui.label(egui::RichText::new("VISUAL ETL & CODE ACTIONS").size(9.5).color(theme::TEXT_DIM).strong());
+                    ui.add_space(4.);
+
+                    if ui.add(egui::Button::new(egui::RichText::new("📋 Copy SQL DDL").size(10.).color(theme::TEXT))
+                        .fill(theme::WIDGET_BG)
+                        .min_size(egui::vec2(ui.available_width(), 24.)))
+                        .clicked()
+                    {
+                        let mut ddl = format!("CREATE TABLE {} (\n", table_name);
+                        let col_defs: Vec<String> = columns
+                            .iter()
+                            .map(|c| {
+                                let pk = if c.is_primary_key { " PRIMARY KEY" } else { "" };
+                                let not_null = if !c.is_nullable && !c.is_primary_key { " NOT NULL" } else { "" };
+                                format!("    {} {}{}{}", c.name, c.data_type, pk, not_null)
+                            })
+                            .collect();
+                        ddl.push_str(&col_defs.join(",\n"));
+                        ddl.push_str("\n);");
+                        ui.ctx().copy_text(ddl);
+                        action_toast = Some("Table DDL copied to clipboard".to_string());
+                    }
+
+                    ui.add_space(3.);
+                    if ui.add(egui::Button::new(egui::RichText::new("⚡ Register as Proteus Entity").size(10.).color(Color32::BLACK).strong())
+                        .fill(theme::ACCENT_GREEN)
+                        .min_size(egui::vec2(ui.available_width(), 24.)))
+                        .clicked()
+                    {
+                        action_register_entity = Some((table_name.clone(), columns.clone()));
+                    }
+                }
                 other => {
                     crate::flow::hardware_nodes::render_hardware_inspector(ui, other);
+                }
+            }
+
+            // Display Connected ETL Relations & Wires for this node
+            let node_id = sel_id.clone();
+            let connected_edges: Vec<(usize, crate::flow::FlowEdge)> = app
+                .project_doc
+                .flow_graph
+                .edges
+                .iter()
+                .enumerate()
+                .filter(|(_, e)| e.from_node == node_id || e.to_node == node_id)
+                .map(|(i, e)| (i, e.clone()))
+                .collect();
+
+            if !connected_edges.is_empty() {
+                ui.add_space(8.);
+                ui.separator();
+                ui.add_space(4.);
+                ui.label(egui::RichText::new(format!("ETL RELATIONS ({})", connected_edges.len())).size(9.5).color(theme::TEXT_DIM).strong());
+                ui.add_space(4.);
+
+                for (edge_idx, edge) in &connected_edges {
+                    let color = match edge.color_hue {
+                        Some(h) => crate::flow_renderer::hue_to_color32(h),
+                        None => theme::ACCENT,
+                    };
+                    let (rel_text, _is_outgoing) = if edge.from_node == node_id {
+                        let _from_col = edge.from_port.strip_prefix("out_").unwrap_or(&edge.from_port);
+                        let to_col = edge.to_port.strip_prefix("in_").unwrap_or(&edge.to_port);
+                        (format!("➔ {}.{}", edge.to_node.strip_prefix("tbl_").unwrap_or(&edge.to_node), to_col), true)
+                    } else {
+                        let from_col = edge.from_port.strip_prefix("out_").unwrap_or(&edge.from_port);
+                        let _to_col = edge.to_port.strip_prefix("in_").unwrap_or(&edge.to_port);
+                        (format!(" {}.{}", edge.from_node.strip_prefix("tbl_").unwrap_or(&edge.from_node), from_col), false)
+                    };
+
+                    ui.horizontal(|ui| {
+                        ui.label(egui::RichText::new("●").size(10.).color(color));
+                        ui.label(egui::RichText::new(rel_text).size(9.5).color(theme::TEXT));
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            if ui.small_button("×").on_hover_text("Disconnect wire").clicked() {
+                                action_remove_edge_idx = Some(*edge_idx);
+                            }
+                        });
+                    });
+                }
+
+                ui.add_space(4.);
+                if ui.add(egui::Button::new(egui::RichText::new("🔗 Generate ETL JOIN View").size(9.5).color(theme::TEXT))
+                    .fill(theme::WIDGET_BG)
+                    .min_size(egui::vec2(ui.available_width(), 22.)))
+                    .clicked()
+                {
+                    let mut joins = Vec::new();
+                    let current_tbl = node_id.strip_prefix("tbl_").unwrap_or(&node_id);
+                    for (_, edge) in &connected_edges {
+                        let src_tbl = edge.from_node.strip_prefix("tbl_").unwrap_or(&edge.from_node);
+                        let tgt_tbl = edge.to_node.strip_prefix("tbl_").unwrap_or(&edge.to_node);
+                        let src_col = edge.from_port.strip_prefix("out_").unwrap_or(&edge.from_port);
+                        let tgt_col = edge.to_port.strip_prefix("in_").unwrap_or(&edge.to_port);
+                        if edge.from_node == node_id {
+                            joins.push(format!("JOIN {} ON {}.{} = {}.{}", tgt_tbl, current_tbl, src_col, tgt_tbl, tgt_col));
+                        } else {
+                            joins.push(format!("JOIN {} ON {}.{} = {}.{}", src_tbl, current_tbl, tgt_col, src_tbl, src_col));
+                        }
+                    }
+                    let query = format!("SELECT * FROM {} {}", current_tbl, joins.join(" "));
+                    ui.ctx().copy_text(query);
+                    action_toast = Some("ETL JOIN query copied to clipboard".to_string());
                 }
             }
         }
     } else {
         ui.label(egui::RichText::new("Select a node on the canvas to configure it.").size(10.).color(theme::TEXT_DIM));
     }
+
+    if let Some(idx) = action_remove_edge_idx {
+        if idx < app.project_doc.flow_graph.edges.len() {
+            app.project_doc.flow_graph.edges.remove(idx);
+            app.toast("Wire removed");
+        }
+    }
+    if let Some((tbl, cols)) = action_register_entity {
+        match app.register_table_as_entity(&tbl, &cols) {
+            Ok(()) => app.toast(format!("Entity '{}' registered into Proteus DataEngine", tbl)),
+            Err(e) => app.toast(format!("Failed to register entity: {}", e)),
+        }
+    }
+    if let Some(msg) = action_toast {
+        app.toast(msg);
+    }
+
     ui.add_space(12.);
     ui.separator();
     ui.add_space(4.);
