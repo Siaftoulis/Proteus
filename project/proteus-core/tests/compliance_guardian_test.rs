@@ -69,6 +69,16 @@ use proteus_core::fiscal_pos::{
     FiscalReceiptItem, FiscalReceiptPayload, FiscalVatBreakdown, PosInitiateRequest,
     PosTransactionStatus, PosTransactionType, TypeBFiscalSignatureDriver,
 };
+use proteus_core::hardware::{
+    compute_tare_deduction, init_scale_metrology_schema, list_scale_metrology_logs,
+    record_weighed_cart_item, verify_weighed_item_interlock, ScaleMetrologyError,
+    WeighedCartItem,
+};
+use proteus_core::cloud_replica::{
+    capture_sqlite_snapshot_bytes, create_signed_manifest, encrypt_snapshot_bytes,
+    execute_dry_run_verification, init_dr_audit_schema, list_dr_audit_logs,
+    log_dr_event, restore_snapshot_to_file,
+};
 
 /// 1. GDPR Article 17 & Greek Law 4624/2019: Right to Erasure / Anonymization
 ///
@@ -1407,6 +1417,145 @@ fn test_greek_law_4808_ergani2_work_card_merkle_integrity_and_outage_reconciliat
     let (regular_hrs, overtime_hrs) = calculate_shift_duration_hours(&conn, "EMP-ATH-42", "2026-10-03").unwrap();
     assert_eq!(regular_hrs, 8.0);
     assert_eq!(overtime_hrs, 0.5);
+}
+
+/// 20. AADE A.1155/2023 & OIML R76: Scale Metrological Certification Interlock & Tamper Audit Log
+///
+/// Verifies that retail weighed goods require authentic certified stability before sales finalization,
+/// ensures tare deductions are computed with zero floating-point drift, and confirms SHA-256
+/// tamper-evident journal logging into SQLite.
+#[test]
+fn test_scale_metrology_a1155_interlock_and_tamper_log() {
+    let conn = Connection::open_in_memory().unwrap();
+    init_scale_metrology_schema(&conn).unwrap();
+
+    // 20a. Tare deduction validation
+    assert_eq!(compute_tare_deduction(2500, 150).unwrap(), 2350);
+    assert!(compute_tare_deduction(500, 500).is_err());
+    assert!(compute_tare_deduction(300, -10).is_err());
+
+    // 20b. Metrological interlock validation (Uncertified stability MUST be rejected)
+    let uncertified_item = WeighedCartItem {
+        description: "Φρέσκα Κεράσια".to_string(),
+        quantity_kg: 0.950,
+        unit_price_per_kg: 4.80,
+        line_total_eur: 4.56,
+        net_weight_grams: 950,
+        tare_weight_grams: 50,
+        is_certified_stable: false, // In motion!
+    };
+    let interlock_res = verify_weighed_item_interlock(&uncertified_item);
+    assert_eq!(
+        interlock_res,
+        Err(ScaleMetrologyError::UncertifiedScaleStability(
+            "Φρέσκα Κεράσια".to_string()
+        ))
+    );
+
+    // 20c. Certified item passes interlock and seals into SQLite with SHA-256 tamper hash
+    let certified_item = WeighedCartItem {
+        description: "Φρέσκα Κεράσια".to_string(),
+        quantity_kg: 0.950,
+        unit_price_per_kg: 4.80,
+        line_total_eur: 4.56,
+        net_weight_grams: 950,
+        tare_weight_grams: 50,
+        is_certified_stable: true,
+    };
+    assert!(verify_weighed_item_interlock(&certified_item).is_ok());
+
+    let record = record_weighed_cart_item(
+        &conn,
+        &certified_item,
+        Some(5012),
+        "CAS CI-2001A Protocol",
+    )
+    .unwrap();
+
+    assert_eq!(record.gross_weight_grams, 1000);
+    assert_eq!(record.tare_weight_grams, 50);
+    assert_eq!(record.net_weight_grams, 950);
+    assert_eq!(record.receipt_number, Some(5012));
+    assert!(record.stability_certified);
+    assert_eq!(record.tamper_hash.len(), 64);
+
+    // 20d. Readback from SQLite audit journal
+    let logs = list_scale_metrology_logs(&conn, 5).unwrap();
+    assert_eq!(logs.len(), 1);
+    assert_eq!(logs[0].log_id, record.log_id);
+    assert_eq!(logs[0].tamper_hash, record.tamper_hash);
+    assert_eq!(logs[0].protocol_vendor, "CAS CI-2001A Protocol");
+}
+
+/// 21. ISO 22301: Business Continuity & Automated Disaster Recovery Dry-Run Verification
+///
+/// Verifies pre-flight cryptographic dry-run validation, byte-level SQLite magic header checks,
+/// atomic database restoration, PRAGMA integrity verification, and audit logging.
+#[test]
+fn test_iso22301_cloud_replica_dr_dry_run_and_integrity_restore() {
+    let conn = Connection::open_in_memory().unwrap();
+    init_dr_audit_schema(&conn).unwrap();
+
+    // Create realistic retail master ledger
+    conn.execute_batch(
+        r#"
+        CREATE TABLE pos_shifts (shift_id TEXT PRIMARY KEY, cashier_name TEXT, cash_drawer_cents INTEGER);
+        INSERT INTO pos_shifts VALUES ('SH-01', 'Ελένη Κωνσταντίνου', 35000);
+        INSERT INTO pos_shifts VALUES ('SH-02', 'Μιχαήλ Αντωνίου', 42000);
+        "#,
+    )
+    .unwrap();
+
+    // 21a. Capture consistent SQLite snapshot
+    let snap_bytes = capture_sqlite_snapshot_bytes(&conn).unwrap();
+    assert!(!snap_bytes.is_empty());
+
+    // 21b. Zero-knowledge encryption & cryptographic manifest seal
+    let passphrase = "SovereignDisasterRecoveryPass#2026";
+    let bundle = encrypt_snapshot_bytes(&snap_bytes, passphrase, "STORE-THESSALONIKI-01", 4096).unwrap();
+    let manifest = create_signed_manifest("STORE-THESSALONIKI-01", 1, "0000000000000000000000000000000000000000000000000000000000000000", &bundle);
+
+    // 21c. Pre-flight non-destructive Dry-Run Verification
+    let dry_run = execute_dry_run_verification(&bundle, &manifest, passphrase);
+    assert!(dry_run.is_valid);
+    assert!(dry_run.tamper_check_passed);
+    assert!(dry_run.auth_tag_verified);
+    assert!(dry_run.sqlite_header_verified);
+    assert!(dry_run.errors.is_empty());
+
+    log_dr_event(
+        &conn,
+        "STORE-THESSALONIKI-01",
+        &manifest.bundle_id,
+        manifest.sequence_number,
+        "DRY_RUN",
+        dry_run.is_valid,
+        "Pre-flight cryptographic dry-run passed without error",
+    )
+    .unwrap();
+
+    // 21d. Live Materialized Restoration into atomic target file
+    let target_db = std::env::temp_dir().join(format!("proteus_compliance_restore_{}.db", uuid::Uuid::now_v7()));
+    let restore_result = restore_snapshot_to_file(&bundle, &manifest, passphrase, &target_db).unwrap();
+
+    assert_eq!(restore_result.integrity_check_status, "ok");
+    assert_eq!(restore_result.table_count, 2); // pos_shifts + replica_dr_audit_logs
+
+    // 21e. Validate live queries on restored physical database
+    let restored_conn = Connection::open(&target_db).unwrap();
+    let drawer: i64 = restored_conn
+        .query_row("SELECT cash_drawer_cents FROM pos_shifts WHERE shift_id = 'SH-01'", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(drawer, 35000);
+
+    // Cleanup
+    let _ = std::fs::remove_file(&target_db);
+
+    // 21f. Verify audit trail query
+    let audit_logs = list_dr_audit_logs(&conn, 5).unwrap();
+    assert_eq!(audit_logs.len(), 1);
+    assert_eq!(audit_logs[0].action_type, "DRY_RUN");
+    assert!(audit_logs[0].success);
 }
 
 

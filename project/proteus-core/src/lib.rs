@@ -72,6 +72,7 @@ pub mod pilot_harness;
 pub mod loyalty;
 pub mod promotions;
 pub mod mydata_expenses;
+pub mod cloud_replica;
 
 use chrono::Utc;
 use rusqlite::{params, Connection};

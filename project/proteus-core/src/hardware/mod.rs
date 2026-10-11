@@ -26,7 +26,13 @@ pub use spooler::{
     purge_completed_jobs, update_job_status, LabelPrintJob, PrintJobStatus, PrintTargetProtocol,
 };
 pub use dispatcher::{dispatch_payload_tcp, dispatch_print_job, PrintEndpoint};
-pub use scales::{LiveScaleState, ScaleFrameParser, ScaleStreamProcessor, ScaleVendorProtocol, TareEngine};
+pub use scales::{
+    compute_metrology_tamper_hash, compute_tare_deduction, init_scale_metrology_schema,
+    list_scale_metrology_logs, log_scale_metrology_record, record_weighed_cart_item,
+    verify_weighed_item_interlock, LiveScaleState, ScaleBroadcastHub, ScaleBridgeError,
+    ScaleFrameParser, ScaleMetrologyError, ScaleMetrologyRecord, ScaleStreamProcessor,
+    ScaleVendorProtocol, TareEngine, WeighedCartItem,
+};
 pub use profile::{
     HardwareBinding, HardwareComplianceReport, HardwareProfileEngine, HardwareProfileManifest,
     HardwareRequirement,

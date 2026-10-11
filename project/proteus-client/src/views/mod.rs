@@ -49,3 +49,4 @@ pub mod pilot_telemetry;
 pub mod loyalty_modal;
 pub mod promotions_bar;
 pub mod label_spooler;
+pub mod pos_scale_bar;

@@ -4,7 +4,7 @@
 //! Strict Rule 1 (100% Original Codebase), Rule 5 (Zero Mock Data), Rule 6 (Compliance & Security).
 
 use serde::{Deserialize, Serialize};
-use crate::mydata_sync::{MyDataCredentials, MyDataEnvironment};
+use crate::mydata_sync::MyDataCredentials;
 
 /// Date format error or invalid AFM error for myDATA expense filters.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -160,6 +160,7 @@ fn validate_mydata_date(date_str: &str) -> Result<(), ExpenseQueryError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mydata_sync::MyDataEnvironment;
 
     #[test]
     fn test_inbound_expense_query_full_url() {

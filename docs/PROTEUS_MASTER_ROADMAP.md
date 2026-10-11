@@ -257,18 +257,18 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 - [x] Sub-task 13.1.1: Multi-Vendor Scale Protocol Parsers
   - [x] Micro-task 13.1.1.1: Common scale protocols (CAS, Dibal, Mettler-Toledo, Avery Weigh-Tronix).
   - [x] Micro-task 13.1.1.2: Real-time weight extraction, stability flag, and tare compensation.
-- [ ] Sub-task 13.1.2: Direct Touch POS & Smart Tote Scale Bridge
-  - [ ] Micro-task 13.1.2.1: Zero-latency scale reading broadcast to Touch POS cart.
-  - [ ] Micro-task 13.1.2.2: Automatic tare deduction and legal certification logging (A.1155 interlock).
+- [x] Sub-task 13.1.2: Direct Touch POS & Smart Tote Scale Bridge
+  - [x] Micro-task 13.1.2.1: Zero-latency scale reading broadcast to Touch POS cart.
+  - [x] Micro-task 13.1.2.2: Automatic tare deduction and legal certification logging (A.1155 interlock).
 
 ---
 
 ## Phase 14: Sovereign Multi-Store Encrypted Cloud Replica & Disaster Recovery
 
 ### Task 14.1: Encrypted Snapshot & Offsite Replica Daemon (`proteus-core::cloud_replica`)
-- [ ] Sub-task 14.1.1: Zero-Knowledge Encrypted WAL Bundle Generator
-  - [ ] Micro-task 14.1.1.1: AES-256-GCM chunked snapshot archiver with Argon2id key derivation.
-  - [ ] Micro-task 14.1.1.2: SHA-256 cryptographic manifest header with monotonic time-lock sequence.
-- [ ] Sub-task 14.1.2: Sovereign S3/MinIO & Offsite Transfer
-  - [ ] Micro-task 14.1.2.1: Resilient background S3/MinIO multipart upload and retry loop.
-  - [ ] Micro-task 14.1.2.2: Automated disaster recovery restore and integrity verification dry-run.
+- [x] Sub-task 14.1.1: Zero-Knowledge Encrypted WAL Bundle Generator
+  - [x] Micro-task 14.1.1.1: AES-256-GCM chunked snapshot archiver with Argon2id key derivation.
+  - [x] Micro-task 14.1.1.2: SHA-256 cryptographic manifest header with monotonic time-lock sequence.
+- [x] Sub-task 14.1.2: Sovereign S3/MinIO & Offsite Transfer
+  - [x] Micro-task 14.1.2.1: Resilient background S3/MinIO multipart upload and retry loop.
+  - [x] Micro-task 14.1.2.2: Automated disaster recovery restore and integrity verification dry-run.

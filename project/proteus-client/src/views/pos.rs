@@ -31,6 +31,7 @@ pub struct RetailPosState {
     pub exported_file_path: Option<String>,
     pub loyalty_modal: crate::views::loyalty_modal::LoyaltyModalState,
     pub promotions_bar: crate::views::promotions_bar::PromotionsBarState,
+    pub scale_bar: crate::views::pos_scale_bar::PosScaleBarState,
 }
 
 impl Default for RetailPosState {
@@ -50,6 +51,7 @@ impl Default for RetailPosState {
             exported_file_path: None,
             loyalty_modal: crate::views::loyalty_modal::LoyaltyModalState::default(),
             promotions_bar: crate::views::promotions_bar::PromotionsBarState::default(),
+            scale_bar: crate::views::pos_scale_bar::PosScaleBarState::default(),
         }
     }
 }
@@ -57,6 +59,7 @@ impl Default for RetailPosState {
 pub fn draw_pos_view(ui: &mut Ui, conn: &Connection, state: &mut RetailPosState) {
     if !state.schema_initialized {
         let _ = init_invoicing_schema(conn);
+        let _ = proteus_core::hardware::init_scale_metrology_schema(conn);
         state.schema_initialized = true;
     }
 
@@ -104,7 +107,15 @@ pub fn draw_pos_view(ui: &mut Ui, conn: &Connection, state: &mut RetailPosState)
                     play_barcode_chime();
                 }
 
-                ui.add_space(8.0);
+                ui.add_space(6.0);
+                crate::views::pos_scale_bar::draw_scale_telemetry_bar(
+                    ui,
+                    &mut state.scale_bar,
+                    &mut state.cart_lines,
+                    &mut state.status_feedback,
+                );
+                ui.add_space(6.0);
+
                 ui.label(RichText::new("Γρήγορα Πλήκτρα Αφής (Touch Pills):").strong());
                 
                 ui.horizontal_wrapped(|ui| {
@@ -226,6 +237,15 @@ pub fn draw_pos_view(ui: &mut Ui, conn: &Connection, state: &mut RetailPosState)
                     .min_size(Vec2::new(ui.available_width(), 44.0));
 
                 if ui.add_enabled(can_checkout, checkout_btn).clicked() {
+                    // A.1155 Metrological Compliance Interlock: Verify stability of any weighed items
+                    for item in &state.scale_bar.weighed_items_history {
+                        if let Err(err) = proteus_core::hardware::verify_weighed_item_interlock(item) {
+                            proteus_core::audio::play_error_tone();
+                            state.status_feedback = Some((format!("❌ Ακύρωση Έκδοσης (Α.1155): {}", err), false));
+                            return;
+                        }
+                    }
+
                     let hw_cfg = proteus_core::fiscal_pos::load_fiscal_pos_config(conn);
                     let mut card_resp_opt = None;
 
@@ -276,6 +296,15 @@ pub fn draw_pos_view(ui: &mut Ui, conn: &Connection, state: &mut RetailPosState)
 
                     match create_invoice(conn, &invoice, &state.cart_lines) {
                         Ok(_) => {
+                            for item in &state.scale_bar.weighed_items_history {
+                                let _ = proteus_core::hardware::record_weighed_cart_item(
+                                    conn,
+                                    item,
+                                    Some(state.next_receipt_number),
+                                    "Mettler-Toledo / CAS Serial Scale",
+                                );
+                            }
+                            state.scale_bar.weighed_items_history.clear();
                             state.next_receipt_number += 1;
                             let msg = if let Some(ref card) = card_resp_opt {
                                 format!("✓ Έγκριση EFT-POS (RRN: {}) & έκδοση #{}-{} ({:.2}€)!", card.rrn, invoice.series, invoice.invoice_number, gross)
@@ -319,6 +348,7 @@ mod tests {
         assert!(!state.show_z_report_modal);
         assert!(!state.loyalty_modal.is_open);
         assert_eq!(state.promotions_bar.coupon_discount_cents, 0);
+        assert_eq!(state.scale_bar.item_name_input, "Ζυγιζόμενο Προϊόν");
     }
 
     #[test]
