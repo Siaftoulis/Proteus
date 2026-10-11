@@ -365,6 +365,78 @@ where
     ))
 }
 
+/// Transmits an upload task payload directly to MinIO / AWS S3 using SigV4 authentication.
+pub fn upload_task_to_s3(config: &S3ReplicaConfig, task: &UploadTask) -> Result<(), String> {
+    let now = chrono::Utc::now();
+    let date_ymd = now.format("%Y%m%d").to_string();
+    let date_iso8601 = now.format("%Y%m%dT%H%M%SZ").to_string();
+    let payload_hash = format!("{:x}", Sha256::digest(&task.payload_bytes));
+
+    let (auth_hdr, canonical_uri) = build_s3_sigv4_headers(
+        config,
+        &task.object_key,
+        &payload_hash,
+        &date_ymd,
+        &date_iso8601,
+    );
+
+    let full_url = format!("{}{}", config.endpoint.trim_end_matches('/'), canonical_uri);
+
+    let resp = ureq::put(&full_url)
+        .set("Authorization", &auth_hdr)
+        .set("x-amz-date", &date_iso8601)
+        .set("x-amz-content-sha256", &payload_hash)
+        .set("Content-Type", "application/octet-stream")
+        .timeout(Duration::from_secs(config.timeout_seconds))
+        .send_bytes(&task.payload_bytes);
+
+    match resp {
+        Ok(_) => Ok(()),
+        Err(ureq::Error::Status(code, r)) => {
+            let body = r.into_string().unwrap_or_default();
+            Err(format!("S3 HTTP Error {}: {}", code, body))
+        }
+        Err(e) => Err(format!("Network connection error to S3: {}", e)),
+    }
+}
+
+/// Processes pending upload tasks from the outbox with live S3/MinIO transmission and retry tracking.
+pub fn process_outbox_queue(
+    conn: &Connection,
+    config: &S3ReplicaConfig,
+    limit: usize,
+) -> Result<UploadBatchResult, ReplicaError> {
+    let pending_tasks = fetch_pending_upload_tasks(conn, limit)?;
+    let mut batch_res = UploadBatchResult::default();
+
+    for task in pending_tasks {
+        batch_res.attempted_count += 1;
+        let _ = update_upload_task_status(conn, &task.task_id, UploadStatus::Uploading, None);
+
+        let dispatch_res = dispatch_upload_with_retry(&task, config.max_retries, 50, |t| {
+            upload_task_to_s3(config, t)
+        });
+
+        match dispatch_res {
+            Ok(()) => {
+                let _ = update_upload_task_status(conn, &task.task_id, UploadStatus::Completed, None);
+                batch_res.succeeded_count += 1;
+            }
+            Err(err_msg) => {
+                let _ = update_upload_task_status(
+                    conn,
+                    &task.task_id,
+                    UploadStatus::Failed,
+                    Some(&err_msg),
+                );
+                batch_res.failed_count += 1;
+            }
+        }
+    }
+
+    Ok(batch_res)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

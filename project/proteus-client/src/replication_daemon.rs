@@ -25,8 +25,16 @@ impl Default for DefaultRemoteTransport {
 impl RemoteTransport for DefaultRemoteTransport {
     fn send(&self, record: &OutboxRecord) -> Result<(), String> {
         if let Some(ref url) = self.remote_url {
-            let resp = ureq::post(url)
-                .send_string(&record.payload_json)
+            let sync_url = if url.ends_with("/api/sync/outbox") {
+                url.clone()
+            } else {
+                format!("{}/api/sync/outbox", url.trim_end_matches('/'))
+            };
+            let body = serde_json::to_string(&vec![record.clone()])
+                .map_err(|e| format!("Serialization error: {}", e))?;
+            let resp = ureq::post(&sync_url)
+                .set("Content-Type", "application/json")
+                .send_string(&body)
                 .map_err(|e| format!("HTTP post failed: {}", e))?;
             if resp.status() >= 200 && resp.status() < 300 {
                 Ok(())
@@ -42,7 +50,7 @@ impl RemoteTransport for DefaultRemoteTransport {
 
     fn ping(&self) -> Result<(), String> {
         if let Some(ref url) = self.remote_url {
-            let ping_url = format!("{}/health", url);
+            let ping_url = format!("{}/health", url.trim_end_matches('/'));
             let resp = ureq::get(&ping_url)
                 .call()
                 .map_err(|e| format!("Ping failed: {}", e))?;
@@ -135,5 +143,36 @@ mod tests {
         daemon.stop();
 
         let _ = std::fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_remote_transport_e2e_with_lan_receiver() {
+        let test_port = 17449;
+        let receiver = crate::lan_receiver::LanPackageReceiver::start(test_port).expect("Receiver starts");
+
+        let transport = DefaultRemoteTransport {
+            remote_url: Some(format!("http://127.0.0.1:{}", test_port)),
+        };
+
+        // 1. Ping health check
+        assert!(transport.ping().is_ok());
+
+        // 2. Send outbox record
+        let record = OutboxRecord {
+            id: "outbox-e2e-1".into(),
+            entity: "service_tickets".into(),
+            record_id: "TICK-E2E-1".into(),
+            op: proteus_core::replication::ChangeOp::Insert,
+            payload_json: r#"{"ticket_id":"TICK-E2E-1","ticket_number":"ST-9999","customer_name":"E2E Test","customer_phone":"6900000000","device_model":"Test Phone","serial_number":"SN123","reported_fault":"Battery","internal_notes":"","estimated_cost":50.0,"current_status":"NEW","created_at":"2026-10-11","updated_at":"2026-10-11","delivered_at":null}"#.into(),
+            local_timestamp: chrono::Utc::now().to_rfc3339(),
+            remote_version: 1,
+            status: proteus_core::replication::SyncStatus::Pending,
+            priority: proteus_core::replication::DataPriority::High,
+        };
+
+        let send_res = transport.send(&record);
+        assert!(send_res.is_ok(), "Transport send to LanPackageReceiver must succeed: {:?}", send_res);
+
+        receiver.stop();
     }
 }

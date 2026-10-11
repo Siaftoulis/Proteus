@@ -10,7 +10,10 @@ pub mod discrepancy;
 pub mod ledger;
 pub mod acceptance;
 
-pub use query::{ExpenseQueryError, InboundExpenseFilter};
+pub use query::{
+    dispatch_request_transmitted_docs, fetch_and_record_inbound_expenses, ExpenseQueryError,
+    InboundExpenseFilter,
+};
 pub use parser::{
     extract_tag_value, parse_decimal_to_cents, parse_requested_doc_xml, InboundExpenseInvoice,
     InboundExpenseLine, RequestedDocResponse,

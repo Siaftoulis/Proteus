@@ -97,6 +97,12 @@ fn handle_connection(mut stream: TcpStream, tx: &Sender<PrPackage>) {
 
     let first_line = headers_str.lines().next().unwrap_or_default().to_string();
 
+    // ── Health Probe Endpoint ──
+    if first_line.starts_with("GET /health") || first_line.starts_with("GET /api/health") {
+        send_json_response(&mut stream, 200, r#"{"status":"ok","healthy":true}"#);
+        return;
+    }
+
     // ── Remote Companion / Direct Desktop Status Endpoint ──
     if first_line.starts_with("GET /api/remote/status") {
         let ticket_count = if let Ok(conn) = proteus_core::paths::open_store_connection() {
@@ -146,48 +152,24 @@ fn handle_connection(mut stream: TcpStream, tx: &Sender<PrPackage>) {
     }
 
     if first_line.contains("/api/sync/outbox") || headers_str.to_lowercase().contains("application/json") {
-        if let Ok(records) = serde_json::from_slice::<Vec<proteus_core::replication::OutboxRecord>>(&body) {
+        let records_opt = serde_json::from_slice::<Vec<proteus_core::replication::OutboxRecord>>(&body)
+            .ok()
+            .or_else(|| {
+                serde_json::from_slice::<proteus_core::replication::OutboxRecord>(&body)
+                    .ok()
+                    .map(|r| vec![r])
+            });
+
+        if let Some(records) = records_opt {
             let mut applied = 0;
             if let Ok(conn) = proteus_core::paths::open_store_connection() {
                 let _ = proteus_core::tickets::init_tickets_schema(&conn);
+                let _ = proteus_core::work_card::init_work_card_schema(&conn);
+                let _ = proteus_core::shipping_note::init_shipping_schema(&conn);
+                let _ = proteus_core::invoicing::init_invoicing_schema(&conn);
                 for rec in &records {
-                    if rec.entity == "service_tickets" {
-                        if let Ok(ticket) = serde_json::from_str::<proteus_core::tickets::ServiceTicket>(&rec.payload_json) {
-                            let _ = conn.execute(
-                                "INSERT INTO service_tickets (
-                                    ticket_id, ticket_number, customer_name, customer_phone,
-                                    device_model, serial_number, reported_fault, internal_notes,
-                                    estimated_cost, current_status, created_at, updated_at, delivered_at
-                                 ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)
-                                 ON CONFLICT(ticket_id) DO UPDATE SET
-                                    customer_name = excluded.customer_name,
-                                    customer_phone = excluded.customer_phone,
-                                    device_model = excluded.device_model,
-                                    serial_number = excluded.serial_number,
-                                    reported_fault = excluded.reported_fault,
-                                    internal_notes = excluded.internal_notes,
-                                    estimated_cost = excluded.estimated_cost,
-                                    current_status = excluded.current_status,
-                                    updated_at = excluded.updated_at,
-                                    delivered_at = excluded.delivered_at",
-                                rusqlite::params![
-                                    ticket.ticket_id,
-                                    ticket.ticket_number,
-                                    ticket.customer_name,
-                                    ticket.customer_phone,
-                                    ticket.device_model,
-                                    ticket.serial_number,
-                                    ticket.reported_fault,
-                                    ticket.internal_notes,
-                                    ticket.estimated_cost,
-                                    ticket.current_status.as_str(),
-                                    ticket.created_at,
-                                    ticket.updated_at,
-                                    ticket.delivered_at,
-                                ],
-                            );
-                            applied += 1;
-                        }
+                    if apply_outbox_record(&conn, rec) {
+                        applied += 1;
                     }
                 }
             }
@@ -215,6 +197,165 @@ fn handle_connection(mut stream: TcpStream, tx: &Sender<PrPackage>) {
         Err(e) => {
             send_response(&mut stream, 400, &format!("Corrupted .pr package: {}", e));
         }
+    }
+}
+
+fn apply_outbox_record(conn: &rusqlite::Connection, rec: &proteus_core::replication::OutboxRecord) -> bool {
+    match rec.entity.as_str() {
+        "service_tickets" => {
+            if let Ok(ticket) = serde_json::from_str::<proteus_core::tickets::ServiceTicket>(&rec.payload_json) {
+                conn.execute(
+                    "INSERT INTO service_tickets (
+                        ticket_id, ticket_number, customer_name, customer_phone,
+                        device_model, serial_number, reported_fault, internal_notes,
+                        estimated_cost, current_status, created_at, updated_at, delivered_at
+                     ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)
+                     ON CONFLICT(ticket_id) DO UPDATE SET
+                        customer_name = excluded.customer_name,
+                        customer_phone = excluded.customer_phone,
+                        device_model = excluded.device_model,
+                        serial_number = excluded.serial_number,
+                        reported_fault = excluded.reported_fault,
+                        internal_notes = excluded.internal_notes,
+                        estimated_cost = excluded.estimated_cost,
+                        current_status = excluded.current_status,
+                        updated_at = excluded.updated_at,
+                        delivered_at = excluded.delivered_at",
+                    rusqlite::params![
+                        ticket.ticket_id,
+                        ticket.ticket_number,
+                        ticket.customer_name,
+                        ticket.customer_phone,
+                        ticket.device_model,
+                        ticket.serial_number,
+                        ticket.reported_fault,
+                        ticket.internal_notes,
+                        ticket.estimated_cost,
+                        ticket.current_status.as_str(),
+                        ticket.created_at,
+                        ticket.updated_at,
+                        ticket.delivered_at,
+                    ],
+                ).is_ok()
+            } else {
+                false
+            }
+        }
+        "work_card_events" => {
+            if let Ok(event) = serde_json::from_str::<proteus_core::work_card::WorkCardEvent>(&rec.payload_json) {
+                let _ = conn.execute(
+                    "INSERT OR IGNORE INTO work_employees (employee_id, afm, amka, full_name, job_title, pin_code, qr_badge_token, is_active)
+                     VALUES (?1, ?1, ?1, ?1, 'Employee', '0000', ?1, 1)",
+                    rusqlite::params![event.employee_id],
+                );
+                conn.execute(
+                    "INSERT INTO work_card_events (
+                        event_id, employee_id, event_type, timestamp_utc, local_time_str,
+                        is_offline_fallback, outage_reason, merkle_hash, ergani_submission_id, sync_status
+                     ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)
+                     ON CONFLICT(event_id) DO UPDATE SET
+                        sync_status = excluded.sync_status,
+                        ergani_submission_id = excluded.ergani_submission_id",
+                    rusqlite::params![
+                        event.event_id,
+                        event.employee_id,
+                        event.event_type.as_str(),
+                        event.timestamp_utc,
+                        event.local_time_str,
+                        if event.is_offline_fallback { 1 } else { 0 },
+                        event.outage_reason,
+                        event.merkle_hash,
+                        event.ergani_submission_id,
+                        event.sync_status,
+                    ],
+                ).is_ok()
+            } else {
+                false
+            }
+        }
+        "shipping_notes" => {
+            if let Ok(note) = serde_json::from_str::<proteus_core::shipping_note::ShippingNote>(&rec.payload_json) {
+                conn.execute(
+                    "INSERT OR REPLACE INTO shipping_notes (
+                        id, note_number, issuer_afm, issuer_name, issuer_address,
+                        recipient_afm, recipient_name, recipient_address, vehicle_plate,
+                        driver_name, departure_time, estimated_arrival, actual_arrival,
+                        purpose, gross_weight_kg, packages_count, mydata_mark,
+                        qr_payload, digital_signature_hash, status, recipient_signature_note,
+                        created_at, updated_at
+                     ) VALUES (
+                        ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10,
+                        ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20,
+                        ?21, ?22, ?23
+                     )",
+                    rusqlite::params![
+                        note.id,
+                        note.note_number,
+                        note.issuer_afm,
+                        note.issuer_name,
+                        note.issuer_address,
+                        note.recipient_afm,
+                        note.recipient_name,
+                        note.recipient_address,
+                        note.vehicle_plate,
+                        note.driver_name,
+                        note.departure_time,
+                        note.estimated_arrival,
+                        note.actual_arrival,
+                        note.purpose.code(),
+                        note.gross_weight_kg,
+                        note.packages_count,
+                        note.mydata_mark,
+                        note.qr_payload,
+                        note.digital_signature_hash,
+                        note.status.code(),
+                        note.recipient_signature_note,
+                        note.created_at,
+                        note.updated_at,
+                    ],
+                ).is_ok()
+            } else {
+                false
+            }
+        }
+        "invoices" => {
+            if let Ok(inv) = serde_json::from_str::<proteus_core::invoicing::FiscalInvoice>(&rec.payload_json) {
+                conn.execute(
+                    "INSERT INTO invoices (
+                        invoice_id, series, invoice_number, invoice_type, issue_date, issue_time,
+                        issuer_afm, recipient_afm, recipient_name, total_net_eur, total_vat_eur,
+                        total_gross_eur, mydata_mark, mydata_uid, mydata_qr_url, is_cancelled, created_at
+                     ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)
+                     ON CONFLICT(invoice_id) DO UPDATE SET
+                        mydata_mark = excluded.mydata_mark,
+                        mydata_uid = excluded.mydata_uid,
+                        mydata_qr_url = excluded.mydata_qr_url,
+                        is_cancelled = excluded.is_cancelled",
+                    rusqlite::params![
+                        inv.invoice_id,
+                        inv.series,
+                        inv.invoice_number,
+                        inv.invoice_type.code(),
+                        inv.issue_date,
+                        inv.issue_time,
+                        inv.issuer_afm,
+                        inv.recipient_afm,
+                        inv.recipient_name,
+                        inv.total_net_eur,
+                        inv.total_vat_eur,
+                        inv.total_gross_eur,
+                        inv.mydata_mark,
+                        inv.mydata_uid,
+                        inv.mydata_qr_url,
+                        if inv.is_cancelled { 1 } else { 0 },
+                        inv.created_at,
+                    ],
+                ).is_ok()
+            } else {
+                false
+            }
+        }
+        _ => false,
     }
 }
 
@@ -366,6 +507,121 @@ mod tests {
         assert!(action_resp.is_ok(), "Remote action POST request must succeed");
         let action_text = action_resp.unwrap().into_string().unwrap();
         assert!(action_text.contains("\"action\":\"ping\""));
+
+        receiver.stop();
+    }
+
+    #[test]
+    fn test_health_and_multi_entity_sync() {
+        use proteus_core::invoicing::{FiscalInvoice, InvoiceType};
+        use proteus_core::replication::{ChangeOp, OutboxRecord, SyncStatus};
+        use proteus_core::shipping_note::{ShippingNote, TransportPurpose};
+        use proteus_core::work_card::{WorkCardEvent, WorkCardEventType};
+
+        let test_port = 17448;
+        let receiver = LanPackageReceiver::start(test_port).expect("Failed to start receiver");
+
+        // 1. Health check probe
+        let health_url = format!("http://127.0.0.1:{}/health", test_port);
+        let health_resp = ureq::get(&health_url).call();
+        assert!(health_resp.is_ok());
+        let health_text = health_resp.unwrap().into_string().unwrap();
+        assert!(health_text.contains("\"healthy\":true"));
+
+        // 2. Multi-entity outbox batch
+        let uniq = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos();
+        let wc_event = WorkCardEvent {
+            event_id: format!("wc-evt-{}", uniq),
+            employee_id: format!("EMP-{}", uniq),
+            event_type: WorkCardEventType::ClockIn,
+            timestamp_utc: 1775000000000,
+            local_time_str: "2026-10-11 09:00:00".into(),
+            is_offline_fallback: true,
+            outage_reason: Some("OFFLINE_SYNC".into()),
+            merkle_hash: "abcd1234abcd1234".into(),
+            ergani_submission_id: None,
+            sync_status: "PENDING_OUTAGE_SYNC".into(),
+        };
+
+        let note = ShippingNote::new(
+            format!("DA-{}", uniq),
+            "094014201".into(),
+            "PROTEUS".into(),
+            "ATHENS".into(),
+            "090000045".into(),
+            "CLIENT".into(),
+            "PIRAEUS".into(),
+            "IEZ-9999".into(),
+            "DRIVER".into(),
+            TransportPurpose::Sale,
+            2,
+            Some(15.0),
+        );
+
+        let inv = FiscalInvoice {
+            invoice_id: format!("inv-{}", uniq),
+            series: "A".into(),
+            invoice_number: (uniq % 1_000_000) as i64,
+            invoice_type: InvoiceType::RetailReceipt11_1,
+            issue_date: "2026-10-11".into(),
+            issue_time: "10:00:00".into(),
+            issuer_afm: "094014201".into(),
+            recipient_afm: "999999999".into(),
+            recipient_name: "RETAIL CONSUMER".into(),
+            total_net_eur: 100.0,
+            total_vat_eur: 24.0,
+            total_gross_eur: 124.0,
+            mydata_mark: Some("MARK-TEST-99".into()),
+            mydata_uid: Some("UID-TEST-99".into()),
+            mydata_qr_url: Some("https://www.aade.gr/mydata/qr?mark=MARK-TEST-99".into()),
+            is_cancelled: false,
+            created_at: 1775000000000,
+        };
+
+        let records = vec![
+            OutboxRecord {
+                id: "out-wc".into(),
+                entity: "work_card_events".into(),
+                record_id: wc_event.event_id.clone(),
+                op: ChangeOp::Insert,
+                payload_json: serde_json::to_string(&wc_event).unwrap(),
+                local_timestamp: chrono::Utc::now().to_rfc3339(),
+                remote_version: 1,
+                status: SyncStatus::Pending,
+                priority: proteus_core::replication::DataPriority::Critical,
+            },
+            OutboxRecord {
+                id: "out-sn".into(),
+                entity: "shipping_notes".into(),
+                record_id: note.id.clone(),
+                op: ChangeOp::Insert,
+                payload_json: serde_json::to_string(&note).unwrap(),
+                local_timestamp: chrono::Utc::now().to_rfc3339(),
+                remote_version: 1,
+                status: SyncStatus::Pending,
+                priority: proteus_core::replication::DataPriority::High,
+            },
+            OutboxRecord {
+                id: "out-inv".into(),
+                entity: "invoices".into(),
+                record_id: inv.invoice_id.clone(),
+                op: ChangeOp::Insert,
+                payload_json: serde_json::to_string(&inv).unwrap(),
+                local_timestamp: chrono::Utc::now().to_rfc3339(),
+                remote_version: 1,
+                status: SyncStatus::Pending,
+                priority: proteus_core::replication::DataPriority::Critical,
+            },
+        ];
+
+        let target_url = format!("http://127.0.0.1:{}/api/sync/outbox", test_port);
+        let resp = ureq::post(&target_url)
+            .set("Content-Type", "application/json")
+            .send_string(&serde_json::to_string(&records).unwrap());
+
+        assert!(resp.is_ok());
+        let resp_str = resp.unwrap().into_string().unwrap();
+        assert!(resp_str.contains("\"applied_count\":3"), "Expected applied_count:3, got: {}", resp_str);
 
         receiver.stop();
     }

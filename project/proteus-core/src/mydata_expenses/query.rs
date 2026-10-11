@@ -157,6 +157,67 @@ fn validate_mydata_date(date_str: &str) -> Result<(), ExpenseQueryError> {
     Ok(())
 }
 
+/// Directly queries AADE `RequestTransmittedDocs` REST endpoint and retrieves raw response XML.
+pub fn dispatch_request_transmitted_docs(
+    credentials: &MyDataCredentials,
+    filter: &InboundExpenseFilter,
+    timeout_secs: u64,
+) -> Result<String, String> {
+    let url = filter.build_request_url(credentials);
+    let mut req = ureq::get(&url)
+        .timeout(std::time::Duration::from_secs(timeout_secs));
+
+    for (header_name, header_val) in filter.build_request_headers(credentials) {
+        req = req.set(header_name, &header_val);
+    }
+
+    match req.call() {
+        Ok(resp) => resp
+            .into_string()
+            .map_err(|e| format!("Failed to read AADE response XML: {}", e)),
+        Err(ureq::Error::Status(code, resp)) => {
+            let body = resp.into_string().unwrap_or_default();
+            Err(format!("AADE RequestTransmittedDocs HTTP {}: {}", code, body))
+        }
+        Err(e) => Err(format!("Network connection error to AADE: {}", e)),
+    }
+}
+
+/// Fetches inbound expenses from AADE, parses XML documents, and records them into SQLite.
+pub fn fetch_and_record_inbound_expenses(
+    conn: &rusqlite::Connection,
+    credentials: &MyDataCredentials,
+    filter: &InboundExpenseFilter,
+) -> Result<Vec<crate::mydata_expenses::ledger::InboundExpenseRecord>, String> {
+    let _ = crate::mydata_expenses::ledger::init_inbound_expenses_schema(conn);
+    let xml_body = dispatch_request_transmitted_docs(credentials, filter, 15)?;
+    let parsed_resp = crate::mydata_expenses::parser::parse_requested_doc_xml(&xml_body);
+
+    let mut recorded = Vec::new();
+    for doc in parsed_resp.invoices {
+        let mut rec = crate::mydata_expenses::ledger::InboundExpenseRecord::new(
+            doc.mark,
+            &doc.uid,
+            &doc.supplier_afm,
+            &doc.invoice_type,
+            &doc.series,
+            &doc.aa,
+            &doc.issue_date,
+            doc.total_net_cents,
+            doc.total_vat_cents,
+            doc.total_gross_cents,
+        );
+        rec.supplier_name = Some(format!("Προμηθευτής ΑΦΜ {}", doc.supplier_afm));
+
+        crate::mydata_expenses::ledger::upsert_inbound_expense(conn, &rec)
+            .map_err(|e| format!("Database error recording expense: {}", e))?;
+
+        recorded.push(rec);
+    }
+
+    Ok(recorded)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -20,8 +20,9 @@ pub use manifest::{
 };
 pub use uploader::{
     build_s3_sigv4_headers, dispatch_upload_with_retry, enqueue_bundle_for_upload,
-    fetch_pending_upload_tasks, hmac_sha256, init_replica_outbox_schema,
-    update_upload_task_status, S3ReplicaConfig, UploadBatchResult, UploadStatus, UploadTask,
+    fetch_pending_upload_tasks, hmac_sha256, init_replica_outbox_schema, process_outbox_queue,
+    update_upload_task_status, upload_task_to_s3, S3ReplicaConfig, UploadBatchResult,
+    UploadStatus, UploadTask,
 };
 pub use restore::{
     execute_dry_run_verification, init_dr_audit_schema, list_dr_audit_logs, log_dr_event,

@@ -237,12 +237,10 @@ impl WebhookDispatcher {
                 let delivery_id = format!("DEL-{}", uuid::Uuid::new_v4());
                 let now = chrono::Utc::now().to_rfc3339();
 
-                // If local loopback or test endpoint, simulate successful delivery
-                let is_loopback = target.endpoint_url.contains("localhost")
-                    || target.endpoint_url.contains("127.0.0.1")
-                    || target.endpoint_url.starts_with("test://");
+                // Only synthetic test schemes skip real network transmission
+                let is_synthetic_test = target.endpoint_url.starts_with("test://");
 
-                let (status, success) = if is_loopback {
+                let (status, success) = if is_synthetic_test {
                     (Some(200), true)
                 } else {
                     // Try real HTTP post via ureq
