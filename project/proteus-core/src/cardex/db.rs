@@ -131,8 +131,24 @@ pub fn post_cardex_movement(
     issue_date: &str,
     due_date: &str,
 ) -> Result<CardexEntry> {
-    let entity = get_cardex_entity(conn, entity_id)?
-        .ok_or_else(|| rusqlite::Error::QueryReturnedNoRows)?;
+    let entity = match get_cardex_entity(conn, entity_id)? {
+        Some(e) => e,
+        None => {
+            let ent = CardexEntity {
+                entity_id: entity_id.to_string(),
+                entity_type: EntityType::Customer,
+                name: entity_id.to_string(),
+                phone: None,
+                email: None,
+                credit_limit_eur: 0.0,
+                payment_terms_days: 30,
+                current_balance_eur: 0.0,
+                created_at: chrono::Utc::now().timestamp_millis(),
+            };
+            save_cardex_entity(conn, &ent)?;
+            ent
+        }
+    };
 
     let amount = (amount_eur * 100.0).round() / 100.0;
 

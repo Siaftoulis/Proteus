@@ -41,7 +41,9 @@ pub fn encode_gateway_datagram(channel: u8, tx_power: i8, payload: &[u8]) -> Vec
 
 /// Tests LAN connectivity to the ESL RF Base Station.
 pub fn ping_esl_gateway(config: &EslGatewayConfig) -> Result<bool, String> {
-    if config.gateway_host == "127.0.0.1" || config.gateway_host == "localhost" {
+    if config.gateway_host.eq_ignore_ascii_case("virtual")
+        || config.gateway_host.eq_ignore_ascii_case("loopback")
+    {
         return Ok(true);
     }
 
@@ -66,7 +68,9 @@ pub fn transmit_frame_to_gateway(
     config: &EslGatewayConfig,
     rf_payload: &[u8],
 ) -> Result<(), String> {
-    if config.gateway_host == "127.0.0.1" || config.gateway_host == "localhost" {
+    if config.gateway_host.eq_ignore_ascii_case("virtual")
+        || config.gateway_host.eq_ignore_ascii_case("loopback")
+    {
         return Ok(()); // Virtual/Loopback simulator mode
     }
 
@@ -143,8 +147,24 @@ mod tests {
 
     #[test]
     fn test_simulated_ping_and_transmit() {
-        let config = EslGatewayConfig::default();
+        let config = EslGatewayConfig {
+            gateway_host: "loopback".into(),
+            ..Default::default()
+        };
         assert!(ping_esl_gateway(&config).unwrap());
         assert!(transmit_frame_to_gateway(&config, b"TEST_PAYLOAD").is_ok());
+
+        // Live UDP transmission to local socket
+        let receiver = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let port = receiver.local_addr().unwrap().port();
+        let live_config = EslGatewayConfig {
+            gateway_host: "127.0.0.1".into(),
+            gateway_port: port,
+            ..Default::default()
+        };
+        assert!(transmit_frame_to_gateway(&live_config, b"LIVE_UDP").is_ok());
+        let mut buf = [0u8; 128];
+        let (n, _) = receiver.recv_from(&mut buf).unwrap();
+        assert!(n > 0);
     }
 }
