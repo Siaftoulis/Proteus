@@ -179,6 +179,40 @@ fn handle_connection(mut stream: TcpStream, tx: &Sender<PrPackage>) {
         }
     }
 
+    // ── Encrypted WAN Relay Envelope Ingestion ──
+    if first_line.contains("/api/relay/envelope") {
+        if let Ok(envelope) = serde_json::from_slice::<proteus_core::lan::relay::RelayEnvelope>(&body) {
+            let mut applied = 0;
+            if let Ok(conn) = proteus_core::paths::open_store_connection() {
+                let _ = proteus_core::lan::relay::init_relay_schema(&conn);
+                let _ = proteus_core::lan::relay::log_relay_audit_event(
+                    &conn,
+                    &envelope.session_id,
+                    &envelope.sender_id,
+                    "RELAY_ENVELOPE_RECEIVED",
+                    Some(&format!("msg_type:{:?}", envelope.msg_type)),
+                );
+
+                if envelope.msg_type == proteus_core::lan::relay::RelayMessageType::SyncOutbox {
+                    if let Ok(records) = serde_json::from_slice::<Vec<proteus_core::replication::OutboxRecord>>(&envelope.payload_bytes) {
+                        let _ = proteus_core::tickets::init_tickets_schema(&conn);
+                        let _ = proteus_core::work_card::init_work_card_schema(&conn);
+                        let _ = proteus_core::shipping_note::init_shipping_schema(&conn);
+                        let _ = proteus_core::invoicing::init_invoicing_schema(&conn);
+                        for rec in &records {
+                            if apply_outbox_record(&conn, rec) {
+                                applied += 1;
+                            }
+                        }
+                    }
+                }
+            }
+            let resp_json = format!("{{\"status\":\"synced\",\"applied_count\":{}}}", applied);
+            send_json_response(&mut stream, 200, &resp_json);
+            return;
+        }
+    }
+
     // Validate package integrity & SHA-256 seal
     match PrPackage::from_bytes(&body) {
         Ok(package) => {
@@ -622,6 +656,59 @@ mod tests {
         assert!(resp.is_ok());
         let resp_str = resp.unwrap().into_string().unwrap();
         assert!(resp_str.contains("\"applied_count\":3"), "Expected applied_count:3, got: {}", resp_str);
+
+        receiver.stop();
+    }
+
+    #[test]
+    fn test_relay_envelope_sync_lan() {
+        use proteus_core::lan::relay::{RelayEnvelope, RelayMessageType};
+        use proteus_core::replication::{ChangeOp, OutboxRecord, SyncStatus};
+        use proteus_core::tickets::ServiceTicket;
+
+        let test_port = 17450;
+        let receiver = LanPackageReceiver::start(test_port).expect("Receiver starts");
+
+        let uniq = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos();
+        let ticket = ServiceTicket::new(
+            &format!("Customer {}", uniq),
+            "6900000000",
+            "Relay Device",
+            "Screen cracked",
+        );
+
+        let records = vec![OutboxRecord {
+            id: format!("out-relay-{}", uniq),
+            entity: "service_tickets".into(),
+            record_id: ticket.ticket_id.clone(),
+            op: ChangeOp::Insert,
+            payload_json: serde_json::to_string(&ticket).unwrap(),
+            local_timestamp: chrono::Utc::now().to_rfc3339(),
+            remote_version: 1,
+            status: SyncStatus::Pending,
+            priority: proteus_core::replication::DataPriority::High,
+        }];
+
+        let payload_bytes = serde_json::to_vec(&records).unwrap();
+        let envelope = RelayEnvelope::new(
+            "sess-123",
+            "mobile-client-01",
+            "store-pos-01",
+            RelayMessageType::SyncOutbox,
+            payload_bytes,
+            "secret-pairing-key",
+        );
+
+        let envelope_json = serde_json::to_string(&envelope).unwrap();
+        let target_url = format!("http://127.0.0.1:{}/api/relay/envelope", test_port);
+
+        let resp = ureq::post(&target_url)
+            .set("Content-Type", "application/json")
+            .send_string(&envelope_json);
+
+        assert!(resp.is_ok());
+        let resp_str = resp.unwrap().into_string().unwrap();
+        assert!(resp_str.contains("\"applied_count\":1"), "Got: {}", resp_str);
 
         receiver.stop();
     }
