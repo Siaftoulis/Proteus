@@ -4,8 +4,10 @@
 //! mobile storefronts, and internal POS/CRM layouts.
 
 pub mod ast;
+pub mod compiler;
 
 pub use ast::{ButtonAction, LayoutKind, UiNode, UiStyle};
+pub use compiler::{CompiledWebPage, UiDslCompiler};
 
 /// High-level builder for assembling storefront and application page trees.
 pub struct PageBuilder {
