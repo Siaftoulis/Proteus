@@ -2,6 +2,7 @@
 //! Provides a declarative database specification language and recursive descent AST parser.
 
 pub mod ast;
+pub mod extractor;
 pub mod lexer;
 pub mod parser;
 pub mod transpiler;
@@ -9,6 +10,7 @@ pub mod transpiler;
 pub use ast::{
     DslEntity, DslField, DslFieldType, DslIndex, DslRelation, DslSchema, RelationKind,
 };
+pub use extractor::{DatabaseExportBundle, ExportFormat, ExtractedTableData, MultiFormatDatabaseExtractor};
 pub use lexer::{DslParserError, Lexer, Token};
 pub use parser::{parse_dsl, DslParser};
 pub use transpiler::{DslTranspiler, TargetDialect};
