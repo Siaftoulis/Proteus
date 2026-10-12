@@ -6,10 +6,15 @@
 pub mod ast;
 pub mod compiler;
 pub mod assets;
+pub mod deploy;
 
 pub use ast::{ButtonAction, LayoutKind, UiNode, UiStyle};
 pub use compiler::{CompiledWebPage, UiDslCompiler};
 pub use assets::{AssetOptimizer, ImageFormat, ImageMetadata, MAX_RECOMMENDED_IMAGE_BYTES};
+pub use deploy::{
+    init_inbound_tables, ingest_order_envelope, query_pending_orders_count, DistAsset,
+    DistManifest, OrderRelayEnvelope, OrderRelayError, RelayOrderItem, SiteDistBundle,
+};
 
 /// High-level builder for assembling storefront and application page trees.
 pub struct PageBuilder {

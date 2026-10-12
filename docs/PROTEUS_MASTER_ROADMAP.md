@@ -306,10 +306,10 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
   - [x] Micro-task 15.3.2.1: Fluent `PageBuilder` API and `StorefrontTemplate` catalog generator.
 
 ### Task 15.4: Static Site Generation (SSG) & HTML5/CSS3 Compiler (`proteus-core::ui_dsl::compiler`)
-- [ ] Sub-task 15.4.1: Semantic HTML5 + Vanilla CSS3 Transpiler
-  - [ ] Micro-task 15.4.1.1: Component-to-HTML AST walker with responsive viewport styling.
-  - [ ] Micro-task 15.4.1.2: Zero-runtime client cart state and checkout form bundle.
-- [ ] Sub-task 15.4.2: Kilobyte-First Asset Optimizer Pipeline (`proteus-core::ui_dsl::assets`)
-  - [ ] Micro-task 15.4.2.1: Automatic downsampling to viewport and WebP image transcoding.
-- [ ] Sub-task 15.4.3: Air-Gapped Deployment & Relay Envelope Order Ingestion
-  - [ ] Micro-task 15.4.3.1: Ephemeral upload tunnel and serverless cart intent webhook.
+- [x] Sub-task 15.4.1: Semantic HTML5 + Vanilla CSS3 Transpiler
+  - [x] Micro-task 15.4.1.1: Component-to-HTML AST walker with responsive viewport styling.
+  - [x] Micro-task 15.4.1.2: Zero-runtime client cart state and checkout form bundle.
+- [x] Sub-task 15.4.2: Kilobyte-First Asset Optimizer Pipeline (`proteus-core::ui_dsl::assets`)
+  - [x] Micro-task 15.4.2.1: Pure bespoke asset inspector, SVG minifier, and kilobyte-budget enforcer.
+- [x] Sub-task 15.4.3: Air-Gapped Deployment & Relay Envelope Order Ingestion
+  - [x] Micro-task 15.4.3.1: Standalone site dist bundler and cryptographic order envelope relay.
