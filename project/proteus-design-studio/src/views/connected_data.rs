@@ -6,11 +6,11 @@ use proteus_core::merkle::verify_chain_integrity;
 use proteus_core::replication::DataPriority;
 use crate::theme;
 
-
 pub struct ConnectedDataState {
     pub selected_table: String,
     pub filter_priority: Option<DataPriority>,
     pub audit_integrity_result: Option<String>,
+    pub export_state: crate::views::data_export::DataExportState,
 }
 
 impl Default for ConnectedDataState {
@@ -19,6 +19,7 @@ impl Default for ConnectedDataState {
             selected_table: "records".to_string(),
             filter_priority: None,
             audit_integrity_result: None,
+            export_state: crate::views::data_export::DataExportState::default(),
         }
     }
 }
@@ -311,6 +312,16 @@ pub fn show_central(
                     ui.label(RichText::new("Database connection not available.").size(10.5).color(theme::TEXT_DIM));
                 }
             });
+
+        ui.add_space(12.);
+        if let Some(msg) = crate::views::data_export::render_export_card(
+            &mut state.export_state,
+            db_conn,
+            project_id,
+            ui,
+        ) {
+            toast_action = Some(msg);
+        }
     });
 
     toast_action
@@ -386,5 +397,3 @@ mod tests {
         assert_eq!(records.len(), 2);
     }
 }
-
-
