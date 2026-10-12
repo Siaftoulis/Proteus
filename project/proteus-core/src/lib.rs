@@ -61,6 +61,7 @@ pub mod i18n;
 pub mod questionnaire;
 pub mod hosting;
 pub mod dsl;
+pub mod ui_dsl;
 pub mod mcp;
 pub mod federation;
 pub mod logistics;
