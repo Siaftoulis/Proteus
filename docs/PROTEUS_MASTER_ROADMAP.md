@@ -272,3 +272,44 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 - [x] Sub-task 14.1.2: Sovereign S3/MinIO & Offsite Transfer
   - [x] Micro-task 14.1.2.1: Resilient background S3/MinIO multipart upload and retry loop.
   - [x] Micro-task 14.1.2.2: Automated disaster recovery restore and integrity verification dry-run.
+
+---
+
+## Phase 15: Sovereign WebStore, UI Scripting DSL & Air-Gapped SSG Platform
+
+### Task 15.1: Multi-Format Database Schema & Data Portability Extractor (`proteus-core::dsl::extractor`)
+- [x] Sub-task 15.1.1: Live SQLite Table & Row Data Extraction Engine
+  - [x] Micro-task 15.1.1.1: Discovery of user tables and column inspection via PRAGMA table_info.
+  - [x] Micro-task 15.1.1.2: Portable JSON database archive envelope (`DatabaseExportBundle`).
+- [x] Sub-task 15.1.2: Multi-Dialect SQL & Format Dumps
+  - [x] Micro-task 15.1.2.1: PostgreSQL DDL and INSERT statements with type mapping and escape logic.
+  - [x] Micro-task 15.1.2.2: MySQL, MariaDB, and ANSI SQL export generators.
+  - [x] Micro-task 15.1.2.3: RFC 4180 compliant CSV export generator.
+- [x] Sub-task 15.1.3: Sovereign Data Export Studio UI (`proteus-design-studio::views::data_export`)
+  - [x] Micro-task 15.1.3.1: Dialect selector pills, 1-click clipboard copy, and vault disk save.
+  - [x] Micro-task 15.1.3.2: Real-time script preview pane and toast feedback.
+
+### Task 15.2: Visual Database Block Builder & Proteus DSL (`proteus-design-studio::views::flow_builder`)
+- [x] Sub-task 15.2.1: Table Schema Node Column Constraint Checkboxes
+  - [x] Micro-task 15.2.1.1: Type selection ComboBox (TEXT, INTEGER, DECIMAL, UUID, TIMESTAMP, JSON, BOOLEAN).
+  - [x] Micro-task 15.2.1.2: Interactive checkboxes: PK, Req (Not Null), Uniq, Idx.
+  - [x] Micro-task 15.2.1.3: Quick column template pills (+ UUID PK, + Text, + Decimal, + Time).
+- [x] Sub-task 15.2.2: Declarative Proteus DSL Export
+  - [x] Micro-task 15.2.2.1: 1-click generation of native `entity Table { ... }` DSL snippets.
+
+### Task 15.3: Declarative Web & Storefront UI DSL AST (`proteus-core::ui_dsl`)
+- [x] Sub-task 15.3.1: Component Node Hierarchy
+  - [x] Micro-task 15.3.1.1: Primitives: Page, Container, Grid, Heading, Paragraph, Image, Button, CustomHtml.
+  - [x] Micro-task 15.3.1.2: Storefront Primitives: ProductCard, CartSummary, CheckoutForm.
+  - [x] Micro-task 15.3.1.3: PDS styling tokens (padding, gap, corner radius, elevation, colors).
+- [x] Sub-task 15.3.2: Rapid Storefront Templates & PageBuilder
+  - [x] Micro-task 15.3.2.1: Fluent `PageBuilder` API and `StorefrontTemplate` catalog generator.
+
+### Task 15.4: Static Site Generation (SSG) & HTML5/CSS3 Compiler (`proteus-core::ui_dsl::compiler`)
+- [ ] Sub-task 15.4.1: Semantic HTML5 + Vanilla CSS3 Transpiler
+  - [ ] Micro-task 15.4.1.1: Component-to-HTML AST walker with responsive viewport styling.
+  - [ ] Micro-task 15.4.1.2: Zero-runtime client cart state and checkout form bundle.
+- [ ] Sub-task 15.4.2: Kilobyte-First Asset Optimizer Pipeline (`proteus-core::ui_dsl::assets`)
+  - [ ] Micro-task 15.4.2.1: Automatic downsampling to viewport and WebP image transcoding.
+- [ ] Sub-task 15.4.3: Air-Gapped Deployment & Relay Envelope Order Ingestion
+  - [ ] Micro-task 15.4.3.1: Ephemeral upload tunnel and serverless cart intent webhook.

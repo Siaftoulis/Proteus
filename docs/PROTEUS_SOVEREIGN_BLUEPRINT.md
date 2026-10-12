@@ -173,4 +173,39 @@ When any new Greek/EU business owner opens their doors on Day 1, they face 8 non
 - **The Risk**: Expecting a store clerk to manually measure width, height, and depth for hundreds of products with a tape measure will guarantee abandonment within 48 hours.
 - **The Fix (Automated Dimension Ingestion via GS1 & Central Catalog)**: Users only measure their static warehouse shelves once. Product package dimensions and weights are auto-populated from GS1 barcodes, manufacturer catalog specs, or crowdsourced Proteus item databases.
 
+---
 
+## 11. Sovereign WebStore, Dropshipping & Multi-Channel Storefront Platform
+### A. Single Source of Truth
+- Unified SQLite repository (`store.db`) powers POS, warehouse inventory, and public storefront simultaneously.
+- Zero desynchronization: updating price or stock instantly reflects in the physical store and the webstore.
+
+### B. Proteus Design Studio: Dual-Persona Canvas (1 Project -> 2 Views)
+- **View A (Backoffice / POS / WMS)**: Internal touch UI, barcode scanning, register closing, technician workbench.
+- **View B (Public Storefront)**: Customer-facing storefront with responsive product grid, cart, and checkout.
+
+### C. Kilobyte-First Performance & Image Compression Pipeline
+- Automated downsampling to display dimensions (@2x retina limit) and lossless/lossy WebP transcoding (85% byte reduction).
+- Zero-Framework Architecture: 100% vanilla semantic HTML5 + modular CSS3 (<30KB gzipped total bundle size).
+- Instant loading (sub-100ms first paint, 100/100 Google PageSpeed score).
+
+### D. Air-Gapped SSG Security Model ("Open, Upload, Close")
+- Pre-rendered static pages hosted on standard CDN/storage buckets with zero exposed database or server-side scripts.
+- Ephemeral deployment: connection opened briefly to push assets, then instantly severed.
+- Inbound customer orders packaged as encrypted Relay Envelopes and retrieved via outbound-only polling. Zero public attack surface.
+
+### E. White-Label Standalone Native Application Packaging
+- Single-click compilation into autonomous Rust executables:
+  - Windows: Native `.exe` and `.msi` installers.
+  - Web: Progressive Web App (PWA) with instant home-screen installation and offline caching.
+  - Mobile: Headless automated builder for Android (`.apk`) and iOS (`.ipa`).
+- Dropshipping automation: Direct ingestion of supplier catalogs with rule-based margin calculation and automated vendor dispatch.
+- Multi-Vendor Marketplace: Federated store-to-store bridges with automated commission ledgers and statutory tax reconciliation.
+
+---
+
+## 12. Engineering Reality Audit & Hard Technical Boundaries
+1. **Cross-Compilation Boundaries**: Local developer builds focus on Native Windows binaries and Installable PWAs. Mobile App Store compilation is offloaded to headless container runners to avoid local 20GB NDK/Xcode toolchain overhead.
+2. **Dynamic E-Commerce Protection**: Catalog browsing is 100% static; checkout, stock reservation, and payment processing are strictly validated server-side by Proteus core to prevent client price tampering and stock race conditions.
+3. **Marketplace Scaling Sequence**: Phase 1 targets Single-Store and Dropshipping catalogs. Phase 2 introduces federated B2B dealer networks. Phase 3 enables open public multi-vendor marketplaces after legal P2B and DAC7 auditing.
+4. **UI DSL Scoping**: Focuses on high-level, bulletproof responsive components (Page, Grid, ProductCard, Cart, CheckoutForm) rather than recreating low-level CSS layout quirks.
