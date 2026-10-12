@@ -21,6 +21,7 @@ pub enum Mode {
     Settings,
     ApplianceFlasher,
     I18nManager,
+    WebstoreBuilder,
 }
 
 #[derive(Clone, PartialEq, Debug)]

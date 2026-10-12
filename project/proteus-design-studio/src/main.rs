@@ -179,6 +179,7 @@ impl ProteusApp {
                     Mode::Settings => views::settings::show_left(&mut self.settings_state, ui),
                     Mode::ApplianceFlasher => views::appliance_flasher::show_left(self, ui),
                     Mode::I18nManager => views::i18n_manager::show_left(self, ui),
+                    Mode::WebstoreBuilder => views::webstore_builder::show_left(self, ui),
                 }
             });
 
@@ -199,6 +200,7 @@ impl ProteusApp {
             Mode::Settings => "STUDIO SETTINGS",
             Mode::ApplianceFlasher => "APPLIANCE SPECS",
             Mode::I18nManager => "LOCALIZATION PREVIEW",
+            Mode::WebstoreBuilder => "WEBSTORE INSPECTOR",
         };
         let (right_w, right_min) = if self.mode == Mode::Designer {
             (260., 240.)
@@ -238,6 +240,7 @@ impl ProteusApp {
                     Mode::Settings => views::settings::show_right(self, ui),
                     Mode::ApplianceFlasher => views::appliance_flasher::show_right(self, ui),
                     Mode::I18nManager => views::i18n_manager::show_right(self, ui),
+                    Mode::WebstoreBuilder => views::webstore_builder::show_right(self, ui),
                 }
             });
 
@@ -315,6 +318,7 @@ impl ProteusApp {
                     Mode::Settings => views::settings::show_central(self, ui),
                     Mode::ApplianceFlasher => views::appliance_flasher::show_central(self, ui),
                     Mode::I18nManager => views::i18n_manager::show_central(self, ui),
+                    Mode::WebstoreBuilder => views::webstore_builder::show_central(self, ui),
                 }
 
                 // Toast overlay

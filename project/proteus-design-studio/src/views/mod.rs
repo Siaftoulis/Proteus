@@ -18,3 +18,4 @@ pub mod appliance_flasher;
 pub mod flasher_devices;
 pub mod i18n_manager;
 pub mod data_export;
+pub mod webstore_builder;

@@ -119,6 +119,39 @@ impl StorefrontTemplate {
             },
         }
     }
+
+    pub fn artisan_bakery() -> UiNode {
+        Self::create_catalog_page(
+            "Artisan Bakery & Cafe",
+            &[
+                ("SKU-BREAD-01".into(), "Sourdough Country Loaf".into(), 4.20, "bread.webp".into(), true),
+                ("SKU-CROISS-02".into(), "Butter Croissant".into(), 2.50, "croissant.webp".into(), true),
+                ("SKU-OLIVE-03".into(), "Kalamata Olive Focaccia".into(), 3.80, "focaccia.webp".into(), true),
+            ],
+        )
+    }
+
+    pub fn tech_repair() -> UiNode {
+        Self::create_catalog_page(
+            "Tech Hardware & Repairs",
+            &[
+                ("SKU-CBL-01".into(), "Braided USB-C Cable 2m".into(), 8.90, "cable.webp".into(), true),
+                ("SKU-CHG-02".into(), "65W GaN Fast Charger".into(), 29.50, "charger.webp".into(), true),
+                ("SKU-SSD-03".into(), "NVMe M.2 SSD 1TB".into(), 69.00, "ssd.webp".into(), true),
+            ],
+        )
+    }
+
+    pub fn boutique() -> UiNode {
+        Self::create_catalog_page(
+            "Minimalist Linen Boutique",
+            &[
+                ("SKU-SHIRT-01".into(), "Natural Linen Shirt".into(), 45.00, "shirt.webp".into(), true),
+                ("SKU-PANTS-02".into(), "Relaxed Linen Trousers".into(), 55.00, "pants.webp".into(), true),
+                ("SKU-SCARF-03".into(), "Organic Cotton Scarf".into(), 22.00, "scarf.webp".into(), true),
+            ],
+        )
+    }
 }
 
 #[cfg(test)]

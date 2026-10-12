@@ -205,6 +205,10 @@ pub fn show(app: &mut ProteusApp, ctx: &egui::Context) {
                         app.mode = Mode::I18nManager;
                         ui.close_menu();
                     }
+                    if ui.selectable_label(app.mode == Mode::WebstoreBuilder, "🛒 Sovereign WebStore (SSG)").clicked() {
+                        app.mode = Mode::WebstoreBuilder;
+                        ui.close_menu();
+                    }
                     ui.separator();
                     if ui.selectable_label(app.mode == Mode::Settings, "⚙ Studio Settings & Preferences").clicked() {
                         app.mode = Mode::Settings;

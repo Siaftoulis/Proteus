@@ -106,6 +106,7 @@ pub struct ProteusApp {
     pub settings_state: views::settings::SettingsState,
     pub flasher_state: views::appliance_flasher::ApplianceFlasherState,
     pub i18n_state: views::i18n_manager::I18nManagerState,
+    pub webstore_state: views::webstore_builder::WebstoreBuilderState,
 
     // Command Palette (Ctrl+K)
     pub show_command_palette: bool,
@@ -448,6 +449,7 @@ impl Default for ProteusApp {
             settings_state: views::settings::SettingsState::default(),
             flasher_state: views::appliance_flasher::ApplianceFlasherState::default(),
             i18n_state: views::i18n_manager::I18nManagerState::default(),
+            webstore_state: views::webstore_builder::WebstoreBuilderState::default(),
             show_command_palette: false,
             command_palette_query: String::new(),
             command_palette_sel_idx: 0,

@@ -313,3 +313,13 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
   - [x] Micro-task 15.4.2.1: Pure bespoke asset inspector, SVG minifier, and kilobyte-budget enforcer.
 - [x] Sub-task 15.4.3: Air-Gapped Deployment & Relay Envelope Order Ingestion
   - [x] Micro-task 15.4.3.1: Standalone site dist bundler and cryptographic order envelope relay.
+
+### Task 15.5: Visual WebStore & SSG Studio (`proteus-design-studio::views::webstore_builder`)
+- [x] Sub-task 15.5.1: Storefront DSL Visual Configuration & Real-Time Compiler Inspector
+  - [x] Micro-task 15.5.1.1: Template selection pills, styling token controls, and kilobyte size inspector.
+- [x] Sub-task 15.5.2: Air-Gapped Static Site Packager & Vault Export
+  - [x] Micro-task 15.5.2.1: 1-click bundle generation to `vault/dist/` with cryptographic manifest.
+- [x] Sub-task 15.5.3: Inbound Order Ingestion Dashboard
+  - [x] Micro-task 15.5.3.1: Live SQLite inbound orders panel with pending badge and order details drawer.
+
+
