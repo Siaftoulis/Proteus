@@ -179,7 +179,8 @@ impl FlowGraph {
             for col in *columns {
                 let pk = if col.is_primary_key { " PRIMARY KEY" } else { "" };
                 let not_null = if !col.is_nullable && !col.is_primary_key { " NOT NULL" } else { "" };
-                lines.push(format!("    {} {}{}{}", col.name, col.data_type, pk, not_null));
+                let uniq = if col.is_unique && !col.is_primary_key { " UNIQUE" } else { "" };
+                lines.push(format!("    {} {}{}{}{}", col.name, col.data_type, pk, not_null, uniq));
             }
 
             // 2. Foreign key constraints derived from visual edges

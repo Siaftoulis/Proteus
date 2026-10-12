@@ -487,6 +487,8 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
                                     data_type: "TEXT".to_string(),
                                     is_nullable: true,
                                     is_primary_key: false,
+                                    is_unique: false,
+                                    is_indexed: false,
                                 });
                             }
                             if ui.add(egui::Button::new(egui::RichText::new("a-z").size(9.).color(theme::TEXT_DIM))).on_hover_text("Transform column names to lowercase").clicked() {
@@ -503,6 +505,52 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
                     });
                     ui.add_space(2.);
 
+                    // Quick Column Template Pills
+                    ui.horizontal_wrapped(|ui| {
+                        if ui.button(egui::RichText::new("+ UUID PK").size(8.5)).clicked() {
+                            columns.push(proteus_core::sql_ingest::SqlColumnMeta {
+                                name: "id".to_string(),
+                                data_type: "UUID".to_string(),
+                                is_nullable: false,
+                                is_primary_key: true,
+                                is_unique: true,
+                                is_indexed: true,
+                            });
+                        }
+                        if ui.button(egui::RichText::new("+ Text").size(8.5)).clicked() {
+                            let idx = columns.len() + 1;
+                            columns.push(proteus_core::sql_ingest::SqlColumnMeta {
+                                name: format!("name_{}", idx),
+                                data_type: "TEXT".to_string(),
+                                is_nullable: true,
+                                is_primary_key: false,
+                                is_unique: false,
+                                is_indexed: false,
+                            });
+                        }
+                        if ui.button(egui::RichText::new("+ Decimal").size(8.5)).clicked() {
+                            columns.push(proteus_core::sql_ingest::SqlColumnMeta {
+                                name: "amount_eur".to_string(),
+                                data_type: "DECIMAL".to_string(),
+                                is_nullable: false,
+                                is_primary_key: false,
+                                is_unique: false,
+                                is_indexed: false,
+                            });
+                        }
+                        if ui.button(egui::RichText::new("+ Time").size(8.5)).clicked() {
+                            columns.push(proteus_core::sql_ingest::SqlColumnMeta {
+                                name: "created_at".to_string(),
+                                data_type: "TIMESTAMP".to_string(),
+                                is_nullable: false,
+                                is_primary_key: false,
+                                is_unique: false,
+                                is_indexed: true,
+                            });
+                        }
+                    });
+                    ui.add_space(2.);
+
                     ui.add(
                         egui::TextEdit::singleline(&mut app.flow_col_search_query)
                             .hint_text("🔍 Filter columns...")
@@ -514,7 +562,7 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
                     let mut remove_col_idx: Option<usize> = None;
 
                     egui::ScrollArea::vertical()
-                        .max_height(220.0)
+                        .max_height(240.0)
                         .show(ui, |ui| {
                             for (idx, col) in columns.iter_mut().enumerate() {
                                 if !search_q.is_empty() && !col.name.to_lowercase().contains(&search_q) {
@@ -524,16 +572,40 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
                                     ui.horizontal(|ui| {
                                         let pk_badge = if col.is_primary_key { "🔑" } else { "•" };
                                         ui.label(egui::RichText::new(pk_badge).size(10.).color(if col.is_primary_key { theme::ACCENT } else { theme::TEXT_DIM }));
-                                        ui.add(egui::TextEdit::singleline(&mut col.name).hint_text("column").desired_width(80.));
-                                        ui.add(egui::TextEdit::singleline(&mut col.data_type).hint_text("TYPE").desired_width(50.));
+                                        ui.add(egui::TextEdit::singleline(&mut col.name).hint_text("column").desired_width(70.));
+
+                                        egui::ComboBox::from_id_salt(format!("col_dt_{}", idx))
+                                            .selected_text(&col.data_type)
+                                            .width(65.)
+                                            .show_ui(ui, |ui| {
+                                                for dt in ["TEXT", "INTEGER", "DECIMAL", "UUID", "TIMESTAMP", "JSON", "BOOLEAN"] {
+                                                    ui.selectable_value(&mut col.data_type, dt.to_string(), dt);
+                                                }
+                                            });
+
                                         if ui.small_button("×").on_hover_text("Delete column").clicked() {
                                             remove_col_idx = Some(idx);
                                         }
                                     });
+
                                     let is_pk = col.is_primary_key;
+                                    let mut is_req = !col.is_nullable;
+                                    let pk_color = if is_pk { theme::ACCENT } else { theme::TEXT_DIM };
+                                    let req_color = if is_req { theme::ACCENT_GREEN } else { theme::TEXT_DIM };
+                                    let uniq_color = if col.is_unique { theme::ACCENT } else { theme::TEXT_DIM };
+                                    let idx_color = if col.is_indexed { theme::ACCENT } else { theme::TEXT_DIM };
+
                                     ui.horizontal(|ui| {
-                                        ui.checkbox(&mut col.is_primary_key, egui::RichText::new("PK").size(9.).color(if is_pk { theme::ACCENT } else { theme::TEXT_DIM }));
-                                        ui.checkbox(&mut col.is_nullable, egui::RichText::new("Nullable").size(9.).color(theme::TEXT_DIM));
+                                        if ui.checkbox(&mut col.is_primary_key, egui::RichText::new("PK").size(8.5).color(pk_color)).changed() {
+                                            if col.is_primary_key {
+                                                col.is_nullable = false;
+                                            }
+                                        }
+                                        if ui.checkbox(&mut is_req, egui::RichText::new("Req").size(8.5).color(req_color)).changed() {
+                                            col.is_nullable = !is_req;
+                                        }
+                                        ui.checkbox(&mut col.is_unique, egui::RichText::new("Uniq").size(8.5).color(uniq_color));
+                                        ui.checkbox(&mut col.is_indexed, egui::RichText::new("Idx").size(8.5).color(idx_color));
                                     });
                                 });
                                 ui.add_space(2.);
@@ -568,13 +640,51 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
                             .map(|c| {
                                 let pk = if c.is_primary_key { " PRIMARY KEY" } else { "" };
                                 let not_null = if !c.is_nullable && !c.is_primary_key { " NOT NULL" } else { "" };
-                                format!("    {} {}{}{}", c.name, c.data_type, pk, not_null)
+                                let uniq = if c.is_unique && !c.is_primary_key { " UNIQUE" } else { "" };
+                                format!("    {} {}{}{}{}", c.name, c.data_type, pk, not_null, uniq)
                             })
                             .collect();
                         ddl.push_str(&col_defs.join(",\n"));
                         ddl.push_str("\n);");
+                        for c in columns.iter() {
+                            if c.is_indexed && !c.is_primary_key {
+                                ddl.push_str(&format!("\nCREATE INDEX IF NOT EXISTS idx_{}_{} ON {}({});", table_name, c.name, table_name, c.name));
+                            }
+                        }
                         ui.ctx().copy_text(ddl);
-                        action_toast = Some("Table DDL copied to clipboard".to_string());
+                        action_toast = Some("Table DDL copied to clipboard ✓".to_string());
+                    }
+
+                    ui.add_space(3.);
+                    if ui.add(egui::Button::new(egui::RichText::new("⚡ Copy Proteus DSL").size(10.).color(Color32::from_rgb(0, 210, 240)).strong())
+                        .fill(Color32::from_rgb(20, 36, 48))
+                        .stroke(egui::Stroke::new(1.0, Color32::from_rgb(0, 168, 204)))
+                        .min_size(egui::vec2(ui.available_width(), 24.)))
+                        .clicked()
+                    {
+                        let mut dsl = format!("entity {} {{\n", table_name);
+                        let mut fields = Vec::new();
+                        for c in columns.iter() {
+                            let ftype = match c.data_type.to_uppercase().as_str() {
+                                "UUID" => "uuid",
+                                "INT" | "INTEGER" | "BIGINT" => "integer",
+                                "REAL" | "FLOAT" | "DECIMAL" => "decimal",
+                                "BOOL" | "BOOLEAN" => "bool",
+                                "TIMESTAMP" | "DATETIME" => "timestamp",
+                                "JSON" | "JSONB" => "json",
+                                _ => "text",
+                            };
+                            let mut flags = Vec::new();
+                            if c.is_primary_key { flags.push("primary"); }
+                            if !c.is_nullable && !c.is_primary_key { flags.push("required"); }
+                            if c.is_unique && !c.is_primary_key { flags.push("unique"); }
+                            let flag_str = if flags.is_empty() { String::new() } else { format!(" {}", flags.join(" ")) };
+                            fields.push(format!("    {}: {}{}", c.name, ftype, flag_str));
+                        }
+                        dsl.push_str(&fields.join(",\n"));
+                        dsl.push_str("\n}");
+                        ui.ctx().copy_text(dsl);
+                        action_toast = Some("Proteus DSL snippet copied to clipboard ✓".to_string());
                     }
 
                     ui.add_space(3.);

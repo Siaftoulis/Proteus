@@ -10,6 +10,10 @@ pub struct SqlColumnMeta {
     pub data_type: String,
     pub is_nullable: bool,
     pub is_primary_key: bool,
+    #[serde(default)]
+    pub is_unique: bool,
+    #[serde(default)]
+    pub is_indexed: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -77,6 +81,8 @@ impl SqlSchemaGraph {
                         data_type: r.get(2)?,
                         is_nullable: r.get::<_, i32>(3)? == 0,
                         is_primary_key: r.get::<_, i32>(5)? > 0,
+                        is_unique: false,
+                        is_indexed: false,
                     })
                 })
                 .map_err(|e| e.to_string())?
