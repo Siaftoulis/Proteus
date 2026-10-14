@@ -9,6 +9,16 @@ use std::path::PathBuf;
 /// - Linux: `~/.local/share/proteus/store.db`
 /// - macOS: `~/Library/Application Support/Proteus/store.db`
 pub fn get_database_path() -> PathBuf {
+    // 1. Explicit data directory override via environment variable
+    if let Ok(override_dir) = std::env::var("PROTEUS_DATA_DIR") {
+        return PathBuf::from(override_dir).join("store.db");
+    }
+
+    // 2. Portable mode execution (USB flash drive or standalone folder)
+    if std::env::var("PROTEUS_PORTABLE").is_ok() || PathBuf::from("data").join("store.db").exists() {
+        return PathBuf::from("data").join("store.db");
+    }
+
     #[cfg(target_os = "windows")]
     {
         if let Ok(appdata) = std::env::var("APPDATA") {

@@ -1,0 +1,45 @@
+# ==============================================================================
+# Proteus Sovereign BOS — Default System Configuration
+# Sovereign Business Operating System (Zero SaaS Lock-in)
+# ==============================================================================
+
+[store]
+company_name = "Ελληνική Εμπορική Επιχείρηση"
+tin = "000000000"                # ΑΦΜ Επιχείρησης (9 ψηφία)
+branch_id = 0                    # 0 = Έδρα / Κεντρικό Κατάστημα
+address = "Ερμού 1, Αθήνα"
+postal_code = "10563"
+phone = "+30 210 0000000"
+email = "info@business.gr"
+
+[database]
+path = "data/store.db"
+wal_mode = true
+busy_timeout_ms = 5000
+auto_vacuum = "INCREMENTAL"
+
+[mydata]
+environment = "development"       # "development" ή "production"
+user_id = ""                     # AADE myDATA API Username
+subscription_key = ""            # AADE myDATA API Ocp-Apim-Subscription-Key
+auto_transmit = true             # Αυτόματη ασύγχρονη διαβίβαση
+retry_interval_secs = 300        # Επαναπροσπάθεια κάθε 5 λεπτά σε διακοπή ίντερνετ
+
+[pos]
+default_payment_method = "Card"   # "Cash" ή "Card"
+require_shift_clockin = true     # Έλεγχος Ψηφιακής Κάρτας Εργασίας (ΕΡΓΑΝΗ ΙΙ)
+enforce_eftpos_pairing = false   # Υποχρεωτικό κλείδωμα EFT/POS (Α.1155/2023)
+eftpos_ip = "192.168.1.150"
+eftpos_port = 8080
+
+[hardware]
+escpos_printer_type = "USB"      # "USB", "COM", "Network"
+escpos_printer_target = "PRINTER_POS_01"
+scale_com_port = "COM3"          # Θύρα ζυγαριάς RS232
+scale_baud_rate = 9600
+
+[mesh]
+enabled = true                   # Αυτόνομος συγχρονισμός τοπικού δικτύου LAN
+branch_name = "Branch-Central"
+bind_port = 7474
+broadcast_interval_secs = 5

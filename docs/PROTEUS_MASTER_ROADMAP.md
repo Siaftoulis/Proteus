@@ -376,5 +376,23 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 - [x] Sub-task 18.2.2: myDATA MARK & Payment Means Linkage
   - [x] Micro-task 18.2.2.1: Linking Greek myDATA MARK, UID, and IBAN payment instructions in Peppol envelope.
 
+---
 
+## Phase 19: Sovereign Packaging & Single-Click Native Installer Tooling (`project/deploy/installer`)
 
+### Task 19.1: Portable Distribution & Dependency Bundler (`project/deploy/installer/bundle.ps1`)
+- [ ] Sub-task 19.1.1: Release Artifact Packager & Portable Bundle Assembler
+  - [x] Micro-task 19.1.1.1: Standalone bundle assembler creating `dist/proteus-desktop/` with binaries, default `proteus.toml`, schema initializers, batch launchers, and SHA-256 integrity manifest.
+  - [ ] Micro-task 19.1.1.2: Windows Inno Setup installer script (`project/deploy/installer/proteus_setup.iss`) with zero-admin portable fallback, desktop shortcuts, and uninstaller.
+
+### Task 19.2: Sovereign Pre-Flight Diagnostic & Auto-Repair Launcher (`proteus-core::preflight`)
+- [ ] Sub-task 19.2.1: Pre-Flight Integrity Engine
+  - [ ] Micro-task 19.2.1.1: SQLite integrity verification (WAL mode, schema tables, foreign keys), hardware port diagnostics, and automatic configuration self-healing.
+
+---
+
+## Phase 20: End-to-End Pilot Simulation & Comprehensive Integration Harness (`tests/pilot_simulation.rs`)
+
+### Task 20.1: Full Operational Lifecycle Integration Simulation
+- [ ] Sub-task 20.1.1: Sovereign Omnichannel Business Flow Test
+  - [ ] Micro-task 20.1.1.1: End-to-end integration scenario verifying Ergani II clock-in -> scale RS232 reading -> Touch POS sale -> myDATA asynchronous transmission -> B2B reservation -> WebStore order -> dropship fulfillment -> Peppol B2G invoice.
