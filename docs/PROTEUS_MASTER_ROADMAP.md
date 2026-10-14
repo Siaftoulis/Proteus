@@ -386,8 +386,8 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
   - [x] Micro-task 19.1.1.2: Windows Inno Setup installer script (`project/deploy/installer/proteus_setup.iss`) with zero-admin portable fallback, desktop shortcuts, and uninstaller.
 
 ### Task 19.2: Sovereign Pre-Flight Diagnostic & Auto-Repair Launcher (`proteus-core::preflight`)
-- [ ] Sub-task 19.2.1: Pre-Flight Integrity Engine
-  - [ ] Micro-task 19.2.1.1: SQLite integrity verification (WAL mode, schema tables, foreign keys), hardware port diagnostics, and automatic configuration self-healing.
+- [x] Sub-task 19.2.1: Pre-Flight Integrity Engine
+  - [x] Micro-task 19.2.1.1: SQLite integrity verification (WAL mode, schema tables, foreign keys), hardware port diagnostics, and automatic configuration self-healing.
 
 ---
 

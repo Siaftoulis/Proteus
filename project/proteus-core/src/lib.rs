@@ -77,6 +77,7 @@ pub mod cloud_replica;
 pub mod dropship;
 pub mod b2b_network;
 pub mod peppol;
+pub mod preflight;
 
 use chrono::Utc;
 use rusqlite::{params, Connection};
