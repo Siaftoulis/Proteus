@@ -360,4 +360,21 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 - [x] Sub-task 17.2.2: EU P2B & DAC7 Regulatory Audit Ledger
   - [x] Micro-task 17.2.2.1: Statutory threshold tracking (>30 transactions or >€2,000 gross) and report generator for Greek AADE / EU tax authorities.
 
+---
+
+## Phase 18: Sovereign B2G Electronic Invoicing & Peppol BIS Billing 3.0 (`proteus-core::peppol`)
+
+### Task 18.1: B2G Public Procurement Schemas & Buyer Directory (`proteus-core::peppol::schemas`)
+- [x] Sub-task 18.1.1: Public Sector Entities & Tender Contract DDL
+  - [x] Micro-task 18.1.1.1: SQLite DDL for `peppol_public_buyers`, `peppol_contracts`, and `peppol_invoices`.
+- [x] Sub-task 18.1.2: Greek Public Sector Buyer Registry & Validation
+  - [x] Micro-task 18.1.2.1: Peppol Participant ID format (`9934:<AFM>`), Greek contracting authority codes (Κωδικός Αναθέτουσας Αρχής), and CPV validation.
+
+### Task 18.2: European Standard EN 16931 / UBL 2.1 XML Generator (`proteus-core::peppol::ubl`)
+- [x] Sub-task 18.2.1: Peppol BIS Billing 3.0 Invoice Document Generator
+  - [x] Micro-task 18.2.1.1: Standalone compliant XML serializer generating `urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0`.
+- [x] Sub-task 18.2.2: myDATA MARK & Payment Means Linkage
+  - [x] Micro-task 18.2.2.1: Linking Greek myDATA MARK, UID, and IBAN payment instructions in Peppol envelope.
+
+
 

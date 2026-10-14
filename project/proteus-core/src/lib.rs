@@ -76,6 +76,7 @@ pub mod mydata_expenses;
 pub mod cloud_replica;
 pub mod dropship;
 pub mod b2b_network;
+pub mod peppol;
 
 use chrono::Utc;
 use rusqlite::{params, Connection};
