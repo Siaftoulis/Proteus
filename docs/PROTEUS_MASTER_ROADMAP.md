@@ -322,4 +322,24 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 - [x] Sub-task 15.5.3: Inbound Order Ingestion Dashboard
   - [x] Micro-task 15.5.3.1: Live SQLite inbound orders panel with pending badge and order details drawer.
 
+---
 
+## Phase 16: Sovereign Dropshipping Automation & Supplier Catalog Ingestion Engine (`proteus-core::dropship`)
+
+### Task 16.1: Supplier Feed Schemas & Rule-Based Margin Engine (`proteus-core::dropship::pricing`)
+- [x] Sub-task 16.1.1: Dropshipping SQLite Schemas & Supplier Registry
+  - [x] Micro-task 16.1.1.1: SQLite DDL for `dropship_suppliers`, `dropship_catalog_items`, and `dropship_margin_rules`.
+- [x] Sub-task 16.1.2: Dynamic Margin & Price Calculation Engine
+  - [x] Micro-task 16.1.2.1: Percentage markup, fixed addition, psychological rounding, and VAT tax inclusion.
+
+### Task 16.2: Multi-Format Supplier Feed Ingestor (`proteus-core::dropship::ingest`)
+- [ ] Sub-task 16.2.1: CSV & JSON/XML Supplier Feed Parser
+  - [ ] Micro-task 16.2.1.1: Configurable column mapping for external supplier catalogs (SKU, Title, Wholesale Price, Stock, Category).
+- [ ] Sub-task 16.2.2: Stock & Price Delta Synchronizer
+  - [ ] Micro-task 16.2.2.1: Safe catalog upsert protecting merchant custom descriptions while refreshing stock and wholesale costs.
+
+### Task 16.3: Automated Vendor Order Dispatch & Fulfillment Routing (`proteus-core::dropship::dispatch`)
+- [ ] Sub-task 16.3.1: Automated Dropship Order Routing
+  - [ ] Micro-task 16.3.1.1: Inbound order item routing to supplier fulfillment queue (`dropship_dispatch_queue`).
+- [ ] Sub-task 16.3.2: Supplier Fulfillment Notification Payload
+  - [ ] Micro-task 16.3.2.1: Generating encrypted supplier dispatch order slips and tracking callback webhook envelopes.

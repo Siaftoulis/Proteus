@@ -74,6 +74,7 @@ pub mod loyalty;
 pub mod promotions;
 pub mod mydata_expenses;
 pub mod cloud_replica;
+pub mod dropship;
 
 use chrono::Utc;
 use rusqlite::{params, Connection};
