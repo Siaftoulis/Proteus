@@ -333,13 +333,14 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
   - [x] Micro-task 16.1.2.1: Percentage markup, fixed addition, psychological rounding, and VAT tax inclusion.
 
 ### Task 16.2: Multi-Format Supplier Feed Ingestor (`proteus-core::dropship::ingest`)
-- [ ] Sub-task 16.2.1: CSV & JSON/XML Supplier Feed Parser
-  - [ ] Micro-task 16.2.1.1: Configurable column mapping for external supplier catalogs (SKU, Title, Wholesale Price, Stock, Category).
-- [ ] Sub-task 16.2.2: Stock & Price Delta Synchronizer
-  - [ ] Micro-task 16.2.2.1: Safe catalog upsert protecting merchant custom descriptions while refreshing stock and wholesale costs.
+- [x] Sub-task 16.2.1: CSV & JSON/XML Supplier Feed Parser
+  - [x] Micro-task 16.2.1.1: Configurable column mapping for external supplier catalogs (SKU, Title, Wholesale Price, Stock, Category).
+- [x] Sub-task 16.2.2: Stock & Price Delta Synchronizer
+  - [x] Micro-task 16.2.2.1: Safe catalog upsert protecting merchant custom descriptions while refreshing stock and wholesale costs.
 
 ### Task 16.3: Automated Vendor Order Dispatch & Fulfillment Routing (`proteus-core::dropship::dispatch`)
-- [ ] Sub-task 16.3.1: Automated Dropship Order Routing
-  - [ ] Micro-task 16.3.1.1: Inbound order item routing to supplier fulfillment queue (`dropship_dispatch_queue`).
-- [ ] Sub-task 16.3.2: Supplier Fulfillment Notification Payload
-  - [ ] Micro-task 16.3.2.1: Generating encrypted supplier dispatch order slips and tracking callback webhook envelopes.
+- [x] Sub-task 16.3.1: Automated Dropship Order Routing
+  - [x] Micro-task 16.3.1.1: Inbound order item routing to supplier fulfillment queue (`dropship_dispatch_queue`).
+- [x] Sub-task 16.3.2: Supplier Fulfillment Notification Payload
+  - [x] Micro-task 16.3.2.1: Generating encrypted supplier dispatch order slips and tracking callback webhook envelopes.
+
