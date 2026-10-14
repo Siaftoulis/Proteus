@@ -381,9 +381,9 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 ## Phase 19: Sovereign Packaging & Single-Click Native Installer Tooling (`project/deploy/installer`)
 
 ### Task 19.1: Portable Distribution & Dependency Bundler (`project/deploy/installer/bundle.ps1`)
-- [ ] Sub-task 19.1.1: Release Artifact Packager & Portable Bundle Assembler
+- [x] Sub-task 19.1.1: Release Artifact Packager & Portable Bundle Assembler
   - [x] Micro-task 19.1.1.1: Standalone bundle assembler creating `dist/proteus-desktop/` with binaries, default `proteus.toml`, schema initializers, batch launchers, and SHA-256 integrity manifest.
-  - [ ] Micro-task 19.1.1.2: Windows Inno Setup installer script (`project/deploy/installer/proteus_setup.iss`) with zero-admin portable fallback, desktop shortcuts, and uninstaller.
+  - [x] Micro-task 19.1.1.2: Windows Inno Setup installer script (`project/deploy/installer/proteus_setup.iss`) with zero-admin portable fallback, desktop shortcuts, and uninstaller.
 
 ### Task 19.2: Sovereign Pre-Flight Diagnostic & Auto-Repair Launcher (`proteus-core::preflight`)
 - [ ] Sub-task 19.2.1: Pre-Flight Integrity Engine

@@ -43,4 +43,17 @@ fn test_bundle_packaging_script_and_artifacts() {
     let resolved_portable = get_database_path();
     assert_eq!(resolved_portable, Path::new("data").join("store.db"));
     std::env::remove_var("PROTEUS_PORTABLE");
+
+    // 5. Verify Inno Setup installer script (proteus_setup.iss)
+    let iss_file = installer_dir.join("proteus_setup.iss");
+    assert!(iss_file.exists(), "proteus_setup.iss must exist");
+    let iss_content = fs::read_to_string(&iss_file).expect("Failed to read proteus_setup.iss");
+    assert!(iss_content.contains("AppName={#MyAppName}"));
+    assert!(iss_content.contains("PrivilegesRequired=lowest"));
+    assert!(iss_content.contains("onlyifdoesntexist uninsneveruninstall"));
+    assert!(iss_content.contains("store.db"));
+    assert!(iss_content.contains("Name: \"greek\""));
+    assert!(iss_content.contains("Name: \"english\""));
+    assert!(iss_content.contains("proteus-client.exe"));
+    assert!(iss_content.contains("proteus-design-studio.exe"));
 }
