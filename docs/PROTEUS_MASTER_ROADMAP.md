@@ -344,3 +344,20 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 - [x] Sub-task 16.3.2: Supplier Fulfillment Notification Payload
   - [x] Micro-task 16.3.2.1: Generating encrypted supplier dispatch order slips and tracking callback webhook envelopes.
 
+---
+
+## Phase 17: Federated B2B Dealer Networks & Marketplace Commission Settlement Engine (`proteus-core::b2b_network`)
+
+### Task 17.1: B2B Dealer Registry & Time-Locked Stock Reservation (`proteus-core::b2b_network::reservation`)
+- [x] Sub-task 17.1.1: Dealer Partnership Schemas & SQLite Store
+  - [x] Micro-task 17.1.1.1: DDL for `b2b_dealers`, `b2b_shared_inventory`, and `b2b_stock_reservations`.
+- [x] Sub-task 17.1.2: Anti-Race Condition Time-Locked Stock Reservation Engine
+  - [x] Micro-task 17.1.2.1: Atomically reserving stock with 15-minute TTL, release on timeout, and confirm on checkout completion.
+
+### Task 17.2: Multi-Vendor Commission Split & DAC7 Tax Ledger (`proteus-core::b2b_network::settlement`)
+- [x] Sub-task 17.2.1: Platform Fee & Commission Allocation Engine
+  - [x] Micro-task 17.2.1.1: Tiered commission rules, split payments, and net vendor payout calculations.
+- [x] Sub-task 17.2.2: EU P2B & DAC7 Regulatory Audit Ledger
+  - [x] Micro-task 17.2.2.1: Statutory threshold tracking (>30 transactions or >€2,000 gross) and report generator for Greek AADE / EU tax authorities.
+
+
