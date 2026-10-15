@@ -399,5 +399,5 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 
 ### Task 20.2: Ultra-Simplified "Planet-Style" Visual Designer Canvas (`proteus-design-studio`)
 - [ ] Sub-task 20.2.1: Ready-Made Block Palettes & Instant Template Applicator
-  - [ ] Micro-task 20.2.1.1: Pre-assembled block catalog (Hero banner, Product grid, Cart drawer, Contact & Map) enabling instant drag-and-drop without building components from scratch.
+  - [x] Micro-task 20.2.1.1: Pre-assembled block catalog (Hero banner, Product grid, Cart drawer, Contact & Map) enabling instant drag-and-drop without building components from scratch.
   - [ ] Micro-task 20.2.1.2: One-click "Apply Template" workflow generating responsive static storefronts ready for instant compilation.

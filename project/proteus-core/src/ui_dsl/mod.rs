@@ -7,10 +7,12 @@ pub mod ast;
 pub mod compiler;
 pub mod assets;
 pub mod deploy;
+pub mod blocks;
 
 pub use ast::{ButtonAction, LayoutKind, UiNode, UiStyle};
 pub use compiler::{CompiledWebPage, UiDslCompiler};
 pub use assets::{AssetOptimizer, ImageFormat, ImageMetadata, MAX_RECOMMENDED_IMAGE_BYTES};
+pub use blocks::{StorefrontConfig, VisualBlockCatalog};
 pub use deploy::{
     init_inbound_tables, ingest_order_envelope, query_pending_orders_count, DistAsset,
     DistManifest, OrderRelayEnvelope, OrderRelayError, RelayOrderItem, SiteDistBundle,
