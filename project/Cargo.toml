@@ -10,8 +10,13 @@ members = [
     "auth-server"
 ]
 
+[profile.dev]
+opt-level = 0
+debug = 1
+
 [profile.release]
-lto = true
+lto = "fat"
 strip = true
-opt-level = "z"
+opt-level = 3
 codegen-units = 1
+panic = "abort"

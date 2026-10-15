@@ -258,6 +258,9 @@ impl Database {
 /// - NORMAL synchronous mode for crash-safe speed.
 /// - INCREMENTAL auto_vacuum for automatic disk space reclamation.
 /// - 4096 page size for optimal SSD alignment.
+/// - 64MB dedicated RAM page cache (-64000).
+/// - In-memory temporary tables and sorting (temp_store = MEMORY).
+/// - 256MB memory-mapped I/O (mmap_size = 268435456) for zero-copy reads.
 pub fn apply_storage_tuning(conn: &Connection) -> Result<(), rusqlite::Error> {
     conn.execute_batch(
         r#"
@@ -265,6 +268,9 @@ pub fn apply_storage_tuning(conn: &Connection) -> Result<(), rusqlite::Error> {
         PRAGMA synchronous = NORMAL;
         PRAGMA auto_vacuum = INCREMENTAL;
         PRAGMA page_size = 4096;
+        PRAGMA cache_size = -64000;
+        PRAGMA temp_store = MEMORY;
+        PRAGMA mmap_size = 268435456;
         PRAGMA busy_timeout = 5000;
         "#,
     )?;
