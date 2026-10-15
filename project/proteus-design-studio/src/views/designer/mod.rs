@@ -326,6 +326,7 @@ pub fn show_right(app: &mut ProteusApp, ui: &mut egui::Ui) {
         &mut app.copied_dimensions,
         &mut app.hardware_printer_name,
         &mut app.hardware_paper_58mm,
+        &mut app.tripartite_inspector,
     );
 
     if let Some(action) = hw_action {

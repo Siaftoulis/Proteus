@@ -172,6 +172,9 @@ pub struct ProteusApp {
     pub sql_import_error: Option<String>,
     pub flow_col_search_query: String,
     pub sql_import_execute_in_db: bool,
+
+    // Tripartite Pipeline Studio Inspector State (Phase 21)
+    pub tripartite_inspector: crate::inspector::TripartiteInspectorState,
 }
 
 pub fn app_dir() -> String {
@@ -493,6 +496,7 @@ impl Default for ProteusApp {
             sql_import_error: None,
             flow_col_search_query: String::new(),
             sql_import_execute_in_db: true,
+            tripartite_inspector: crate::inspector::TripartiteInspectorState::default(),
         };
         app.seed_database_if_empty();
         app.reload_table_cache("contacts");

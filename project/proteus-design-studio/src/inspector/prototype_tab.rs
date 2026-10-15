@@ -11,6 +11,7 @@ pub fn draw_prototype_tab(
     ui: &mut egui::Ui,
     node: &Node,
     doc: &ProjectDocument,
+    tripartite_state: &mut super::tripartite_inspector::TripartiteInspectorState,
     events: &mut Vec<CanvasEvent>,
 ) {
     ui.add_space(2.);
@@ -37,7 +38,18 @@ pub fn draw_prototype_tab(
         draw_input_data_binding(ui, node, bound_entity.as_deref(), bound_field.as_deref(), events);
     }
 
-    // 4. W3C Design Token Association
+    // 4. Tripartite Pipeline Coordinator (Designer <-> Schema <-> Business Engine)
+    let trigger_event = match &node.node_type {
+        NodeType::Button { .. } => proteus_core::tripartite::UiTriggerEvent::OnButtonClick,
+        NodeType::DynamicForm { .. } => proteus_core::tripartite::UiTriggerEvent::OnSubmit,
+        NodeType::TextInput { .. } | NodeType::Dropdown { .. } | NodeType::Checkbox { .. } => {
+            proteus_core::tripartite::UiTriggerEvent::OnChange
+        }
+        _ => proteus_core::tripartite::UiTriggerEvent::OnButtonClick,
+    };
+    super::tripartite_inspector::draw_tripartite_section(ui, tripartite_state, &node.id, trigger_event);
+
+    // 5. W3C Design Token Association
     ui.add_space(8.);
     ui.separator();
     draw_token_associations(ui, node);

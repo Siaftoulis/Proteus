@@ -7,6 +7,7 @@ pub mod hardware_tab;
 pub mod mutations;
 pub mod prototype_tab;
 pub mod precision;
+pub mod tripartite_inspector;
 
 pub use controls::*;
 pub use design_tab::*;
@@ -14,6 +15,7 @@ pub use hardware_tab::*;
 pub use mutations::*;
 pub use prototype_tab::*;
 pub use precision::*;
+pub use tripartite_inspector::*;
 
 
 use crate::models::InspectorTab;
@@ -30,6 +32,7 @@ pub fn draw_inspector(
     copied_dimensions: &mut Option<(f32, f32)>,
     printer_name: &mut String,
     is_58mm: &mut bool,
+    tripartite_state: &mut TripartiteInspectorState,
 ) -> (Vec<CanvasEvent>, Option<HardwareAction>) {
     let mut events = Vec::new();
     let mut hardware_action = None;
@@ -112,7 +115,7 @@ pub fn draw_inspector(
                     precision::draw_precision_design_tab(ui, node, doc, copied_dimensions, &mut events);
                 }
                 InspectorTab::Prototype => {
-                    draw_prototype_tab(ui, node, doc, &mut events);
+                    draw_prototype_tab(ui, node, doc, tripartite_state, &mut events);
                 }
                 InspectorTab::Hardware => {}
             }
