@@ -434,7 +434,7 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 ### Task 23.1: Fleet Telemetry Store & Native Spatial Geofence Engine (`proteus-core::telemetry`)
 - [ ] Sub-task 23.1.1: Vehicle Breadcrumbs, Geofence Zones & SQLite Telemetry Store
   - [x] Micro-task 23.1.1.1: SQLite schema for `fleet_vehicles`, `telemetry_breadcrumbs`, `geofence_zones`, and `geofence_events` with sovereign Haversine spatial containment.
-  - [ ] Micro-task 23.1.1.2: Breadcrumb ingestion pipeline with automated geofence entry/exit transition detection and persistent audit logging.
+  - [x] Micro-task 23.1.1.2: Breadcrumb ingestion pipeline with automated geofence entry/exit transition detection and persistent audit logging.
 - [ ] Sub-task 23.1.2: Sovereign P2P Vehicle Sync & Speed Violation Watchdog
   - [ ] Micro-task 23.1.2.1: Speed limit watchdog and driver telemetry metrics computation.
 
