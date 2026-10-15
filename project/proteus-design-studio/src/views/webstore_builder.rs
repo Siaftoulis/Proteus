@@ -7,6 +7,7 @@ use std::path::Path;
 use eframe::egui::{self, Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
 use proteus_core::ui_dsl::{
     ast::UiNode,
+    blocks::{StorefrontConfig, VisualBlockCatalog},
     compiler::{CompiledWebPage, UiDslCompiler},
     deploy::{init_inbound_tables, query_pending_orders_count, DistManifest, SiteDistBundle},
     StorefrontTemplate,
@@ -20,6 +21,8 @@ pub enum StorefrontPreset {
     ArtisanBakery,
     TechRepair,
     Boutique,
+    GreekOrganics,
+    TurnkeyCustom,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -66,11 +69,48 @@ impl Default for WebstoreBuilderState {
 }
 
 impl WebstoreBuilderState {
+    pub fn apply_preset(&mut self) {
+        let (id, title, headline, color) = match self.preset {
+            StorefrontPreset::ArtisanBakery => ("artisan_bakery", "Artisan Bakery & Cafe", "Fresh Sourdough Bread Handcrafted Daily", "#D97706"),
+            StorefrontPreset::TechRepair => ("tech_hardware", "Tech Hardware & Repairs", "Certified Repairs & Premium Accessories", "#2563EB"),
+            StorefrontPreset::Boutique => ("linen_boutique", "Minimalist Linen Boutique", "Timeless Sustainable Apparel & Living", "#475569"),
+            StorefrontPreset::GreekOrganics => ("hellas_organics", "Ελληνικά Βιολογικά Προϊόντα", "Αγνό Παρθένο Ελαιόλαδο & Μέλι Παραγωγών", "#16A34A"),
+            StorefrontPreset::TurnkeyCustom => ("sovereign_store", "Sovereign Retail Store", "Αυτόνομο Κατάστημα Λιανικής Χωρίς Συνδρομές", "#6366F1"),
+        };
+        self.store_id = id.to_string();
+        self.store_title = title.to_string();
+        self.hero_headline = headline.to_string();
+        self.accent_color = color.to_string();
+    }
+
     pub fn build_ast_tree(&self) -> UiNode {
         match self.preset {
             StorefrontPreset::ArtisanBakery => StorefrontTemplate::artisan_bakery(),
             StorefrontPreset::TechRepair => StorefrontTemplate::tech_repair(),
             StorefrontPreset::Boutique => StorefrontTemplate::boutique(),
+            StorefrontPreset::GreekOrganics | StorefrontPreset::TurnkeyCustom => {
+                let config = StorefrontConfig {
+                    store_id: self.store_id.clone(),
+                    store_name: self.store_title.clone(),
+                    tagline: self.hero_headline.clone(),
+                    hero_cta: "Παραγγελία Τώρα".to_string(),
+                    afm: "094014201".to_string(),
+                    address: "Ερμού 1, Αθήνα".to_string(),
+                    phone: "+30 210 0000000".to_string(),
+                    email: "info@business.gr".to_string(),
+                    primary_color: self.accent_color.clone(),
+                    features: vec![
+                        ("100% Αυτόνομο".into(), "Χωρίς συνδρομές cloud".into()),
+                        ("myDATA Έτοιμο".into(), "Απευθείας με ΑΑΔΕ".into()),
+                        ("Ασφαλείς Πληρωμές".into(), "Κάρτα & Αντικαταβολή".into()),
+                    ],
+                    products: vec![
+                        ("PRD-01".into(), "Εξαιρετικό Παρθένο Ελαιόλαδο 5L".into(), 48.00, "olive.webp".into(), true),
+                        ("PRD-02".into(), "Μέλι Θυμαρίσιο Κρήτης 1kg".into(), 16.50, "honey.webp".into(), true),
+                    ],
+                };
+                VisualBlockCatalog::assemble_one_page_store(&config)
+            }
         }
     }
 
@@ -87,22 +127,43 @@ impl WebstoreBuilderState {
 pub fn show_left(app: &mut ProteusApp, ui: &mut Ui) {
     let state = &mut app.webstore_state;
     ui.add_space(8.0);
-    ui.label(RichText::new("STOREFRONT PRESETS").small().strong().color(theme::TEXT_MUTED));
+    ui.label(RichText::new("STOREFRONT PRESETS (PLANET)").small().strong().color(theme::TEXT_MUTED));
     ui.add_space(6.0);
 
     let mut changed = false;
     if ui.selectable_label(state.preset == StorefrontPreset::ArtisanBakery, "🍞 Artisan Bakery").clicked() {
         state.preset = StorefrontPreset::ArtisanBakery;
+        state.apply_preset();
         changed = true;
     }
     if ui.selectable_label(state.preset == StorefrontPreset::TechRepair, "🔧 Tech & Hardware").clicked() {
         state.preset = StorefrontPreset::TechRepair;
+        state.apply_preset();
         changed = true;
     }
     if ui.selectable_label(state.preset == StorefrontPreset::Boutique, "👗 Boutique").clicked() {
         state.preset = StorefrontPreset::Boutique;
+        state.apply_preset();
         changed = true;
     }
+    if ui.selectable_label(state.preset == StorefrontPreset::GreekOrganics, "🌿 Ελληνικά Βιολογικά").clicked() {
+        state.preset = StorefrontPreset::GreekOrganics;
+        state.apply_preset();
+        changed = true;
+    }
+    if ui.selectable_label(state.preset == StorefrontPreset::TurnkeyCustom, "⚡ Planet 1-Click Store").clicked() {
+        state.preset = StorefrontPreset::TurnkeyCustom;
+        state.apply_preset();
+        changed = true;
+    }
+
+    ui.add_space(8.0);
+    if ui.button(RichText::new("🚀 Εφαρμογή Προτύπου (Apply)").strong().color(Color32::WHITE)).clicked() {
+        state.apply_preset();
+        changed = true;
+        state.last_status = Some("Πρότυπο εφαρμόστηκε επιτυχώς (Turnkey Store Applied)".to_string());
+    }
+
     if changed || state.cached_compiled.is_none() {
         state.recompile();
     }
@@ -378,5 +439,20 @@ mod tests {
         let manifest = state.cached_manifest.unwrap();
         assert_eq!(manifest.site_id, "artisan_bakery");
         assert!(manifest.files.contains_key("index.html"));
+    }
+
+    #[test]
+    fn test_apply_preset_and_turnkey_compilation() {
+        let mut state = WebstoreBuilderState::default();
+        state.preset = StorefrontPreset::GreekOrganics;
+        state.apply_preset();
+        assert_eq!(state.store_id, "hellas_organics");
+        assert_eq!(state.accent_color, "#16A34A");
+
+        state.recompile();
+        assert!(state.cached_compiled.is_some());
+        let compiled = state.cached_compiled.unwrap();
+        assert!(compiled.standalone_html.contains("Ελληνικά Βιολογικά Προϊόντα"));
+        assert!(compiled.standalone_html.contains("myDATA Έτοιμο"));
     }
 }
