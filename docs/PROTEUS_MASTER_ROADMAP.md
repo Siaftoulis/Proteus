@@ -417,3 +417,12 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 ### Task 21.3: End-to-End Omnichannel Tripartite Integration Harness (`tests/tripartite_pipeline_test.rs`)
 - [x] Sub-task 21.3.1: Full Sovereign Tripartite Pipeline Integration Test
   - [x] Micro-task 21.3.1.1: Multi-trigger retail checkout & workshop tasks simulation validating visual component bindings, entity schema typing, reactive business rules, and atomic SQLite persistence.
+
+---
+
+## Phase 22: Sovereign On-Site Field Service & Mobile Technician Workbench (`proteus-mobile::field_service`)
+
+### Task 22.1: On-Site Technician Dispatch & Field Service Bench
+- [x] Sub-task 22.1.1: Mobile Diagnostic Checklist, Labor Logging & Vehicle Van Stock Ledger
+  - [x] Micro-task 22.1.1.1: Interactive on-site hardware diagnostic checklist, labor hours, and vehicle spare parts consumption ledger (`proteus-mobile::field_service`).
+  - [x] Micro-task 22.1.1.2: Touch sign-on-glass customer signature verification and 1-click on-site completion updating `service_tickets` and high-priority outbox replication queue.

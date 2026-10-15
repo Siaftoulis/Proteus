@@ -1,11 +1,16 @@
 //! Mobile Companion Tickets Tab View.
-//! Renders searchable service ticket list from local SQLite.
+//! Renders searchable service ticket list or interactive on-site field service workbench.
 
-use crate::{MobileAppState, ACCENT_GOLD, BG_CARD, BORDER_LINE, TEXT_BODY, TEXT_TITLE};
+use crate::{MobileAppState, ACCENT_GOLD, BG_CARD, BORDER_LINE, MIN_TOUCH_TARGET, TEXT_BODY, TEXT_TITLE};
 use egui::{CornerRadius, Frame, Margin, RichText, Stroke, Ui, Vec2};
 use proteus_core::tickets::{list_tickets, ServiceTicket};
 
 pub fn render_tickets_tab(ui: &mut Ui, state: &mut MobileAppState) {
+    if state.field_service_state.active_ticket.is_some() {
+        crate::field_service::render_field_service_view(ui, &mut state.field_service_state, &state.conn);
+        return;
+    }
+
     ui.horizontal(|ui| {
         ui.add_sized(
             Vec2::new(ui.available_width(), 38.0),
@@ -31,6 +36,8 @@ pub fn render_tickets_tab(ui: &mut Ui, state: &mut MobileAppState) {
         return;
     }
 
+    let mut selected_to_open: Option<ServiceTicket> = None;
+
     for t in filtered {
         Frame::new()
             .fill(BG_CARD)
@@ -46,7 +53,20 @@ pub fn render_tickets_tab(ui: &mut Ui, state: &mut MobileAppState) {
                 });
                 ui.label(RichText::new(format!("{} | {}", t.device_model, t.reported_fault)).size(11.5).color(TEXT_BODY));
                 ui.label(RichText::new(format!("#{}: {}", t.ticket_number, t.ticket_id)).size(9.5).color(BORDER_LINE));
+                ui.add_space(4.0);
+                if ui.add_sized(
+                    Vec2::new(ui.available_width(), MIN_TOUCH_TARGET - 6.0),
+                    egui::Button::new(RichText::new("🔧 Επιτόπιο Service Bench").size(11.0).strong().color(egui::Color32::WHITE))
+                        .fill(egui::Color32::from_rgb(37, 99, 235))
+                        .corner_radius(CornerRadius::same(4)),
+                ).clicked() {
+                    selected_to_open = Some((*t).clone());
+                }
             });
         ui.add_space(6.0);
+    }
+
+    if let Some(t) = selected_to_open {
+        state.field_service_state.open_ticket(&state.conn, t);
     }
 }

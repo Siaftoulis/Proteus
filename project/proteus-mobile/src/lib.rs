@@ -50,6 +50,7 @@ pub fn render_mobile_logo_widget(ui: &mut Ui, size: Vec2) -> egui::Response {
 }
 
 pub mod device;
+pub mod field_service;
 pub mod hotspot_bridge;
 pub mod intake_tab;
 pub mod keyboard_cushion;
@@ -90,6 +91,7 @@ pub struct MobileAppState {
     pub auth_token: Option<String>,
     pub sync_controller: crate::sync_daemon::MobileSyncController,
     pub van_sales_state: crate::van_sales::VanSalesState,
+    pub field_service_state: crate::field_service::FieldServiceState,
     pub device_ctx: crate::device::DeviceContext,
     pub keyboard_cushion: crate::keyboard_cushion::KeyboardCushion,
     pub intake_is_urgent: bool,
@@ -105,6 +107,7 @@ impl Default for MobileAppState {
         let _ = proteus_core::printer::init_shop_settings_schema(&conn);
         let _ = init_outbox_schema(&conn);
         let _ = proteus_core::shipping_note::init_shipping_schema(&conn);
+        let _ = proteus_core::service_bench::init_service_bench_schema(&conn);
         let shop_config = load_shop_config(&conn);
 
         Self {
@@ -127,6 +130,7 @@ impl Default for MobileAppState {
             auth_token: None,
             sync_controller: crate::sync_daemon::MobileSyncController::default(),
             van_sales_state: crate::van_sales::VanSalesState::default(),
+            field_service_state: crate::field_service::FieldServiceState::default(),
             device_ctx: crate::device::DeviceContext::default(),
             keyboard_cushion: crate::keyboard_cushion::KeyboardCushion::default(),
             intake_is_urgent: false,
