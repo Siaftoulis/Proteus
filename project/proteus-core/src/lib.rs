@@ -78,6 +78,7 @@ pub mod dropship;
 pub mod b2b_network;
 pub mod peppol;
 pub mod preflight;
+pub mod tripartite;
 
 use chrono::Utc;
 use rusqlite::{params, Connection};
