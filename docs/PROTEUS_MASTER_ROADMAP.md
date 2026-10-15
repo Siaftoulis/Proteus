@@ -426,3 +426,31 @@ Methodology: Atomic implementation ("νια-νια"), 100% original bespoke code
 - [x] Sub-task 22.1.1: Mobile Diagnostic Checklist, Labor Logging & Vehicle Van Stock Ledger
   - [x] Micro-task 22.1.1.1: Interactive on-site hardware diagnostic checklist, labor hours, and vehicle spare parts consumption ledger (`proteus-mobile::field_service`).
   - [x] Micro-task 22.1.1.2: Touch sign-on-glass customer signature verification and 1-click on-site completion updating `service_tickets` and high-priority outbox replication queue.
+
+---
+
+## Phase 23: Sovereign P2P Fleet Radar & Offline Geofence Telemetry (`proteus-core::telemetry`)
+
+### Task 23.1: Fleet Telemetry Store & Native Spatial Geofence Engine (`proteus-core::telemetry`)
+- [ ] Sub-task 23.1.1: Vehicle Breadcrumbs, Geofence Zones & SQLite Telemetry Store
+  - [x] Micro-task 23.1.1.1: SQLite schema for `fleet_vehicles`, `telemetry_breadcrumbs`, `geofence_zones`, and `geofence_events` with sovereign Haversine spatial containment.
+  - [ ] Micro-task 23.1.1.2: Breadcrumb ingestion pipeline with automated geofence entry/exit transition detection and persistent audit logging.
+- [ ] Sub-task 23.1.2: Sovereign P2P Vehicle Sync & Speed Violation Watchdog
+  - [ ] Micro-task 23.1.2.1: Speed limit watchdog and driver telemetry metrics computation.
+
+### Task 23.2: Real Database-Backed Fleet Radar View (`proteus-client::views::fleet_radar`)
+- [ ] Sub-task 23.2.1: SQLite Integration & Geofence Visual Overlays
+  - [ ] Micro-task 23.2.1.1: Real-time SQLite-backed fleet radar view rendering Ground Fleet vans with geofence zones and zero mock data.
+
+---
+
+## Phase 24: Sovereign In-Studio Business Analysis & Client Discovery Suite (`proteus-design-studio::views::analyst`)
+
+### Task 24.1: Client Interview Discovery & Bespoke Markdown Spec Engine (`views::analyst_spec`)
+- [x] Sub-task 24.1.1: Business Analysis Questionnaire & Markdown Specification Compiler
+  - [x] Micro-task 24.1.1.1: Interactive client interview questionnaire (business sector, modular subsystem checkboxes, user personas, UI preferences, and interview notes) with automated Markdown specification generator (`analyst_spec::compile_markdown_specification`).
+  - [x] Micro-task 24.1.1.2: In-studio Business Analysis workbench with subtab switcher (Client Discovery, Markdown Spec, Schema Inferer), live preview, clipboard copy, and 1-click bridge to Designer (`views::analyst`).
+
+### Task 24.2: 1-Click Mockup Block Scaffolder & Tripartite Expert Handoff
+- [x] Sub-task 24.2.1: Instant Canvas Mockup Scaffolder
+  - [x] Micro-task 24.2.1.1: Direct bridge converting `DiscoveryInterview` to `ClientProjectBrief` and scaffolding native `ProjectDocument` canvas frames & visual blocks (CRM, POS, WMS, Field Service, Cardex) with instant switch to Designer mode.

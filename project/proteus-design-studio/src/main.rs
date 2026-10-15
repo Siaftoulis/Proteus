@@ -165,7 +165,7 @@ impl ProteusApp {
                 ui.set_clip_rect(ui.max_rect());
                 match self.mode {
                     Mode::Designer => views::designer::show_left(self, ui),
-                    Mode::Analyst => views::analyst::show_left(&mut self.analyst_state, ui),
+                    Mode::Analyst => views::analyst::show_left(self, ui),
                     Mode::Networking => views::networking::show_left(&mut self.networking_state, ui),
                     Mode::Troubleshoot => views::troubleshoot::show_left(&mut self.troubleshoot_state, ui),
                     Mode::ConnectedData => views::connected_data::show_left(&mut self.connected_data_state, self.db_conn.as_ref(), ui),
@@ -298,7 +298,7 @@ impl ProteusApp {
                     Mode::Tasks => views::tasks::show_central(self, &pnt, r, mpos, mup, ui),
                     Mode::Studio => views::studio::show_central(self, ctx, &pnt, r, mpos, mdown, mup),
                     Mode::Designer => views::designer::show_central(self, ctx, ui, &pnt, r, mpos, &resp),
-                    Mode::Analyst => views::analyst::show_central(&mut self.analyst_state, ui),
+                    Mode::Analyst => views::analyst::show_central(self, ui),
                     Mode::Networking => views::networking::show_central(&mut self.networking_state, ui),
                     Mode::Troubleshoot => views::troubleshoot::show_central(&mut self.troubleshoot_state, ui),
                     Mode::ConnectedData => {
