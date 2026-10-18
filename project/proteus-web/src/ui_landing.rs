@@ -214,24 +214,9 @@ const HTML_BODY: &str = r##"
     <main class="landing-main">
         <!-- 1. HERO SECTION (Ramp-Inspired Asymmetrical Editorial Stage & Showcase) -->
         <section class="hero-section ramp-hero-layout">
-            <div class="sovereign-status-ticker">
-                <span class="ticker-dot"></span>
-                <span>SOVEREIGN RUNTIME</span>
-                <span>&bull;</span>
-                <span class="ticker-val">100% OFFLINE</span>
-                <span>&bull;</span>
-                <span class="ticker-val">0€ SAAS TAX</span>
-                <span>&bull;</span>
-                <span>RUST NATIVE ENGINE</span>
-            </div>
-
             <div class="hero-stage-grid">
                 <!-- Left: Headline, Human Phrasing & Ramp-Style Action Bar -->
                 <div class="hero-stage-left">
-                    <div class="hero-pill">
-                        <span class="pulse-dot"></span>
-                        <span>SOVEREIGN BOS &bull; LOCAL-FIRST &bull; ZERO SUBSCRIPTIONS</span>
-                    </div>
                     <h1 class="hero-title">
                         Αυτονομία χωρίς cloud.<br>
                         <span class="editorial-accent">Μηδέν συνδρομές.</span>
@@ -250,11 +235,6 @@ const HTML_BODY: &str = r##"
                                 <span>Δοκιμάστε το Demo</span>
                                 <span class="btn-arrow">→</span>
                             </button>
-                        </div>
-                        <div class="ramp-form-subtext">
-                            <span>⚡ Άμεση εκτέλεση σε Windows, macOS &amp; Linux</span>
-                            <span class="subtext-bullet">&bull;</span>
-                            <span>Κανένα δεδομένο δεν φεύγει από το κατάστημα</span>
                         </div>
                     </form>
 
@@ -681,7 +661,7 @@ mod tests {
         assert!(html.contains("nav-item-dropdown"));
         assert!(html.contains("nav-dropdown-menu"));
         assert!(html.contains("theme-toggle-btn"));
-        assert!(html.contains("sovereign-status-ticker"));
+        assert!(html.contains("ramp-hero-layout"));
         assert!(html.contains("toggleTheme()"));
     }
 }
