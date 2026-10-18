@@ -2,10 +2,13 @@
 // GDPR / ePrivacy Cookie Management, Theme Switcher, Smooth Anchors, and Contact Form API Dispatcher
 
 window.addEventListener('DOMContentLoaded', () => {
-    // 0. Initialize Theme (Light / Dark)
+    // 0. Auto-detect and apply System/OS Language (Zero manual toggles)
+    applySystemLocale();
+
+    // 1. Initialize Theme (Light / Dark)
     initTheme();
 
-    // 1. Cookie Banner Visibility
+    // 2. Cookie Banner Visibility
     if (!localStorage.getItem('proteus_cookie_consent')) {
         const banner = document.getElementById('cookie-banner');
         if (banner) {
@@ -13,6 +16,78 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+function detectSystemLocale() {
+    const raw = (navigator.languages && navigator.languages.length > 0)
+        ? navigator.languages[0]
+        : (navigator.language || navigator.userLanguage || 'en');
+    return raw.toLowerCase().startsWith('el') ? 'el' : 'en';
+}
+
+const I18N_EN = {
+    'nav_products': 'Products',
+    'nav_solutions': 'Solutions',
+    'nav_partners': 'Partners',
+    'nav_resources': 'Resources',
+    'nav_pricing': 'Pricing',
+    'nav_login': 'Sign in',
+    'nav_demo': 'Request Demo',
+    'nav_start': 'Get Started →',
+    'hero_title': 'Autonomy without cloud.<br><span class="editorial-accent">Zero subscriptions.</span>',
+    'hero_subtitle': 'Device repairs, POS checkout, spatial WMS, and direct fiscal sync. Your entire business operations in an ultra-fast native engine with local encrypted SQLite and zero third-party dependencies.',
+    'hero_input_ph': 'Company name or work email...',
+    'hero_input_btn': 'Try Live Demo →',
+    'hero_cta_free': 'Start Free & Demo →',
+    'hero_cta_how': 'How It Works ↓',
+    'app_window_tab': 'TechFix Solutions O.E. — Frontline POS & Service',
+    'vendor_name': 'TechFix Repair Hub',
+    'tx_timestamp': 'Today, 18:10 • Receipt #04821',
+    'tx_item_1_name': 'OLED Screen Replacement iPhone 13 (IMEI 35892109281)',
+    'tx_item_2_name': 'Technician Labor & Diagnostic Inspection',
+    'tx_meta_eft': 'Payment: EFT/POS Terminal #02 (A.1155)',
+    'tx_meta_esc': 'Print: ESC/POS 80mm (0.18ms)',
+    'mobile_kicker': 'SERVICE ORDER #891',
+    'mobile_status': 'READY',
+    'mobile_title': 'On-site Field Service — Van 01',
+    'mobile_sig_label': 'Customer Signature ✓',
+    'quote_text': '"When internet goes down in the neighborhood, our checkout keeps printing receipts and booking repairs seamlessly."',
+    'quote_author': 'George Karalis',
+    'quote_role': 'Owner, TechFix Hub',
+    'strip_runtime': 'SOVEREIGN RUNTIME:',
+    'strip_runtime_val': '100% OFFLINE',
+    'strip_tx': 'TRANSACTIONS:',
+    'strip_tax': 'AADE myDATA:',
+    'strip_tax_val': '0€ CLOUD TAX',
+    'strip_latency': 'RESPONSE TIME:',
+    'strip_printers': 'ESC/POS PRINTERS:',
+    'strip_printers_val': 'ACTIVE',
+    'strip_db': 'DATABASE ENGINE:',
+    'spec_boot': 'Boot Time',
+    'spec_db': 'Local DB',
+    'spec_offline': 'Offline Resilience',
+    'spec_drivers': 'Native Drivers'
+};
+
+function applySystemLocale() {
+    const locale = detectSystemLocale();
+    document.documentElement.setAttribute('lang', locale);
+    if (locale === 'el') return; // Default HTML is already Greek
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (I18N_EN[key]) {
+            el.innerHTML = I18N_EN[key];
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (I18N_EN[key]) {
+            el.setAttribute('placeholder', I18N_EN[key]);
+        }
+    });
+}
+
 
 function initTheme() {
     const saved = localStorage.getItem('proteus_theme') || 'dark';

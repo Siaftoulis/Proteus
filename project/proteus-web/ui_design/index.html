@@ -25,7 +25,7 @@
                 <!-- Dropdown: Προϊόντα -->
                 <div class="nav-item-dropdown">
                     <button class="nav-link-btn" type="button">
-                        <span>Προϊόντα</span>
+                        <span data-i18n="nav_products">Προϊόντα</span>
                         <span class="nav-caret">▼</span>
                     </button>
                     <div class="nav-dropdown-menu wide-menu">
@@ -77,7 +77,7 @@
                 <!-- Dropdown: Λύσεις -->
                 <div class="nav-item-dropdown">
                     <button class="nav-link-btn" type="button">
-                        <span>Λύσεις</span>
+                        <span data-i18n="nav_solutions">Λύσεις</span>
                         <span class="nav-caret">▼</span>
                     </button>
                     <div class="nav-dropdown-menu">
@@ -115,7 +115,7 @@
                 <!-- Dropdown: Συνεργάτες -->
                 <div class="nav-item-dropdown">
                     <button class="nav-link-btn" type="button">
-                        <span>Συνεργάτες</span>
+                        <span data-i18n="nav_partners">Συνεργάτες</span>
                         <span class="nav-caret">▼</span>
                     </button>
                     <div class="nav-dropdown-menu">
@@ -146,7 +146,7 @@
                 <!-- Dropdown: Πόροι -->
                 <div class="nav-item-dropdown">
                     <button class="nav-link-btn" type="button">
-                        <span>Πόροι</span>
+                        <span data-i18n="nav_resources">Πόροι</span>
                         <span class="nav-caret">▼</span>
                     </button>
                     <div class="nav-dropdown-menu">
@@ -167,7 +167,7 @@
                     </div>
                 </div>
 
-                <a href="#pricing" class="nav-link">Τιμολόγηση</a>
+                <a href="#pricing" class="nav-link" data-i18n="nav_pricing">Τιμολόγηση</a>
             </nav>
         </div>
 
@@ -177,9 +177,9 @@
                 <span class="theme-icon">🌙</span>
                 <span>Dark</span>
             </button>
-            <a href="/hub" class="nav-link" style="font-weight: 600; padding: 0.4rem 0.6rem;">Σύνδεση</a>
-            <a href="#contact" class="btn btn-secondary btn-sm">Ζητήστε Demo</a>
-            <a href="/hub" class="btn btn-sm">Έναρξη →</a>
+            <a href="/hub" class="nav-link" style="font-weight: 600; padding: 0.4rem 0.6rem;" data-i18n="nav_login">Σύνδεση</a>
+            <a href="#contact" class="btn btn-secondary btn-sm" data-i18n="nav_demo">Ζητήστε Demo</a>
+            <a href="/hub" class="btn btn-sm" data-i18n="nav_start">Έναρξη →</a>
         </div>
     </header>
 
@@ -189,11 +189,11 @@
             <div class="hero-stage-grid">
                 <!-- Left: Headline, Human Phrasing & Ramp-Style Action Bar -->
                 <div class="hero-stage-left">
-                    <h1 class="hero-title">
+                    <h1 class="hero-title" data-i18n="hero_title">
                         Αυτονομία χωρίς cloud.<br>
                         <span class="editorial-accent">Μηδέν συνδρομές.</span>
                     </h1>
-                    <p class="hero-subtitle">
+                    <p class="hero-subtitle" data-i18n="hero_subtitle">
                         Επισκευές συσκευών, ταμείο POS, αποθήκη WMS και άμεση έκδοση myDATA.
                         Όλη η λειτουργία της επιχείρησής σας σε μία αστραπιαία native εφαρμογή,
                         με τοπική κρυπτογραφημένη SQLite και πλήρη ανεξαρτησία από τρίτους.
@@ -202,17 +202,17 @@
                     <!-- Ramp-Style Interactive Input & CTA Bar -->
                     <form class="ramp-hero-form" onsubmit="handleHeroSubmit(event)">
                         <div class="ramp-input-group">
-                            <input type="text" id="hero-business-input" placeholder="Όνομα επιχείρησης ή email..." class="ramp-email-input" required>
+                            <input type="text" id="hero-business-input" placeholder="Όνομα επιχείρησης ή email..." data-i18n-ph="hero_input_ph" class="ramp-email-input" required>
                             <button type="submit" class="ramp-cta-btn">
-                                <span>Δοκιμάστε το Demo</span>
+                                <span data-i18n="hero_input_btn">Δοκιμάστε το Demo</span>
                                 <span class="btn-arrow">→</span>
                             </button>
                         </div>
                     </form>
 
                     <div class="hero-cta-group">
-                        <a href="/hub" class="btn btn-lg">Έναρξη Δωρεάν &amp; Demo →</a>
-                        <a href="#how-it-works" class="btn btn-secondary btn-lg">Πώς Λειτουργεί ↓</a>
+                        <a href="/hub" class="btn btn-lg" data-i18n="hero_cta_free">Έναρξη Δωρεάν &amp; Demo →</a>
+                        <a href="#how-it-works" class="btn btn-secondary btn-lg" data-i18n="hero_cta_how">Πώς Λειτουργεί ↓</a>
                     </div>
                 </div>
 
@@ -227,7 +227,7 @@
                                 <span class="win-btn win-max"></span>
                             </div>
                             <div class="window-tab-title">
-                                <span>TechFix Solutions Ο.Ε. — Frontline POS &amp; Service</span>
+                                <span data-i18n="app_window_tab">TechFix Solutions Ο.Ε. — Frontline POS &amp; Service</span>
                             </div>
                             <div class="window-status-pill">● Localhost:3000</div>
                         </div>
@@ -238,8 +238,8 @@
                                 <div class="tx-vendor-badge">
                                     <div class="vendor-icon">TF</div>
                                     <div>
-                                        <div class="vendor-name">TechFix Repair Hub</div>
-                                        <div class="tx-timestamp">Σήμερα, 18:10 &bull; Απόδειξη #04821</div>
+                                        <div class="vendor-name" data-i18n="vendor_name">TechFix Repair Hub</div>
+                                        <div class="tx-timestamp" data-i18n="tx_timestamp">Σήμερα, 18:10 &bull; Απόδειξη #04821</div>
                                     </div>
                                 </div>
                                 <div class="tx-amount-col">
@@ -250,16 +250,16 @@
 
                             <div class="tx-receipt-details">
                                 <div class="tx-line-item">
-                                    <span class="item-name">Αλλαγή Οθόνης OLED iPhone 13 (IMEI 35892109281)</span>
+                                    <span class="item-name" data-i18n="tx_item_1_name">Αλλαγή Οθόνης OLED iPhone 13 (IMEI 35892109281)</span>
                                     <span class="item-cost">€38,00</span>
                                 </div>
                                 <div class="tx-line-item">
-                                    <span class="item-name">Εργασία Τεχνικού &amp; Διαγνωστικός Έλεγχος</span>
+                                    <span class="item-name" data-i18n="tx_item_2_name">Εργασία Τεχνικού &amp; Διαγνωστικός Έλεγχος</span>
                                     <span class="item-cost">€10,50</span>
                                 </div>
                                 <div class="tx-footer-meta">
-                                    <span>Πληρωμή: EFT/POS Terminal #02 (Α.1155)</span>
-                                    <span>Εκτύπωση: ESC/POS 80mm (0.18ms)</span>
+                                    <span data-i18n="tx_meta_eft">Πληρωμή: EFT/POS Terminal #02 (Α.1155)</span>
+                                    <span data-i18n="tx_meta_esc">Εκτύπωση: ESC/POS 80mm (0.18ms)</span>
                                 </div>
                             </div>
                         </div>
@@ -268,30 +268,30 @@
                     <!-- Overlapping Floating Mobile Van Ticket -->
                     <div class="ramp-floating-card floating-mobile-card">
                         <div class="mobile-card-header">
-                            <span class="card-kicker">ΕΝΤΟΛΗ SERVICE #891</span>
-                            <span class="status-ready">ΕΤΟΙΜΟ</span>
+                            <span class="card-kicker" data-i18n="mobile_kicker">ΕΝΤΟΛΗ SERVICE #891</span>
+                            <span class="status-ready" data-i18n="mobile_status">ΕΤΟΙΜΟ</span>
                         </div>
                         <div class="mobile-card-body">
-                            <div class="mobile-item-title">Επιτόπιο Service — Van 01</div>
+                            <div class="mobile-item-title" data-i18n="mobile_title">Επιτόπιο Service — Van 01</div>
                             <div class="mobile-signature-line">
                                 <svg viewBox="0 0 100 24" class="sig-svg">
                                     <path d="M5 18 Q 25 2, 45 14 T 85 8 T 95 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                 </svg>
-                                <span class="sig-label">Υπογραφή Πελάτη ✓</span>
+                                <span class="sig-label" data-i18n="mobile_sig_label">Υπογραφή Πελάτη ✓</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Overlapping Floating Customer Quote (Tony Hawk Callout Style) -->
                     <div class="ramp-floating-card floating-callout-card">
-                        <div class="callout-quote">
+                        <div class="callout-quote" data-i18n="quote_text">
                             "Όταν πέφτει το internet στη γειτονιά, το ταμείο μας συνεχίζει να τυπώνει αποδείξεις και να καταγράφει επισκευές κανονικά."
                         </div>
                         <div class="callout-author">
                             <span class="author-avatar">ΓΚ</span>
                             <div>
-                                <div class="author-name">Γιώργος Καραλής</div>
-                                <div class="author-role">Ιδιοκτήτης TechFix Hub</div>
+                                <div class="author-name" data-i18n="quote_author">Γιώργος Καραλής</div>
+                                <div class="author-role" data-i18n="quote_role">Ιδιοκτήτης TechFix Hub</div>
                             </div>
                         </div>
                     </div>
@@ -301,25 +301,25 @@
             <!-- Ramp-Style Bottom Telemetry Ticker Marquee -->
             <div class="ramp-telemetry-strip">
                 <div class="telemetry-strip-inner">
-                    <span class="strip-item"><span class="strip-label">⚙ ΚΥΡΙΑΡΧΟ RUNTIME:</span> <span class="strip-val">100% OFFLINE</span></span>
+                    <span class="strip-item"><span class="strip-label" data-i18n="strip_runtime">⚙ ΚΥΡΙΑΡΧΟ RUNTIME:</span> <span class="strip-val" data-i18n="strip_runtime_val">100% OFFLINE</span></span>
                     <span class="strip-divider">|</span>
-                    <span class="strip-item"><span class="strip-label">ΣΥΝΑΛΛΑΓΕΣ:</span> <span class="strip-val">1,284,910</span></span>
+                    <span class="strip-item"><span class="strip-label" data-i18n="strip_tx">ΣΥΝΑΛΛΑΓΕΣ:</span> <span class="strip-val">1,284,910</span></span>
                     <span class="strip-divider">|</span>
-                    <span class="strip-item"><span class="strip-label">ΑΑΔΕ myDATA:</span> <span class="strip-val">0€ CLOUD TAX</span></span>
+                    <span class="strip-item"><span class="strip-label" data-i18n="strip_tax">ΑΑΔΕ myDATA:</span> <span class="strip-val" data-i18n="strip_tax_val">0€ CLOUD TAX</span></span>
                     <span class="strip-divider">|</span>
-                    <span class="strip-item"><span class="strip-label">ΧΡΟΝΟΣ ΑΠΟΚΡΙΣΗΣ:</span> <span class="strip-val">&lt; 0.2ms</span></span>
+                    <span class="strip-item"><span class="strip-label" data-i18n="strip_latency">ΧΡΟΝΟΣ ΑΠΟΚΡΙΣΗΣ:</span> <span class="strip-val">&lt; 0.2ms</span></span>
                     <span class="strip-divider">|</span>
-                    <span class="strip-item"><span class="strip-label">ΕΚΤΥΠΩΤΕΣ ESC/POS:</span> <span class="strip-val">ΕΝΕΡΓΟΙ</span></span>
+                    <span class="strip-item"><span class="strip-label" data-i18n="strip_printers">ΕΚΤΥΠΩΤΕΣ ESC/POS:</span> <span class="strip-val" data-i18n="strip_printers_val">ΕΝΕΡΓΟΙ</span></span>
                     <span class="strip-divider">|</span>
-                    <span class="strip-item"><span class="strip-label">ΒΑΣΗ ΔΕΔΟΜΕΝΩΝ:</span> <span class="strip-val">SQLITE AES-256</span></span>
+                    <span class="strip-item"><span class="strip-label" data-i18n="strip_db">ΒΑΣΗ ΔΕΔΟΜΕΝΩΝ:</span> <span class="strip-val">SQLITE AES-256</span></span>
                 </div>
             </div>
 
             <div class="hero-specs-strip">
-                <div class="spec-item"><span class="spec-metric">⚡ &lt;1s</span> Boot Time</div>
-                <div class="spec-item"><span class="spec-metric">🛡️ AES-256</span> Local DB</div>
-                <div class="spec-item"><span class="spec-metric">📶 100%</span> Offline Resilience</div>
-                <div class="spec-item"><span class="spec-metric">🖨️ ESC/POS</span> Native Drivers</div>
+                <div class="spec-item"><span class="spec-metric">⚡ &lt;1s</span> <span data-i18n="spec_boot">Boot Time</span></div>
+                <div class="spec-item"><span class="spec-metric">🛡️ AES-256</span> <span data-i18n="spec_db">Local DB</span></div>
+                <div class="spec-item"><span class="spec-metric">📶 100%</span> <span data-i18n="spec_offline">Offline Resilience</span></div>
+                <div class="spec-item"><span class="spec-metric">🖨️ ESC/POS</span> <span data-i18n="spec_drivers">Native Drivers</span></div>
             </div>
         </section>
 
