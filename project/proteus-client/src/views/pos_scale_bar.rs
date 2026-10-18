@@ -5,7 +5,7 @@
 
 use egui::{Color32, CornerRadius, Frame, Margin, RichText, Stroke, Ui, Vec2};
 use proteus_core::audio::{play_barcode_chime, play_error_tone};
-use proteus_core::hardware::{ScaleBroadcastHub, WeighedCartItem};
+use proteus_core::hardware::{LiveScaleState, ScaleBroadcastHub, WeighedCartItem};
 use proteus_core::invoicing::{InvoiceLine, VatCategory};
 
 /// Interactive state for the Touch POS scale telemetry bar.

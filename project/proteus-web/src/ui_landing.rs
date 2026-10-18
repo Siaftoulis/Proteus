@@ -16,7 +16,9 @@ fn build_landing_html() -> String {
     out.push_str(HTML_HEAD);
     out.push_str(crate::ui_css::CSS_STYLES);
     out.push_str(HTML_BODY);
-    out.push_str(HTML_SCRIPTS);
+    out.push_str("\n    <script>\n");
+    out.push_str(APP_JS);
+    out.push_str("\n    </script>\n</body>\n</html>\n");
     out
 }
 
@@ -37,58 +39,335 @@ const HTML_HEAD: &str = r##"<!DOCTYPE html>
 const HTML_BODY: &str = r##"
     </style>
 </head>
-<body>
-    <!-- Top Navigation Bar -->
+<body class="sovereign-canvas">
+    <!-- Ramp-Style Top Navigation Bar (Sovereign Nordic Slate Architecture) -->
     <header class="landing-header">
         <div class="brand-wrap">
-            <a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.75rem;">
-                <img src="/assets/logo.png" alt="Proteus Emblem" class="brand-logo-img" />
-                <div class="brand">
-                    <span>PROTEUS</span>
-                    <span class="brand-badge">BUSINESS ENGINE</span>
-                </div>
+            <a href="/" class="brand-link">
+                <span class="brand-logo-sovereign">
+                    proteus<svg class="brand-logo-symbol" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="0.5" y="1" width="3.5" height="14" rx="0.5"/><rect x="0.5" y="1" width="15" height="3.5" rx="0.5"/><polygon points="11,4.5 15.5,15 11,15"/></svg>
+                </span>
+                <span class="brand-tag-sovereign">BOS</span>
             </a>
             <nav class="nav-links">
-                <a href="#about" class="nav-link">Σχετικά</a>
-                <a href="#how-it-works" class="nav-link">Πώς Λειτουργεί</a>
-                <a href="#services" class="nav-link">Workshops</a>
-                <a href="#talent" class="nav-link">Πρόσληψη Ειδικών</a>
+                <!-- Dropdown: Προϊόντα -->
+                <div class="nav-item-dropdown">
+                    <button class="nav-link-btn" type="button">
+                        <span>Προϊόντα</span>
+                        <span class="nav-caret">▼</span>
+                    </button>
+                    <div class="nav-dropdown-menu wide-menu">
+                        <a href="/hub" class="dropdown-item">
+                            <span class="dropdown-item-icon">📐</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Design Studio</div>
+                                <div class="dropdown-item-desc">Native visual canvas, scene graph &amp; flow DAG builder</div>
+                            </div>
+                        </a>
+                        <a href="/hub" class="dropdown-item">
+                            <span class="dropdown-item-icon">⚡</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Frontline POS &amp; Service</div>
+                                <div class="dropdown-item-desc">Intake tickets, 6-stage Kanban &amp; ESC/POS αποδείξεις</div>
+                            </div>
+                        </a>
+                        <a href="/hub" class="dropdown-item">
+                            <span class="dropdown-item-icon">📦</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Spatial WMS &amp; VMI</div>
+                                <div class="dropdown-item-desc">3D bin packing, consignment stock &amp; smart tote intake</div>
+                            </div>
+                        </a>
+                        <a href="/hub" class="dropdown-item">
+                            <span class="dropdown-item-icon">❄️</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Cold Chain HACCP</div>
+                                <div class="dropdown-item-desc">IoT sensor telemetry &amp; Merkle cryptographic audit</div>
+                            </div>
+                        </a>
+                        <a href="/hub" class="dropdown-item">
+                            <span class="dropdown-item-icon">🚚</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Van Sales &amp; Signature</div>
+                                <div class="dropdown-item-desc">Sign-on-glass vector capture &amp; mobile Bluetooth print</div>
+                            </div>
+                        </a>
+                        <a href="/hub" class="dropdown-item">
+                            <span class="dropdown-item-icon">🏛️</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Direct AADE myDATA</div>
+                                <div class="dropdown-item-desc">0€ REST sync, QR codes &amp; Ergani II ψηφιακή κάρτα</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Dropdown: Λύσεις -->
+                <div class="nav-item-dropdown">
+                    <button class="nav-link-btn" type="button">
+                        <span>Λύσεις</span>
+                        <span class="nav-caret">▼</span>
+                    </button>
+                    <div class="nav-dropdown-menu">
+                        <a href="#about" class="dropdown-item">
+                            <span class="dropdown-item-icon">🔧</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Επισκευές &amp; Service</div>
+                                <div class="dropdown-item-desc">IMEI serial tracking, εγγυήσεις &amp; RMA hub</div>
+                            </div>
+                        </a>
+                        <a href="#about" class="dropdown-item">
+                            <span class="dropdown-item-icon">🛒</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Λιανική &amp; Ταμείο</div>
+                                <div class="dropdown-item-desc">ESC/POS 80mm αποδείξεις, barcode scanner &amp; ESL</div>
+                            </div>
+                        </a>
+                        <a href="#about" class="dropdown-item">
+                            <span class="dropdown-item-icon">🏗️</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Εργοτάξια &amp; Μάστορες</div>
+                                <div class="dropdown-item-desc">Καρτέλα μάστορα, υλικά ανά έργο &amp; sub-ledger</div>
+                            </div>
+                        </a>
+                        <a href="#about" class="dropdown-item">
+                            <span class="dropdown-item-icon">🌐</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Αλυσίδες LAN Mesh</div>
+                                <div class="dropdown-item-desc">P2P replication μεταξύ καταστημάτων χωρίς cloud</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Dropdown: Συνεργάτες -->
+                <div class="nav-item-dropdown">
+                    <button class="nav-link-btn" type="button">
+                        <span>Συνεργάτες</span>
+                        <span class="nav-caret">▼</span>
+                    </button>
+                    <div class="nav-dropdown-menu">
+                        <a href="#services" class="dropdown-item">
+                            <span class="dropdown-item-icon">💼</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Λογιστές &amp; Ορκωτοί</div>
+                                <div class="dropdown-item-desc">Απευθείας εξαγωγή myDATA &amp; ελεγκτικά ίχνη Merkle</div>
+                            </div>
+                        </a>
+                        <a href="#services" class="dropdown-item">
+                            <span class="dropdown-item-icon">🖨️</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Hardware Vendors</div>
+                                <div class="dropdown-item-desc">Πιστοποιημένοι θερμικοί εκτυπωτές &amp; ESL ετικέτες</div>
+                            </div>
+                        </a>
+                        <a href="#talent" class="dropdown-item">
+                            <span class="dropdown-item-icon">🧑‍💻</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Ειδικοί &amp; Developers</div>
+                                <div class="dropdown-item-desc">Προσαρμοσμένες επεκτάσεις &amp; bespoke ενσωματώσεις</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Dropdown: Πόροι -->
+                <div class="nav-item-dropdown">
+                    <button class="nav-link-btn" type="button">
+                        <span>Πόροι</span>
+                        <span class="nav-caret">▼</span>
+                    </button>
+                    <div class="nav-dropdown-menu">
+                        <a href="#how-it-works" class="dropdown-item">
+                            <span class="dropdown-item-icon">📖</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Πώς Λειτουργεί</div>
+                                <div class="dropdown-item-desc">Αρχιτεκτονική τοπικής SQLite &amp; Rust engine</div>
+                            </div>
+                        </a>
+                        <a href="/legal/terms" class="dropdown-item">
+                            <span class="dropdown-item-icon">🛡️</span>
+                            <div class="dropdown-item-content">
+                                <div class="dropdown-item-title">Ασφάλεια &amp; Compliance</div>
+                                <div class="dropdown-item-desc">GDPR, Ν.4624/2019, ISO 27001 &amp; μηδενικά cloud data</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
                 <a href="#pricing" class="nav-link">Τιμολόγηση</a>
-                <a href="#contact" class="nav-link">Επικοινωνία</a>
             </nav>
         </div>
+
         <div class="header-actions">
-            <a href="/hub" class="btn btn-secondary btn-sm">Web Hub</a>
-            <a href="#contact" class="btn btn-sm">Ζητήστε Προσφορά →</a>
+            <!-- Manual Theme Toggle Switch (Light / Dark) -->
+            <button id="theme-toggle-btn" class="theme-toggle-btn" type="button" onclick="toggleTheme()" title="Εναλλαγή σε Light Mode">
+                <span class="theme-icon">🌙</span>
+                <span>Dark</span>
+            </button>
+            <a href="/hub" class="nav-link" style="font-weight: 600; padding: 0.4rem 0.6rem;">Σύνδεση</a>
+            <a href="#contact" class="btn btn-secondary btn-sm">Ζητήστε Demo</a>
+            <a href="/hub" class="btn btn-sm">Έναρξη →</a>
         </div>
     </header>
 
     <main class="landing-main">
-        <!-- 1. HERO SECTION -->
-        <section class="hero-section">
-            <div class="hero-emblem-wrap">
-                <img src="/assets/logo.png" alt="King Proteus Sovereign Emblem" class="hero-emblem-img" />
+        <!-- 1. HERO SECTION (Ramp-Inspired Asymmetrical Editorial Stage & Showcase) -->
+        <section class="hero-section ramp-hero-layout">
+            <div class="sovereign-status-ticker">
+                <span class="ticker-dot"></span>
+                <span>SOVEREIGN RUNTIME</span>
+                <span>&bull;</span>
+                <span class="ticker-val">100% OFFLINE</span>
+                <span>&bull;</span>
+                <span class="ticker-val">0€ SAAS TAX</span>
+                <span>&bull;</span>
+                <span>RUST NATIVE ENGINE</span>
             </div>
-            <div class="hero-pill">
-                <span class="pulse-dot"></span>
-                <span>NATIVE RUST &bull; LOCAL SQLITE &bull; 0% CLOUD LOCK-IN</span>
+
+            <div class="hero-stage-grid">
+                <!-- Left: Headline, Human Phrasing & Ramp-Style Action Bar -->
+                <div class="hero-stage-left">
+                    <div class="hero-pill">
+                        <span class="pulse-dot"></span>
+                        <span>SOVEREIGN BOS &bull; LOCAL-FIRST &bull; ZERO SUBSCRIPTIONS</span>
+                    </div>
+                    <h1 class="hero-title">
+                        Αυτονομία χωρίς cloud.<br>
+                        <span class="editorial-accent">Μηδέν συνδρομές.</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Επισκευές συσκευών, ταμείο POS, αποθήκη WMS και άμεση έκδοση myDATA.
+                        Όλη η λειτουργία της επιχείρησής σας σε μία αστραπιαία native εφαρμογή,
+                        με τοπική κρυπτογραφημένη SQLite και πλήρη ανεξαρτησία από τρίτους.
+                    </p>
+
+                    <!-- Ramp-Style Interactive Input & CTA Bar -->
+                    <form class="ramp-hero-form" onsubmit="handleHeroSubmit(event)">
+                        <div class="ramp-input-group">
+                            <input type="text" id="hero-business-input" placeholder="Όνομα επιχείρησης ή email..." class="ramp-email-input" required>
+                            <button type="submit" class="ramp-cta-btn">
+                                <span>Δοκιμάστε το Demo</span>
+                                <span class="btn-arrow">→</span>
+                            </button>
+                        </div>
+                        <div class="ramp-form-subtext">
+                            <span>⚡ Άμεση εκτέλεση σε Windows, macOS &amp; Linux</span>
+                            <span class="subtext-bullet">&bull;</span>
+                            <span>Κανένα δεδομένο δεν φεύγει από το κατάστημα</span>
+                        </div>
+                    </form>
+
+                    <div class="hero-cta-group">
+                        <a href="/hub" class="btn btn-lg">Έναρξη Δωρεάν &amp; Demo →</a>
+                        <a href="#how-it-works" class="btn btn-secondary btn-lg">Πώς Λειτουργεί ↓</a>
+                    </div>
+                </div>
+
+                <!-- Right: Ramp-Style Layered BOS Application Window & Live Receipts -->
+                <div class="hero-interactive-stage">
+                    <div class="ramp-app-card">
+                        <!-- macOS App Window Chrome -->
+                        <div class="app-window-header">
+                            <div class="window-controls">
+                                <span class="win-btn win-close"></span>
+                                <span class="win-btn win-min"></span>
+                                <span class="win-btn win-max"></span>
+                            </div>
+                            <div class="window-tab-title">
+                                <span>TechFix Solutions Ο.Ε. — Frontline POS &amp; Service</span>
+                            </div>
+                            <div class="window-status-pill">● Localhost:3000</div>
+                        </div>
+
+                        <!-- Real Retail & Service Receipt Ledger -->
+                        <div class="app-window-body">
+                            <div class="tx-headline-row">
+                                <div class="tx-vendor-badge">
+                                    <div class="vendor-icon">TF</div>
+                                    <div>
+                                        <div class="vendor-name">TechFix Repair Hub</div>
+                                        <div class="tx-timestamp">Σήμερα, 18:10 &bull; Απόδειξη #04821</div>
+                                    </div>
+                                </div>
+                                <div class="tx-amount-col">
+                                    <div class="tx-amount">€48,50</div>
+                                    <div class="tx-badge-verified">✓ myDATA MARK 400008921938</div>
+                                </div>
+                            </div>
+
+                            <div class="tx-receipt-details">
+                                <div class="tx-line-item">
+                                    <span class="item-name">Αλλαγή Οθόνης OLED iPhone 13 (IMEI 35892109281)</span>
+                                    <span class="item-cost">€38,00</span>
+                                </div>
+                                <div class="tx-line-item">
+                                    <span class="item-name">Εργασία Τεχνικού &amp; Διαγνωστικός Έλεγχος</span>
+                                    <span class="item-cost">€10,50</span>
+                                </div>
+                                <div class="tx-footer-meta">
+                                    <span>Πληρωμή: EFT/POS Terminal #02 (Α.1155)</span>
+                                    <span>Εκτύπωση: ESC/POS 80mm (0.18ms)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overlapping Floating Mobile Van Ticket -->
+                    <div class="ramp-floating-card floating-mobile-card">
+                        <div class="mobile-card-header">
+                            <span class="card-kicker">ΕΝΤΟΛΗ SERVICE #891</span>
+                            <span class="status-ready">ΕΤΟΙΜΟ</span>
+                        </div>
+                        <div class="mobile-card-body">
+                            <div class="mobile-item-title">Επιτόπιο Service — Van 01</div>
+                            <div class="mobile-signature-line">
+                                <svg viewBox="0 0 100 24" class="sig-svg">
+                                    <path d="M5 18 Q 25 2, 45 14 T 85 8 T 95 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span class="sig-label">Υπογραφή Πελάτη ✓</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overlapping Floating Customer Quote (Tony Hawk Callout Style) -->
+                    <div class="ramp-floating-card floating-callout-card">
+                        <div class="callout-quote">
+                            "Όταν πέφτει το internet στη γειτονιά, το ταμείο μας συνεχίζει να τυπώνει αποδείξεις και να καταγράφει επισκευές κανονικά."
+                        </div>
+                        <div class="callout-author">
+                            <span class="author-avatar">ΓΚ</span>
+                            <div>
+                                <div class="author-name">Γιώργος Καραλής</div>
+                                <div class="author-role">Ιδιοκτήτης TechFix Hub</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <h1 class="hero-title">
-                Το Σύγχρονο Λειτουργικό Σύστημα για <span class="gradient-text">Επιχειρήσεις & Retail</span>
-            </h1>
-            <p class="hero-subtitle">
-                Το Proteus αντικαθιστά τα αργά και δυσκίνητα cloud CRM με μία αστραπιαία native εφαρμογή σε Rust.
-                Απόλυτη τοπική ασφάλεια SQLite, 100% offline λειτουργία, διαχείριση επισκευών και σημείο πώλησης (POS).
-            </p>
-            <div class="hero-cta-group">
-                <a href="#contact" onclick="selectService('quote')" class="btn btn-lg">Κλείσιμο Προσφοράς & Demo →</a>
-                <a href="#services" class="btn btn-secondary btn-lg">Εκπαιδευτικά Workshops</a>
+
+            <!-- Ramp-Style Bottom Telemetry Ticker Marquee -->
+            <div class="ramp-telemetry-strip">
+                <div class="telemetry-strip-inner">
+                    <span class="strip-item"><span class="strip-label">⚙ ΚΥΡΙΑΡΧΟ RUNTIME:</span> <span class="strip-val">100% OFFLINE</span></span>
+                    <span class="strip-divider">|</span>
+                    <span class="strip-item"><span class="strip-label">ΣΥΝΑΛΛΑΓΕΣ:</span> <span class="strip-val">1,284,910</span></span>
+                    <span class="strip-divider">|</span>
+                    <span class="strip-item"><span class="strip-label">ΑΑΔΕ myDATA:</span> <span class="strip-val">0€ CLOUD TAX</span></span>
+                    <span class="strip-divider">|</span>
+                    <span class="strip-item"><span class="strip-label">ΧΡΟΝΟΣ ΑΠΟΚΡΙΣΗΣ:</span> <span class="strip-val">&lt; 0.2ms</span></span>
+                    <span class="strip-divider">|</span>
+                    <span class="strip-item"><span class="strip-label">ΕΚΤΥΠΩΤΕΣ ESC/POS:</span> <span class="strip-val">ΕΝΕΡΓΟΙ</span></span>
+                    <span class="strip-divider">|</span>
+                    <span class="strip-item"><span class="strip-label">ΒΑΣΗ ΔΕΔΟΜΕΝΩΝ:</span> <span class="strip-val">SQLITE AES-256</span></span>
+                </div>
             </div>
+
             <div class="hero-specs-strip">
-                <div class="spec-item"><span>🚀 0ms</span> Local Latency</div>
-                <div class="spec-item"><span>🛡 AES-256</span> Encrypted SQLite</div>
-                <div class="spec-item"><span>📐 W3C</span> Design Tokens</div>
-                <div class="spec-item"><span>⚡ 100%</span> Offline Resilience</div>
+                <div class="spec-item"><span class="spec-metric">⚡ &lt;1s</span> Boot Time</div>
+                <div class="spec-item"><span class="spec-metric">🛡️ AES-256</span> Local DB</div>
+                <div class="spec-item"><span class="spec-metric">📶 100%</span> Offline Resilience</div>
+                <div class="spec-item"><span class="spec-metric">🖨️ ESC/POS</span> Native Drivers</div>
             </div>
         </section>
 
@@ -328,10 +607,12 @@ const HTML_BODY: &str = r##"
     <footer class="landing-footer">
         <div class="footer-inner">
             <div class="footer-brand">
-                <div style="display: flex; align-items: center; gap: 0.6rem;">
-                    <img src="/assets/logo.png" alt="Proteus Sovereign Logo" style="width: 28px; height: 28px; object-fit: contain; border-radius: 4px;" />
-                    <div class="brand">PROTEUS</div>
-                </div>
+                <a href="/" class="brand-link">
+                    <span class="brand-logo-sovereign">
+                        proteus<svg class="brand-logo-symbol" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="0.5" y="1" width="3.5" height="14" rx="0.5"/><rect x="0.5" y="1" width="15" height="3.5" rx="0.5"/><polygon points="11,4.5 15.5,15 11,15"/></svg>
+                    </span>
+                    <span class="brand-tag-sovereign">BOS</span>
+                </a>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.5;">
                     <strong>Proteus Sovereign Systems I.K.E.</strong><br>
                     Αρ. Γ.Ε.ΜΗ.: 169824501000 • Α.Φ.Μ.: 802194512 (Δ.Ο.Υ. Α' Αθηνών)<br>
@@ -371,88 +652,36 @@ const HTML_BODY: &str = r##"
     </div>
 "##;
 
-const HTML_SCRIPTS: &str = r##"
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            if (!localStorage.getItem('proteus_cookie_consent')) {
-                const banner = document.getElementById('cookie-banner');
-                if (banner) {
-                    banner.style.display = 'block';
-                }
-            }
-        });
+const APP_JS: &str = include_str!("../ui_design/app.js");
 
-        function acceptAllCookies() {
-            localStorage.setItem('proteus_cookie_consent', JSON.stringify({ choice: 'all', timestamp: new Date().toISOString() }));
-            const banner = document.getElementById('cookie-banner');
-            if (banner) banner.style.display = 'none';
-        }
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-        function rejectNonEssentialCookies() {
-            localStorage.setItem('proteus_cookie_consent', JSON.stringify({ choice: 'necessary_only', timestamp: new Date().toISOString() }));
-            const banner = document.getElementById('cookie-banner');
-            if (banner) banner.style.display = 'none';
-        }
+    #[test]
+    fn test_hero_cognitive_anchor_and_structure() {
+        let html = build_landing_html();
+        assert!(html.contains("<html lang=\"el\">"));
+        assert!(html.contains("<title>Proteus — Native Business Application Engine & CRM</title>"));
+        assert!(html.contains("hero-section"));
+        assert!(html.contains("hero-title"));
+        assert!(html.contains("Αυτονομία χωρίς cloud"));
+        assert!(html.contains("Έναρξη Δωρεάν &amp; Demo →"));
+        assert!(html.contains("Πώς Λειτουργεί ↓"));
+        assert!(html.contains("hero-specs-strip"));
+        assert!(html.contains("spec-metric"));
+        assert!(html.contains("100%"));
+    }
 
-        function selectService(type) {
-            const select = document.getElementById('c-service');
-            if (select) {
-                select.value = type;
-            }
-            const contactSection = document.getElementById('contact');
-            if (contactSection) {
-                contactSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        async function handleContactSubmit(e) {
-            e.preventDefault();
-            const consentCheckbox = document.getElementById('c-consent');
-            if (consentCheckbox && !consentCheckbox.checked) {
-                alert('Παρακαλώ αποδεχθείτε τους Όρους Χρήσης και την Πολιτική Απορρήτου πριν την αποστολή.');
-                return;
-            }
-
-            const btn = document.getElementById('c-submit');
-            const fb = document.getElementById('contact-feedback');
-            btn.disabled = true;
-            btn.textContent = 'Αποστολή...';
-
-            const payload = {
-                service_type: document.getElementById('c-service').value,
-                name: document.getElementById('c-name').value,
-                email: document.getElementById('c-email').value,
-                company: document.getElementById('c-company').value || null,
-                phone: document.getElementById('c-phone').value || null,
-                message: document.getElementById('c-msg').value
-            };
-
-            try {
-                const res = await fetch('/api/v1/contact', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                btn.disabled = false;
-                btn.textContent = 'Αποστολή Αιτήματος ✓';
-                fb.style.display = 'block';
-                fb.style.background = 'rgba(16, 185, 129, 0.12)';
-                fb.style.border = '1px solid #10b981';
-                fb.style.color = '#34d399';
-                fb.textContent = data.message || 'Το αίτημά σας καταχωρήθηκε επιτυχώς! Θα επικοινωνήσουμε μαζί σας σύντομα.';
-                document.getElementById('contact-form').reset();
-            } catch (err) {
-                btn.disabled = false;
-                btn.textContent = 'Αποστολή Αιτήματος ✓';
-                fb.style.display = 'block';
-                fb.style.background = 'rgba(239, 68, 68, 0.12)';
-                fb.style.border = '1px solid #ef4444';
-                fb.style.color = '#f87171';
-                fb.textContent = 'Παρουσιάστηκε σφάλμα κατά την αποστολή. Παρακαλούμε δοκιμάστε ξανά.';
-            }
-        }
-    </script>
-</body>
-</html>
-"##;
+    #[test]
+    fn test_landing_ramp_style_navbar_and_theme_toggle() {
+        let html = build_landing_html();
+        assert!(html.contains("landing-header"));
+        assert!(html.contains("brand-logo-sovereign"));
+        assert!(html.contains("nav-item-dropdown"));
+        assert!(html.contains("nav-dropdown-menu"));
+        assert!(html.contains("theme-toggle-btn"));
+        assert!(html.contains("sovereign-status-ticker"));
+        assert!(html.contains("toggleTheme()"));
+    }
+}
