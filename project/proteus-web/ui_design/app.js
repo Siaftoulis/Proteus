@@ -95,6 +95,12 @@ function initTheme() {
     updateThemeToggleUI(saved);
 }
 
+function handleThemeSwitchToggle(checkbox) {
+    const next = checkbox.checked ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('proteus_theme', next);
+}
+
 function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme') || 'dark';
     const next = current === 'dark' ? 'light' : 'dark';
@@ -104,14 +110,9 @@ function toggleTheme() {
 }
 
 function updateThemeToggleUI(theme) {
-    const btn = document.getElementById('theme-toggle-btn');
-    if (!btn) return;
-    if (theme === 'light') {
-        btn.innerHTML = '<span class="theme-icon">☀️</span> <span>Light</span>';
-        btn.setAttribute('title', 'Εναλλαγή σε Dark Mode');
-    } else {
-        btn.innerHTML = '<span class="theme-icon">🌙</span> <span>Dark</span>';
-        btn.setAttribute('title', 'Εναλλαγή σε Light Mode');
+    const checkbox = document.getElementById('theme-switch-checkbox');
+    if (checkbox) {
+        checkbox.checked = (theme === 'dark');
     }
 }
 
