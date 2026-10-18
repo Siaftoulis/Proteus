@@ -319,20 +319,20 @@ function initScrollStoryEngine() {
 
             // C. Floating Quote Card (Tony Hawk style): Floats up & left in 3D parallax
             if (calloutCard) {
-                const calloutX = heroProgress * -50;
-                const calloutY = heroProgress * -40;
-                const calloutOpacity = Math.max(0, 1 - heroProgress * 1.5);
-                const calloutScale = 1 - heroProgress * 0.1;
+                const calloutX = heroProgress * -35;
+                const calloutY = heroProgress * -24;
+                const calloutOpacity = Math.max(0, 1 - heroProgress * 1.6);
+                const calloutScale = 1 - heroProgress * 0.08;
                 calloutCard.style.transform = `translate3d(${calloutX}px, ${calloutY}px, 0) scale(${calloutScale})`;
                 calloutCard.style.opacity = calloutOpacity.toFixed(3);
             }
 
             // D. Floating Mobile Service Ticket: Glides down & right in 3D parallax
             if (mobileCard) {
-                const mobileX = heroProgress * 55;
-                const mobileY = heroProgress * 45;
-                const mobileOpacity = Math.max(0, 1 - heroProgress * 1.5);
-                const mobileScale = 1 - heroProgress * 0.1;
+                const mobileX = heroProgress * 35;
+                const mobileY = heroProgress * 24;
+                const mobileOpacity = Math.max(0, 1 - heroProgress * 1.6);
+                const mobileScale = 1 - heroProgress * 0.08;
                 mobileCard.style.transform = `translate3d(${mobileX}px, ${mobileY}px, 0) scale(${mobileScale})`;
                 mobileCard.style.opacity = mobileOpacity.toFixed(3);
             }

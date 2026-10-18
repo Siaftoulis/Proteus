@@ -158,6 +158,7 @@ body {
     flex-direction: column;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
 }
 
 /* ── Header & Navigation ── */
@@ -1303,9 +1304,9 @@ footer {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
     box-sizing: border-box;
-    padding: 1rem 0;
+    padding: 1.5rem 0;
 }
 
 .hero-stage-grid {
@@ -1515,10 +1516,10 @@ footer {
 .hero-interactive-stage {
     position: relative;
     width: 100%;
-    min-height: 420px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    height: fit-content;
+    align-self: center;
+    padding-top: 25px;
+    padding-bottom: 55px;
 }
 
 .ramp-app-card {
@@ -1704,10 +1705,10 @@ footer {
 }
 
 .floating-mobile-card {
-    right: -24px;
-    bottom: -24px;
-    width: 260px;
-    padding: 0.9rem 1.1rem;
+    right: 15px;
+    bottom: -15px;
+    width: 252px;
+    padding: 0.85rem 1.05rem;
     animation: floatCardSlow 6s ease-in-out infinite alternate;
 }
 
@@ -1760,10 +1761,10 @@ footer {
 }
 
 .floating-callout-card {
-    left: -20px;
-    top: -22px;
-    max-width: 290px;
-    padding: 0.9rem 1.1rem;
+    left: -12px;
+    top: 0px;
+    max-width: 280px;
+    padding: 0.85rem 1.05rem;
     background: var(--bg-card);
     animation: floatCalloutSlow 7s ease-in-out infinite alternate-reverse;
 }
@@ -1826,7 +1827,33 @@ footer {
     }
 }
 
+@media (max-width: 900px) {
+    .tx-footer-meta {
+        max-width: 100%;
+    }
 
+    .floating-callout-card {
+        left: -8px;
+        top: -12px;
+        max-width: 250px;
+    }
+
+    .floating-mobile-card {
+        right: -8px;
+        bottom: -12px;
+        width: 230px;
+    }
+}
+
+@media (max-width: 580px) {
+    .floating-callout-card,
+    .floating-mobile-card {
+        position: static;
+        width: 100%;
+        max-width: 100%;
+        margin-top: 1rem;
+    }
+}
 
 .section-header.center {
     text-align: center;
