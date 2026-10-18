@@ -243,8 +243,9 @@ const HTML_BODY: &str = r##"
 
     <main class="landing-main">
         <!-- 1. HERO SECTION (Ramp-Inspired Asymmetrical Editorial Stage & Showcase) -->
-        <section class="hero-section ramp-hero-layout" id="hero">
-            <div class="hero-stage-grid">
+        <section class="hero-section ramp-hero-layout ramp-hero-track" id="hero">
+            <div class="hero-sticky-stage">
+                <div class="hero-stage-grid">
                 <!-- Left: Headline, Human Phrasing & Ramp-Style Action Bar -->
                 <div class="hero-stage-left">
                     <h1 class="hero-title" data-i18n="hero_title">
@@ -355,7 +356,6 @@ const HTML_BODY: &str = r##"
                     </div>
                 </div>
             </div>
-
         </section>
 
         <!-- 2. ABOUT & CAPABILITIES -->

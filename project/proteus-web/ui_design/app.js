@@ -18,6 +18,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // 3. Initialize PowerPoint Slideshow Deck Navigation
     initSlideshowDeck();
+
+    // 4. Initialize Ramp-Inspired Scroll-Driven Storytelling Engine
+    initScrollStoryEngine();
 });
 
 function detectSystemLocale() {
@@ -266,4 +269,119 @@ function goToSlide(index) {
         sections[index].scrollIntoView({ behavior: 'smooth' });
     }
 }
+
+// ── Ramp-Inspired Interactive Scroll-Driven Storytelling Engine ──
+function initScrollStoryEngine() {
+    const heroTrack = document.getElementById('hero');
+    const heroLeft = document.querySelector('.hero-stage-left');
+    const appCard = document.querySelector('.ramp-app-card');
+    const calloutCard = document.querySelector('.floating-callout-card');
+    const mobileCard = document.querySelector('.floating-mobile-card');
+    const aboutSection = document.getElementById('about');
+    const featureCards = Array.from(document.querySelectorAll('.feature-card'));
+    const aboutHeader = document.querySelector('#about .section-header');
+
+    if (!heroTrack || !heroLeft || !appCard) return;
+
+    let ticking = false;
+
+    function onScroll() {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                updateScrollStory();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }
+
+    function updateScrollStory() {
+        const scrollY = window.scrollY || window.pageYOffset;
+        const windowHeight = window.innerHeight;
+        const isMobile = window.innerWidth <= 768;
+
+        // 1. Hero Section Scrubbing Progress (0.0 to 1.0)
+        const heroRect = heroTrack.getBoundingClientRect();
+        const heroTop = heroRect.top + scrollY;
+        const heroHeight = heroTrack.offsetHeight;
+        const heroScrollTravel = Math.max(1, heroHeight - windowHeight);
+        const heroProgress = Math.min(Math.max((scrollY - heroTop) / heroScrollTravel, 0), 1);
+
+        if (!isMobile) {
+            // Desktop / Laptop: Full Dimensional Parallax Scrubbing
+            // A. Hero Left Column: Recedes, scales down, and fades smoothly
+            const textY = heroProgress * -45;
+            const textScale = 1 - heroProgress * 0.05;
+            const textOpacity = Math.max(0, 1 - heroProgress * 1.45);
+            heroLeft.style.transform = `translate3d(0, ${textY}px, 0) scale(${textScale})`;
+            heroLeft.style.opacity = textOpacity.toFixed(3);
+
+            // B. Hero App Window: Expands, elevates, and moves into central perspective
+            const cardScale = 1 + heroProgress * 0.08;
+            const cardY = heroProgress * -20;
+            appCard.style.transform = `translate3d(0, ${cardY}px, 0) scale(${cardScale})`;
+
+            // C. Floating Quote Card (Tony Hawk style): Floats up & left in 3D parallax
+            if (calloutCard) {
+                const calloutX = heroProgress * -50;
+                const calloutY = heroProgress * -40;
+                const calloutOpacity = Math.max(0, 1 - heroProgress * 1.5);
+                const calloutScale = 1 - heroProgress * 0.1;
+                calloutCard.style.transform = `translate3d(${calloutX}px, ${calloutY}px, 0) scale(${calloutScale})`;
+                calloutCard.style.opacity = calloutOpacity.toFixed(3);
+            }
+
+            // D. Floating Mobile Service Ticket: Glides down & right in 3D parallax
+            if (mobileCard) {
+                const mobileX = heroProgress * 55;
+                const mobileY = heroProgress * 45;
+                const mobileOpacity = Math.max(0, 1 - heroProgress * 1.5);
+                const mobileScale = 1 - heroProgress * 0.1;
+                mobileCard.style.transform = `translate3d(${mobileX}px, ${mobileY}px, 0) scale(${mobileScale})`;
+                mobileCard.style.opacity = mobileOpacity.toFixed(3);
+            }
+        } else {
+            // Mobile Optimization: Subtle, non-overflowing transforms
+            const textOpacity = Math.max(0, 1 - heroProgress * 1.3);
+            heroLeft.style.opacity = textOpacity.toFixed(3);
+            heroLeft.style.transform = `translate3d(0, ${heroProgress * -20}px, 0)`;
+
+            const cardScale = 1 + heroProgress * 0.03;
+            appCard.style.transform = `scale(${cardScale})`;
+
+            if (calloutCard) calloutCard.style.opacity = Math.max(0, 1 - heroProgress * 1.6).toFixed(3);
+            if (mobileCard) mobileCard.style.opacity = Math.max(0, 1 - heroProgress * 1.6).toFixed(3);
+        }
+
+        // 2. Section 2 (#about) Entrance Transition Scrubbing
+        if (aboutSection) {
+            const aboutRect = aboutSection.getBoundingClientRect();
+            // Progress as #about approaches and fills the viewport (0.0 to 1.0)
+            const aboutEnterStart = windowHeight * 0.95;
+            const aboutEnterEnd = windowHeight * 0.15;
+            const aboutRawProgress = (aboutEnterStart - aboutRect.top) / (aboutEnterStart - aboutEnterEnd);
+            const aboutProgress = Math.min(Math.max(aboutRawProgress, 0), 1);
+
+            if (aboutHeader) {
+                const headerY = (1 - aboutProgress) * 35;
+                aboutHeader.style.transform = `translate3d(0, ${headerY}px, 0)`;
+                aboutHeader.style.opacity = aboutProgress.toFixed(3);
+            }
+
+            featureCards.forEach((card, idx) => {
+                const cardDelay = idx * 0.08;
+                const cardProgress = Math.min(Math.max((aboutProgress - cardDelay) / (1 - cardDelay), 0), 1);
+                const cardY = (1 - cardProgress) * (50 + idx * 25);
+                const cardScale = 0.94 + cardProgress * 0.06;
+                card.style.transform = `translate3d(0, ${cardY}px, 0) scale(${cardScale})`;
+                card.style.opacity = cardProgress.toFixed(3);
+            });
+        }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    updateScrollStory();
+}
+
 

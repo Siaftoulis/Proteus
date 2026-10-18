@@ -120,7 +120,7 @@
 
 html {
     scroll-behavior: smooth;
-    scroll-snap-type: y mandatory;
+    scroll-snap-type: y proximity;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1045,7 +1045,7 @@ footer {
     position: relative;
 }
 
-/* ── Ramp-Style Asymmetrical Left-Aligned Hero Section (Slide 1) ── */
+/* ── Ramp-Style Asymmetrical Left-Aligned Hero Section (Interactive Scroll Track) ── */
 .hero-section {
     min-height: calc(100vh - 58px);
     display: flex;
@@ -1057,8 +1057,30 @@ footer {
     width: 100%;
     box-sizing: border-box;
     scroll-snap-align: start;
-    scroll-snap-stop: always;
     scroll-margin-top: 58px;
+}
+
+.hero-section.ramp-hero-track {
+    min-height: 160vh;
+    height: 160vh;
+    display: block;
+    position: relative;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.hero-sticky-stage {
+    position: sticky;
+    top: 58px;
+    height: calc(100vh - 58px);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 1rem 0;
 }
 
 .hero-stage-grid {
@@ -1076,6 +1098,20 @@ footer {
     }
 }
 
+@media (max-width: 900px) {
+    .hero-section.ramp-hero-track {
+        min-height: auto;
+        height: auto;
+    }
+    .hero-sticky-stage {
+        position: relative;
+        top: 0;
+        height: auto;
+        padding: 2.5rem 0;
+        overflow: visible;
+    }
+}
+
 .hero-stage-left {
     display: flex;
     flex-direction: column;
@@ -1083,6 +1119,23 @@ footer {
     gap: 1.6rem;
     text-align: left;
     max-width: 660px;
+    will-change: transform, opacity;
+    transform-origin: left center;
+}
+
+.ramp-app-card {
+    will-change: transform, box-shadow;
+    transform-origin: center center;
+}
+
+.floating-callout-card,
+.floating-mobile-card {
+    will-change: transform, opacity;
+}
+
+#about .section-header,
+.feature-card {
+    will-change: transform, opacity;
 }
 
 .hero-pill {
