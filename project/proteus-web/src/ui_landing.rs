@@ -231,10 +231,19 @@ const HTML_BODY: &str = r##"
             <a href="/hub" class="btn btn-sm" data-i18n="nav_start">Έναρξη →</a>
         </div>
     </header>
+    <!-- PowerPoint Slideshow Navigation Dock -->
+    <nav class="slideshow-dock" id="slideshow-dock" aria-label="Slideshow Slide Navigation">
+        <button class="slide-dot active" type="button" onclick="goToSlide(0)" title="01 — Αρχική"></button>
+        <button class="slide-dot" type="button" onclick="goToSlide(1)" title="02 — Δυνατότητες"></button>
+        <button class="slide-dot" type="button" onclick="goToSlide(2)" title="03 — Αρχιτεκτονική"></button>
+        <button class="slide-dot" type="button" onclick="goToSlide(3)" title="04 — Συνεργάτες"></button>
+        <button class="slide-dot" type="button" onclick="goToSlide(4)" title="05 — Τιμολόγηση"></button>
+        <button class="slide-dot" type="button" onclick="goToSlide(5)" title="06 — Επικοινωνία"></button>
+    </nav>
 
     <main class="landing-main">
         <!-- 1. HERO SECTION (Ramp-Inspired Asymmetrical Editorial Stage & Showcase) -->
-        <section class="hero-section ramp-hero-layout">
+        <section class="hero-section ramp-hero-layout" id="hero">
             <div class="hero-stage-grid">
                 <!-- Left: Headline, Human Phrasing & Ramp-Style Action Bar -->
                 <div class="hero-stage-left">
@@ -506,19 +515,18 @@ const HTML_BODY: &str = r##"
             </div>
         </section>
 
-        <!-- 6. CALL TO ACTION BANNER -->
-        <section class="cta-banner">
-            <div class="cta-content">
-                <h2 class="cta-title">Αναβαθμίστε την Επιχείρησή σας με την Ισχύ του Proteus</h2>
-                <p class="cta-sub">Μιλήστε άμεσα με την ομάδα μηχανικών μας για κλείσιμο προσφοράς ή οργάνωση workshop.</p>
-            </div>
-            <div class="cta-btn-wrap">
-                <button onclick="selectService('quote')" class="btn btn-lg btn-white">Ζητήστε Προσφορά &rarr;</button>
-            </div>
-        </section>
-
-        <!-- 7. CONTACT & QUOTE FORM -->
+        <!-- 6. CONTACT & QUOTE FORM -->
         <section class="contact-section" id="contact">
+            <div class="cta-banner" style="margin-bottom: 2.5rem; width: 100%;">
+                <div class="cta-content">
+                    <h2 class="cta-title">Αναβαθμίστε την Επιχείρησή σας με την Ισχύ του Proteus</h2>
+                    <p class="cta-sub">Μιλήστε άμεσα με την ομάδα μηχανικών μας για κλείσιμο προσφοράς ή οργάνωση workshop.</p>
+                </div>
+                <div class="cta-btn-wrap">
+                    <button onclick="selectService('quote')" class="btn btn-lg btn-white">Ζητήστε Προσφορά &rarr;</button>
+                </div>
+            </div>
+
             <div class="section-header center">
                 <span class="badge badge-blue">GET IN TOUCH</span>
                 <h2 class="section-title">Κλείσιμο Προσφοράς & Επικοινωνία</h2>

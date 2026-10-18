@@ -15,6 +15,9 @@ window.addEventListener('DOMContentLoaded', () => {
             banner.style.display = 'block';
         }
     }
+
+    // 3. Initialize PowerPoint Slideshow Deck Navigation
+    initSlideshowDeck();
 });
 
 function detectSystemLocale() {
@@ -206,3 +209,61 @@ function handleHeroSubmit(e) {
         contactSection.scrollIntoView({ behavior: 'smooth' });
     }
 }
+
+// ── PowerPoint Slideshow Deck Controller & Keyboard Navigation ──
+function initSlideshowDeck() {
+    const sections = Array.from(document.querySelectorAll('.landing-main > section'));
+    if (!sections.length) return;
+
+    let currentSlide = 0;
+    const dots = Array.from(document.querySelectorAll('.slide-dot'));
+
+    // IntersectionObserver to sync slide dots as sections come into view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const idx = sections.indexOf(entry.target);
+                if (idx !== -1) {
+                    currentSlide = idx;
+                    dots.forEach((dot, dIdx) => {
+                        dot.classList.toggle('active', dIdx === idx);
+                    });
+                }
+            }
+        });
+    }, {
+        threshold: 0.5
+    });
+
+    sections.forEach(s => observer.observe(s));
+
+    // PowerPoint-Style Keyboard Navigation (Arrows & Page Keys)
+    window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+        if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+            if (currentSlide < sections.length - 1) {
+                e.preventDefault();
+                goToSlide(currentSlide + 1);
+            }
+        } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+            if (currentSlide > 0) {
+                e.preventDefault();
+                goToSlide(currentSlide - 1);
+            }
+        } else if (e.key === 'Home') {
+            e.preventDefault();
+            goToSlide(0);
+        } else if (e.key === 'End') {
+            e.preventDefault();
+            goToSlide(sections.length - 1);
+        }
+    });
+}
+
+function goToSlide(index) {
+    const sections = Array.from(document.querySelectorAll('.landing-main > section'));
+    if (sections[index]) {
+        sections[index].scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
