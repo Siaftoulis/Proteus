@@ -690,7 +690,7 @@ footer {
   --container-height: 2.5em;
   --container-radius: 6.25em;
   --container-light-bg: linear-gradient(180deg, #3A88B8 0%, #4EA1CE 35%, #1B6A97 68%, #0C4668 100%);
-  --container-night-bg: #1D1F2C;
+  --container-night-bg: linear-gradient(180deg, #09111E 0%, #0F1C2E 35%, #14283E 68%, #0A1624 100%);
   --circle-container-diameter: 3.375em;
   --sun-moon-diameter: 2.125em;
   --sun-bg: #ECCA2F;
@@ -850,6 +850,9 @@ footer {
 .theme-switch__wave--back {
   fill: rgba(45, 185, 175, 0.65);
   animation: sea-wave-back 6s linear infinite;
+  -webkit-transition: fill var(--transition);
+  -o-transition: fill var(--transition);
+  transition: fill var(--transition);
 }
 
 .theme-switch__wave--front {
@@ -857,6 +860,9 @@ footer {
   stroke: rgba(255, 255, 255, 0.75);
   stroke-width: 0.75;
   animation: sea-wave-front 3.5s linear infinite;
+  -webkit-transition: fill var(--transition), stroke var(--transition);
+  -o-transition: fill var(--transition), stroke var(--transition);
+  transition: fill var(--transition), stroke var(--transition);
 }
 
 @keyframes sea-wave-back {
@@ -867,6 +873,11 @@ footer {
 @keyframes sea-wave-front {
   0% { transform: translateX(-50%); }
   100% { transform: translateX(0); }
+}
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.85; transform: translateY(-50%) scale(1); filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.8)); }
+  50% { opacity: 1; transform: translateY(-50%) scale(1.04); filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.95)); }
 }
 
 .theme-switch__stars-container {
@@ -881,7 +892,7 @@ footer {
   transition: var(--transition);
 }
 
-/* Actions & Night Mode Transition */
+/* Actions & Night Mode Transition (Nocturnal Moonlit Sea & Starry Night) */
 
 .theme-switch__checkbox:checked + .theme-switch__container {
   background: var(--container-night-bg);
@@ -899,23 +910,37 @@ footer {
   left: calc(var(--circle-container-offset) + 0.187em);
 }
 
+.theme-switch__checkbox:checked + .theme-switch__container .theme-switch__sun-moon-container {
+  box-shadow: 0.062em 0.062em 0.062em 0em rgba(254, 255, 239, 0.61) inset, 0em -0.062em 0.062em 0em #787878 inset, 0 0 8px rgba(196, 201, 209, 0.35);
+}
+
 .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__moon {
   -webkit-transform: translate(0);
   -ms-transform: translate(0);
   transform: translate(0);
 }
 
-/* Sea submerges smoothly into the deep in Night Mode */
+/* Nocturnal Moonlit Sea in Night Mode */
 .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__sea {
-  bottom: -2.5em;
-  opacity: 0;
+  bottom: 0;
+  opacity: 1;
+}
+
+.theme-switch__checkbox:checked + .theme-switch__container .theme-switch__wave--back {
+  fill: rgba(18, 48, 78, 0.75);
+}
+
+.theme-switch__checkbox:checked + .theme-switch__container .theme-switch__wave--front {
+  fill: #0B1726;
+  stroke: rgba(196, 201, 209, 0.55);
 }
 
 .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__stars-container {
-  top: 50%;
+  top: 45%;
   -webkit-transform: translateY(-50%);
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
+  animation: star-twinkle 3s ease-in-out infinite;
 }
 
 .btn-cta-highlight {
