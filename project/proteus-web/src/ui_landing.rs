@@ -347,29 +347,6 @@ const HTML_BODY: &str = r##"
                 </div>
             </div>
 
-            <!-- Ramp-Style Bottom Telemetry Ticker Marquee -->
-            <div class="ramp-telemetry-strip">
-                <div class="telemetry-strip-inner">
-                    <span class="strip-item"><span class="strip-label" data-i18n="strip_runtime">⚙ ΚΥΡΙΑΡΧΟ RUNTIME:</span> <span class="strip-val" data-i18n="strip_runtime_val">100% OFFLINE</span></span>
-                    <span class="strip-divider">|</span>
-                    <span class="strip-item"><span class="strip-label" data-i18n="strip_tx">ΣΥΝΑΛΛΑΓΕΣ:</span> <span class="strip-val">1,284,910</span></span>
-                    <span class="strip-divider">|</span>
-                    <span class="strip-item"><span class="strip-label" data-i18n="strip_tax">ΑΑΔΕ myDATA:</span> <span class="strip-val" data-i18n="strip_tax_val">0€ CLOUD TAX</span></span>
-                    <span class="strip-divider">|</span>
-                    <span class="strip-item"><span class="strip-label" data-i18n="strip_latency">ΧΡΟΝΟΣ ΑΠΟΚΡΙΣΗΣ:</span> <span class="strip-val">&lt; 0.2ms</span></span>
-                    <span class="strip-divider">|</span>
-                    <span class="strip-item"><span class="strip-label" data-i18n="strip_printers">ΕΚΤΥΠΩΤΕΣ ESC/POS:</span> <span class="strip-val" data-i18n="strip_printers_val">ΕΝΕΡΓΟΙ</span></span>
-                    <span class="strip-divider">|</span>
-                    <span class="strip-item"><span class="strip-label" data-i18n="strip_db">ΒΑΣΗ ΔΕΔΟΜΕΝΩΝ:</span> <span class="strip-val">SQLITE AES-256</span></span>
-                </div>
-            </div>
-
-            <div class="hero-specs-strip">
-                <div class="spec-item"><span class="spec-metric">⚡ &lt;1s</span> <span data-i18n="spec_boot">Boot Time</span></div>
-                <div class="spec-item"><span class="spec-metric">🛡️ AES-256</span> <span data-i18n="spec_db">Local DB</span></div>
-                <div class="spec-item"><span class="spec-metric">📶 100%</span> <span data-i18n="spec_offline">Offline Resilience</span></div>
-                <div class="spec-item"><span class="spec-metric">🖨️ ESC/POS</span> <span data-i18n="spec_drivers">Native Drivers</span></div>
-            </div>
         </section>
 
         <!-- 2. ABOUT & CAPABILITIES -->
@@ -669,9 +646,8 @@ mod tests {
         assert!(html.contains("Αυτονομία χωρίς cloud"));
         assert!(html.contains("Έναρξη Δωρεάν &amp; Demo →"));
         assert!(html.contains("Πώς Λειτουργεί ↓"));
-        assert!(html.contains("hero-specs-strip"));
-        assert!(html.contains("spec-metric"));
-        assert!(html.contains("100%"));
+        assert!(html.contains("ramp-hero-layout"));
+        assert!(html.contains("hero-subtitle"));
     }
 
     #[test]

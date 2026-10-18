@@ -13,6 +13,6 @@ mod tests {
         assert!(!CSS_STYLES.is_empty());
         assert!(CSS_STYLES.contains("--palette-deep-slate-navy"));
         assert!(CSS_STYLES.contains(".hero-section"));
-        assert!(CSS_STYLES.contains(".spec-metric"));
+        assert!(CSS_STYLES.contains(".theme-switch"));
     }
 }
