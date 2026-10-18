@@ -231,15 +231,6 @@ const HTML_BODY: &str = r##"
             <a href="/hub" class="btn btn-sm" data-i18n="nav_start">Έναρξη →</a>
         </div>
     </header>
-    <!-- PowerPoint Slideshow Navigation Dock -->
-    <nav class="slideshow-dock" id="slideshow-dock" aria-label="Slideshow Slide Navigation">
-        <button class="slide-dot active" type="button" onclick="goToSlide(0)" title="01 — Αρχική"></button>
-        <button class="slide-dot" type="button" onclick="goToSlide(1)" title="02 — Δυνατότητες"></button>
-        <button class="slide-dot" type="button" onclick="goToSlide(2)" title="03 — Αρχιτεκτονική"></button>
-        <button class="slide-dot" type="button" onclick="goToSlide(3)" title="04 — Συνεργάτες"></button>
-        <button class="slide-dot" type="button" onclick="goToSlide(4)" title="05 — Τιμολόγηση"></button>
-        <button class="slide-dot" type="button" onclick="goToSlide(5)" title="06 — Επικοινωνία"></button>
-    </nav>
 
     <main class="landing-main">
         <!-- 1. HERO SECTION (Ramp-Inspired Asymmetrical Editorial Stage & Showcase) -->

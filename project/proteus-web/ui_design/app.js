@@ -219,18 +219,14 @@ function initSlideshowDeck() {
     if (!sections.length) return;
 
     let currentSlide = 0;
-    const dots = Array.from(document.querySelectorAll('.slide-dot'));
 
-    // IntersectionObserver to sync slide dots as sections come into view
+    // IntersectionObserver to track current slide position
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const idx = sections.indexOf(entry.target);
                 if (idx !== -1) {
                     currentSlide = idx;
-                    dots.forEach((dot, dIdx) => {
-                        dot.classList.toggle('active', dIdx === idx);
-                    });
                 }
             }
         });
