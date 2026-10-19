@@ -45,10 +45,8 @@ const HTML_BODY: &str = r##"
         <div class="brand-wrap">
             <a href="/" class="brand-link">
                 <span class="brand-pi-badge" aria-hidden="true">
-                    <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 6.8C4.8 6.8 6.5 5.4 8.2 5.4H19"/>
-                        <path d="M7.8 6.8V16.8"/>
-                        <path d="M14.8 6.8V15C14.8 16.8 15.9 17.4 17.8 17"/>
+                    <svg viewBox="-120 -100 1320 1200" fill="currentColor">
+                        <path d="M459 246Q409 723 366.5 848Q324 973 214 973Q160 973 117 940Q74 907 74 847Q74 800 116 749Q183 668 209.5 624.5Q236 581 276 476.5Q316 372 347 246H265Q176 246 128.5 267.5Q81 289 49 349L15 334Q55 199 111.5 121.5Q168 44 218 27Q268 10 405 10H1072V246H848L831 539Q830 556 830 586Q830 720 847.5 770.5Q865 821 909 821Q982 821 994 670H1031Q1031 796 968.5 884.5Q906 973 789 973Q693 973 648.5 916Q604 859 604 732Q604 639 622 511L659 246Z"/>
                     </svg>
                 </span>
                 <span class="brand-logo-sovereign">proteus</span>
@@ -591,10 +589,8 @@ const HTML_BODY: &str = r##"
             <div class="footer-brand">
                 <a href="/" class="brand-link">
                     <span class="brand-pi-badge" aria-hidden="true">
-                        <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 6.8C4.8 6.8 6.5 5.4 8.2 5.4H19"/>
-                            <path d="M7.8 6.8V16.8"/>
-                            <path d="M14.8 6.8V15C14.8 16.8 15.9 17.4 17.8 17"/>
+                        <svg viewBox="-120 -100 1320 1200" fill="currentColor">
+                            <path d="M459 246Q409 723 366.5 848Q324 973 214 973Q160 973 117 940Q74 907 74 847Q74 800 116 749Q183 668 209.5 624.5Q236 581 276 476.5Q316 372 347 246H265Q176 246 128.5 267.5Q81 289 49 349L15 334Q55 199 111.5 121.5Q168 44 218 27Q268 10 405 10H1072V246H848L831 539Q830 556 830 586Q830 720 847.5 770.5Q865 821 909 821Q982 821 994 670H1031Q1031 796 968.5 884.5Q906 973 789 973Q693 973 648.5 916Q604 859 604 732Q604 639 622 511L659 246Z"/>
                         </svg>
                     </span>
                     <span class="brand-logo-sovereign">proteus</span>
