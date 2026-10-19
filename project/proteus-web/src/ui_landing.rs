@@ -252,6 +252,40 @@ const HTML_BODY: &str = r##"
                         με τοπική κρυπτογραφημένη SQLite και πλήρη ανεξαρτησία από τρίτους.
                     </p>
 
+                    <!-- Industry Persona 1-Click Tailored Experience Bar -->
+                    <div class="industry-persona-bar" id="industry-persona-bar">
+                        <div class="industry-persona-header">
+                            <span class="persona-tag">ΠΡΟΣΑΡΜΟΓΗ ΚΛΑΔΟΥ</span>
+                            <span class="persona-hint">Επιλέξτε τη δραστηριότητά σας για άμεση προεπισκόπηση:</span>
+                        </div>
+                        <div class="industry-persona-pills" role="tablist">
+                            <button type="button" class="persona-pill active" data-vertical="service" onclick="switchVertical('service')">
+                                <span class="pill-icon">🔧</span>
+                                <span>Service &amp; Τεχνικά</span>
+                            </button>
+                            <button type="button" class="persona-pill" data-vertical="bakery" onclick="switchVertical('bakery')">
+                                <span class="pill-icon">🥖</span>
+                                <span>Φούρνος &amp; Εστίαση</span>
+                            </button>
+                            <button type="button" class="persona-pill" data-vertical="medical" onclick="switchVertical('medical')">
+                                <span class="pill-icon">🩺</span>
+                                <span>Ιατρείο &amp; Υγεία</span>
+                            </button>
+                            <button type="button" class="persona-pill" data-vertical="retail" onclick="switchVertical('retail')">
+                                <span class="pill-icon">🛍️</span>
+                                <span>Λιανική &amp; Κατάστημα</span>
+                            </button>
+                            <button type="button" class="persona-pill" data-vertical="logistics" onclick="switchVertical('logistics')">
+                                <span class="pill-icon">📦</span>
+                                <span>Αποθήκη &amp; Logistics</span>
+                            </button>
+                            <button type="button" class="persona-pill" data-vertical="legal" onclick="switchVertical('legal')">
+                                <span class="pill-icon">⚖️</span>
+                                <span>Γραφείο &amp; Νομικά</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Ramp-Style Interactive Input & CTA Bar -->
                     <form class="ramp-hero-form" onsubmit="handleHeroSubmit(event)">
                         <div class="ramp-input-group">

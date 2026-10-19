@@ -21,6 +21,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // 4. Initialize Ramp-Inspired Scroll-Driven Storytelling Engine
     initScrollStoryEngine();
+
+    // 5. Initialize Industry Vertical Selector (from URL query ?v= or localStorage)
+    initVerticalSelector();
 });
 
 function detectSystemLocale() {
@@ -211,6 +214,351 @@ function handleHeroSubmit(e) {
     if (contactSection) {
         contactSection.scrollIntoView({ behavior: 'smooth' });
     }
+}
+
+// ── Industry Vertical Personas & Instant Profile Switcher Engine ──
+const VERTICAL_DATA = {
+    service: {
+        el: {
+            title: 'Αυτονομία χωρίς cloud.<br><span class="editorial-accent">Μηδέν συνδρομές.</span>',
+            subtitle: 'Επισκευές συσκευών, ταμείο POS, αποθήκη WMS και άμεση έκδοση myDATA. Όλη η λειτουργία της επιχείρησής σας σε μία αστραπιαία native εφαρμογή, με τοπική κρυπτογραφημένη SQLite και πλήρη ανεξαρτησία από τρίτους.',
+            tab: 'TechFix Solutions Ο.Ε. — Frontline POS & Service',
+            vendor: 'TechFix Repair Hub',
+            timestamp: 'Σήμερα, 18:10 • Απόδειξη #04821',
+            amount: '€48,50',
+            mark: '✓ myDATA MARK 400008921938',
+            item1: 'Αλλαγή Οθόνης OLED iPhone 13 (IMEI 35892109281)',
+            cost1: '€38,00',
+            item2: 'Εργασία Τεχνικού & Διαγνωστικός Έλεγχος',
+            cost2: '€10,50',
+            metaEft: 'Πληρωμή: EFT/POS Terminal #02 (Α.1155)',
+            metaEsc: 'Εκτύπωση: ESC/POS 80mm (0.18ms)',
+            mobileKicker: 'ΕΝΤΟΛΗ SERVICE #891',
+            mobileTitle: 'Επιτόπιο Service — Van 01',
+            quoteText: '"Όταν πέφτει το internet στη γειτονιά, το ταμείο μας συνεχίζει να τυπώνει αποδείξεις και να καταγράφει επισκευές κανονικά."',
+            quoteAuthor: 'Γιώργος Καραλής',
+            quoteRole: 'Ιδιοκτήτης TechFix Hub'
+        },
+        en: {
+            title: 'Autonomy without cloud.<br><span class="editorial-accent">Zero subscriptions.</span>',
+            subtitle: 'Device repairs, POS checkout, spatial WMS, and direct fiscal sync. Your entire business operations in an ultra-fast native engine with local encrypted SQLite and zero third-party dependencies.',
+            tab: 'TechFix Solutions O.E. — Frontline POS & Service',
+            vendor: 'TechFix Repair Hub',
+            timestamp: 'Today, 18:10 • Receipt #04821',
+            amount: '€48.50',
+            mark: '✓ myDATA MARK 400008921938',
+            item1: 'OLED Screen Replacement iPhone 13 (IMEI 35892109281)',
+            cost1: '€38.00',
+            item2: 'Technician Labor & Diagnostic Inspection',
+            cost2: '€10.50',
+            metaEft: 'Payment: EFT/POS Terminal #02 (A.1155)',
+            metaEsc: 'Print: ESC/POS 80mm (0.18ms)',
+            mobileKicker: 'SERVICE ORDER #891',
+            mobileTitle: 'On-site Field Service — Van 01',
+            quoteText: '"When internet goes down in the neighborhood, our checkout keeps printing receipts and booking repairs seamlessly."',
+            quoteAuthor: 'George Karalis',
+            quoteRole: 'Owner, TechFix Hub'
+        }
+    },
+    bakery: {
+        el: {
+            title: 'Ταμείο POS & Ζυγολόγιο για Φούρνους.<br><span class="editorial-accent">Ακαριαία έκδοση myDATA.</span>',
+            subtitle: 'Αρτοσκευάσματα, καφέ, ζύγιση γραμμαρίου και barcode scanner. 0.1 δευτερόλεπτο ανά απόδειξη σε ώρες αιχμής, με άμεση εκτύπωση και σύνδεση με EFT-POS.',
+            tab: 'Artisan Bakery & Cafe — POS & Barcode',
+            vendor: 'Φούρνος "Ηπειρώτικο"',
+            timestamp: 'Σήμερα, 08:24 • Απόδειξη Λιανικής #10294',
+            amount: '€6,80',
+            mark: '✓ myDATA MARK 400009182310',
+            item1: 'Χωριάτικο Προζυμένιο Ψωμί 1kg',
+            cost1: '€2,40',
+            item2: 'Freddo Espresso & Τυρόπιτα Κουρού',
+            cost2: '€4,40',
+            metaEft: 'Πληρωμή: Ανέπαφη Κάρτα EFT/POS',
+            metaEsc: 'Εκτύπωση: ESC/POS 80mm (Ακαριαία)',
+            mobileKicker: 'ΠΑΡΑΓΓΕΛΙΑ TAKE-AWAY #104',
+            mobileTitle: 'Έλεγχος Πάγκου & Ταμείου',
+            quoteText: '"Σε ώρα αιχμής με ουρά 20 ατόμων, η έκδοση απόδειξης myDATA παίρνει 0.1 δευτερόλεπτο χωρίς καμία καθυστέρηση cloud."',
+            quoteAuthor: 'Νίκος Παπαδόπουλος',
+            quoteRole: 'Αρτοποιός & Ιδιοκτήτης'
+        },
+        en: {
+            title: 'POS Checkout & Scales for Bakeries.<br><span class="editorial-accent">Instant Fiscal Sync.</span>',
+            subtitle: 'Artisan bakery items, coffee, gram-level scale intake, and barcode scanning. 0.1s per ticket during morning rush hours with zero cloud lag.',
+            tab: 'Artisan Bakery & Cafe — POS & Barcode',
+            vendor: 'Artisan Bread Hub',
+            timestamp: 'Today, 08:24 • POS Receipt #10294',
+            amount: '€6.80',
+            mark: '✓ myDATA MARK 400009182310',
+            item1: 'Sourdough Country Bread 1kg',
+            cost1: '€2.40',
+            item2: 'Freddo Espresso & Butter Croissant',
+            cost2: '€4.40',
+            metaEft: 'Payment: Contactless Card EFT/POS',
+            metaEsc: 'Print: ESC/POS 80mm (Instant)',
+            mobileKicker: 'TAKE-AWAY ORDER #104',
+            mobileTitle: 'Counter Checkout Terminal',
+            quoteText: '"During morning rush hour with a line of 20 customers, issuing receipts takes 0.1s without waiting for external cloud servers."',
+            quoteAuthor: 'Nikos Papadopoulos',
+            quoteRole: 'Bakery Owner'
+        }
+    },
+    medical: {
+        el: {
+            title: 'Ιατρικός Φάκελος & Ραντεβού.<br><span class="editorial-accent">Απόλυτο Ιατρικό Απόρρητο.</span>',
+            subtitle: 'Κλινικό ιστορικό ασθενών, ηλεκτρονική συνταγογράφηση, έκδοση ΑΠΥ και myDATA. Πλήρης συμμόρφωση GDPR & HIPAA με κρυπτογραφημένη τοπική βάση.',
+            tab: 'Ιατρικό Κέντρο & Πολυϊατρείο — Ραντεβού & ΑΠΥ',
+            vendor: 'Dr. Μιχαηλίδης & Συνεργάτες',
+            timestamp: 'Σήμερα, 11:30 • ΑΠΥ #00318',
+            amount: '€60,00',
+            mark: '✓ myDATA MARK 400007361899',
+            item1: 'Κλινική Εξέταση & Ηλεκτρονική Συνταγογράφηση',
+            cost1: '€50,00',
+            item2: 'Υπερηχογράφημα & Ιατρική Γνωμάτευση',
+            cost2: '€10,00',
+            metaEft: 'Πληρωμή: IRIS B2B & Τερματικό POS',
+            metaEsc: 'Σήμανση: ΑΑΔΕ myDATA QR Code',
+            mobileKicker: 'ΙΑΤΡΙΚΟΣ ΦΑΚΕΛΟΣ #554',
+            mobileTitle: 'Κρυπτογραφημένο Ιστορικό Ασθενούς',
+            quoteText: '"Όλα τα ιατρικά ιστορικά και οι επισκέψεις μένουν αποκλειστικά στον τοπικό μας κρυπτογραφημένο δίσκο χωρίς κινδύνους διαρροής."',
+            quoteAuthor: 'Δρ. Ελένη Μιχαηλίδου',
+            quoteRole: 'Καρδιολόγος'
+        },
+        en: {
+            title: 'Clinical Patient Records & Appointments.<br><span class="editorial-accent">Sovereign Medical Privacy.</span>',
+            subtitle: 'Patient EHR clinical histories, appointments, and fiscal receipts. Strict GDPR & HIPAA compliance with local encrypted storage and zero cloud leaks.',
+            tab: 'Medical Clinic & Care — EHR & Invoicing',
+            vendor: 'Dr. Michaelides Practice',
+            timestamp: 'Today, 11:30 • Invoice #00318',
+            amount: '€60.00',
+            mark: '✓ myDATA MARK 400007361899',
+            item1: 'Clinical Consultation & E-Prescription',
+            cost1: '€50.00',
+            item2: 'Ultrasound Diagnostic Examination',
+            cost2: '€10.00',
+            metaEft: 'Payment: IRIS B2B & EFT/POS',
+            metaEsc: 'Sign: Official myDATA QR Code',
+            mobileKicker: 'PATIENT RECORD #554',
+            mobileTitle: 'Zero-Cloud Clinical Archive',
+            quoteText: '"All patient records and clinical visits remain strictly on our local encrypted drive with zero third-party exposure."',
+            quoteAuthor: 'Dr. Helen Michaelides',
+            quoteRole: 'Cardiologist'
+        }
+    },
+    retail: {
+        el: {
+            title: 'Omnichannel POS & Barcode Scanner.<br><span class="editorial-accent">Χωρίς συνδρομές ERP.</span>',
+            subtitle: 'Ηλεκτρονικές ετικέτες ραφιού (ESL), ταμείο POS, έλεγχος αποθέματος και παραστατικά myDATA. Ιδανικό για καταστήματα τεχνολογίας, ρούχων και πολυκαταστήματα.',
+            tab: 'Retail Omnichannel — POS, ESL & Barcode',
+            vendor: 'ElectroStore Retail S.A.',
+            timestamp: 'Σήμερα, 16:45 • Απόδειξη Λιανικής #08711',
+            amount: '€129,90',
+            mark: '✓ myDATA MARK 400009418274',
+            item1: 'Ασύρματα Ακουστικά Bluetooth ANC',
+            cost1: '€89,90',
+            item2: 'Powerbank 20.000mAh Fast Charge',
+            cost2: '€40,00',
+            metaEft: 'Πληρωμή: Apple Pay / EFT-POS #01',
+            metaEsc: 'Συγχρονισμός: Ηλεκτρονικές Ετικέτες ESL',
+            mobileKicker: 'ΤΑΜΕΙΟ POS #03',
+            mobileTitle: 'Αυτόματη Απογραφή & Έλεγχος Κλοπής',
+            quoteText: '"Αντικαταστήσαμε το παλιό αργό εμπορικό πρόγραμμα και εξοικονομούμε πάνω από 4.000€ το χρόνο σε άδειες χρήσης."',
+            quoteAuthor: 'Μαρία Σταύρου',
+            quoteRole: 'Store Supervisor'
+        },
+        en: {
+            title: 'Omnichannel Retail POS & ESL Sync.<br><span class="editorial-accent">Zero Monthly ERP Fees.</span>',
+            subtitle: 'Electronic Shelf Labels (ESL), high-speed barcode checkout, inventory control, and real-time myDATA invoices. Tailored for retail and tech stores.',
+            tab: 'Retail Omnichannel — POS, ESL & Barcode',
+            vendor: 'ElectroStore Retail S.A.',
+            timestamp: 'Today, 16:45 • POS Receipt #08711',
+            amount: '€129.90',
+            mark: '✓ myDATA MARK 400009418274',
+            item1: 'Wireless ANC Bluetooth Headphones',
+            cost1: '€89.90',
+            item2: 'Fast-Charge Powerbank 20,000mAh',
+            cost2: '€40.00',
+            metaEft: 'Payment: Apple Pay / EFT-POS #01',
+            metaEsc: 'Sync: Electronic Shelf Labels (ESL)',
+            mobileKicker: 'REGISTER POS #03',
+            mobileTitle: 'Real-time Shrinkage & Inventory',
+            quoteText: '"We replaced our legacy bloated software and save over €4,000 annually on recurring license seats."',
+            quoteAuthor: 'Maria Stavrou',
+            quoteRole: 'Store Supervisor'
+        }
+    },
+    logistics: {
+        el: {
+            title: 'Spatial WMS & 3D Bin Packing.<br><span class="editorial-accent">Αστραπιαία διαχείριση αποθήκης.</span>',
+            subtitle: 'Διαχείριση 250.000+ κωδικών SKU, ψηφιακά δελτία e-CMR, cross-docking intake και παλετοποίηση με αναζήτηση κάτω από 2 milliseconds.',
+            tab: 'Spatial WMS & Distribution — e-CMR & VMI',
+            vendor: 'Hellas Logistics Hub',
+            timestamp: 'Σήμερα, 14:05 • Δελτίο Αποστολής #01928',
+            amount: '€1.420,00',
+            mark: '✓ myDATA MARK 400006281745',
+            item1: 'Παλέτα Standard Euro-Pallet (48 κιβώτια)',
+            cost1: '€960,00',
+            item2: 'Express Μεταφορά & Cross-Docking Intake',
+            cost2: '€460,00',
+            metaEft: 'Όροι: Επί Πιστώσει B2B 30 Ημερών',
+            metaEsc: 'Σήμανση: Ψηφιακό Δελτίο e-CMR & QR',
+            mobileKicker: 'ΠΑΡΑΛΑΒΗ SMART TOTE #312',
+            mobileTitle: '3D Bin Packing & Barcode Scanner',
+            quoteText: '"Η τοπική SQLite διαχειρίζεται 250.000 κωδικούς αποθήκης και εκτελεί αναζήτηση αποθεμάτων σε λιγότερο από 2 milliseconds."',
+            quoteAuthor: 'Κώστας Αναστασίου',
+            quoteRole: 'Warehouse Manager'
+        },
+        en: {
+            title: 'Spatial WMS & 3D Bin Packing.<br><span class="editorial-accent">Sub-2ms Inventory Engine.</span>',
+            subtitle: 'Manage 250,000+ SKUs with digital e-CMR waybills, cross-docking smart tote intake, and palletization on local SQLite.',
+            tab: 'Spatial WMS & Distribution — e-CMR & VMI',
+            vendor: 'Hellas Logistics Hub',
+            timestamp: 'Today, 14:05 • Waybill #01928',
+            amount: '€1,420.00',
+            mark: '✓ myDATA MARK 400006281745',
+            item1: 'Standard Euro-Pallet Batch (48 units)',
+            cost1: '€960.00',
+            item2: 'Express Freight & Cross-Docking Intake',
+            cost2: '€460.00',
+            metaEft: 'Terms: B2B Credit 30 Days',
+            metaEsc: 'Waybill: e-CMR Digitized & QR',
+            mobileKicker: 'SMART TOTE INTAKE #312',
+            mobileTitle: '3D Spatial Packing & Scan',
+            quoteText: '"Local SQLite powers 250,000 warehouse SKUs and executes inventory queries in under 2 milliseconds."',
+            quoteAuthor: 'Kostas Anastasiou',
+            quoteRole: 'Warehouse Director'
+        }
+    },
+    legal: {
+        el: {
+            title: 'Δικηγορικό Γραφείο & Χρονοχρέωση.<br><span class="editorial-accent">Μηδέν Cloud Διαρροές.</span>',
+            subtitle: 'Δικογραφίες, χρονοχρέωση πελατών, έκδοση τιμολογίων παροχής και απευθείας διαβίβαση myDATA με 0€ κόστος παρόχου. Ασφάλεια τραπεζικού επιπέδου.',
+            tab: 'Legal & Consulting Suite — Χρονοχρέωση & myDATA',
+            vendor: 'Lex Veritas Partners',
+            timestamp: 'Σήμερα, 17:15 • Τιμολόγιο Παροχής #00452',
+            amount: '€250,00',
+            mark: '✓ myDATA MARK 400008129304',
+            item1: 'Νομική Συμβουλή & Σύνταξη Σύμβασης Εταιρείας',
+            cost1: '€200,00',
+            item2: 'Έλεγχος Τίτλων & Κατάθεση Δικογράφου',
+            cost2: '€50,00',
+            metaEft: 'Πληρωμή: Τραπεζική Μεταφορά SEPA / IRIS',
+            metaEsc: 'Σήμανση: 0€ Κόστος Παρόχου myDATA',
+            mobileKicker: 'ΔΙΚΟΓΡΑΦΙΑ #1128',
+            mobileTitle: 'Κρυπτογραφημένο Αρχείο Υποθέσεων',
+            quoteText: '"Καμία σύμβαση ή στοιχείο πελάτη δεν φεύγει σε τρίτους cloud servers. Ασφάλεια τραπεζικού επιπέδου στο δικό μας γραφείο."',
+            quoteAuthor: 'Αλέξανδρος Δημητρίου',
+            quoteRole: 'Δικηγόρος Παρ\' Αρείω Πάγω'
+        },
+        en: {
+            title: 'Legal Practice & Billable Hours.<br><span class="editorial-accent">Zero Cloud Leak Risk.</span>',
+            subtitle: 'Case management, client timesheets, bespoke service invoicing, and direct tax compliance. Sovereign security on your premises.',
+            tab: 'Legal & Consulting Suite — Hours & myDATA',
+            vendor: 'Lex Veritas Partners',
+            timestamp: 'Today, 17:15 • Legal Invoice #00452',
+            amount: '€250.00',
+            mark: '✓ myDATA MARK 400008129304',
+            item1: 'Legal Retainer & Corporate Contract Draft',
+            cost1: '€200.00',
+            item2: 'Title Verification & Court Filing',
+            cost2: '€50.00',
+            metaEft: 'Payment: SEPA Transfer / IRIS B2B',
+            metaEsc: 'Sign: 0€ myDATA Cloud Provider Fee',
+            mobileKicker: 'CASE DOCKET #1128',
+            mobileTitle: 'Encrypted Matter Repository',
+            quoteText: '"No contracts or client data are sent to third-party cloud servers. Banking-grade security inside our own chambers."',
+            quoteAuthor: 'Alexandros Dimitriou',
+            quoteRole: 'Senior Partner'
+        }
+    }
+};
+
+function switchVertical(key) {
+    const verticalEntry = VERTICAL_DATA[key];
+    if (!verticalEntry) return;
+
+    const locale = (document.documentElement.getAttribute('lang') || 'el') === 'en' ? 'en' : 'el';
+    const data = verticalEntry[locale] || verticalEntry['el'];
+
+    // Update active pill UI
+    document.querySelectorAll('.persona-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-vertical') === key);
+    });
+
+    // Update Hero Title & Subtitle with smooth subtle crossfade
+    const heroTitle = document.querySelector('.hero-title');
+    const heroSub = document.querySelector('.hero-subtitle');
+    if (heroTitle) heroTitle.innerHTML = data.title;
+    if (heroSub) heroSub.textContent = data.subtitle;
+
+    // Update App Window elements
+    const appTab = document.querySelector('[data-i18n="app_window_tab"]');
+    if (appTab) appTab.textContent = data.tab;
+
+    const vendor = document.querySelector('[data-i18n="vendor_name"]');
+    if (vendor) vendor.textContent = data.vendor;
+
+    const timestamp = document.querySelector('[data-i18n="tx_timestamp"]');
+    if (timestamp) timestamp.textContent = data.timestamp;
+
+    const txAmount = document.querySelector('.tx-amount');
+    if (txAmount) txAmount.textContent = data.amount;
+
+    const txBadge = document.querySelector('.tx-badge-verified');
+    if (txBadge) txBadge.textContent = data.mark;
+
+    const item1 = document.querySelector('[data-i18n="tx_item_1_name"]');
+    if (item1) {
+        item1.textContent = data.item1;
+        const cost1 = item1.nextElementSibling;
+        if (cost1) cost1.textContent = data.cost1;
+    }
+
+    const item2 = document.querySelector('[data-i18n="tx_item_2_name"]');
+    if (item2) {
+        item2.textContent = data.item2;
+        const cost2 = item2.nextElementSibling;
+        if (cost2) cost2.textContent = data.cost2;
+    }
+
+    const metaEft = document.querySelector('[data-i18n="tx_meta_eft"]');
+    if (metaEft) metaEft.textContent = data.metaEft;
+
+    const metaEsc = document.querySelector('[data-i18n="tx_meta_esc"]');
+    if (metaEsc) metaEsc.textContent = data.metaEsc;
+
+    // Update Floating Cards
+    const mobKicker = document.querySelector('[data-i18n="mobile_kicker"]');
+    if (mobKicker) mobKicker.textContent = data.mobileKicker;
+
+    const mobTitle = document.querySelector('[data-i18n="mobile_title"]');
+    if (mobTitle) mobTitle.textContent = data.mobileTitle;
+
+    const quoteText = document.querySelector('[data-i18n="quote_text"]');
+    if (quoteText) quoteText.textContent = data.quoteText;
+
+    const quoteAuthor = document.querySelector('[data-i18n="quote_author"]');
+    if (quoteAuthor) quoteAuthor.textContent = data.quoteAuthor;
+
+    const quoteRole = document.querySelector('[data-i18n="quote_role"]');
+    if (quoteRole) quoteRole.textContent = data.quoteRole;
+
+    // Persist & URL Sync without reload
+    try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('v', key);
+        window.history.replaceState({ vertical: key }, '', url.toString());
+        localStorage.setItem('proteus_vertical', key);
+    } catch (_) {}
+}
+
+function initVerticalSelector() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialKey = urlParams.get('v') || localStorage.getItem('proteus_vertical') || 'service';
+        if (VERTICAL_DATA[initialKey]) {
+            switchVertical(initialKey);
+        }
+    } catch (_) {}
 }
 
 // ── PowerPoint Slideshow Deck Controller & Keyboard Navigation ──

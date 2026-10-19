@@ -1519,6 +1519,78 @@ footer {
     opacity: 0.5;
 }
 
+/* ── Industry Vertical Persona Switcher Bar (Instant Tailored Experience) ── */
+.industry-persona-bar {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
+}
+
+.industry-persona-header {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.76rem;
+}
+
+.persona-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.68rem;
+    color: var(--accent);
+    background: var(--bg-surface-sec);
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    border: 1px solid var(--border-strong);
+    letter-spacing: 0.04em;
+}
+
+.persona-hint {
+    color: var(--text-muted);
+}
+
+.industry-persona-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.persona-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    padding: 0.38rem 0.72rem;
+    font-family: inherit;
+    font-size: 0.79rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.persona-pill:hover {
+    color: var(--text-primary);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+}
+
+.persona-pill.active {
+    color: var(--cta-primary-text);
+    background: var(--cta-primary-fill);
+    border-color: var(--cta-primary-fill);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.persona-pill .pill-icon {
+    font-size: 0.88rem;
+}
+
 .hero-cta-group {
     display: flex;
     gap: 0.9rem;
@@ -1792,8 +1864,8 @@ footer {
 }
 
 .floating-callout-card {
-    left: -12px;
-    top: 0px;
+    left: -24px;
+    top: -30px;
     max-width: 280px;
     padding: 0.85rem 1.05rem;
     background: var(--bg-card);
