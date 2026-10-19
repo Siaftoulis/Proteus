@@ -44,9 +44,14 @@ const HTML_BODY: &str = r##"
     <header class="landing-header">
         <div class="brand-wrap">
             <a href="/" class="brand-link">
-                <span class="brand-logo-sovereign">
-                    proteus<svg class="brand-logo-symbol" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="0.5" y="1" width="3.5" height="14" rx="0.5"/><rect x="0.5" y="1" width="15" height="3.5" rx="0.5"/><polygon points="11,4.5 15.5,15 11,15"/></svg>
+                <span class="brand-pi-badge" aria-hidden="true">
+                    <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6.8C4.8 6.8 6.5 5.4 8.2 5.4H19"/>
+                        <path d="M7.8 6.8V16.8"/>
+                        <path d="M14.8 6.8V15C14.8 16.8 15.9 17.4 17.8 17"/>
+                    </svg>
                 </span>
+                <span class="brand-logo-sovereign">proteus</span>
                 <span class="brand-tag-sovereign">BOS</span>
             </a>
             <nav class="nav-links">
@@ -585,9 +590,14 @@ const HTML_BODY: &str = r##"
         <div class="footer-inner">
             <div class="footer-brand">
                 <a href="/" class="brand-link">
-                    <span class="brand-logo-sovereign">
-                        proteus<svg class="brand-logo-symbol" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="0.5" y="1" width="3.5" height="14" rx="0.5"/><rect x="0.5" y="1" width="15" height="3.5" rx="0.5"/><polygon points="11,4.5 15.5,15 11,15"/></svg>
+                    <span class="brand-pi-badge" aria-hidden="true">
+                        <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6.8C4.8 6.8 6.5 5.4 8.2 5.4H19"/>
+                            <path d="M7.8 6.8V16.8"/>
+                            <path d="M14.8 6.8V15C14.8 16.8 15.9 17.4 17.8 17"/>
+                        </svg>
                     </span>
+                    <span class="brand-logo-sovereign">proteus</span>
                     <span class="brand-tag-sovereign">BOS</span>
                 </a>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.5;">

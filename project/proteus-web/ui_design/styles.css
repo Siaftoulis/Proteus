@@ -713,8 +713,39 @@ footer {
     color: var(--text-primary);
 }
 
+.brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.brand-pi-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 27px;
+    height: 27px;
+    background: var(--bg-surface-sec);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s ease;
+}
+
+.brand-pi-badge svg {
+    width: 17px;
+    height: 17px;
+}
+
+.brand-link:hover .brand-pi-badge {
+    transform: scale(1.08);
+    border-color: var(--accent);
+}
+
 .brand-logo-sovereign {
-    font-size: 1.35rem;
+    font-size: 1.32rem;
     font-weight: 800;
     letter-spacing: -0.04em;
     display: inline-flex;
