@@ -9,40 +9,40 @@
     --palette-frost-gray: #9DB2BF;
     --palette-icy-mist: #DDE6ED;
 
-    /* ── Dark Mode Semantic Tokens (Default) ── */
-    --bg-base: #1B2430;
-    /* grounding canvas ground */
-    --bg-surface: #27374D;
-    /* elevated container / card fill */
-    --bg-surface-sec: #1E2A3A;
-    /* recessed elements, sidebars, code blocks */
-    --bg-card: #27374D;
-    --bg-card-hover: #2f4159;
+    /* ── Light Mode Semantic Tokens (Default) ── */
+    --bg-base: #F4F7F9;
+    /* clean, slightly cooled neutral ground */
+    --bg-surface: #FFFFFF;
+    /* pure white elevation */
+    --bg-surface-sec: #DDE6ED;
+    /* subtle container backgrounds, tables */
+    --bg-card: #FFFFFF;
+    --bg-card-hover: #F8FAFC;
 
-    --border-subtle: rgba(82, 109, 130, 0.4);
-    /* 1px division lines */
-    --border-strong: #526D82;
-    /* active strokes, focused cards */
-    --border: rgba(82, 109, 130, 0.4);
-    --border-bright: #526D82;
+    --border-subtle: rgba(157, 178, 191, 0.45);
+    /* crisp 1px hairline separators */
+    --border-strong: #9DB2BF;
+    /* inputs, active borders */
+    --border: rgba(157, 178, 191, 0.45);
+    --border-bright: #9DB2BF;
 
-    --text-primary: #DDE6ED;
-    /* crisp off-white, zero pure-white glare */
-    --text-main: #DDE6ED;
-    --text-muted: #9DB2BF;
-    /* secondary labels, table headers, metadata */
-    --text-dim: #9DB2BF;
-    --text-faint: #526D82;
+    --text-primary: #27374D;
+    /* high-contrast, sharp typographic anchor */
+    --text-main: #27374D;
+    --text-muted: #526D82;
+    /* secondary copy, captions */
+    --text-dim: #526D82;
+    --text-faint: #9DB2BF;
 
-    --cta-primary-fill: #DDE6ED;
-    --cta-primary-text: #27374D;
-    --cta-secondary-fill: #27374D;
-    --cta-secondary-text: #DDE6ED;
+    --cta-primary-fill: #27374D;
+    --cta-primary-text: #DDE6ED;
+    --cta-secondary-fill: #DDE6ED;
+    --cta-secondary-text: #27374D;
     --cta-secondary-border: #526D82;
 
-    --accent: #DDE6ED;
-    --accent-hover: #FFFFFF;
-    --accent-text: #27374D;
+    --accent: #27374D;
+    --accent-hover: #1E2A3A;
+    --accent-text: #DDE6ED;
 
     /* Semantic Feedback */
     --success: #38a169;
@@ -55,9 +55,9 @@
     --radius-sm: 4px;
     --radius: 6px;
     --radius-lg: 10px;
-    --focus-ring: 0 0 0 1px #526D82;
+    --focus-ring: 0 0 0 1px #9DB2BF;
 
-    --canvas-dot-color: rgba(157, 178, 191, 0.12);
+    --canvas-dot-color: rgba(82, 109, 130, 0.14);
 }
 
 [data-theme="dark"] {

@@ -99,7 +99,7 @@ function applySystemLocale() {
 
 
 function initTheme() {
-    const saved = localStorage.getItem('proteus_theme') || 'dark';
+    const saved = localStorage.getItem('proteus_theme') || 'light';
     document.documentElement.setAttribute('data-theme', saved);
     updateThemeToggleUI(saved);
 }
@@ -111,7 +111,7 @@ function handleThemeSwitchToggle(checkbox) {
 }
 
 function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
     const next = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('proteus_theme', next);
