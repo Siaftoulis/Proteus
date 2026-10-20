@@ -303,26 +303,26 @@ const HTML_BODY: &str = r##"
                     </div>
                 </div>
 
-                <!-- Right: Ramp-Style Layered BOS Application Window Deck & Live Showcase -->
+                <!-- Right: 3 Design Placeholder Boxes (Redacted Wireframes) -->
                 <div class="hero-interactive-stage">
-                    <!-- 3-Window Unified Deck Switcher -->
-                    <div class="hero-deck-switcher" role="tablist">
-                        <button type="button" class="deck-tab-btn" data-target="pds" onclick="switchDeckWindow('pds')">
-                            <span class="deck-tab-icon">📐</span>
-                            <span>PDS Studio</span>
-                        </button>
-                        <button type="button" class="deck-tab-btn active" data-target="client" onclick="switchDeckWindow('client')">
-                            <span class="deck-tab-icon">⚡</span>
-                            <span>Client Hub</span>
-                        </button>
-                        <button type="button" class="deck-tab-btn" data-target="core" onclick="switchDeckWindow('core')">
-                            <span class="deck-tab-icon">🏛️</span>
-                            <span>Core Engine</span>
-                        </button>
+                    <!-- Box 1 (Top-Left Floating Placeholder Card) -->
+                    <div class="ramp-floating-card floating-callout-card placeholder-card" id="hero-box-1">
+                        <div class="placeholder-header">
+                            <span class="placeholder-label">Κουτάκι 1</span>
+                            <span class="placeholder-redacted" style="width: 36px; height: 7px;"></span>
+                        </div>
+                        <div class="placeholder-body">
+                            <span class="placeholder-redacted" style="width: 88%; height: 9px; margin-bottom: 8px;"></span>
+                            <span class="placeholder-redacted" style="width: 62%; height: 9px; margin-bottom: 12px;"></span>
+                            <div class="placeholder-footer-line">
+                                <span class="placeholder-avatar"></span>
+                                <span class="placeholder-redacted" style="width: 64px; height: 8px;"></span>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Window 1: PDS (Proteus Design System) -->
-                    <div class="ramp-app-card hero-deck-window" id="window-pds">
+                    <!-- Box 2 (Center Main Window Placeholder Card) -->
+                    <div class="ramp-app-card placeholder-card" id="hero-box-2">
                         <div class="app-window-header">
                             <div class="window-controls">
                                 <span class="win-btn win-close"></span>
@@ -330,153 +330,53 @@ const HTML_BODY: &str = r##"
                                 <span class="win-btn win-max"></span>
                             </div>
                             <div class="window-tab-title">
-                                <span>Proteus Design System (PDS) — Visual Canvas &amp; DAG</span>
+                                <span class="placeholder-label">Κουτάκι 2 (Main)</span>
+                                <span class="placeholder-redacted" style="width: 110px; height: 8px;"></span>
                             </div>
-                            <div class="window-status-pill">● PDS Studio v2.4</div>
-                        </div>
-                        <div class="app-window-body pds-canvas-body">
-                            <div class="pds-canvas-grid">
-                                <div class="pds-node">
-                                    <div class="pds-node-title">📐 UI: Frontline POS</div>
-                                    <div class="pds-node-meta">eframe / egui 60 FPS • Touch Ready</div>
-                                </div>
-                                <div class="pds-connector-line">➔</div>
-                                <div class="pds-node">
-                                    <div class="pds-node-title">⚡ Flow: SQLite DataEngine</div>
-                                    <div class="pds-node-meta">Local store.db • AES-256 at Rest</div>
-                                </div>
-                                <div class="pds-connector-line">➔</div>
-                                <div class="pds-node">
-                                    <div class="pds-node-title">🏛️ Driver: AADE myDATA</div>
-                                    <div class="pds-node-meta">REST Sync • 0€ Cloud Tax</div>
-                                </div>
-                            </div>
-                            <div class="pds-footer-spec">
-                                <span>Canvas: Scene Graph Active</span>
-                                <span>Compiler: Native Rust</span>
-                                <span>Latency: Sub-50ms</span>
+                            <div class="placeholder-pill">
+                                <span class="placeholder-redacted" style="width: 50px; height: 7px;"></span>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Window 2: Client Frontline Hub (Active by default, with dynamic vertical switcher) -->
-                    <div class="ramp-app-card hero-deck-window active" id="window-client">
-                        <!-- macOS App Window Chrome -->
-                        <div class="app-window-header">
-                            <div class="window-controls">
-                                <span class="win-btn win-close"></span>
-                                <span class="win-btn win-min"></span>
-                                <span class="win-btn win-max"></span>
-                            </div>
-                            <div class="window-tab-title">
-                                <span data-i18n="app_window_tab">TechFix Solutions Ο.Ε. — Frontline POS &amp; Service</span>
-                            </div>
-                            <div class="window-status-pill">● Localhost:3000</div>
-                        </div>
-
-                        <!-- Real Retail & Service Receipt Ledger -->
-                        <div class="app-window-body">
-                            <div class="tx-headline-row">
-                                <div class="tx-vendor-badge">
-                                    <div class="vendor-icon">TF</div>
-                                    <div>
-                                        <div class="vendor-name" data-i18n="vendor_name">TechFix Repair Hub</div>
-                                        <div class="tx-timestamp" data-i18n="tx_timestamp">Σήμερα, 18:10 &bull; Απόδειξη #04821</div>
-                                    </div>
+                        <div class="app-window-body placeholder-main-body">
+                            <div class="placeholder-row" style="margin-bottom: 1.25rem;">
+                                <div class="placeholder-icon-box"></div>
+                                <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                                    <span class="placeholder-redacted" style="width: 120px; height: 10px;"></span>
+                                    <span class="placeholder-redacted" style="width: 80px; height: 8px;"></span>
                                 </div>
-                                <div class="tx-amount-col">
-                                    <div class="tx-amount">€48,50</div>
-                                    <div class="tx-badge-verified">✓ myDATA MARK 400008921938</div>
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                                    <span class="placeholder-redacted" style="width: 85px; height: 16px;"></span>
+                                    <span class="placeholder-redacted" style="width: 110px; height: 8px;"></span>
                                 </div>
                             </div>
-
-                            <div class="tx-receipt-details">
-                                <div class="tx-line-item">
-                                    <span class="item-name" data-i18n="tx_item_1_name">Αλλαγή Οθόνης OLED iPhone 13 (IMEI 35892109281)</span>
-                                    <span class="item-cost">€38,00</span>
+                            <div class="placeholder-redacted-block" style="padding: 1.2rem; min-height: 110px; display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span class="placeholder-redacted" style="width: 45%; height: 8px;"></span>
+                                    <span class="placeholder-redacted" style="width: 15%; height: 8px;"></span>
                                 </div>
-                                <div class="tx-line-item">
-                                    <span class="item-name" data-i18n="tx_item_2_name">Εργασία Τεχνικού &amp; Διαγνωστικός Έλεγχος</span>
-                                    <span class="item-cost">€10,50</span>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span class="placeholder-redacted" style="width: 35%; height: 8px;"></span>
+                                    <span class="placeholder-redacted" style="width: 12%; height: 8px;"></span>
                                 </div>
-                                <div class="tx-footer-meta">
-                                    <span data-i18n="tx_meta_eft">Πληρωμή: EFT/POS Terminal #02 (Α.1155)</span>
-                                    <span data-i18n="tx_meta_esc">Εκτύπωση: ESC/POS 80mm (0.18ms)</span>
+                                <div style="border-top: 1px dashed var(--border-subtle); margin-top: auto; padding-top: 8px; display: flex; justify-content: space-between;">
+                                    <span class="placeholder-redacted" style="width: 25%; height: 7px;"></span>
+                                    <span class="placeholder-redacted" style="width: 20%; height: 7px;"></span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Window 3: Core Runtime & myDATA Telemetry -->
-                    <div class="ramp-app-card hero-deck-window" id="window-core">
-                        <div class="app-window-header">
-                            <div class="window-controls">
-                                <span class="win-btn win-close"></span>
-                                <span class="win-btn win-min"></span>
-                                <span class="win-btn win-max"></span>
-                            </div>
-                            <div class="window-tab-title">
-                                <span>Proteus Core Runtime — Sovereign Local Engine</span>
-                            </div>
-                            <div class="window-status-pill">● Engine 100% Offline</div>
+                    <!-- Box 3 (Bottom-Right Floating Placeholder Card) -->
+                    <div class="ramp-floating-card floating-mobile-card placeholder-card" id="hero-box-3">
+                        <div class="placeholder-header">
+                            <span class="placeholder-label">Κουτάκι 3</span>
+                            <span class="placeholder-redacted" style="width: 44px; height: 7px;"></span>
                         </div>
-                        <div class="app-window-body core-engine-body">
-                            <div class="core-telemetry-grid">
-                                <div class="core-metric-card">
-                                    <span class="metric-label">DATABASE QUERY LATENCY</span>
-                                    <span class="metric-val">0.18 ms</span>
-                                    <span class="metric-badge">SQLite In-Process</span>
-                                </div>
-                                <div class="core-metric-card">
-                                    <span class="metric-label">HARDWARE DRIVERS</span>
-                                    <span class="metric-val">3 Active</span>
-                                    <span class="metric-badge">ESC/POS 80mm • EFT-POS • Scanner</span>
-                                </div>
-                                <div class="core-metric-card">
-                                    <span class="metric-label">AADE myDATA SYNC</span>
-                                    <span class="metric-val">0€ CLOUD TAX</span>
-                                    <span class="metric-badge">Direct REST A.1155</span>
-                                </div>
-                                <div class="core-metric-card">
-                                    <span class="metric-label">REDUNDANCY BUFFER</span>
-                                    <span class="metric-val">100% LOCAL</span>
-                                    <span class="metric-badge">Zero Subscription Lock-in</span>
-                                </div>
-                            </div>
-                            <div class="tx-footer-meta" style="margin-top: 0.75rem;">
-                                <span>Runtime: Sovereign Native Daemon</span>
-                                <span>Memory: 14.2 MB RAM</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Overlapping Floating Mobile Van Ticket -->
-                    <div class="ramp-floating-card floating-mobile-card">
-                        <div class="mobile-card-header">
-                            <span class="card-kicker" data-i18n="mobile_kicker">ΕΝΤΟΛΗ SERVICE #891</span>
-                            <span class="status-ready" data-i18n="mobile_status">ΕΤΟΙΜΟ</span>
-                        </div>
-                        <div class="mobile-card-body">
-                            <div class="mobile-item-title" data-i18n="mobile_title">Επιτόπιο Service — Van 01</div>
-                            <div class="mobile-signature-line">
-                                <svg viewBox="0 0 100 24" class="sig-svg">
-                                    <path d="M5 18 Q 25 2, 45 14 T 85 8 T 95 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                </svg>
-                                <span class="sig-label" data-i18n="mobile_sig_label">Υπογραφή Πελάτη ✓</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Overlapping Floating Customer Quote (Tony Hawk Callout Style) -->
-                    <div class="ramp-floating-card floating-callout-card">
-                        <div class="callout-quote" data-i18n="quote_text">
-                            "Όταν πέφτει το internet στη γειτονιά, το ταμείο μας συνεχίζει να τυπώνει αποδείξεις και να καταγράφει επισκευές κανονικά."
-                        </div>
-                        <div class="callout-author">
-                            <span class="author-avatar">ΓΚ</span>
-                            <div>
-                                <div class="author-name" data-i18n="quote_author">Γιώργος Καραλής</div>
-                                <div class="author-role" data-i18n="quote_role">Ιδιοκτήτης TechFix Hub</div>
+                        <div class="placeholder-body">
+                            <span class="placeholder-redacted" style="width: 78%; height: 9px; margin-bottom: 8px;"></span>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                                <span class="placeholder-redacted" style="width: 38px; height: 10px; border-radius: 2px;"></span>
+                                <span class="placeholder-redacted" style="width: 55px; height: 7px;"></span>
                             </div>
                         </div>
                     </div>

@@ -550,19 +550,7 @@ function switchVertical(key) {
         localStorage.setItem('proteus_vertical', key);
     } catch (_) {}
 
-    // Ensure the Client Hub window is in focus so the updated receipt is visible
-    switchDeckWindow('client');
-}
 
-function switchDeckWindow(targetId) {
-    document.querySelectorAll('.deck-tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-target') === targetId);
-    });
-
-    document.querySelectorAll('.hero-deck-window').forEach(win => {
-        win.classList.toggle('active', win.id === `window-${targetId}`);
-    });
-}
 
 function initVerticalSelector() {
     try {
@@ -631,7 +619,7 @@ function goToSlide(index) {
 function initScrollStoryEngine() {
     const heroTrack = document.getElementById('hero');
     const heroLeft = document.querySelector('.hero-stage-left');
-    const appCards = document.querySelectorAll('.hero-deck-window');
+    const appCards = document.querySelectorAll('.ramp-app-card');
     const calloutCard = document.querySelector('.floating-callout-card');
     const mobileCard = document.querySelector('.floating-mobile-card');
     const aboutSection = document.getElementById('about');
