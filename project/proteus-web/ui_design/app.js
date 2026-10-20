@@ -549,6 +549,19 @@ function switchVertical(key) {
         window.history.replaceState({ vertical: key }, '', url.toString());
         localStorage.setItem('proteus_vertical', key);
     } catch (_) {}
+
+    // Ensure the Client Hub window is in focus so the updated receipt is visible
+    switchDeckWindow('client');
+}
+
+function switchDeckWindow(targetId) {
+    document.querySelectorAll('.deck-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-target') === targetId);
+    });
+
+    document.querySelectorAll('.hero-deck-window').forEach(win => {
+        win.classList.toggle('active', win.id === `window-${targetId}`);
+    });
 }
 
 function initVerticalSelector() {
@@ -618,14 +631,14 @@ function goToSlide(index) {
 function initScrollStoryEngine() {
     const heroTrack = document.getElementById('hero');
     const heroLeft = document.querySelector('.hero-stage-left');
-    const appCard = document.querySelector('.ramp-app-card');
+    const appCards = document.querySelectorAll('.hero-deck-window');
     const calloutCard = document.querySelector('.floating-callout-card');
     const mobileCard = document.querySelector('.floating-mobile-card');
     const aboutSection = document.getElementById('about');
     const featureCards = Array.from(document.querySelectorAll('.feature-card'));
     const aboutHeader = document.querySelector('#about .section-header');
 
-    if (!heroTrack || !heroLeft || !appCard) return;
+    if (!heroTrack || !heroLeft || !appCards.length) return;
 
     let ticking = false;
 
@@ -663,7 +676,9 @@ function initScrollStoryEngine() {
             // B. Hero App Window: Expands, elevates, and moves into central perspective
             const cardScale = 1 + heroProgress * 0.08;
             const cardY = heroProgress * -20;
-            appCard.style.transform = `translate3d(0, ${cardY}px, 0) scale(${cardScale})`;
+            appCards.forEach(c => {
+                c.style.transform = `translate3d(0, ${cardY}px, 0) scale(${cardScale})`;
+            });
 
             // C. Floating Quote Card (Tony Hawk style): Floats up & left in 3D parallax
             if (calloutCard) {
@@ -691,7 +706,9 @@ function initScrollStoryEngine() {
             heroLeft.style.transform = `translate3d(0, ${heroProgress * -20}px, 0)`;
 
             const cardScale = 1 + heroProgress * 0.03;
-            appCard.style.transform = `scale(${cardScale})`;
+            appCards.forEach(c => {
+                c.style.transform = `scale(${cardScale})`;
+            });
 
             if (calloutCard) calloutCard.style.opacity = Math.max(0, 1 - heroProgress * 1.6).toFixed(3);
             if (mobileCard) mobileCard.style.opacity = Math.max(0, 1 - heroProgress * 1.6).toFixed(3);

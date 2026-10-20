@@ -275,9 +275,64 @@
                     </div>
                 </div>
 
-                <!-- Right: Ramp-Style Layered BOS Application Window & Live Receipts -->
+                <!-- Right: Ramp-Style Layered BOS Application Window Deck & Live Showcase -->
                 <div class="hero-interactive-stage">
-                    <div class="ramp-app-card">
+                    <!-- 3-Window Unified Deck Switcher -->
+                    <div class="hero-deck-switcher" role="tablist">
+                        <button type="button" class="deck-tab-btn" data-target="pds" onclick="switchDeckWindow('pds')">
+                            <span class="deck-tab-icon">📐</span>
+                            <span>PDS Studio</span>
+                        </button>
+                        <button type="button" class="deck-tab-btn active" data-target="client" onclick="switchDeckWindow('client')">
+                            <span class="deck-tab-icon">⚡</span>
+                            <span>Client Hub</span>
+                        </button>
+                        <button type="button" class="deck-tab-btn" data-target="core" onclick="switchDeckWindow('core')">
+                            <span class="deck-tab-icon">🏛️</span>
+                            <span>Core Engine</span>
+                        </button>
+                    </div>
+
+                    <!-- Window 1: PDS (Proteus Design System) -->
+                    <div class="ramp-app-card hero-deck-window" id="window-pds">
+                        <div class="app-window-header">
+                            <div class="window-controls">
+                                <span class="win-btn win-close"></span>
+                                <span class="win-btn win-min"></span>
+                                <span class="win-btn win-max"></span>
+                            </div>
+                            <div class="window-tab-title">
+                                <span>Proteus Design System (PDS) — Visual Canvas &amp; DAG</span>
+                            </div>
+                            <div class="window-status-pill">● PDS Studio v2.4</div>
+                        </div>
+                        <div class="app-window-body pds-canvas-body">
+                            <div class="pds-canvas-grid">
+                                <div class="pds-node">
+                                    <div class="pds-node-title">📐 UI: Frontline POS</div>
+                                    <div class="pds-node-meta">eframe / egui 60 FPS • Touch Ready</div>
+                                </div>
+                                <div class="pds-connector-line">➔</div>
+                                <div class="pds-node">
+                                    <div class="pds-node-title">⚡ Flow: SQLite DataEngine</div>
+                                    <div class="pds-node-meta">Local store.db • AES-256 at Rest</div>
+                                </div>
+                                <div class="pds-connector-line">➔</div>
+                                <div class="pds-node">
+                                    <div class="pds-node-title">🏛️ Driver: AADE myDATA</div>
+                                    <div class="pds-node-meta">REST Sync • 0€ Cloud Tax</div>
+                                </div>
+                            </div>
+                            <div class="pds-footer-spec">
+                                <span>Canvas: Scene Graph Active</span>
+                                <span>Compiler: Native Rust</span>
+                                <span>Latency: Sub-50ms</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Window 2: Client Frontline Hub (Active by default, with dynamic vertical switcher) -->
+                    <div class="ramp-app-card hero-deck-window active" id="window-client">
                         <!-- macOS App Window Chrome -->
                         <div class="app-window-header">
                             <div class="window-controls">
@@ -320,6 +375,49 @@
                                     <span data-i18n="tx_meta_eft">Πληρωμή: EFT/POS Terminal #02 (Α.1155)</span>
                                     <span data-i18n="tx_meta_esc">Εκτύπωση: ESC/POS 80mm (0.18ms)</span>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Window 3: Core Runtime & myDATA Telemetry -->
+                    <div class="ramp-app-card hero-deck-window" id="window-core">
+                        <div class="app-window-header">
+                            <div class="window-controls">
+                                <span class="win-btn win-close"></span>
+                                <span class="win-btn win-min"></span>
+                                <span class="win-btn win-max"></span>
+                            </div>
+                            <div class="window-tab-title">
+                                <span>Proteus Core Runtime — Sovereign Local Engine</span>
+                            </div>
+                            <div class="window-status-pill">● Engine 100% Offline</div>
+                        </div>
+                        <div class="app-window-body core-engine-body">
+                            <div class="core-telemetry-grid">
+                                <div class="core-metric-card">
+                                    <span class="metric-label">DATABASE QUERY LATENCY</span>
+                                    <span class="metric-val">0.18 ms</span>
+                                    <span class="metric-badge">SQLite In-Process</span>
+                                </div>
+                                <div class="core-metric-card">
+                                    <span class="metric-label">HARDWARE DRIVERS</span>
+                                    <span class="metric-val">3 Active</span>
+                                    <span class="metric-badge">ESC/POS 80mm • EFT-POS • Scanner</span>
+                                </div>
+                                <div class="core-metric-card">
+                                    <span class="metric-label">AADE myDATA SYNC</span>
+                                    <span class="metric-val">0€ CLOUD TAX</span>
+                                    <span class="metric-badge">Direct REST A.1155</span>
+                                </div>
+                                <div class="core-metric-card">
+                                    <span class="metric-label">REDUNDANCY BUFFER</span>
+                                    <span class="metric-val">100% LOCAL</span>
+                                    <span class="metric-badge">Zero Subscription Lock-in</span>
+                                </div>
+                            </div>
+                            <div class="tx-footer-meta" style="margin-top: 0.75rem;">
+                                <span>Runtime: Sovereign Native Daemon</span>
+                                <span>Memory: 14.2 MB RAM</span>
                             </div>
                         </div>
                     </div>
